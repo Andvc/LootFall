@@ -1,0 +1,18 @@
+# Credits
+
+## Art
+
+**Superpowers Asset Packs** by [Pixel-boy](https://twitter.com/2pblog1) / Sparklin Labs, released under
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+Source: https://github.com/sparklinlabs/superpowers-asset-packs
+
+- Chest: Ninja Adventure pack (`ninja-adventure/items/big-treasure-chest.png`), recolored per lot origin.
+- Items, backgrounds and the burst effect: RPG Battle System pack (`rpg-battle-system/item`, `backgrounds`, `fx`).
+
+## Font
+
+**Kenney Mini** from the Kenney Font Package by [Kenney](https://kenney.nl), released under
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+
+Neither license requires attribution; it's given here because these artists made the game look good.
+`tools/import_art.py` records exactly which source file each asset in `assets/` came from.

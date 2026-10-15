@@ -14,7 +14,7 @@ public partial class AuctionPhase : Phase
     enum Leader { None, Player, Rival }
 
     const int Inspections = 2;
-    const float BarX = 684, BarY = 362, BarW = 532, BarH = 26;
+    const float BarX = 676, BarY = 392, BarW = 552, BarH = 27;
 
     readonly Dictionary<Inspection, (Button Button, Label Result)> _inspect = new();
     ChestView _chest;
@@ -51,33 +51,40 @@ public partial class AuctionPhase : Phase
 
     void BuildLot()
     {
+        Add(UiKit.MakeBackdrop("courtyard_night", 0.85f));
+        var c = State.Chest;
+        // A pool of lamplight on the flagstones, in hard steps, so the chest reads against the backdrop.
         Add(new Painter(p =>
         {
-            for (int i = 8; i >= 1; i--) p.DrawCircle(new Vector2(330, 340), 40 + i * 30, Palette.BgGlow with { A = 0.08f });
-        }));
-        _chest = Add(new ChestView { Position = new Vector2(330, 360), Scale = Vector2.One * 1.25f });
+            for (int i = 0; i < 4; i++)
+            {
+                p.DrawSetTransform(new Vector2(330, 408), 0, new Vector2(1, 0.32f));
+                p.DrawCircle(Vector2.Zero, 250 - i * 50, new Color("#ffd27a") with { A = 0.07f });
+            }
+            p.DrawSetTransform(Vector2.Zero, 0, Vector2.One);
+        }) { Material = Fx.Additive() });
+        _chest = Add(new ChestView { Position = new Vector2(330, 330), PixelSize = 14, Skin = c.Provenance.Skin });
 
-        var c = State.Chest;
-        Add(UiKit.MakeLabel($"LOT {State.LotNumber}", 14, Palette.Muted).Place(90, 500, 480, 20));
-        Add(UiKit.MakeLabel(c.Provenance.Name, 28, Palette.Text).Place(90, 520, 480, 38));
-        Add(UiKit.MakeLabel(c.Provenance.Blurb, 16, Palette.Muted).Wrapped().Place(90, 560, 480, 48));
-        Add(UiKit.MakeLabel("Inspect, bid, or let it go. You get two inspections per lot.", 14, Palette.Muted.Darkened(0.2f))
-            .Place(90, 640, 520, 20));
+        Add(UiKit.MakeLabel($"LOT {State.LotNumber}", 16, Palette.Muted, outline: 4).Place(72, 470, 520, 20));
+        Add(UiKit.MakeLabel(c.Provenance.Name, 32, Palette.Text, outline: 4).Place(72, 490, 520, 40));
+        Add(UiKit.MakeLabel(c.Provenance.Blurb, 16, Palette.Muted, outline: 4).Wrapped().Place(72, 532, 520, 44));
+        Add(UiKit.MakeLabel("Inspect, bid, or let it go. Two inspections per lot.", 16, Palette.Muted, outline: 4)
+            .Place(72, 652, 560, 20));
     }
 
     void BuildInspection()
     {
-        Add(UiKit.MakePanel(Palette.Panel, Palette.PanelBorder).Place(660, 72, 580, 610));
-        Add(Header("INSPECT", 684, 88));
-        _inspectionsLeft = Add(UiKit.MakeLabel("", 14, Palette.Gold, HorizontalAlignment.Right).Place(1016, 88, 200, 20));
+        Add(UiKit.MakePanel().Place(652, 66, 600, 640));
+        Add(Header("INSPECT", 676, 82));
+        _inspectionsLeft = Add(UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(976, 82, 252, 20));
 
         var rows = new[] { (Inspection.Shake, "Shake it"), (Inspection.Weigh, "Weigh it"), (Inspection.Lock, "Examine lock") };
         for (int i = 0; i < rows.Length; i++)
         {
             var (kind, text) = rows[i];
-            float y = 116 + i * 52;
-            var button = Add(UiKit.MakeButton(text, Palette.Gold, 17, () => Inspect(kind)).Place(684, y, 150, 42));
-            var result = Add(UiKit.MakeLabel("", 14, Palette.Text).Wrapped().Place(846, y - 4, 372, 50));
+            float y = 108 + i * 64;
+            var button = Add(UiKit.MakeButton(text, Palette.Gold, 16, () => Inspect(kind)).Place(676, y, 168, 52));
+            var result = Add(UiKit.MakeLabel("", 16, Palette.Text).Wrapped().Place(856, y - 6, 376, 64));
             result.VerticalAlignment = VerticalAlignment.Center;
             _inspect[kind] = (button, result);
         }
@@ -85,36 +92,37 @@ public partial class AuctionPhase : Phase
 
     void BuildAppraisal()
     {
-        Add(Header("APPRAISAL", 684, 278));
-        _estimateText = Add(UiKit.MakeLabel("", 22, Palette.Text).Place(684, 298, 540, 30));
-        _estimateNote = Add(UiKit.MakeLabel("", 13, Palette.Muted).Place(684, 330, 540, 20));
+        Add(Header("APPRAISAL", 676, 306));
+        _estimateText = Add(UiKit.MakeLabel("", 24, Palette.Text).Place(676, 326, 556, 30));
+        _estimateNote = Add(UiKit.MakeLabel("", 16, Palette.Muted).Place(676, 358, 556, 20));
         _bar = Add(new Painter(DrawBar) { Position = new Vector2(BarX, BarY) });
-        Add(UiKit.MakeLabel("0g", 12, Palette.Muted).Place(BarX, BarY + 30, 100, 16));
-        Add(UiKit.MakeLabel($"{State.Appraiser.ScaleMax}g+", 12, Palette.Muted, HorizontalAlignment.Right)
-            .Place(BarX + BarW - 100, BarY + 30, 100, 16));
+        Add(UiKit.MakeLabel("0g", 16, Palette.Muted).Place(BarX, BarY + BarH + 6, 100, 20));
+        Add(UiKit.MakeLabel($"{State.Appraiser.ScaleMax}g+", 16, Palette.Muted, HorizontalAlignment.Right)
+            .Place(BarX + BarW - 120, BarY + BarH + 6, 120, 20));
     }
 
     void BuildBidding()
     {
         var rival = State.Rival.Def;
-        Add(Header("AUCTION", 684, 420));
+        Add(Header("AUCTION", 676, 456));
         var rivalColor = new Color(rival.ColorHex);
         Add(new Painter(p =>
         {
-            p.DrawCircle(Vector2.Zero, 24, rivalColor.Darkened(0.5f));
-            p.DrawCircle(Vector2.Zero, 21, rivalColor);
-            p.DrawString(ThemeDB.FallbackFont, new Vector2(-8, 8), rival.Name[..1], HorizontalAlignment.Left, -1, 24, Palette.Bg);
-        }) { Position = new Vector2(710, 470) });
-        Add(UiKit.MakeLabel(rival.Name, 19, rivalColor).Place(746, 448, 400, 26));
-        Add(UiKit.MakeLabel(rival.Tagline, 13, Palette.Muted).Place(746, 474, 470, 20));
-        _quip = Add(UiKit.MakeLabel("", 16, Palette.Text).Wrapped().Place(684, 500, 540, 44));
+            p.DrawRect(new Rect2(-24, -24, 48, 48), Colors.Black);
+            p.DrawRect(new Rect2(-21, -21, 42, 42), rivalColor.Darkened(0.4f));
+            p.DrawRect(new Rect2(-18, -18, 36, 36), rivalColor);
+            p.DrawString(UiKit.Font, new Vector2(-12, 12), rival.Name[..1], HorizontalAlignment.Center, 24, 32, Palette.Bg);
+        }) { Position = new Vector2(702, 504) });
+        Add(UiKit.MakeLabel(rival.Name, 24, rivalColor).Place(740, 480, 480, 28));
+        Add(UiKit.MakeLabel(rival.Tagline, 16, Palette.Muted).Place(740, 510, 496, 20));
+        _quip = Add(UiKit.MakeLabel("", 16, Palette.Text).Wrapped().Place(676, 536, 556, 40));
 
-        Add(UiKit.MakeLabel("Current bid", 13, Palette.Muted).Place(684, 552, 200, 18));
-        _priceLabel = Add(UiKit.MakeLabel("", 36, Palette.Gold).Place(684, 568, 140, 46));
-        _leaderLabel = Add(UiKit.MakeLabel("", 15, Palette.Muted).Place(684, 614, 240, 22));
-        _bid = Add(UiKit.MakeButton("", Palette.Good, 20, Bid).Place(890, 568, 180, 52));
-        _pass = Add(UiKit.MakeButton("Pass", Palette.Bad, 20, Pass).Place(1080, 568, 136, 52));
-        _bidHint = Add(UiKit.MakeLabel("", 12, Palette.Muted).Place(890, 626, 330, 18));
+        Add(UiKit.MakeLabel("Current bid", 16, Palette.Muted).Place(676, 584, 200, 20));
+        _priceLabel = Add(UiKit.MakeLabel("", 40, Palette.Gold, outline: 4).Place(676, 602, 190, 48));
+        _leaderLabel = Add(UiKit.MakeLabel("", 16, Palette.Muted).Place(676, 654, 240, 20));
+        _bid = Add(UiKit.MakeButton("", Palette.Good, 24, Bid).Place(884, 596, 196, 60));
+        _pass = Add(UiKit.MakeButton("Pass", Palette.Bad, 24, Pass).Place(1092, 596, 136, 60));
+        _bidHint = Add(UiKit.MakeLabel("", 16, Palette.Muted).Place(884, 664, 344, 20));
     }
 
     public void Inspect(Inspection kind)
@@ -143,6 +151,8 @@ public partial class AuctionPhase : Phase
                 State.Clues.LockExamined = true;
                 Sfx.Play("inspect_lock");
                 _chest.LockColor = Palette.Lock(chest.Lock.Index);
+                _chest.RefreshLock();
+                _chest.Wobble(0.2f);
                 result.Text = Describe.Lock(chest);
                 break;
         }
@@ -247,14 +257,14 @@ public partial class AuctionPhase : Phase
         var est = State.Estimate;
         _inspectionsLeft.Text = _left == 0 ? "Out of time to inspect" : $"{_left} inspection{(_left == 1 ? "" : "s")} left";
         _estimateText.Text = $"Worth roughly {est.Low}g - {est.High}g";
-        _estimateNote.Text = $"Best guess {est.Median}g. Based on {est.Samples:N0} similar lots; right about 4 times in 5.";
+        _estimateNote.Text = $"Best guess {est.Median}g. Right about 4 times in 5.";
 
         _priceLabel.Text = $"{_bidPrice}g";
         (_leaderLabel.Text, var leaderColor) = _leader switch
         {
             Leader.Player => ("You lead", Palette.Good),
             Leader.Rival => ($"{State.Rival.Def.Name} leads", Palette.Warn),
-            _ => ("Opening bid, no takers yet", Palette.Muted),
+            _ => ("No bids yet", Palette.Muted),
         };
         _leaderLabel.AddThemeColorOverride("font_color", leaderColor);
 
@@ -293,8 +303,8 @@ public partial class AuctionPhase : Phase
         var chest = State.Chest;
         int total = chest.Value + (chest.FalseBottom?.Value ?? 0);
         CloseLot();
-        var panel = Add(UiKit.MakePanel(Palette.Panel, Palette.PanelBorder, 3).Place(340, 190, 600, 340));
-        panel.PivotOffset = new Vector2(300, 170);
+        var panel = Add(UiKit.MakePanel(Palette.Gold).Place(320, 180, 640, 360));
+        panel.PivotOffset = new Vector2(320, 180);
         panel.Scale = Vector2.One * 0.85f;
         panel.Modulate = Colors.Transparent;
         var tween = panel.CreateTween().SetParallel();
@@ -302,13 +312,13 @@ public partial class AuctionPhase : Phase
         tween.TweenProperty(panel, "modulate", Colors.White, 0.2f);
 
         string title = rivalTookIt ? $"{State.Rival.Def.Name} wins Lot {State.LotNumber} for {_bidPrice}g" : "No takers. The lot is withdrawn.";
-        panel.AddChild(UiKit.MakeLabel(title, 22, Palette.Text, HorizontalAlignment.Center).Place(20, 20, 560, 32));
-        panel.AddChild(UiKit.MakeLabel("Word gets around about what was inside:", 14, Palette.Muted, HorizontalAlignment.Center).Place(20, 60, 560, 20));
+        panel.AddChild(UiKit.MakeLabel(title, 24, Palette.Text, HorizontalAlignment.Center).Place(20, 24, 600, 32));
+        panel.AddChild(UiKit.MakeLabel("Word gets around about what was inside:", 16, Palette.Muted, HorizontalAlignment.Center).Place(20, 64, 600, 20));
 
         var best = chest.Items.OrderByDescending(i => i.Value).Take(3)
             .Select(i => $"{i.Def.Name} ({i.Def.Rarity}, {i.Value}g)");
-        panel.AddChild(UiKit.MakeLabel(string.Join("\n", best), 16, Palette.Text, HorizontalAlignment.Center).Place(20, 88, 560, 76));
-        panel.AddChild(UiKit.MakeLabel($"Total: {total}g", 26, Palette.Gold, HorizontalAlignment.Center).Place(20, 170, 560, 36));
+        panel.AddChild(UiKit.MakeLabel(string.Join("\n", best), 16, Palette.Text, HorizontalAlignment.Center).Place(20, 94, 600, 76));
+        panel.AddChild(UiKit.MakeLabel($"Total: {total}g", 32, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(20, 180, 600, 40));
 
         string verdict;
         Color verdictColor;
@@ -316,8 +326,8 @@ public partial class AuctionPhase : Phase
         else if (total < _bidPrice) (verdict, verdictColor) = ("They overpaid. You dodged a bullet.", Palette.Good);
         else if (total > _bidPrice * 1.5f) (verdict, verdictColor) = ("That one got away...", Palette.Bad);
         else (verdict, verdictColor) = ("A fair price, more or less.", Palette.Text);
-        panel.AddChild(UiKit.MakeLabel(verdict, 18, verdictColor, HorizontalAlignment.Center).Place(20, 214, 560, 26));
-        panel.AddChild(UiKit.MakeButton("Next lot", Palette.Gold, 20, NextLot).Place(200, 266, 200, 50));
+        panel.AddChild(UiKit.MakeLabel(verdict, 16, verdictColor, HorizontalAlignment.Center).Place(20, 228, 600, 24));
+        panel.AddChild(UiKit.MakeButton("Next lot", Palette.Gold, 24, NextLot).Place(210, 276, 220, 56));
         Game.Moment("08_missed", 0.5);
     }
 
@@ -332,8 +342,8 @@ public partial class AuctionPhase : Phase
         Over = true;
         Refresh();
         CloseLot();
-        var panel = Add(UiKit.MakePanel(Palette.Panel, Palette.Bad, 3).Place(390, 230, 500, 240));
-        panel.AddChild(UiKit.MakeLabel("Out of gold", 30, Palette.Bad, HorizontalAlignment.Center).Place(20, 30, 460, 40));
+        var panel = Add(UiKit.MakePanel(Palette.Bad).Place(390, 230, 500, 240));
+        panel.AddChild(UiKit.MakeLabel("Out of gold", 32, Palette.Bad, HorizontalAlignment.Center).Place(20, 30, 460, 40));
         panel.AddChild(UiKit.MakeLabel("The guild lends you a fresh 300g. Try not to tell anyone.", 16, Palette.Text, HorizontalAlignment.Center)
             .Wrapped().Place(30, 80, 440, 50));
         panel.AddChild(UiKit.MakeButton("Start over", Palette.Gold, 20, () =>

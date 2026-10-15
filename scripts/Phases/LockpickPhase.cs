@@ -37,22 +37,23 @@ public partial class LockpickPhase : Phase
         _perfectWidth = _zoneWidth * 0.4f;
         PlaceZone();
 
-        Add(UiKit.MakeLabel("PICK THE LOCK", 30, Palette.Text, HorizontalAlignment.Center).Place(0, 62, 1280, 40));
-        Add(UiKit.MakeLabel($"{_lock.Name}  ·  {_lock.Pins} pins", 17, Palette.Lock(_lock.Index), HorizontalAlignment.Center)
-            .Place(0, 100, 1280, 24));
+        Add(UiKit.MakeBackdrop("cellar_night", 0.5f));
+        Add(UiKit.MakeLabel("PICK THE LOCK", 32, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 64, 1280, 40));
+        Add(UiKit.MakeLabel($"{_lock.Name} - {_lock.Pins} pins", 16, Palette.Lock(_lock.Index), HorizontalAlignment.Center, outline: 4)
+            .Place(0, 102, 1280, 24));
 
         _dial = Add(new Painter(DrawDial) { Position = Center });
-        _status = Add(UiKit.MakeLabel("[Space] or [Left Click] when the pick is in the green.", 18, Palette.Text, HorizontalAlignment.Center)
-            .Place(0, 570, 1280, 26));
+        _status = Add(UiKit.MakeLabel("[Space] or [Left Click] when the pick is in the green.", 16, Palette.Text, HorizontalAlignment.Center, outline: 4)
+            .Place(0, 566, 1280, 24));
         Add(UiKit.MakeLabel("Clean pick: full value.   No slips: Masterful, +25% value, and you'll spot hidden compartments.",
-            14, Palette.Muted, HorizontalAlignment.Center).Place(0, 598, 1280, 20));
+            16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(0, 592, 1280, 20));
 
         string warning = State.HeardFragile
             ? "You heard glass in there. Forcing it will break anything fragile."
             : "Forcing it is quick, but anything fragile inside will break.";
-        Add(UiKit.MakeLabel(warning, 14, State.HeardFragile ? Palette.Warn : Palette.Muted, HorizontalAlignment.Center)
-            .Place(0, 682, 1280, 20));
-        _crowbar = Add(UiKit.MakeButton("Force it with a crowbar  [F]", Palette.Bad, 17, Force).Place(500, 630, 280, 44));
+        Add(UiKit.MakeLabel(warning, 16, State.HeardFragile ? Palette.Warn : Palette.Muted, HorizontalAlignment.Center, outline: 4)
+            .Place(0, 688, 1280, 20));
+        _crowbar = Add(UiKit.MakeButton("Force it with a crowbar  [F]", Palette.Bad, 16, Force).Place(480, 624, 320, 52));
     }
 
     public override void _Process(double delta)
@@ -173,14 +174,14 @@ public partial class LockpickPhase : Phase
         p.DrawCircle(Vector2.Zero, Radius + 36, metal.Darkened(0.6f));
         p.DrawCircle(Vector2.Zero, Radius + 26, metal.Darkened(0.35f));
         p.DrawCircle(Vector2.Zero, Radius - 13, new Color("#16121e"));
-        p.DrawArc(Vector2.Zero, Radius, 0, Mathf.Tau, 96, new Color("#2b2338"), 18, true);
+        p.DrawArc(Vector2.Zero, Radius, 0, Mathf.Tau, 96, new Color("#2b2338"), 18, false);
 
         if (!Done)
         {
             var zone = new Color("#3fbf6a").Lerp(Colors.White, _zoneFlash);
-            p.DrawArc(Vector2.Zero, Radius, Rad(_zoneCenter - _zoneWidth / 2), Rad(_zoneCenter + _zoneWidth / 2), 24, zone, 18, true);
+            p.DrawArc(Vector2.Zero, Radius, Rad(_zoneCenter - _zoneWidth / 2), Rad(_zoneCenter + _zoneWidth / 2), 24, zone, 18, false);
             p.DrawArc(Vector2.Zero, Radius, Rad(_zoneCenter - _perfectWidth / 2), Rad(_zoneCenter + _perfectWidth / 2), 12,
-                new Color("#c8ffd8"), 18, true);
+                new Color("#c8ffd8"), 18, false);
         }
 
         p.DrawCircle(new Vector2(0, -16), 18, Colors.Black);
@@ -188,19 +189,19 @@ public partial class LockpickPhase : Phase
 
         var dir = Vector2.FromAngle(Rad(_angle));
         var pickColor = new Color("#e8e2d6");
-        p.DrawLine(dir * 26, dir * (Radius + 22), pickColor, 5, true);
-        p.DrawLine(dir * (Radius + 22), dir * (Radius + 22) + dir.Orthogonal() * 10, pickColor, 5, true);
+        p.DrawLine(dir * 26, dir * (Radius + 22), pickColor, 5, false);
+        p.DrawLine(dir * (Radius + 22), dir * (Radius + 22) + dir.Orthogonal() * 10, pickColor, 5, false);
         p.DrawCircle(Vector2.Zero, 8, pickColor);
 
         if (_slipFlash > 0)
-            p.DrawArc(Vector2.Zero, Radius + 30, 0, Mathf.Tau, 96, Palette.Bad with { A = _slipFlash }, 7, true);
+            p.DrawArc(Vector2.Zero, Radius + 30, 0, Mathf.Tau, 96, Palette.Bad with { A = _slipFlash }, 7, false);
 
         for (int i = 0; i < _lock.Pins; i++)
         {
             var pos = PinOffset(i);
             bool isSet = i < _set;
             p.DrawCircle(pos, 15, Palette.Panel);
-            p.DrawArc(pos, 15, 0, Mathf.Tau, 32, isSet ? Palette.Good : Palette.PanelBorder, 3, true);
+            p.DrawArc(pos, 15, 0, Mathf.Tau, 32, isSet ? Palette.Good : Palette.PanelBorder, 3, false);
             if (isSet) p.DrawCircle(pos, 9, Palette.Good);
         }
 
@@ -208,11 +209,11 @@ public partial class LockpickPhase : Phase
         {
             var pos = new Vector2((i - 1) * 40f, Radius + 54f);
             var color = i < _slips ? Palette.Bad : Palette.Muted;
-            p.DrawLine(pos + new Vector2(-12, 8), pos + new Vector2(10, -10), color, 4, true);
+            p.DrawLine(pos + new Vector2(-12, 8), pos + new Vector2(10, -10), color, 4, false);
             p.DrawCircle(pos + new Vector2(-12, 8), 5, color);
             if (i < _slips) p.DrawLine(pos + new Vector2(-4, -8), pos + new Vector2(6, 4), Palette.Bg, 3);
         }
-        p.DrawString(ThemeDB.FallbackFont, new Vector2(-40, Radius + 86), "slips left", HorizontalAlignment.Center, 80, 13, Palette.Muted);
+        p.DrawString(UiKit.Font, new Vector2(-60, Radius + 90), "slips left", HorizontalAlignment.Center, 120, 16, Palette.Muted);
     }
 
     static float Rad(float degrees) => Mathf.DegToRad(degrees);

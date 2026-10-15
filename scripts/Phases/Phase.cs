@@ -39,5 +39,5 @@ public partial class Phase : Node2D
     }
 
     protected static Label Header(string text, float x, float y) =>
-        UiKit.MakeLabel(text, 14, Palette.Muted).Place(x, y, 300, 20);
+        UiKit.MakeLabel(text, 16, Palette.Gold.Darkened(0.2f)).Place(x, y, 300, 20);
 }

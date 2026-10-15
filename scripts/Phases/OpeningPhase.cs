@@ -17,9 +17,10 @@ public partial class OpeningPhase : Phase
     enum Step { Hold, Burst, Reveal, Done }
 
     const float HoldSeconds = 1.6f;
-    const float ChestScale = 1.3f;
-    static readonly Vector2 ChestPos = new(640, 480);
-    static Vector2 SeamPos => ChestPos + new Vector2(0, ChestView.SeamY * ChestScale);
+    const int ChestPixel = 14;
+
+    /// <summary>The chest's origin is its lid seam, where light and loot come out.</summary>
+    static readonly Vector2 SeamPos = new(640, 500);
 
     Step _step = Step.Hold;
     List<RevealedItem> _items;
@@ -40,11 +41,13 @@ public partial class OpeningPhase : Phase
         _items = Loot.Resolve(State.Chest, State.Grade);
         _top = _items.Max(i => i.Def.Rarity);
 
+        Add(UiKit.MakeBackdrop("cellar_night", 0.45f));
         _rays = Add(new Painter(DrawRays) { Position = SeamPos, Material = Fx.Additive() });
         _chest = Add(new ChestView
         {
-            Position = ChestPos,
-            Scale = Vector2.One * ChestScale,
+            Position = SeamPos,
+            PixelSize = ChestPixel,
+            Skin = State.Chest.Provenance.Skin,
             LockColor = Palette.Lock(State.Chest.Lock.Index),
             GlowColor = Palette.Of(Rarity.Common),
         });
@@ -55,8 +58,8 @@ public partial class OpeningPhase : Phase
         _coins = Add(Fx.Coins(36));
         _coins.Position = SeamPos;
 
-        _prompt = Add(UiKit.MakeLabel("Hold [Space] or [Left Mouse] to open", 22, Palette.Text, HorizontalAlignment.Center, outline: 4)
-            .Place(0, 640, 1280, 32));
+        _prompt = Add(UiKit.MakeLabel("Hold [Space] or [Left Mouse] to open", 24, Palette.Text, HorizontalAlignment.Center, outline: 4)
+            .Place(0, 636, 1280, 32));
     }
 
     public override void _Process(double delta)
@@ -76,6 +79,7 @@ public partial class OpeningPhase : Phase
         _chest.Rumble = Progress;
         _chest.LidGap = 12f * Progress * Progress;
         _chest.Glow = Progress;
+        _chest.Rumble = Progress;
         Sfx.Hum(Progress);
         _prompt.Modulate = Colors.White with { A = 0.55f + 0.45f * MathF.Sin(_time * 5f) };
 
@@ -128,6 +132,8 @@ public partial class OpeningPhase : Phase
         _chest.Glow = 1f;
         _chest.GlowColor = color;
         var lid = _chest.DetachLid();
+        _chest.ShowOpen();
+        Fx.Explosion(this, SeamPos + new Vector2(0, -ChestPixel * 2), 3, color.Lightened(0.3f));
         var fling = lid.CreateTween().SetParallel();
         fling.TweenProperty(lid, "position", lid.Position + new Vector2(80, -280), 0.6f).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
         fling.TweenProperty(lid, "rotation", 0.9f, 0.6f);
@@ -148,7 +154,8 @@ public partial class OpeningPhase : Phase
     {
         _step = Step.Reveal;
         int n = _items.Count;
-        float totalWidth = n * ItemCard.W + (n - 1) * 14;
+        const float gap = 12;
+        float totalWidth = n * ItemCard.W + (n - 1) * gap;
         float x0 = 640 - totalWidth / 2;
 
         for (int i = 0; i < n; i++)
@@ -174,8 +181,8 @@ public partial class OpeningPhase : Phase
             }
 
             var card = Add(new ItemCard(item));
-            var target = new Vector2(x0 + i * (ItemCard.W + 14), 66);
-            card.Position = SeamPos - new Vector2(ItemCard.W, ItemCard.H) / 2;
+            var target = new Vector2(x0 + i * (ItemCard.W + gap), 66);
+            card.Position = SeamPos - new Vector2(ItemCard.W, ItemCard.H) / 2 - new Vector2(0, ChestPixel * 3);
             card.Scale = Vector2.One * 0.2f;
             card.Modulate = Colors.Transparent;
             var rise = card.CreateTween().SetParallel();
@@ -218,7 +225,7 @@ public partial class OpeningPhase : Phase
         _step = Step.Done;
         var settle = CreateTween().SetParallel();
         settle.TweenProperty(_chest, "modulate:a", 0f, 0.4f);
-        settle.TweenProperty(_chest, "position", ChestPos + new Vector2(0, 40), 0.4f);
+        settle.TweenProperty(_chest, "position", SeamPos + new Vector2(0, 40), 0.4f);
         settle.TweenMethod(Callable.From<float>(v => _raysAlpha = v), _raysAlpha, _raysAlpha * 0.4f, 0.6f);
 
         var chest = State.Chest;
@@ -226,8 +233,8 @@ public partial class OpeningPhase : Phase
         int paid = State.PricePaid;
         int profit = haul - paid;
 
-        var panel = Add(UiKit.MakePanel(Palette.Panel, Palette.PanelBorder, 3).Place(330, 252, 620, 400));
-        panel.PivotOffset = new Vector2(310, 200);
+        var panel = Add(UiKit.MakePanel(Palette.PanelBorder).Place(310, 292, 660, 412));
+        panel.PivotOffset = new Vector2(330, 206);
         panel.Scale = Vector2.One * 0.85f;
         panel.Modulate = Colors.Transparent;
         var pop = panel.CreateTween().SetParallel();
@@ -240,17 +247,18 @@ public partial class OpeningPhase : Phase
             PickGrade.Masterful => ("Masterful work!", "Pristine condition: every item is worth 25% more.", Palette.Gold),
             PickGrade.Clean => ("A clean job.", "Everything came out intact.", Palette.Good),
             _ => ("Brute force has its costs.", shattered > 0
-                ? $"{shattered} fragile item{(shattered == 1 ? "" : "s")} shattered. Everything else is scratched (-10%)."
+                ? $"{shattered} fragile item{(shattered == 1 ? "" : "s")} shattered. The rest got scratched (-10%)."
                 : "Nothing fragile, luckily. Scratches cost 10%.", Palette.Bad),
         };
-        panel.AddChild(UiKit.MakeLabel(title, 28, titleColor, HorizontalAlignment.Center).Place(0, 16, 620, 36));
-        panel.AddChild(UiKit.MakeLabel(subtitle, 15, Palette.Muted, HorizontalAlignment.Center).Place(0, 54, 620, 22));
+        panel.AddChild(UiKit.MakeLabel(title, 32, titleColor, HorizontalAlignment.Center, outline: 4).Place(0, 20, 660, 40));
+        panel.AddChild(UiKit.MakeLabel(subtitle, 16, Palette.Muted, HorizontalAlignment.Center).Wrapped().Place(30, 62, 600, 22));
 
-        AddRow(panel, 96, "Paid at auction", $"-{paid}g", Palette.Text);
-        AddRow(panel, 130, "Haul value", $"+{haul}g", Palette.Gold);
-        panel.AddChild(new Painter(p => p.DrawLine(new Vector2(60, 0), new Vector2(560, 0), Palette.PanelBorder, 2)) { Position = new Vector2(0, 170) });
-        panel.AddChild(UiKit.MakeLabel("Profit", 24, Palette.Text).Place(60, 184, 200, 40));
-        var profitLabel = UiKit.MakeLabel("0g", 38, profit >= 0 ? Palette.Good : Palette.Bad, HorizontalAlignment.Right).Place(300, 176, 260, 50);
+        AddRow(panel, 102, "Paid at auction", $"-{paid}g", Palette.Text);
+        AddRow(panel, 138, "Haul value", $"+{haul}g", Palette.Gold);
+        panel.AddChild(new ColorRect { Color = Palette.PanelBorder, MouseFilter = Control.MouseFilterEnum.Ignore }.Place(60, 176, 540, 3));
+        panel.AddChild(UiKit.MakeLabel("Profit", 24, Palette.Text).Place(60, 196, 200, 32));
+        var profitLabel = UiKit.MakeLabel("0g", 40, profit >= 0 ? Palette.Good : Palette.Bad, HorizontalAlignment.Right, outline: 4)
+            .Place(300, 186, 300, 50);
         panel.AddChild(profitLabel);
         var count = profitLabel.CreateTween();
         count.TweenInterval(0.3f);
@@ -263,18 +271,17 @@ public partial class OpeningPhase : Phase
         }));
 
         var est = State.Estimate;
-        var (verdict, verdictColor) = chest.Value < est.Low
-            ? ($"Worth {chest.Value}g before the pick, under your {est.Low}-{est.High}g estimate. Overpriced hope.", Palette.Warn)
-            : chest.Value > est.High
-                ? ($"Worth {chest.Value}g before the pick, above your {est.Low}-{est.High}g estimate. Lucky find!", Palette.Good)
-                : ($"Worth {chest.Value}g before the pick, inside your {est.Low}-{est.High}g estimate. Sharp eye.", Palette.Text);
-        panel.AddChild(UiKit.MakeLabel(verdict, 15, verdictColor, HorizontalAlignment.Center).Wrapped().Place(30, 238, 560, 44));
+        var (verdict, verdictColor) = chest.Value < est.Low ? ("Overpriced hope.", Palette.Warn)
+            : chest.Value > est.High ? ("Lucky find!", Palette.Good)
+            : ("Sharp eye.", Palette.Text);
+        verdict = $"Raw value {chest.Value}g vs. your {est.Low}-{est.High}g estimate. {verdict}";
+        panel.AddChild(UiKit.MakeLabel(verdict, 16, verdictColor, HorizontalAlignment.Center).Wrapped().Place(40, 250, 580, 44));
 
         if (chest.FalseBottom != null && State.Grade == PickGrade.Forced)
-            panel.AddChild(UiKit.MakeLabel("As you toss the empty chest aside, something rattles inside it...", 14, Palette.Muted,
-                HorizontalAlignment.Center).Place(20, 286, 580, 20));
+            panel.AddChild(UiKit.MakeLabel("As you toss the empty chest aside, something rattles inside it...", 16, Palette.Muted,
+                HorizontalAlignment.Center).Wrapped().Place(40, 298, 580, 22));
 
-        panel.AddChild(UiKit.MakeButton("Next lot", Palette.Gold, 20, NextLot).Place(210, 324, 200, 52));
+        panel.AddChild(UiKit.MakeButton("Next lot", Palette.Gold, 24, NextLot).Place(220, 330, 220, 60));
 
         State.Gold += haul;
         Game.Hud.SetGold(State.Gold);
@@ -283,8 +290,8 @@ public partial class OpeningPhase : Phase
 
     static void AddRow(Control parent, float y, string label, string value, Color valueColor)
     {
-        parent.AddChild(UiKit.MakeLabel(label, 18, Palette.Muted).Place(60, y, 300, 26));
-        parent.AddChild(UiKit.MakeLabel(value, 22, valueColor, HorizontalAlignment.Right).Place(300, y - 2, 260, 30));
+        parent.AddChild(UiKit.MakeLabel(label, 16, Palette.Muted).Place(60, y + 4, 300, 24));
+        parent.AddChild(UiKit.MakeLabel(value, 24, valueColor, HorizontalAlignment.Right).Place(300, y, 300, 30));
     }
 
     public void NextLot()

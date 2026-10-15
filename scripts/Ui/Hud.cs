@@ -14,17 +14,17 @@ public partial class Hud : CanvasLayer
         Layer = 10;
         AddChild(new Painter(p =>
         {
-            p.DrawRect(new Rect2(0, 0, 1280, 52), new Color("#0d0a13") with { A = 0.92f });
-            p.DrawLine(new Vector2(0, 52), new Vector2(1280, 52), Palette.PanelBorder, 2);
-            p.DrawCircle(new Vector2(1094, 26), 9, Palette.Gold);
-            p.DrawCircle(new Vector2(1094, 26), 5, Palette.Gold.Darkened(0.35f));
+            p.DrawRect(new Rect2(0, 0, 1280, 54), new Color("#0d0a13") with { A = 0.92f });
+            p.DrawRect(new Rect2(0, 54, 1280, 3), Palette.PanelBorder);
+            p.DrawRect(new Rect2(0, 57, 1280, 3), new Color(0, 0, 0, 0.6f));
         }));
-        AddChild(UiKit.MakeLabel("LOOTFALL", 24, Palette.Gold).Place(24, 10, 300, 32));
-        AddChild(UiKit.MakeLabel("prototype", 13, Palette.Muted).Place(162, 20, 120, 20));
-        _lot = UiKit.MakeLabel("", 18, Palette.Text, HorizontalAlignment.Center).Place(440, 13, 400, 28);
+        AddChild(UiKit.MakeSprite("res://assets/sprites/items/doubloons.png", new Vector2(1084, 27), 2));
+        AddChild(UiKit.MakeLabel("LOOTFALL", 32, Palette.Gold, outline: 4).Place(24, 8, 300, 40));
+        AddChild(UiKit.MakeLabel("prototype", 16, Palette.Muted).Place(196, 20, 160, 20));
+        _lot = UiKit.MakeLabel("", 24, Palette.Text, HorizontalAlignment.Center).Place(440, 12, 400, 30);
         AddChild(_lot);
-        _gold = UiKit.MakeLabel("", 22, Palette.Gold).Place(1110, 11, 160, 32);
-        _gold.PivotOffset = new Vector2(30, 16);
+        _gold = UiKit.MakeLabel("", 24, Palette.Gold, outline: 4).Place(1106, 12, 170, 30);
+        _gold.PivotOffset = new Vector2(30, 15);
         AddChild(_gold);
     }
 

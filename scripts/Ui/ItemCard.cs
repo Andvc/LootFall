@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using LootFall.Core;
 
@@ -6,8 +7,9 @@ namespace LootFall.Ui;
 /// <summary>A revealed item. Hover it to read the flavor text.</summary>
 public partial class ItemCard : Panel
 {
-    public const float W = 170;
-    public const float H = 164;
+    public const float W = 180;
+    public const float H = 216;
+    const float IconWidth = 150, IconHeight = 100;
 
     public RevealedItem Item { get; }
     Label _value;
@@ -27,38 +29,45 @@ public partial class ItemCard : Panel
 
         var rarityColor = Palette.Of(Item.Def.Rarity);
         var accent = Item.Shattered ? Palette.Bad : rarityColor;
-        AddThemeStyleboxOverride("panel", UiKit.Box(Palette.Panel, accent, 3, 10));
+        AddThemeStyleboxOverride("panel", UiKit.PanelBox());
+        AddChild(UiKit.MakeFrame(accent));
 
-        var iconColor = Item.Shattered ? Palette.Muted.Darkened(0.2f) : rarityColor;
-        AddChild(new Painter(p => ItemIcons.Draw(p, Item.Def.Sound, iconColor)) { Position = new Vector2(W / 2, 34) });
+        // Largest integer scale that fits, so pixels stay square.
+        var texture = GD.Load<Texture2D>($"res://assets/sprites/items/{Item.Def.Key}.png");
+        int scale = Math.Max(1, (int)MathF.Min(IconWidth / texture.GetWidth(), IconHeight / texture.GetHeight()));
+        var icon = new Sprite2D { Texture = texture, Position = new Vector2(W / 2, 62), Scale = Vector2.One * scale };
+        if (Item.Shattered) icon.Modulate = new Color(0.45f, 0.4f, 0.5f);
+        AddChild(icon);
         if (Item.Shattered)
         {
             AddChild(new Painter(p =>
             {
-                p.DrawPolyline(new[] { new Vector2(-22, -20), new Vector2(-4, -4), new Vector2(-10, 6), new Vector2(18, 22) }, Palette.Bad, 3);
-                p.DrawPolyline(new[] { new Vector2(20, -18), new Vector2(4, 0), new Vector2(12, 8) }, Palette.Bad, 2);
-            }) { Position = new Vector2(W / 2, 34) });
+                p.DrawPolyline(new[] { new Vector2(-24, -24), new Vector2(-6, -6), new Vector2(-12, 6), new Vector2(18, 27) }, Palette.Bad, 6);
+                p.DrawPolyline(new[] { new Vector2(24, -21), new Vector2(3, 0), new Vector2(12, 9) }, Palette.Bad, 3);
+            }) { Position = new Vector2(W / 2, 62) });
         }
 
-        string tag = Item.Shattered ? "SHATTERED"
-            : Item.Def.Rarity.ToString().ToUpperInvariant() + (Item.Pristine ? " · PRISTINE" : "");
-        AddChild(UiKit.MakeLabel(tag, 12, accent, HorizontalAlignment.Center).Place(0, 58, W, 18));
+        string tag = Item.Shattered ? "SHATTERED" : Item.Def.Rarity.ToString().ToUpperInvariant();
+        AddChild(UiKit.MakeLabel(tag, 16, accent, HorizontalAlignment.Center).Place(0, 116, W, 20));
 
-        var name = UiKit.MakeLabel(Item.Def.Name, 14, Palette.Text, HorizontalAlignment.Center).Wrapped().Place(6, 76, W - 12, 46);
+        var name = UiKit.MakeLabel(Item.Def.Name, 16, Palette.Text, HorizontalAlignment.Center).Wrapped().Place(10, 136, W - 20, 44);
         name.VerticalAlignment = VerticalAlignment.Center;
         AddChild(name);
 
-        _value = UiKit.MakeLabel("0g", 20, Item.Shattered ? Palette.Bad : Palette.Gold, HorizontalAlignment.Center).Place(0, 128, W, 26);
+        _value = UiKit.MakeLabel("0g", 24, Item.Shattered ? Palette.Bad : Palette.Gold, HorizontalAlignment.Center, outline: 4)
+            .Place(0, 184, W, 28);
         AddChild(_value);
 
-        if (Item.FromFalseBottom)
-        {
-            var ribbon = UiKit.MakeLabel("HIDDEN", 11, Palette.Bg, HorizontalAlignment.Center).Place(W - 64, 6, 58, 16);
-            var bg = UiKit.MakePanel(Palette.Gold, Palette.Gold, 0, 4).Place(W - 64, 6, 58, 16);
-            bg.MouseFilter = MouseFilterEnum.Ignore;
-            AddChild(bg);
-            AddChild(ribbon);
-        }
+        if (Item.Pristine) AddRibbon("+25%", 9);
+
+        if (Item.FromFalseBottom) AddRibbon("HIDDEN", W - 78);
+    }
+
+    void AddRibbon(string text, float x)
+    {
+        float width = text.Length * 11 + 12;
+        AddChild(new ColorRect { Color = Palette.Gold, MouseFilter = MouseFilterEnum.Ignore }.Place(x, 9, width, 21));
+        AddChild(UiKit.MakeLabel(text, 16, Palette.Bg, HorizontalAlignment.Center).Place(x, 9, width, 21));
     }
 
     public void CountUp(float duration)
