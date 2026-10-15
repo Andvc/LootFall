@@ -29,5 +29,5 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 ## Known gaps
 
 - The Windows .exe has the default Godot icon (rcedit needs Wine; do it in CI instead).
-- Wine 9 in this container can't run the exported .exe, so launch-test Windows builds on a real Windows runner.
+- Wine 9 in this container can't run the exported .exe. `.github/workflows/windows-build.yml` exports and smoke-tests on a real Windows runner on every push; download builds from the run's artifacts.
 - No economy pressure yet (rent/debt), so profits only grow; balance with the sim report.
