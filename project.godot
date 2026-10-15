@@ -1,0 +1,29 @@
+; Engine configuration file.
+; Godot 4.7 (.NET build). Edit through the editor or by hand.
+
+config_version=5
+
+[application]
+
+config/name="LootFall"
+config/description="Appraise sealed chests, outbid rivals, pick the lock, and crack them open."
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+
+[dotnet]
+
+project/assembly_name="LootFall"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.082, 0.067, 0.114, 1)
