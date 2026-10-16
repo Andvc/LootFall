@@ -11,8 +11,9 @@ namespace LootFall.Ui;
 /// </summary>
 public partial class LedgerView : Node2D
 {
-    const float PanelX = 40, PanelY = 72, PanelW = 1200, PanelH = 600;
-    const float CellW = 136, CellH = 82, CellGap = 6, RowH = 88, RowsY = 150, CellsX = 228;
+    // Ends above Uncle Bram's box, so his tips stay readable with the ledger open.
+    const float PanelX = 40, PanelY = 66, PanelW = 1200, PanelH = 518;
+    const float CellW = 136, CellH = 70, CellGap = 6, RowH = 76, RowsY = 144, CellsX = 228;
 
     readonly Ledger _ledger;
     Label _name, _detail, _note;
@@ -40,16 +41,16 @@ public partial class LedgerView : Node2D
 
         var panel = UiKit.MakePanel(Palette.Gold.Darkened(0.3f)).Place(PanelX, PanelY, PanelW, PanelH);
         AddChild(panel);
-        AddChild(UiKit.MakeLabel("LEDGER", 32, Palette.Gold, outline: 4).Place(PanelX + 24, PanelY + 14, 300, 40));
+        AddChild(UiKit.MakeLabel("LEDGER", 32, Palette.Gold, outline: 4).Place(PanelX + 24, PanelY + 10, 300, 40));
         AddChild(UiKit.MakeLabel($"What each thing sounds like, weighs and fetches. {_ledger.Count} of {ItemCatalog.All.Length} known. Click one to hear it.",
-            16, Palette.Muted).Place(PanelX + 24, PanelY + 56, 1000, 22));
-        AddChild(UiKit.MakeButton("Close  [L]", Palette.Text, 16, Close).Place(PanelX + PanelW - 168, PanelY + 16, 144, 44));
+            16, Palette.Muted).Place(PanelX + 24, PanelY + 50, 1000, 22));
+        AddChild(UiKit.MakeButton("Close  [L]", Palette.Text, 16, Close).Place(PanelX + PanelW - 168, PanelY + 12, 144, 44));
 
         foreach (var family in Enum.GetValues<Family>())
         {
             int row = (int)family;
             float y = RowsY + row * RowH;
-            AddChild(UiKit.MakeLabel(ItemCatalog.FamilyName(family), 16, Palette.Gold.Darkened(0.1f)).Wrapped().Place(PanelX + 24, y + 20, 150, 44));
+            AddChild(UiKit.MakeLabel(ItemCatalog.FamilyName(family), 16, Palette.Gold.Darkened(0.1f)).Wrapped().Place(PanelX + 24, y + 14, 150, 44));
             var items = ItemCatalog.All.Where(i => i.Family == family).ToArray();
             for (int i = 0; i < items.Length; i++)
                 AddChild(MakeCell(items[i], CellsX + i * (CellW + CellGap), y));
@@ -57,9 +58,9 @@ public partial class LedgerView : Node2D
 
         float footY = RowsY + 5 * RowH + 2;
         AddChild(new ColorRect { Color = Palette.PanelBorder, MouseFilter = Control.MouseFilterEnum.Ignore }.Place(PanelX + 24, footY, PanelW - 48, 3));
-        _name = AddChild2(UiKit.MakeLabel("", 24, Palette.Text).Place(PanelX + 24, footY + 10, 520, 30));
-        _detail = AddChild2(UiKit.MakeLabel("", 16, Palette.Muted).Place(PanelX + 560, footY + 16, 600, 22));
-        _note = AddChild2(UiKit.MakeLabel("Bram's notes and yours. Hover an entry to read it.", 16, Palette.Muted).Wrapped().Place(PanelX + 24, footY + 40, PanelW - 48, 22));
+        _name = AddChild2(UiKit.MakeLabel("", 24, Palette.Text).Place(PanelX + 24, footY + 4, 520, 28));
+        _detail = AddChild2(UiKit.MakeLabel("", 16, Palette.Muted).Place(PanelX + 560, footY + 10, 600, 20));
+        _note = AddChild2(UiKit.MakeLabel("Bram's notes and yours. Hover an entry to read it.", 16, Palette.Muted).Place(PanelX + 24, footY + 32, PanelW - 48, 20));
 
         Sfx.PlayGroup("book", 1f, -4);
         Modulate = Colors.Transparent;
@@ -80,7 +81,7 @@ public partial class LedgerView : Node2D
         if (!known)
         {
             cell.Modulate = new Color(1, 1, 1, 0.45f);
-            cell.AddChild(UiKit.MakeLabel("?", 32, Palette.Muted, HorizontalAlignment.Center).Place(0, 20, CellW, 40));
+            cell.AddChild(UiKit.MakeLabel("?", 32, Palette.Muted, HorizontalAlignment.Center).Place(0, 15, CellW, 40));
             return cell;
         }
 
@@ -94,9 +95,9 @@ public partial class LedgerView : Node2D
         };
         icon.Place(8, (CellH - texture.GetHeight() * scale) / 2, texture.GetWidth() * scale, texture.GetHeight() * scale);
         cell.AddChild(icon);
-        cell.AddChild(UiKit.MakeLabel($"'{item.Sound.Word}'", 16, Palette.Text, HorizontalAlignment.Right).Place(0, 8, CellW - 10, 20));
-        cell.AddChild(UiKit.MakeLabel($"{item.Value}g", 16, Palette.Gold, HorizontalAlignment.Right).Place(0, 32, CellW - 10, 20));
-        cell.AddChild(UiKit.MakeLabel(Describe.Pounds(item.Weight), 16, Palette.Muted, HorizontalAlignment.Right).Place(0, 56, CellW - 10, 20));
+        cell.AddChild(UiKit.MakeLabel($"'{item.Sound.Word}'", 16, Palette.Text, HorizontalAlignment.Right).Place(0, 4, CellW - 10, 20));
+        cell.AddChild(UiKit.MakeLabel($"{item.Value}g", 16, Palette.Gold, HorizontalAlignment.Right).Place(0, 25, CellW - 10, 20));
+        cell.AddChild(UiKit.MakeLabel(Describe.Pounds(item.Weight), 16, Palette.Muted, HorizontalAlignment.Right).Place(0, 46, CellW - 10, 20));
         cell.MouseEntered += () => Show(item);
         cell.GuiInput += e =>
         {
@@ -111,7 +112,8 @@ public partial class LedgerView : Node2D
         return cell;
     }
 
-    void Show(ItemDef item)
+    /// <summary>Shows an entry's details and notes, as hovering it would.</summary>
+    public void Show(ItemDef item)
     {
         _name.Text = item.Name;
         _name.AddThemeColorOverride("font_color", Palette.Of(item.Rarity));

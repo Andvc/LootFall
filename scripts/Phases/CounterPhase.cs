@@ -44,6 +44,7 @@ public partial class CounterPhase : Phase
     public bool Concluded => _visit.Outcome != VisitOutcome.Haggling;
     public bool Busy => _busy || _keyhole != null || _ledger != null;
     public KeyholeView Keyhole => _keyhole;
+    public LedgerView Ledger => _ledger;
 
     public override void _Ready()
     {

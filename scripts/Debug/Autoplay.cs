@@ -80,6 +80,7 @@ public partial class Autoplay : Node
         {
             _ledgerShown = true;
             counter.OpenLedger();
+            counter.Ledger?.Show(ItemCatalog.Get("copper_purse"));
             await Wait(2.0);
             if (!IsInstanceValid(counter)) return;
             counter.CloseLedger();
