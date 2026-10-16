@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Builds assets/ from the open-licensed source packs. Re-run after changing a mapping below.
 
-Sources (both CC0, see CREDITS.md):
+Sources (all CC0, see CREDITS.md):
   - Superpowers Asset Packs by Pixel-boy / Sparklin Labs  https://github.com/sparklinlabs/superpowers-asset-packs
-  - Kenney Font Package (Kenney Mini)                      https://kenney.nl (mirror: github.com/ETdoFresh/kenney.nl)
+  - Kenney Font Package, Impact Sounds, RPG Audio, Casino Audio  https://kenney.nl (mirror: github.com/ETdoFresh/kenney.nl)
 
 Usage: python3 tools/import_art.py [--cache DIR]
 Requires Pillow. Sources are cloned (partially) into the cache on first run.
@@ -21,9 +21,11 @@ ASSETS = os.path.join(ROOT, "assets")
 
 SUPERPOWERS = ("https://github.com/sparklinlabs/superpowers-asset-packs", [
     "rpg-battle-system/item", "rpg-battle-system/backgrounds", "rpg-battle-system/fx",
-    "ninja-adventure/items", "LICENSE.txt",
+    "ninja-adventure/items", "ninja-adventure/characters/faceset", "LICENSE.txt",
 ])
-KENNEY = ("https://github.com/ETdoFresh/kenney.nl", ["kenney_fontpackage"])
+KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
+    "kenney_fontpackage", "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio",
+])
 
 # Item key -> rpg-battle-system/item sprite number. Keys match ItemDef.Key in scripts/Core/Items.cs.
 ITEMS = {
@@ -40,6 +42,37 @@ ITEMS = {
 }
 
 BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
+
+# Seller key -> Ninja Adventure faceset number. Keys match SellerDef.Key in scripts/Core/Sellers.cs.
+PORTRAITS = {"hob": 22, "marta": 4, "vex": 9, "pip": 17, "gull": 14, "silas": 13, "penn": 19, "wren": 6}
+
+# The sound vocabulary for shaking a chest: each material has a cheap and a fine variant, so a player can learn
+# to hear quality. Group -> Kenney source files (pack folder, file stem, variants).
+def _variants(pack, stem, count, start=0, digits=3, sep="_"):
+    return [(pack, f"{stem}{sep}{i:0{digits}d}") for i in range(start, start + count)]
+
+SOUNDS = {
+    "jingle_cheap": [("kenney_casinoaudio", f"chipsCollide{i}") for i in range(1, 5)],
+    "jingle_fine": [("kenney_rpgaudio", "handleCoins"), ("kenney_rpgaudio", "handleCoins2")],
+    "ring": _variants("kenney_impactsounds", "impactBell_heavy", 5),
+    "clink_cheap": _variants("kenney_impactsounds", "impactGlass_light", 5),
+    "clink_fine": _variants("kenney_impactsounds", "impactGlass_heavy", 5),
+    "clank_cheap": _variants("kenney_impactsounds", "impactTin_medium", 5),
+    "clank_fine": _variants("kenney_impactsounds", "impactMetal_heavy", 5),
+    "thud_cheap": _variants("kenney_impactsounds", "impactWood_medium", 5),
+    "thud_fine": _variants("kenney_impactsounds", "impactWood_heavy", 5),
+    "rustle_cheap": [("kenney_rpgaudio", f"cloth{i}") for i in range(1, 5)],
+    "rustle_fine": [("kenney_rpgaudio", f"bookFlip{i}") for i in range(1, 4)],
+    "rock": _variants("kenney_impactsounds", "impactMining", 5),
+    "land": _variants("kenney_impactsounds", "impactPlank_medium", 5),
+    "knock_solid": _variants("kenney_impactsounds", "impactWood_light", 5),
+    "knock_hollow": _variants("kenney_impactsounds", "impactPlank_medium", 3),
+    "pay": [("kenney_casinoaudio", f"chipsStack{i}") for i in range(1, 4)],
+    "door_open": [("kenney_rpgaudio", "doorOpen_1"), ("kenney_rpgaudio", "doorOpen_2")],
+    "door_close": [("kenney_rpgaudio", "doorClose_1"), ("kenney_rpgaudio", "doorClose_2")],
+    "creak": [("kenney_rpgaudio", f"creak{i}") for i in range(1, 4)],
+    "latch": [("kenney_rpgaudio", "metalLatch"), ("kenney_rpgaudio", "metalClick")],
+}
 
 # The Ninja Adventure chest is 2 frames of 16x14: closed, then open. Its body palette (dark, main,
 # highlight, shade) is swapped per lot provenance; the gold rim and orange fittings stay.
@@ -144,6 +177,15 @@ def main():
         save(Image.open(os.path.join(sp, f"rpg-battle-system/backgrounds/{number}.png")).convert("RGBA"), "backgrounds", f"{name}.png")
 
     save(Image.open(os.path.join(sp, "rpg-battle-system/fx/1.png")).convert("RGBA"), "sprites", "fx", "burst.png")
+
+    for key, number in PORTRAITS.items():
+        save(Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA"), "sprites", "sellers", f"{key}.png")
+
+    for group, files in SOUNDS.items():
+        out = os.path.join(ASSETS, "audio", group)
+        os.makedirs(out, exist_ok=True)
+        for i, (pack, stem) in enumerate(files):
+            shutil.copy(os.path.join(kenney, pack, "Audio", f"{stem}.ogg"), os.path.join(out, f"{i}.ogg"))
 
     build_chests(sp)
     build_ui()

@@ -79,7 +79,6 @@ public partial class OpeningPhase : Phase
         _chest.Rumble = Progress;
         _chest.LidGap = 12f * Progress * Progress;
         _chest.Glow = Progress;
-        _chest.Rumble = Progress;
         Sfx.Hum(Progress);
         _prompt.Modulate = Colors.White with { A = 0.55f + 0.45f * MathF.Sin(_time * 5f) };
 
@@ -253,7 +252,7 @@ public partial class OpeningPhase : Phase
         panel.AddChild(UiKit.MakeLabel(title, 32, titleColor, HorizontalAlignment.Center, outline: 4).Place(0, 20, 660, 40));
         panel.AddChild(UiKit.MakeLabel(subtitle, 16, Palette.Muted, HorizontalAlignment.Center).Wrapped().Place(30, 62, 600, 22));
 
-        AddRow(panel, 102, "Paid at auction", $"-{paid}g", Palette.Text);
+        AddRow(panel, 102, "Paid at the counter", $"-{paid}g", Palette.Text);
         AddRow(panel, 138, "Haul value", $"+{haul}g", Palette.Gold);
         panel.AddChild(new ColorRect { Color = Palette.PanelBorder, MouseFilter = Control.MouseFilterEnum.Ignore }.Place(60, 176, 540, 3));
         panel.AddChild(UiKit.MakeLabel("Profit", 24, Palette.Text).Place(60, 196, 200, 32));
@@ -270,19 +269,23 @@ public partial class OpeningPhase : Phase
             if (profit > 0) Game.Shake(Mathf.Min(0.4f, 0.1f + profit / 2000f));
         }));
 
-        var est = State.Estimate;
-        var (verdict, verdictColor) = chest.Value < est.Low ? ("Overpriced hope.", Palette.Warn)
-            : chest.Value > est.High ? ("Lucky find!", Palette.Good)
-            : ("Sharp eye.", Palette.Text);
-        verdict = $"Raw value {chest.Value}g vs. your {est.Low}-{est.High}g estimate. {verdict}";
+        // Feedback for the judgment call at the counter: what they asked, what you paid, what it was worth.
+        var visit = State.Opening.Visit;
+        var (verdict, verdictColor) = chest.Value >= paid * 2 ? ("A steal.", Palette.Good)
+            : chest.Value >= paid ? ("A fair buy.", Palette.Text)
+            : ("You overpaid.", Palette.Warn);
+        if (chest.Tampered) (verdict, verdictColor) = ("Stones and a painted lock. You were conned.", Palette.Bad);
+        verdict = $"{visit.Seller.Name} asked {visit.OpeningAsk}g, you paid {paid}g, it held {chest.Value}g. {verdict}";
         panel.AddChild(UiKit.MakeLabel(verdict, 16, verdictColor, HorizontalAlignment.Center).Wrapped().Place(40, 250, 580, 44));
 
         if (chest.FalseBottom != null && State.Grade == PickGrade.Forced)
             panel.AddChild(UiKit.MakeLabel("As you toss the empty chest aside, something rattles inside it...", 16, Palette.Muted,
                 HorizontalAlignment.Center).Wrapped().Place(40, 298, 580, 22));
 
-        panel.AddChild(UiKit.MakeButton("Next lot", Palette.Gold, 24, NextLot).Place(220, 330, 220, 60));
+        panel.AddChild(UiKit.MakeButton("Back room", Palette.Gold, 24, BackToRoom).Place(220, 330, 220, 60));
 
+        State.Opening.Opened = true;
+        State.Opening.Haul = haul;
         State.Gold += haul;
         Game.Hud.SetGold(State.Gold);
         Game.Moment("07_results", 1.6);
@@ -294,11 +297,11 @@ public partial class OpeningPhase : Phase
         parent.AddChild(UiKit.MakeLabel(value, 24, valueColor, HorizontalAlignment.Right).Place(300, y, 300, 30));
     }
 
-    public void NextLot()
+    public void BackToRoom()
     {
         if (_step != Step.Done) return;
         Sfx.Play("bid");
-        Game.SwitchTo(new AuctionPhase());
+        Game.SwitchTo(new BackRoomPhase());
     }
 
     void DrawRays(Painter p)

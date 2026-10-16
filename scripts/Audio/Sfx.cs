@@ -6,20 +6,22 @@ using Godot;
 namespace LootFall.Audio;
 
 /// <summary>
-/// Placeholder sound effects synthesized at startup, so the prototype has audio feedback with no asset files.
-/// Swap any entry for a real recording later by loading an AudioStream under the same name.
+/// Two kinds of sound: recorded CC0 samples in groups under res://assets/audio/ (the material vocabulary for
+/// shaking chests), and placeholder effects synthesized at startup for everything else.
 /// </summary>
 public partial class Sfx : Node
 {
     readonly Dictionary<string, AudioStream> _sounds = new();
+    readonly Dictionary<string, AudioStream[]> _groups = new();
     readonly List<AudioStreamPlayer> _voices = new();
+    readonly Random _rng = new();
     AudioStreamPlayer _hum;
     int _nextVoice;
 
     public override void _Ready()
     {
         Build();
-        for (int i = 0; i < 14; i++)
+        for (int i = 0; i < 24; i++)
         {
             var voice = new AudioStreamPlayer();
             AddChild(voice);
@@ -36,6 +38,29 @@ public partial class Sfx : Node
             GD.PushWarning($"Unknown sound '{name}'");
             return;
         }
+        PlayStream(stream, pitch, volumeDb);
+    }
+
+    /// <summary>Plays a random recording from res://assets/audio/{group}/ (files 0.ogg, 1.ogg, ...).</summary>
+    public void PlayGroup(string group, float pitch = 1f, float volumeDb = 0f)
+    {
+        if (!_groups.TryGetValue(group, out var streams))
+        {
+            var list = new List<AudioStream>();
+            for (int i = 0; ; i++)
+            {
+                string path = $"res://assets/audio/{group}/{i}.ogg";
+                if (!ResourceLoader.Exists(path)) break;
+                list.Add(GD.Load<AudioStream>(path));
+            }
+            _groups[group] = streams = list.ToArray();
+            if (streams.Length == 0) GD.PushWarning($"No recordings in sound group '{group}'");
+        }
+        if (streams.Length > 0) PlayStream(streams[_rng.Next(streams.Length)], pitch, volumeDb);
+    }
+
+    void PlayStream(AudioStream stream, float pitch, float volumeDb)
+    {
         var voice = _voices.FirstOrDefault(v => !v.Playing) ?? _voices[_nextVoice++ % _voices.Count];
         voice.Stream = stream;
         voice.PitchScale = Mathf.Max(0.05f, pitch);

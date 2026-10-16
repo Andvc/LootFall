@@ -28,7 +28,7 @@ public partial class Hud : CanvasLayer
         AddChild(_gold);
     }
 
-    public void SetLot(int lot) => _lot.Text = $"Lot {lot}";
+    public void SetClock(int day, int minute) => _lot.Text = $"Day {day}  -  {Core.ShopClock.Format(minute)}";
 
     public void SetGold(int gold, bool animate = true)
     {

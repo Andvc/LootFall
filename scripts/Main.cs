@@ -38,7 +38,7 @@ public partial class Main : Node2D
         var args = OS.GetCmdlineUserArgs();
         if (args.Contains("--sim"))
         {
-            Simulation.Run(int.Parse(Arg(args, "--n") ?? "2000"));
+            Simulation.Run(int.Parse(Arg(args, "--n") ?? "300"));
             GetTree().Quit();
             return;
         }
@@ -76,9 +76,9 @@ public partial class Main : Node2D
             _bot = new Autoplay
             {
                 QuitAtEnd = args.Contains("--quit-at-end"),
-                MaxLots = int.TryParse(Arg(args, "--lots"), out var lots) ? lots : 0,
+                MaxDays = int.TryParse(Arg(args, "--days"), out var days) ? days : 0,
                 UseCrowbar = args.Contains("--bot-crowbar"),
-                PassOddLots = args.Contains("--bot-pass-odd"),
+                PassOdd = args.Contains("--bot-pass-odd"),
             };
             AddChild(_bot);
         }
@@ -86,7 +86,22 @@ public partial class Main : Node2D
         if (_shotsDir != null) DirAccess.MakeDirRecursiveAbsolute(_shotsDir);
 
         Hud.SetGold(State.Gold, animate: false);
-        SwitchTo(new AuctionPhase());
+        StartDay();
+    }
+
+    /// <summary>Opens the shop for a new day and calls in the first customer.</summary>
+    public void StartDay()
+    {
+        State.StartDay();
+        if (_bot != null && !_bot.OnDayStarted(State.Day)) return;
+        NextCustomer();
+    }
+
+    /// <summary>Calls the next customer to the counter, or closes up and heads to the back room.</summary>
+    public void NextCustomer()
+    {
+        if (State.NextCustomer()) SwitchTo(new CounterPhase());
+        else SwitchTo(new BackRoomPhase());
     }
 
     public async void SwitchTo(Phase next)
@@ -121,13 +136,15 @@ public partial class Main : Node2D
         Engine.TimeScale = 1.0;
     }
 
-    /// <summary>Saves a screenshot when running with --shots. No-op otherwise.</summary>
+    /// <summary>Saves a screenshot the first time a moment happens, when running with --shots. No-op otherwise.</summary>
     public async void Moment(string name, double delay = 0)
     {
         if (_shotsDir == null) return;
         if (delay > 0) await ToSignal(GetTree().CreateTimer(delay, true, false, true), SceneTreeTimer.SignalName.Timeout);
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
-        GetViewport().GetTexture().GetImage().SavePng($"{_shotsDir}/{name}.png");
+        string path = $"{_shotsDir}/{name}.png";
+        if (FileAccess.FileExists(path)) return; // keep the first occurrence of each moment
+        GetViewport().GetTexture().GetImage().SavePng(path);
     }
 
     public override void _Process(double delta)

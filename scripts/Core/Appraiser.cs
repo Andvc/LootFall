@@ -19,7 +19,7 @@ public sealed class Clues
     }
 }
 
-public readonly record struct Estimate(int Low, int Median, int High, int Samples);
+public readonly record struct Estimate(int Low, int Median, int High, int Mean, int Samples);
 
 /// <summary>
 /// Estimates a chest's value by simulating many chests from the same provenance and keeping the ones
@@ -32,7 +32,20 @@ public sealed class Appraiser
     const int MinSamples = 40;
     const int AbsoluteMinSamples = 8;
 
+    static readonly Dictionary<Provenance, Appraiser> Cache = new();
+
     readonly Chest[] _pool;
+
+    /// <summary>One shared appraiser per provenance; building the sample pool is the expensive part.</summary>
+    public static Appraiser For(Provenance provenance)
+    {
+        lock (Cache)
+        {
+            if (!Cache.TryGetValue(provenance, out var appraiser))
+                Cache[provenance] = appraiser = new Appraiser(provenance, 7 + Array.IndexOf(Provenances.All, provenance));
+            return appraiser;
+        }
+    }
 
     public Estimate Prior { get; }
 
@@ -88,7 +101,8 @@ public sealed class Appraiser
     static Estimate Summarize(IEnumerable<Chest> chests)
     {
         var values = chests.Select(c => c.Value).OrderBy(v => v).ToArray();
-        return new Estimate(Percentile(values, 0.1f), Percentile(values, 0.5f), Percentile(values, 0.9f), values.Length);
+        int mean = values.Length == 0 ? 0 : (int)values.Average();
+        return new Estimate(Percentile(values, 0.1f), Percentile(values, 0.5f), Percentile(values, 0.9f), mean, values.Length);
     }
 
     public static int Percentile(int[] sorted, float p)

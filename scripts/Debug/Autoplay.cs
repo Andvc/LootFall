@@ -1,35 +1,55 @@
 using System.Threading.Tasks;
 using Godot;
+using LootFall.Core;
 using LootFall.Phases;
 
 namespace LootFall.Debug;
 
 /// <summary>
-/// Plays lots hands-free so the game can be screenshotted or recorded headlessly:
-/// `godot --path . -- --autoplay --seed=1113 [--shots=DIR] [--quit-at-end] [--lots=N] [--bot-crowbar] [--bot-pass-odd]`.
+/// Plays the shop hands-free so it can be screenshotted, recorded or smoke-tested headlessly:
+/// `godot --path . -- --autoplay --seed=4306 [--shots=DIR] [--quit-at-end] [--days=N] [--bot-crowbar] [--bot-pass-odd]`.
+/// It shakes every chest, checks the lock on Silas's, peeks once for the camera, and haggles from 60% of the ask.
 /// </summary>
 public partial class Autoplay : Node
 {
     /// <summary>Quit after the first opened chest's results.</summary>
     public bool QuitAtEnd;
 
-    /// <summary>Quit when this many lots have been played (0 = no limit).</summary>
-    public int MaxLots;
+    /// <summary>Quit when this many days have been played (0 = no limit).</summary>
+    public int MaxDays;
 
     /// <summary>Force every lock with the crowbar instead of picking it.</summary>
     public bool UseCrowbar;
 
-    /// <summary>Pass on odd-numbered lots, to exercise the "missed lot" screen.</summary>
-    public bool PassOddLots;
+    /// <summary>Pass on every other customer, to exercise walk-away and pass paths.</summary>
+    public bool PassOdd;
+
+    int _customersToday;
+    bool _peeked;
+
+    static GameState State => Main.Instance.State;
+
+    /// <summary>Returns false (and quits) once the day limit is reached.</summary>
+    public bool OnDayStarted(int day)
+    {
+        _customersToday = 0;
+        if (MaxDays <= 0 || day <= MaxDays) return true;
+        GD.Print($"Autoplay finished {MaxDays} days with {State.Gold}g");
+        GetTree().Quit();
+        return false;
+    }
 
     public async void OnPhase(Phase phase)
     {
-        await Wait(0.6);
+        await Wait(0.8);
         if (!IsInstanceValid(phase)) return;
         switch (phase)
         {
-            case AuctionPhase auction:
-                await DriveAuction(auction);
+            case CounterPhase counter:
+                await DriveCounter(counter);
+                break;
+            case BackRoomPhase room:
+                await DriveBackRoom(room);
                 break;
             case LockpickPhase lockpick:
                 await DriveLockpick(lockpick);
@@ -40,40 +60,78 @@ public partial class Autoplay : Node
         }
     }
 
-    async Task DriveAuction(AuctionPhase auction)
+    async Task DriveCounter(CounterPhase counter)
     {
-        if (MaxLots > 0 && State.LotNumber > MaxLots)
-        {
-            GD.Print($"Autoplay finished {MaxLots} lots with {State.Gold}g");
-            GetTree().Quit();
-            return;
-        }
-        if (PassOddLots && State.LotNumber % 2 == 1)
-        {
-            await Wait(0.8);
-            auction.Pass();
-            await Wait(2.5);
-            if (IsInstanceValid(auction)) auction.NextLot();
-            return;
-        }
-        auction.Inspect(AuctionPhase.Inspection.Shake);
-        await Wait(1.4);
-        auction.Inspect(AuctionPhase.Inspection.Weigh);
-        await Wait(1.4);
-        Main.Instance.Moment("01_auction");
-        await Wait(0.3);
+        _customersToday++;
+        var visit = counter.Visit;
 
-        while (IsInstanceValid(auction) && !auction.Over)
+        counter.Shake.AutoShake(1.8);
+        await Wait(0.9);
+        Main.Instance.Moment("01_shake");
+        await Wait(1.6);
+        if (!IsInstanceValid(counter)) return;
+
+        if (!_peeked)
         {
-            if (auction.CanBid) auction.Bid();
-            else if (!auction.Busy && !auction.PlayerLeads) auction.Pass();
-            await Wait(1.0);
+            _peeked = true;
+            counter.Peek();
+            await Wait(1.8);
+            if (!IsInstanceValid(counter)) return;
+            counter.CloseKeyhole();
+            await Wait(0.8);
         }
-        if (IsInstanceValid(auction) && auction.IsInsideTree() && State.PricePaid == 0)
+
+        if (PassOdd && _customersToday % 2 == 0)
         {
-            await Wait(2.5);
-            if (IsInstanceValid(auction)) auction.NextLot();
+            counter.Pass();
+            return;
         }
+
+        if (visit.Seller.Type == Archetype.Con)
+        {
+            counter.ExamineLock();
+            await Wait(1.2);
+            if (!IsInstanceValid(counter)) return;
+            if (visit.Chest.ShownLock != visit.Chest.Lock)
+            {
+                counter.Pass();
+                return;
+            }
+        }
+        else if (visit.Seller.Type == Archetype.Collector)
+        {
+            counter.Knock();
+            await Wait(1.2);
+            if (!IsInstanceValid(counter)) return;
+        }
+
+        foreach (float fraction in new[] { 0.6f, 0.72f, 0.85f })
+        {
+            if (!IsInstanceValid(counter) || counter.Concluded) return;
+            if (visit.Ask <= visit.OpeningAsk * 0.8f && State.Gold >= visit.Ask)
+            {
+                counter.PayAsk();
+                return;
+            }
+            counter.MakeOffer(Money.RoundTo5(visit.Ask * fraction));
+            await Wait(1.3);
+        }
+        if (IsInstanceValid(counter) && !counter.Concluded) counter.Pass();
+    }
+
+    async Task DriveBackRoom(BackRoomPhase room)
+    {
+        await Wait(0.6);
+        if (!IsInstanceValid(room)) return;
+        if (room.HasUnopened)
+        {
+            room.OpenNext();
+            return;
+        }
+        await Wait(2.0);
+        if (!IsInstanceValid(room)) return;
+        if (room.Bankrupt) room.StartOver();
+        else room.NextDay();
     }
 
     async Task DriveLockpick(LockpickPhase lockpick)
@@ -107,10 +165,8 @@ public partial class Autoplay : Node
 
         await Wait(3.0);
         if (QuitAtEnd) GetTree().Quit();
-        else if (IsInstanceValid(opening)) opening.NextLot();
+        else if (IsInstanceValid(opening)) opening.BackToRoom();
     }
-
-    static Core.GameState State => Main.Instance.State;
 
     SignalAwaiter Wait(double seconds) => ToSignal(GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);
 }

@@ -8,11 +8,15 @@ Source: https://github.com/sparklinlabs/superpowers-asset-packs
 
 - Chest: Ninja Adventure pack (`ninja-adventure/items/big-treasure-chest.png`), recolored per lot origin.
 - Items, backgrounds and the burst effect: RPG Battle System pack (`rpg-battle-system/item`, `backgrounds`, `fx`).
+- Seller portraits: Ninja Adventure pack (`ninja-adventure/characters/faceset`).
 
-## Font
+## Font and sound
 
-**Kenney Mini** from the Kenney Font Package by [Kenney](https://kenney.nl), released under
-[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+By [Kenney](https://kenney.nl), released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/):
 
-Neither license requires attribution; it's given here because these artists made the game look good.
+- **Kenney Mini** from the Kenney Font Package.
+- Impact Sounds, RPG Audio and Casino Audio: the material sounds you hear when shaking a chest, knocks, coins,
+  doors and creaks.
+
+Neither license requires attribution; it's given here because these artists made the game look and sound good.
 `tools/import_art.py` records exactly which source file each asset in `assets/` came from.

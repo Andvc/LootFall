@@ -13,13 +13,15 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 1. `dotnet build` must report 0 warnings and 0 errors.
 2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after.
 3. Visual changes: run the autoplay bot under Xvfb with `--shots=<dir>` and look at the PNGs.
-   Bot flags: `--seed=N --quit-at-end --lots=N --bot-crowbar --bot-pass-odd`. Seed 1113 is a rich demo lot.
+   Bot flags: `--seed=N --quit-at-end --days=N --bot-crowbar --bot-pass-odd`. Seed 4306 opens with a rich chest.
    Keep screenshot folders named `shots*` (git- and export-ignored).
 4. For feel/timing, record with `--write-movie movies/lot.avi --fixed-fps 60` and convert with ffmpeg.
 
 ## Conventions
 
 - `scripts/Core` stays engine-free (no `using Godot`) so it can be simulated headlessly.
+- Design rule (see `docs/design.md`): never show the player a computed value before purchase. Clues are
+  perceptual (sounds, words, weight, glimpses) or factual (lock maker); judging them is the player's job.
 - UI is built in code with `UiKit` and `Painter` (absolute positions on a 1280x720 canvas), not in .tscn files.
 - Buttons use `FocusMode.None`: Space is reserved for lockpicking and holding the lid.
 - Phases are swapped by `Main.SwitchTo`; check `Alive` after every `await` in a phase.
@@ -40,4 +42,4 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 
 - The Windows .exe has the default Godot icon (rcedit needs Wine; do it in CI instead).
 - Wine 9 in this container can't run the exported .exe. `.github/workflows/windows-build.yml` exports and smoke-tests on a real Windows runner on every push; download builds from the run's artifacts.
-- No economy pressure yet (rent/debt), so profits only grow; balance with the sim report.
+- Selling is automatic at item value; upgrades and seller memory are not in yet (see `docs/design.md`).

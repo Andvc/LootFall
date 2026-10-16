@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace LootFall.Core;
 
@@ -53,6 +54,8 @@ public static class Provenances
         new("Farmhouse Cellar", "Found under a pile of turnips. Optimism advised.", "green", -0.3f,
             jingle: 1, clink: 2, clank: 1, thud: 3, rustle: 3),
     };
+
+    public static Provenance Get(string name) => All.First(p => p.Name == name);
 }
 
 /// <summary>A lock's maker sets both how valuable the owner thought the contents were and how hard it is to pick.</summary>

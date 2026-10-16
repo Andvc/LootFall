@@ -41,15 +41,15 @@ jobs:
           & $env:GODOT --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
           if (-not (Test-Path build/windows/LootFall.exe)) { throw "Export failed" }
 
-      - name: Smoke test (bot plays two lots)
+      - name: Smoke test (bot plays a full day)
         shell: pwsh
         run: |
           $log = Join-Path $pwd "smoke.log"
           $game = Start-Process build/windows/LootFall.exe -PassThru -ArgumentList `
-            "--headless", "--log-file", "`"$log`"", "--", "--autoplay", "--seed=1113", "--lots=2", "--bot-crowbar"
-          if (-not $game.WaitForExit(240000)) { $game.Kill(); throw "Game did not finish within 4 minutes" }
+            "--headless", "--log-file", "`"$log`"", "--", "--autoplay", "--seed=4306", "--days=1", "--bot-crowbar"
+          if (-not $game.WaitForExit(420000)) { $game.Kill(); throw "Game did not finish within 7 minutes" }
           Get-Content $log
-          if (-not (Select-String -Path $log -Pattern "Autoplay finished 2 lots" -Quiet)) { throw "Smoke test failed" }
+          if (-not (Select-String -Path $log -Pattern "Autoplay finished 1 days" -Quiet)) { throw "Smoke test failed" }
 
       - uses: actions/upload-artifact@v4
         with:
