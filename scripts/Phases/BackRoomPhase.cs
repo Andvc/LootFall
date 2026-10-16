@@ -49,7 +49,9 @@ public partial class BackRoomPhase : Phase
         if (HasUnopened)
         {
             _next = Add(UiKit.MakeButton("Open the next chest", Palette.Gold, 24, OpenNext).Place(440, 452, 400, 64));
-            Game.Moment("04_backroom", 0.4);
+            if (purchases.Any(p => p.Visit.Lesson != null))
+                Add(new MentorView { Position = new Vector2(412, 548) }).Say(Lessons.BackRoom);
+            Game.Moment("06_backroom", 0.4);
         }
         else
         {
@@ -107,7 +109,7 @@ public partial class BackRoomPhase : Phase
             panel.AddChild(UiKit.MakeButton($"Open the shop: Day {State.Day + 1}", Palette.Gold, 24, NextDay).Place(130, 200, 340, 64));
 
         Sfx.Play(Bankrupt ? "lose" : "win", 1f, -4);
-        Game.Moment("05_summary", 0.4);
+        Game.Moment("09_summary", 0.4);
     }
 
     public void NextDay()

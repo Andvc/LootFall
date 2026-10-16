@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using LootFall.Core;
 using LootFall.Ui;
@@ -6,28 +8,42 @@ using LootFall.Ui;
 namespace LootFall.Phases;
 
 /// <summary>
-/// One seller, one sealed chest. Shake it (free), knock, peek or read the lock (each costs shop time), watch the
-/// seller, then make offers. Nothing on this screen states what the chest is worth.
+/// One seller, one sealed chest. Everything you learn about the chest comes from handling it: shake it and listen,
+/// click it to knock, set it on the scale, or click the keyhole and look inside with a lantern (that one costs shop
+/// time). The ledger holds what you've learned so far. Then haggle. Nothing on this screen states what the chest is
+/// worth.
 /// </summary>
 public partial class CounterPhase : Phase
 {
-    static readonly Vector2 ChestRest = new(600, 450);
-    static readonly Rect2 DragBounds = new(440, 210, 340, 240);
+    static readonly Vector2 ChestRest = new(430, 450);
+    static readonly Vector2 ScaleAt = new(700, 440);
+    static readonly Vector2 ScaleSpot = ScaleAt + new Vector2(0, ScaleView.ChestOffsetY);
+    static readonly Rect2 DragBounds = new(330, 200, 430, 250);
     const float PanelX = 844, PanelW = 384;
 
     Visit _visit;
     SellerView _seller;
     ShakeBox _shake;
-    Label _notes, _ask, _wasAsk, _footer;
+    ScaleView _scale;
+    MentorView _mentor;
+    Tutor _tutor;
+    Label _notes, _hint, _ask, _wasAsk, _footer;
     HSlider _slider;
-    Button _knock, _peek, _lock, _offer, _pay, _pass;
+    Button _ledgerButton, _offer, _pay, _pass;
     KeyholeView _keyhole;
-    bool _busy;
+    LedgerView _ledger;
+    bool _busy, _onScale, _heardAll;
+    readonly List<string> _heardWords = new();
+    readonly HashSet<ItemDef> _heardItems = new();
+    float? _weighed;
+    bool? _knockedHollow;
+    int _lookedMinutes;
 
     public Visit Visit => _visit;
     public ShakeBox Shake => _shake;
     public bool Concluded => _visit.Outcome != VisitOutcome.Haggling;
-    public bool Busy => _busy || _keyhole != null;
+    public bool Busy => _busy || _keyhole != null || _ledger != null;
+    public KeyholeView Keyhole => _keyhole;
 
     public override void _Ready()
     {
@@ -36,18 +52,76 @@ public partial class CounterPhase : Phase
         Add(new Painter(DrawCounter));
 
         _seller = Add(new SellerView(_visit.Seller) { Position = new Vector2(176, 330) });
-        _shake = Add(new ShakeBox(_visit.Chest, DragBounds) { Position = ChestRest });
+        _scale = Add(new ScaleView { Position = ScaleAt });
+        _scale.Settled += OnWeighed;
+        _shake = Add(new ShakeBox(_visit.Chest, DragBounds)
+        {
+            Position = ChestRest,
+            RestFor = at => MathF.Abs(at.X - ScaleAt.X) < 100 ? ScaleSpot : ChestRest,
+        });
+        // The maker's plate is plain to see: tint the lock by its maker, as the notes say.
+        _shake.View.LockColor = Palette.Lock(_visit.Chest.Lock.Index);
+        _shake.View.RefreshLock();
+        _shake.Impacted += OnHeard;
+        _shake.Clicked += Knock;
+        _shake.KeyholeClicked += Peek;
+        _shake.Lifted += () =>
+        {
+            if (_onScale) _scale.SetLoad(null);
+            _onScale = false;
+        };
+        _shake.Landed += spot =>
+        {
+            _onScale = spot.DistanceTo(ScaleSpot) < 1;
+            if (_onScale) _scale.SetLoad(_visit.Chest.ContentsWeight);
+        };
 
         Add(UiKit.MakeLabel(_visit.Seller.Name, 24, Palette.Gold, outline: 4).Place(40, 534, 360, 30));
-        Add(UiKit.MakeLabel("Drag the chest to shake it", 16, Palette.Muted, outline: 4).Place(440, 540, 340, 20));
+        _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(180, 540, 500, 20));
         BuildQueue();
         BuildPanel();
+        // Above the keyhole and ledger overlays, so Bram can comment on what you see there.
+        _mentor = Add(new MentorView { Position = new Vector2(352, 586), ZIndex = 20 });
 
         Sfx.PlayGroup("door_open", 1f, -6);
         _seller.Enter();
         _seller.Say(_visit.Pitch);
         Game.Hud.SetClock(State.Day, State.Minute);
+        if (_visit.Lesson != null)
+        {
+            _tutor = new Tutor(_visit.Lesson);
+            Teach(Cue.Arrive);
+        }
         Refresh();
+    }
+
+    public override void _Process(double delta)
+    {
+        _scale.Highlight = _shake.Dragging && MathF.Abs(_shake.View.Position.X - ScaleAt.X) < 100;
+        _hint.Text = _shake.Hover switch
+        {
+            _ when Busy || Concluded => "",
+            ShakeBox.Part.Keyhole => "Click the keyhole to look inside (the clock runs)",
+            ShakeBox.Part.Body => _onScale ? "Drag to shake. Click to knock." : "Drag to shake. Click to knock. Drop it on the scale to weigh it.",
+            _ => _shake.HeardAnything ? "" : "Drag the chest to shake it",
+        };
+    }
+
+    public override void _UnhandledInput(InputEvent e)
+    {
+        if (e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.L } && !Busy)
+        {
+            GetViewport().SetInputAsHandled();
+            OpenLedger();
+        }
+    }
+
+    void Teach(Cue cue, string key = null)
+    {
+        if (_tutor == null || !_tutor.Notify(cue, key)) return;
+        string text = _tutor.Current.Text.Replace("{weight}", _weighed is float w ? Describe.Pounds(w) : "?");
+        _mentor.Say(text);
+        Game.Moment($"1{Array.IndexOf(Lessons.FirstDay, _visit.Lesson)}_{_visit.Seller.Key}_{cue}", 0.3);
     }
 
     void DrawCounter(Painter p)
@@ -75,14 +149,9 @@ public partial class CounterPhase : Phase
     {
         Add(UiKit.MakePanel().Place(820, 66, 432, 640));
 
-        Add(Header("INSPECT", PanelX, 82));
-        _knock = Add(UiKit.MakeButton($"Knock on the bottom   {ShopClock.Knock}m", Palette.Gold, 16, Knock).Place(PanelX, 106, PanelW, 48));
-        _peek = Add(UiKit.MakeButton($"Peek through the keyhole   {ShopClock.Peek / 60}h", Palette.Gold, 16, Peek).Place(PanelX, 160, PanelW, 48));
-        _lock = Add(UiKit.MakeButton($"Examine the lock   {ShopClock.ExamineLock}m", Palette.Gold, 16, ExamineLock).Place(PanelX, 214, PanelW, 48));
-        _knock.TooltipText = "A false bottom sounds different.";
-        _peek.TooltipText = "A dim look at one thing inside.";
-        _lock.TooltipText = "Who made it, and how hard it'll be to pick.";
-        _notes = Add(UiKit.MakeLabel("Shaking is free. Everything else costs shop time.", 16, Palette.Muted).Wrapped().Place(PanelX, 270, PanelW, 72));
+        Add(Header("WHAT YOU KNOW", PanelX, 82));
+        _ledgerButton = Add(UiKit.MakeButton("Ledger  [L]", Palette.Gold, 16, OpenLedger).Place(PanelX + 224, 74, 160, 40));
+        _notes = Add(UiKit.MakeLabel("", 16, Palette.Text).Wrapped().Place(PanelX, 124, PanelW, 216));
 
         Add(Header("DEAL", PanelX, 352));
         Add(UiKit.MakeLabel("Asking", 16, Palette.Muted).Place(PanelX, 376, 200, 20));
@@ -130,12 +199,20 @@ public partial class CounterPhase : Phase
         _pay.Text = $"Pay {_visit.Ask}g";
         _pay.Disabled = !open || State.Gold < _visit.Ask;
         _pass.Disabled = !open;
+        _ledgerButton.Disabled = Busy;
         _slider.Editable = open;
-        _knock.Disabled = !open || !State.CanAfford(ShopClock.Knock + ShopClock.Offer);
-        _peek.Disabled = !open || !State.CanAfford(ShopClock.Peek + ShopClock.Offer);
-        _lock.Disabled = !open || !State.CanAfford(ShopClock.ExamineLock + ShopClock.Offer);
         _footer.Text = $"Closing at {ShopClock.Format(ShopClock.Close)}. Rent {State.RentDue}g due after Day {State.RentDueDay}." +
                        (State.Gold < _visit.Ask ? " You can't cover the asking price." : "");
+
+        // Only facts and what you perceived. Judging them is your job.
+        var chest = _visit.Chest;
+        string difficulty = chest.Lock.Index switch { 0 => "easy to pick", 1 => "fair to pick", 2 => "hard to pick", _ => "very hard to pick" };
+        var lines = new List<string> { $"Lock: {chest.Lock.Name}, {difficulty}." };
+        lines.Add(_heardWords.Count == 0 ? "Heard: nothing yet." : "Heard: " + string.Join("  ", _heardWords.Select(w => $"'{w}'")));
+        if (_weighed is float w) lines.Add($"Scale: {Describe.Pounds(w)} inside.");
+        if (_knockedHollow is bool hollow) lines.Add(hollow ? "Knock: hollow! Something's under the floor." : "Knock: solid.");
+        if (_lookedMinutes > 0) lines.Add($"Looked inside for {_lookedMinutes} min.");
+        _notes.Text = string.Join("\n", lines);
     }
 
     void SpendTime(int minutes)
@@ -152,48 +229,89 @@ public partial class CounterPhase : Phase
         _seller.Say(line);
     }
 
+    void OnHeard(Rattler rattler, float strength)
+    {
+        if (!_heardItems.Add(rattler.Item)) return;
+        _heardWords.Add(rattler.Sound.Word);
+        Refresh();
+        if (!_heardAll && _heardItems.Count == _visit.Chest.Items.Count)
+        {
+            _heardAll = true;
+            Teach(Cue.HeardAll);
+        }
+    }
+
+    void OnWeighed(float pounds)
+    {
+        _weighed = pounds;
+        Refresh();
+        Teach(Cue.Weighed);
+        WatchSeller();
+        Game.Moment("03_scale", 0.2);
+    }
+
+    /// <summary>Raps on the chest. Free: it's your counter.</summary>
     public void Knock()
     {
         if (Busy || Concluded) return;
-        SpendTime(ShopClock.Knock);
         _shake.Knock();
-        _notes.Text = "You rap on the bottom of the chest.";
-        WatchSeller();
-        Refresh();
+        bool hollow = _visit.Chest.FalseBottom != null;
+        GetTree().CreateTimer(hollow ? 0.9 : 0.5).Timeout += () =>
+        {
+            if (!Alive) return;
+            _knockedHollow = hollow;
+            Refresh();
+            Teach(hollow ? Cue.KnockedHollow : Cue.KnockedSolid);
+            WatchSeller();
+        };
     }
 
+    /// <summary>Carries the chest onto the scale (the bot uses this; players drag it).</summary>
+    public void Weigh()
+    {
+        if (Busy || Concluded || _onScale) return;
+        _shake.MoveTo(ScaleSpot);
+    }
+
+    /// <summary>Holds a lantern to the keyhole. The shop clock runs while you look.</summary>
     public void Peek()
     {
-        if (Busy || Concluded) return;
-        SpendTime(ShopClock.Peek);
-        Sfx.PlayGroup("latch", 0.8f, -6);
-        _keyhole = Add(new KeyholeView(_visit.Chest));
+        if (Busy || Concluded || !State.CanAfford(ShopClock.Offer + 1)) return;
+        _keyhole = Add(new KeyholeView(_shake.Contents()));
+        _keyhole.MinutePassed += () =>
+        {
+            SpendTime(1);
+            _lookedMinutes++;
+            if (!State.CanAfford(ShopClock.Offer + 1)) _keyhole?.Close();
+        };
+        _keyhole.Seen += key => Teach(Cue.SawItem, key);
         _keyhole.Closed += () =>
         {
             _keyhole = null;
             WatchSeller();
             Refresh();
         };
-        Game.Moment("02_keyhole", 0.5);
+        Game.Moment("04_keyhole", 1.4);
         Refresh();
     }
 
     public void CloseKeyhole() => _keyhole?.Close();
 
-    public void ExamineLock()
+    public void OpenLedger()
     {
-        if (Busy || Concluded) return;
-        SpendTime(ShopClock.ExamineLock);
-        Sfx.Play("inspect_lock");
-        _shake.View.LockColor = Palette.Lock(_visit.Chest.ShownLock.Index);
-        _shake.View.RefreshLock();
-        _shake.View.Wobble(0.2f);
-        bool fake = _visit.Chest.ShownLock != _visit.Chest.Lock;
-        _notes.Text = Describe.Lock(_visit.Chest);
-        _notes.AddThemeColorOverride("font_color", fake ? Palette.Bad : Palette.Text);
-        WatchSeller();
+        if (Busy) return;
+        _ledger = Add(new LedgerView(State.Ledger));
+        _ledger.Closed += () =>
+        {
+            _ledger = null;
+            Refresh();
+        };
+        Teach(Cue.LedgerOpened);
+        Game.Moment("02_ledger", 0.4);
         Refresh();
     }
+
+    public void CloseLedger() => _ledger?.Close();
 
     public void MakeOffer() => MakeOffer((int)_slider.Value);
 
@@ -223,7 +341,7 @@ public partial class CounterPhase : Phase
                 _seller.Say(response.Line, Palette.Good);
                 break;
         }
-        Game.Moment("03_haggle", 0.3);
+        Game.Moment("05_haggle", 0.3);
         AfterResponse();
     }
 
@@ -270,7 +388,7 @@ public partial class CounterPhase : Phase
         // A bought chest goes to the back room; otherwise it leaves with its owner.
         var chestExit = _shake.CreateTween();
         if (_visit.Outcome == VisitOutcome.Bought)
-            chestExit.TweenProperty(_shake, "position:x", 300f, 0.4f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
+            chestExit.TweenProperty(_shake, "position:y", 400f, 0.4f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
         else
             chestExit.TweenProperty(_shake, "modulate:a", 0f, 0.3f);
         Sfx.PlayGroup("door_close", 1f, -6);

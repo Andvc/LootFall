@@ -3,7 +3,8 @@
 
 Sources (all CC0, see CREDITS.md):
   - Superpowers Asset Packs by Pixel-boy / Sparklin Labs  https://github.com/sparklinlabs/superpowers-asset-packs
-  - Kenney Font Package, Impact Sounds, RPG Audio, Casino Audio  https://kenney.nl (mirror: github.com/ETdoFresh/kenney.nl)
+  - Kenney Font Package, Impact Sounds, RPG Audio, Casino Audio, Interface Sounds
+    https://kenney.nl (mirror: github.com/ETdoFresh/kenney.nl)
 
 Usage: python3 tools/import_art.py [--cache DIR]
 Requires Pillow. Sources are cloned (partially) into the cache on first run.
@@ -24,54 +25,81 @@ SUPERPOWERS = ("https://github.com/sparklinlabs/superpowers-asset-packs", [
     "ninja-adventure/items", "ninja-adventure/characters/faceset", "LICENSE.txt",
 ])
 KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
-    "kenney_fontpackage", "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio",
+    "kenney_fontpackage", "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds",
 ])
 
 # Item key -> rpg-battle-system/item sprite number. Keys match ItemDef.Key in scripts/Core/Items.cs.
 ITEMS = {
-    "copper_pouch": 21, "silver_crowns": 20, "signet_ring": 38, "doubloons": 19,
-    "moonstone_pendant": 39, "gilded_chalice": 26, "amethyst_signet": 37, "sunfire_diamond": 57,
-    "hand_mirror": 29, "old_brandy": 61, "perfume_vial": 36, "levitation_potion": 12,
-    "liquid_sunlight": 13, "phoenix_tear": 47,
-    "rusty_dagger": 31, "soldiers_helm": 1, "engraved_rapier": 53, "orcish_scimitar": 67,
-    "sun_shield": 30, "commander_gauntlet": 59, "drowned_king_helm": 4,
-    "splintered_buckler": 28, "rusted_lantern": 17, "carved_idol": 60, "spiral_fossil": 75,
-    "dragon_scale": 58,
-    "love_letters": 25, "moth_eaten_cloak": 81, "merchants_ledger": 62, "golden_mantle": 76,
-    "treasure_map": 22, "royal_deed": 23,
+    "copper_purse": 21, "silver_crowns": 20, "signet_ring": 38, "doubloons": 19, "moonstone_pendant": 39,
+    "sunfire_diamond": 57,
+    "hand_mirror": 29, "old_brandy": 61, "perfume_vial": 36, "liquid_sunlight": 13, "phoenix_tear": 47,
+    "rusty_dagger": 31, "soldiers_helm": 1, "engraved_rapier": 53, "commander_gauntlet": 59, "drowned_king_helm": 4,
+    "splintered_buckler": 28, "rusted_lantern": 17, "carved_idol": 60, "spiral_fossil": 75, "dragon_scale": 58,
+    "love_letters": 25, "moth_eaten_cloak": 81, "merchants_ledger": 62, "golden_mantle": 76, "treasure_map": 22,
+    "royal_deed": 23,
 }
+
+# Items drawn as one sprite with another tucked in its corner: key -> (base, overlay).
+# A purse of gold is the copper purse with a coin showing; through a keyhole it still looks like the plain purse.
+COMPOSITE_ITEMS = {"gold_purse": (21, 19)}
 
 BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 
-# Seller key -> Ninja Adventure faceset number. Keys match SellerDef.Key in scripts/Core/Sellers.cs.
-PORTRAITS = {"hob": 22, "marta": 4, "vex": 9, "pip": 17, "gull": 14, "silas": 13, "penn": 19, "wren": 6}
+# Seller key -> Ninja Adventure faceset number. Keys match SellerDef.Key in scripts/Core/Sellers.cs, plus Uncle Bram.
+PORTRAITS = {"hob": 22, "marta": 4, "vex": 9, "pip": 17, "gull": 14, "silas": 13, "penn": 19, "wren": 6, "bram": 16}
 
-# The sound vocabulary for shaking a chest: each material has a cheap and a fine variant, so a player can learn
-# to hear quality. Group -> Kenney source files (pack folder, file stem, variants).
-def _variants(pack, stem, count, start=0, digits=3, sep="_"):
-    return [(pack, f"{stem}{sep}{i:0{digits}d}") for i in range(start, start + count)]
+# The sounds of things rattling in a chest. Every item has its own group (see Signature in scripts/Core/Items.cs),
+# except deliberate sound-alikes, which share one: purse (copper/gold), vial (perfume/phoenix tear), paper
+# (letters/map) and cloth (cloak/mantle). Within a material, bigger things get lower recordings. A royal deed
+# rides in a scroll case, so it knocks rather than rustles.
+# Group -> Kenney source files (pack folder, file stem).
+def _variants(pack, stem, indices, digits=3, sep="_"):
+    return [(pack, f"{stem}{sep}{i:0{digits}d}") for i in indices]
+
+IMPACT, RPG, CASINO, UI = "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds"
 
 SOUNDS = {
-    "jingle_cheap": [("kenney_casinoaudio", f"chipsCollide{i}") for i in range(1, 5)],
-    "jingle_fine": [("kenney_rpgaudio", "handleCoins"), ("kenney_rpgaudio", "handleCoins2")],
-    "ring": _variants("kenney_impactsounds", "impactBell_heavy", 5),
-    "clink_cheap": _variants("kenney_impactsounds", "impactGlass_light", 5),
-    "clink_fine": _variants("kenney_impactsounds", "impactGlass_heavy", 5),
-    "clank_cheap": _variants("kenney_impactsounds", "impactTin_medium", 5),
-    "clank_fine": _variants("kenney_impactsounds", "impactMetal_heavy", 5),
-    "thud_cheap": _variants("kenney_impactsounds", "impactWood_medium", 5),
-    "thud_fine": _variants("kenney_impactsounds", "impactWood_heavy", 5),
-    "rustle_cheap": [("kenney_rpgaudio", f"cloth{i}") for i in range(1, 5)],
-    "rustle_fine": [("kenney_rpgaudio", f"bookFlip{i}") for i in range(1, 4)],
-    "rock": _variants("kenney_impactsounds", "impactMining", 5),
-    "land": _variants("kenney_impactsounds", "impactPlank_medium", 5),
-    "knock_solid": _variants("kenney_impactsounds", "impactWood_light", 5),
-    "knock_hollow": _variants("kenney_impactsounds", "impactPlank_medium", 3),
-    "pay": [("kenney_casinoaudio", f"chipsStack{i}") for i in range(1, 4)],
-    "door_open": [("kenney_rpgaudio", "doorOpen_1"), ("kenney_rpgaudio", "doorOpen_2")],
-    "door_close": [("kenney_rpgaudio", "doorClose_1"), ("kenney_rpgaudio", "doorClose_2")],
-    "creak": [("kenney_rpgaudio", f"creak{i}") for i in range(1, 4)],
-    "latch": [("kenney_rpgaudio", "metalLatch"), ("kenney_rpgaudio", "metalClick")],
+    # Coins and jewelry
+    "purse": [(RPG, "handleCoins")],
+    "crowns": [(CASINO, "chipsHandle1"), (CASINO, "chipsHandle3")],
+    "doubloons": [(CASINO, "chipsStack2"), (CASINO, "chipsStack4")],
+    "ring": _variants(IMPACT, "impactMetal_light", [0, 1, 4]),
+    "pendant": [(RPG, "beltHandle1"), (RPG, "beltHandle2")],
+    "diamond": _variants(UI, "glass", [1, 2, 3]),
+    # Glass
+    "mirror": _variants(IMPACT, "impactGlass_light", range(5)),
+    "brandy": _variants(IMPACT, "impactGlass_heavy", range(5)),
+    "vial": _variants(IMPACT, "impactGlass_medium", range(5)),
+    "sunlight": _variants(UI, "glass", [4]),
+    # Arms and armor
+    "dagger": _variants(IMPACT, "impactMetal_medium", range(5)),
+    "helm": _variants(IMPACT, "impactTin_medium", range(5)),
+    "rapier": [(RPG, "knifeSlice2")],
+    "gauntlet": _variants(IMPACT, "impactPlate_medium", [0, 1, 2]),
+    "kinghelm": _variants(IMPACT, "impactBell_heavy", [0, 1, 2]),
+    # Wood and stone
+    "buckler": _variants(IMPACT, "impactWood_medium", range(5)),
+    "lantern": [(RPG, "metalPot2"), (RPG, "metalPot3")],
+    "idol": [(CASINO, "dieThrow1"), (CASINO, "dieThrow3")],
+    "fossil": _variants(IMPACT, "impactMining", range(5)),
+    "dragonscale": _variants(IMPACT, "impactPlate_heavy", [1, 4]),
+    # Paper and cloth
+    "paper": [(CASINO, "cardShove1"), (CASINO, "cardShove2"), (CASINO, "cardShove4")],
+    "cloth": [(RPG, "cloth1")],
+    "ledger": [(RPG, "bookPlace1"), (RPG, "bookPlace2"), (RPG, "bookPlace3")],
+    "deed": _variants(UI, "drop", [2, 3]),
+
+    # Handling the chest
+    "land": _variants(IMPACT, "impactPlank_medium", range(5)),
+    "knock": _variants(IMPACT, "impactWood_light", range(5)),
+    "scale_pan": _variants(IMPACT, "impactPlate_light", range(5)),
+    "pay": [(CASINO, f"chipsStack{i}") for i in range(1, 4)],
+    "door_open": [(RPG, "doorOpen_1"), (RPG, "doorOpen_2")],
+    "door_close": [(RPG, "doorClose_1"), (RPG, "doorClose_2")],
+    "creak": [(RPG, f"creak{i}") for i in range(1, 4)],
+    "latch": [(RPG, "metalLatch"), (RPG, "metalClick")],
+    "page": [(RPG, "bookFlip1"), (RPG, "bookFlip3")],
+    "book": [(RPG, "bookOpen")],
 }
 
 # The Ninja Adventure chest is 2 frames of 16x14: closed, then open. Its body palette (dark, main,
@@ -169,9 +197,22 @@ def main():
     sp = fetch(*SUPERPOWERS, args.cache)
     kenney = fetch(*KENNEY, args.cache)
 
-    for key, number in ITEMS.items():
+    def item_sprite(number):
         img = Image.open(os.path.join(sp, f"rpg-battle-system/item/{number}.png")).convert("RGBA")
-        save(img.crop(img.getbbox()), "sprites", "items", f"{key}.png")
+        return img.crop(img.getbbox())
+
+    # Rebuilt from scratch so renamed or dropped items and sounds don't linger.
+    for folder in (os.path.join(ASSETS, "sprites", "items"), os.path.join(ASSETS, "audio")):
+        shutil.rmtree(folder, ignore_errors=True)
+
+    for key, number in ITEMS.items():
+        save(item_sprite(number), "sprites", "items", f"{key}.png")
+    for key, (base_number, overlay_number) in COMPOSITE_ITEMS.items():
+        base, overlay = item_sprite(base_number), item_sprite(overlay_number)
+        out = Image.new("RGBA", (base.width + overlay.width // 2, base.height + overlay.height // 3), (0, 0, 0, 0))
+        out.alpha_composite(base, (0, 0))
+        out.alpha_composite(overlay, (out.width - overlay.width, out.height - overlay.height))
+        save(out, "sprites", "items", f"{key}.png")
 
     for name, number in BACKGROUNDS.items():
         save(Image.open(os.path.join(sp, f"rpg-battle-system/backgrounds/{number}.png")).convert("RGBA"), "backgrounds", f"{name}.png")

@@ -24,6 +24,7 @@ public partial class OpeningPhase : Phase
 
     Step _step = Step.Hold;
     List<RevealedItem> _items;
+    readonly List<ItemDef> _learned = new();
     Rarity _top;
     int _shownTier;
     ChestView _chest;
@@ -84,7 +85,7 @@ public partial class OpeningPhase : Phase
 
         int tier = TierAt(Progress);
         if (tier > _shownTier) Upgrade(tier);
-        if (Progress > 0.72f && Progress - dt / HoldSeconds <= 0.72f) Game.Moment("04_build");
+        if (Progress > 0.72f && Progress - dt / HoldSeconds <= 0.72f) Game.Moment("07_build");
 
         if (Progress >= 1f) Burst();
     }
@@ -139,10 +140,10 @@ public partial class OpeningPhase : Phase
         fling.TweenProperty(lid, "modulate:a", 0f, 0.45f).SetDelay(0.15f);
 
         _sparks.Emitting = true;
-        if (_items.Any(i => i.Def.Sound == Sound.Jingle)) _coins.Emitting = true;
+        if (_items.Any(i => i.Def.Family == Family.Coins)) _coins.Emitting = true;
         if (tier >= (int)Rarity.Rare)
             CreateTween().TweenMethod(Callable.From<float>(v => _raysAlpha = v), 0f, 0.3f + 0.12f * (tier - 2), 0.4f);
-        Game.Moment("05_burst", 0.4);
+        Game.Moment("07_burst", 0.4);
 
         await Wait(0.7);
         if (!Alive) return;
@@ -179,7 +180,10 @@ public partial class OpeningPhase : Phase
                 if (!Alive) return;
             }
 
-            var card = Add(new ItemCard(item));
+            // Seeing it is learning it, even in pieces: it goes in the ledger with its sound.
+            bool isNew = State.Ledger.Learn(item.Def);
+            if (isNew) _learned.Add(item.Def);
+            var card = Add(new ItemCard(item, isNew));
             var target = new Vector2(x0 + i * (ItemCard.W + gap), 66);
             card.Position = SeamPos - new Vector2(ItemCard.W, ItemCard.H) / 2 - new Vector2(0, ChestPixel * 3);
             card.Scale = Vector2.One * 0.2f;
@@ -198,8 +202,9 @@ public partial class OpeningPhase : Phase
             }
             else
             {
-                Sfx.Play("blip", pitch);
-                if (item.Def.Sound == Sound.Jingle) Sfx.Play("coin", pitch, -4);
+                Sfx.Play("blip", pitch, -4);
+                // The sound it made in the chest, so the two stick together.
+                Sfx.Play(item.Def.Sound, 2f);
                 if (item.Def.Rarity >= Rarity.Rare)
                 {
                     var center = target + new Vector2(ItemCard.W, ItemCard.H) / 2;
@@ -213,7 +218,7 @@ public partial class OpeningPhase : Phase
             if (!Alive) return;
         }
 
-        Game.Moment("06_reveal", 0.2);
+        Game.Moment("08_reveal", 0.2);
         await Wait(0.7);
         if (!Alive) return;
         ShowResults();
@@ -232,8 +237,8 @@ public partial class OpeningPhase : Phase
         int paid = State.PricePaid;
         int profit = haul - paid;
 
-        var panel = Add(UiKit.MakePanel(Palette.PanelBorder).Place(310, 292, 660, 412));
-        panel.PivotOffset = new Vector2(330, 206);
+        var panel = Add(UiKit.MakePanel(Palette.PanelBorder).Place(310, 310, 660, 400));
+        panel.PivotOffset = new Vector2(330, 200);
         panel.Scale = Vector2.One * 0.85f;
         panel.Modulate = Colors.Transparent;
         var pop = panel.CreateTween().SetParallel();
@@ -274,13 +279,16 @@ public partial class OpeningPhase : Phase
         var (verdict, verdictColor) = chest.Value >= paid * 2 ? ("A steal.", Palette.Good)
             : chest.Value >= paid ? ("A fair buy.", Palette.Text)
             : ("You overpaid.", Palette.Warn);
-        if (chest.Tampered) (verdict, verdictColor) = ("Stones and a painted lock. You were conned.", Palette.Bad);
+        if (chest.Tampered) (verdict, verdictColor) = ("Stones wrapped in rags. You were conned.", Palette.Bad);
         verdict = $"{visit.Seller.Name} asked {visit.OpeningAsk}g, you paid {paid}g, it held {chest.Value}g. {verdict}";
         panel.AddChild(UiKit.MakeLabel(verdict, 16, verdictColor, HorizontalAlignment.Center).Wrapped().Place(40, 250, 580, 44));
 
         if (chest.FalseBottom != null && State.Grade == PickGrade.Forced)
             panel.AddChild(UiKit.MakeLabel("As you toss the empty chest aside, something rattles inside it...", 16, Palette.Muted,
                 HorizontalAlignment.Center).Wrapped().Place(40, 298, 580, 22));
+        else if (_learned.Count > 0)
+            panel.AddChild(UiKit.MakeLabel("New in the ledger: " + string.Join(", ", _learned.Select(i => $"{i.Name} '{i.Sound.Word}'")),
+                16, Palette.Gold, HorizontalAlignment.Center).Wrapped().Place(40, 294, 580, 30));
 
         panel.AddChild(UiKit.MakeButton("Back room", Palette.Gold, 24, BackToRoom).Place(220, 330, 220, 60));
 
@@ -288,7 +296,7 @@ public partial class OpeningPhase : Phase
         State.Opening.Haul = haul;
         State.Gold += haul;
         Game.Hud.SetGold(State.Gold);
-        Game.Moment("07_results", 1.6);
+        Game.Moment("08_results", 1.6);
     }
 
     static void AddRow(Control parent, float y, string label, string value, Color valueColor)

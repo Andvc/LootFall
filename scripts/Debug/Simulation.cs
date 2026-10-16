@@ -9,7 +9,8 @@ namespace LootFall.Debug;
 /// <summary>
 /// Headless balance report: run with `godot --headless --path . -- --sim [--n=300]`.
 /// Plays whole campaigns at the counter with simple player styles. The design only works if judgment
-/// (inspecting, reading sellers) clearly beats every mindless strategy, and if no strategy is dominant.
+/// (listening, weighing, looking, reading sellers) clearly beats every mindless strategy, each clue adds something,
+/// and knowing more of the ledger pays.
 /// </summary>
 public static class Simulation
 {
@@ -20,26 +21,35 @@ public static class Simulation
         GD.Print($"=== LootFall balance report ({campaigns} campaigns x {Days} days) ===");
         PrintDistribution();
 
-        GD.Print("\nStyle                 survive  final gold  profit/day  buys/day  bought cons  walkouts/day  unseen/day");
-        foreach (var (name, policy) in Policies)
+        GD.Print($"\nStyle                       survive  final gold  profit/day  buys/day  bought cons  walkouts/day  unseen/day  ledger/{ItemCatalog.All.Length}");
+        foreach (var (name, make) in Policies)
         {
-            var results = Enumerable.Range(0, campaigns).Select(i => Campaign(policy, 1000 + i)).ToList();
-            GD.Print($"{name,-21} {100f * results.Count(r => r.Survived) / campaigns,6:0}%  {results.Average(r => r.FinalGold),10:0}  " +
+            bool knowsAll = name.StartsWith("expert");
+            var results = Enumerable.Range(0, campaigns).Select(i => Campaign(make(), 1000 + i, knowsAll)).ToList();
+            GD.Print($"{name,-27} {100f * results.Count(r => r.Survived) / campaigns,6:0}%  {results.Average(r => r.FinalGold),10:0}  " +
                      $"{results.Average(r => r.ProfitPerDay),10:0}  {results.Average(r => r.BuysPerDay),8:0.0}  " +
                      $"{results.Average(r => r.ConsBought),11:0.0}  {results.Average(r => r.WalkoutsPerDay),12:0.0}  " +
-                     $"{results.Average(r => r.UnseenPerDay),10:0.0}");
+                     $"{results.Average(r => r.UnseenPerDay),10:0.0}  {results.Average(r => r.Known),9:0}");
         }
     }
 
-    static readonly (string, Action<GameState, Visit, SimLog>)[] Policies =
+    static readonly (string, Func<Action<GameState, Visit, SimLog>>)[] Policies =
     {
-        ("pay the ask", PayAsk),
-        ("lowballer", Lowball),
-        ("blind haggler", (s, v, log) => Haggle(s, v, log, inspect: false)),
-        ("inspector", (s, v, log) => Haggle(s, v, log, inspect: true)),
-        ("inspector, no haggle", InspectThenPay),
-        ("triage inspector", Triage),
+        ("pay the ask", () => PayAsk),
+        ("lowballer", () => Lowball),
+        ("blind haggler", () => (s, v, log) => Haggle(s, v, log, null)),
+        ("ears only", () => Haggler(new Player { Ears = true })),
+        ("ears and scale", () => Haggler(new Player { Ears = true, Scale = true })),
+        ("full inspector", () => Haggler(new Player { Ears = true, Scale = true, Lantern = true })),
+        ("full inspector, no haggle", () => Payer(new Player { Ears = true, Scale = true, Lantern = true })),
+        ("expert (whole ledger)", () => Haggler(new Player { Ears = true, Scale = true, Lantern = true, KnowsAll = true })),
     };
+
+    /// <summary>What a simulated player does at the counter. Shaking and knocking are free; the lantern costs time.</summary>
+    sealed class Player
+    {
+        public bool Ears, Scale, Lantern, KnowsAll;
+    }
 
     sealed class SimLog
     {
@@ -49,11 +59,15 @@ public static class Simulation
     }
 
     sealed record Result(bool Survived, int FinalGold, float ProfitPerDay, float BuysPerDay, int ConsBought, float WalkoutsPerDay,
-        float UnseenPerDay);
+        float UnseenPerDay, int Known);
 
-    static Result Campaign(Action<GameState, Visit, SimLog> policy, int seed)
+    static Action<GameState, Visit, SimLog> Haggler(Player p) => (s, v, log) => Haggle(s, v, log, p);
+    static Action<GameState, Visit, SimLog> Payer(Player p) => (s, v, log) => InspectThenPay(s, v, p);
+
+    static Result Campaign(Action<GameState, Visit, SimLog> policy, int seed, bool knowsAll)
     {
         var state = new GameState(seed);
+        if (knowsAll) foreach (var item in ItemCatalog.All) state.Ledger.Learn(item);
         var log = new SimLog();
         var rng = new Random(seed);
         int buys = 0, day = 0;
@@ -73,18 +87,20 @@ public static class Simulation
             }
             log.Unseen += state.Queue.Count;
 
-            // Night: open everything with a typical skill spread at the lock.
+            // Night: open everything with a typical skill spread at the lock, and write down what came out.
             foreach (var p in state.Purchases)
             {
                 float r = rng.NextFloat();
                 var grade = r < 0.15f ? PickGrade.Masterful : r < 0.9f ? PickGrade.Clean : PickGrade.Forced;
-                state.Gold += Loot.Resolve(p.Chest, grade).Sum(i => i.Value);
+                var haul = Loot.Resolve(p.Chest, grade);
+                state.Gold += haul.Sum(i => i.Value);
+                foreach (var item in haul) state.Ledger.Learn(item.Def);
             }
             if (!state.PayRentIfDue(out _)) break;
         }
         int lived = Math.Min(day, Days);
         return new Result(day > Days, state.Gold, (state.Gold - GameState.StartingGold) / (float)lived,
-            buys / (float)lived, log.ConsBought, log.Walkouts / (float)lived, log.Unseen / (float)lived);
+            buys / (float)lived, log.ConsBought, log.Walkouts / (float)lived, log.Unseen / (float)lived, state.Ledger.Count);
     }
 
     static void PayAsk(GameState s, Visit v, SimLog log)
@@ -110,28 +126,91 @@ public static class Simulation
         if (v.Outcome == VisitOutcome.Haggling) v.Pass(s.Rng);
     }
 
+    const float UnknownGuess = 120f;
+    const float LanternLook = 4f; // seconds at the keyhole
+
     /// <summary>
-    /// What a skilled player can work out. Shaking reveals the mix of materials and their quality, the weight is
-    /// felt while dragging, the lock plate is read, and knocking finds hollow bottoms. Stones grind and fake locks
-    /// show, so tampering is usually caught.
+    /// What a player can work out with the clues they use and the ledger they've built. Every loose item is heard,
+    /// but a sound only means something if it's in the ledger; sound-alikes need the scale (weight) or a look
+    /// (glow, appearance); unexplained weight plus a solid knock means stones; a hollow knock means a bonus.
+    /// Returns null when the player catches a con.
     /// </summary>
-    static float? Judge(GameState s, Visit v, bool inspect)
+    static float? Judge(GameState s, Visit v, Player p)
     {
-        if (!inspect) return s.AppraiserFor(v.Claimed).Prior.Median;
+        if (p is not { Ears: true }) return s.AppraiserFor(v.Claimed).Prior.Median;
+        var chest = v.Chest;
+        var ledger = s.Ledger;
 
-        int cost = ShopClock.ExamineLock + ShopClock.Knock;
-        if (!s.CanAfford(cost + ShopClock.Offer)) return s.AppraiserFor(v.Claimed).Prior.Median;
-        s.Spend(cost);
-        if (v.Chest.Tampered && s.Rng.NextFloat() < 0.9f) return null;
+        // A seasoned player looks inside when the story doesn't match the chest, or when they hear a sound-alike
+        // that only a look can settle.
+        bool colorLies = v.Claimed.Skin != chest.Provenance.Skin;
+        bool needsLook = chest.Items.Any(i => ItemCatalog.TellFor(i.Def) is Tell.Look or Tell.Glow);
+        bool looked = p.Lantern && (colorLies || needsLook) && s.CanAfford((int)(LanternLook * ShopClock.LanternMinutesPerSecond) + ShopClock.Offer);
+        if (looked)
+        {
+            s.Spend((int)(LanternLook * ShopClock.LanternMinutesPerSecond));
+            if (chest.Tampered) return null; // rag-wrapped stones are plain to see
+        }
 
-        float belief = s.AppraiserFor(v.Claimed).Estimate(v.Chest, new Clues(true, true, true)).Median;
-        if (v.Chest.FalseBottom != null) belief *= 1.35f;
+        float belief = 0, explained = 0;
+        bool allWeightsKnown = true;
+        var weightTwins = new List<ItemDef>();
+        foreach (var heard in chest.Items.Select(i => i.Def))
+        {
+            var alikes = ItemCatalog.All.Where(d => d.Sound == heard.Sound).ToList();
+            var known = alikes.Where(ledger.Knows).ToList();
+            if (known.Count == 0)
+            {
+                belief += UnknownGuess;
+                allWeightsKnown = false;
+                continue;
+            }
+            if (alikes.Count == 1)
+            {
+                belief += heard.Value;
+                explained += heard.Weight;
+                continue;
+            }
+
+            var cheap = alikes.MinBy(d => d.Value);
+            var rich = alikes.MaxBy(d => d.Value);
+            var tell = ItemCatalog.TellFor(heard);
+            if (tell == Tell.Weight && p.Scale)
+            {
+                weightTwins.Add(heard);
+                continue;
+            }
+            // Without the right check, assume it's the common one.
+            var guess = (tell is Tell.Look or Tell.Glow) && looked ? heard : cheap;
+            belief += ledger.Knows(guess) ? guess.Value : UnknownGuess * 1.5f;
+            explained += guess.Weight;
+        }
+
+        bool hollow = p.Scale && chest.FalseBottom != null; // knocking is free, so anyone weighing also knocks
+        foreach (var twin in weightTwins)
+        {
+            // The scale settles it only when everything else on it is accounted for.
+            var alikes = ItemCatalog.All.Where(d => d.Sound == twin.Sound).ToList();
+            var cheap = alikes.MinBy(d => d.Value);
+            var rich = alikes.MaxBy(d => d.Value);
+            float rest = chest.ContentsWeight - explained - weightTwins.Where(t => t != twin).Sum(t => t.Weight);
+            var guess = allWeightsKnown && !hollow && MathF.Abs(rest - rich.Weight) < 0.3f ? rich : cheap;
+            belief += ledger.Knows(guess) ? guess.Value : UnknownGuess * 1.5f;
+            explained += guess.Weight;
+        }
+
+        if (p.Scale && allWeightsKnown)
+        {
+            float silent = chest.ContentsWeight - explained;
+            if (silent > 0.4f && !hollow) return null; // dead weight that knocks solid: stones
+        }
+        if (hollow) belief += 150f * 0.85f; // a false bottom, if the lock is picked cleanly
         return belief;
     }
 
-    static void Haggle(GameState s, Visit v, SimLog log, bool inspect)
+    static void Haggle(GameState s, Visit v, SimLog log, Player p)
     {
-        var judged = Judge(s, v, inspect);
+        var judged = Judge(s, v, p);
         if (judged is not float belief || v.OpeningAsk > belief * 1.8f)
         {
             v.Pass(s.Rng);
@@ -154,31 +233,9 @@ public static class Simulation
         else v.Pass(s.Rng);
     }
 
-    /// <summary>A player who has learned the regulars: skips the usual con and the braggart, only checks Pip for a hollow bottom.</summary>
-    static void Triage(GameState s, Visit v, SimLog log)
+    static void InspectThenPay(GameState s, Visit v, Player p)
     {
-        switch (v.Seller.Type)
-        {
-            case Archetype.Con or Archetype.Braggart:
-                v.Pass(s.Rng);
-                return;
-            case Archetype.Collector:
-                if (!s.CanAfford(ShopClock.Knock + ShopClock.Offer)) break;
-                s.Spend(ShopClock.Knock);
-                if (v.Chest.FalseBottom != null && v.Ask <= s.Gold) v.PayAsk(s.Rng);
-                else v.Pass(s.Rng);
-                return;
-            case Archetype.Salvager:
-                InspectThenPay(s, v, log);
-                return;
-        }
-        Haggle(s, v, log, inspect: true);
-        if (v.Outcome == VisitOutcome.Haggling) v.Pass(s.Rng);
-    }
-
-    static void InspectThenPay(GameState s, Visit v, SimLog log)
-    {
-        var judged = Judge(s, v, inspect: true);
+        var judged = Judge(s, v, p);
         if (judged is float belief && v.Ask <= belief * 0.9f && v.Ask <= s.Gold) v.PayAsk(s.Rng);
         else v.Pass(s.Rng);
     }
@@ -216,7 +273,7 @@ public static class Simulation
             state.StartDay();
             var v = state.Queue[0];
             var c = v.Chest;
-            if (c.Tampered || c.Items.Max(i => i.Def.Rarity) < Rarity.Epic || c.Items.Count < 4) continue;
+            if (c.Tampered || c.Items.Max(i => i.Def.Rarity) < Rarity.Epic || c.Items.Count < 3) continue;
             if (v.OpeningAsk > GameState.StartingGold) continue;
             found++;
             GD.Print($"seed={seed}  {v.Seller.Name} asks {v.OpeningAsk}g, {c.Provenance.Name}, value={c.Value}g, fb={(c.FalseBottom != null)}  items: " +

@@ -13,17 +13,22 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 1. `dotnet build` must report 0 warnings and 0 errors.
 2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after.
 3. Visual changes: run the autoplay bot under Xvfb with `--shots=<dir>` and look at the PNGs.
-   Bot flags: `--seed=N --quit-at-end --days=N --bot-crowbar --bot-pass-odd`. Seed 4306 opens with a rich chest.
+   Bot flags: `--seed=N --quit-at-end --days=N --bot-crowbar --bot-pass-odd --no-tutorial`. Day 1 is the scripted
+   lesson day unless `--no-tutorial`; with it, seed 4306 opens with a rich chest.
    Keep screenshot folders named `shots*` (git- and export-ignored).
-4. For feel/timing, record with `--write-movie movies/lot.avi --fixed-fps 60` and convert with ffmpeg.
+4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear every item in every chest.
+5. For feel/timing, record with `--write-movie movies/lot.avi --fixed-fps 60` and convert with ffmpeg.
 
 ## Conventions
 
 - `scripts/Core` stays engine-free (no `using Godot`) so it can be simulated headlessly.
 - Design rule (see `docs/design.md`): never show the player a computed value before purchase. Clues are
-  perceptual (sounds, words, weight, glimpses) or factual (lock maker); judging them is the player's job.
+  perceptual (sounds, words, scale reading, knocks, glimpses) or factual (lock maker); judging them is the player's
+  job. The ledger only holds what the player has learned (item sound, weight, price), never a chest's total.
+- Every item keeps one sound signature (`Signature` in `Items.cs`); only deliberate sound-alike pairs share one, and
+  each pair has a tell (weight, look or glow). A chest never holds two items with the same sound.
 - UI is built in code with `UiKit` and `Painter` (absolute positions on a 1280x720 canvas), not in .tscn files.
-- Buttons use `FocusMode.None`: Space is reserved for lockpicking and holding the lid.
+- Buttons use `FocusMode.None`: Space is reserved for lockpicking and holding the lid. L opens the ledger.
 - Phases are swapped by `Main.SwitchTo`; check `Alive` after every `await` in a phase.
 - Screen effects go through `Main` (`Shake`, `Flash`, `HitStop`); capture points use `Main.Moment(name)`.
 - Godot C# naming differs from GDScript in places (e.g. `CpuParticles2D`, `AudioStreamWav`).

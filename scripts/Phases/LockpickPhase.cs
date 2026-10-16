@@ -91,7 +91,7 @@ public partial class LockpickPhase : Phase
             Sfx.Play(perfect ? "pin_perfect" : "pin", 1f + _set * 0.08f);
             Game.Shake(perfect ? 0.14f : 0.08f);
             FloatText(perfect ? "PERFECT!" : "SET", Center + new Vector2(0, 70), perfect ? Palette.Gold : Palette.Good, perfect ? 30 : 24);
-            if (_set == 1) Game.Moment("03_lockpick", 0.05);
+            if (_set == 1) Game.Moment("06_lockpick", 0.05);
 
             if (_set >= _lock.Pins)
             {

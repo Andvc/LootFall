@@ -11,7 +11,8 @@ namespace LootFall;
 
 /// <summary>
 /// Root of the game: owns the game state, audio, HUD and screen effects, and swaps between phases.
-/// Command-line flags (after `--`): --seed=N, --sim, --find-demo, --autoplay, --shots=DIR, --quit-at-end.
+/// Command-line flags (after `--`): --seed=N, --sim, --find-demo, --shake-test, --autoplay, --shots=DIR, --quit-at-end,
+/// --no-tutorial (skip the guided first day).
 /// </summary>
 public partial class Main : Node2D
 {
@@ -42,6 +43,13 @@ public partial class Main : Node2D
             GetTree().Quit();
             return;
         }
+        if (args.Contains("--shake-test"))
+        {
+            Sfx = new Sfx();
+            AddChild(Sfx);
+            AddChild(new ShakeTest { Count = int.Parse(Arg(args, "--n") ?? "40") });
+            return;
+        }
         if (args.Contains("--find-demo"))
         {
             Simulation.FindDemoSeeds();
@@ -50,7 +58,7 @@ public partial class Main : Node2D
         }
 
         int seed = int.TryParse(Arg(args, "--seed"), out var s) ? s : (int)(Time.GetUnixTimeFromSystem() % 1_000_000);
-        State = new GameState(seed);
+        State = new GameState(seed) { Guided = !args.Contains("--no-tutorial") };
         GD.Print($"LootFall seed {seed}");
 
         AddChild(new Painter(DrawBackground));

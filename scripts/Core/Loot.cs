@@ -19,7 +19,7 @@ public static class Loot
     {
         var items = chest.Items
             .Select(i => Apply(i, grade, fromFalseBottom: false))
-            .OrderBy(r => r.Def.BaseValue)
+            .OrderBy(r => r.Def.Value)
             .ToList();
 
         // Only a careful pick notices the hidden compartment.

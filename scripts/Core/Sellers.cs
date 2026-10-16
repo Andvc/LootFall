@@ -150,7 +150,10 @@ public sealed class Visit
 
     public bool Lying => Claimed != Chest.Provenance || Chest.Tampered;
 
-    public Visit(SellerDef seller, Chest chest, Provenance claimed, int ask, int reservation, Random rng)
+    /// <summary>Set on the guided first day: the clue this customer is here to teach.</summary>
+    public Lesson Lesson { get; init; }
+
+    public Visit(SellerDef seller, Chest chest, Provenance claimed, int ask, int reservation, Random rng, string pitch = null)
     {
         Seller = seller;
         Chest = chest;
@@ -158,7 +161,7 @@ public sealed class Visit
         OpeningAsk = Ask = Math.Max(10, Money.RoundTo5(ask));
         Reservation = Math.Clamp(Money.RoundTo5(reservation), 5, OpeningAsk);
         Patience = MaxPatience = seller.Patience;
-        Pitch = Sellers.Fill(rng.PickOne(seller.Pitches), OpeningAsk, 0, claimed.Name);
+        Pitch = pitch ?? Sellers.Fill(rng.PickOne(seller.Pitches), OpeningAsk, 0, claimed.Name);
     }
 
     /// <summary>

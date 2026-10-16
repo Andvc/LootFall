@@ -4,17 +4,20 @@ using System.Linq;
 
 namespace LootFall.Core;
 
-/// <summary>Shop hours and what each action costs. Time is the budget that makes inspecting a choice.</summary>
+/// <summary>
+/// Shop hours and what costs time. Handling a chest (shaking, weighing, knocking) is free; looking inside and
+/// haggling are not.
+/// </summary>
 public static class ShopClock
 {
     public const int Open = 9 * 60;
     public const int Close = 17 * 60;
 
     public const int Greeting = 20;
-    public const int Peek = 60;
-    public const int Knock = 20;
-    public const int ExamineLock = 30;
     public const int Offer = 10;
+
+    /// <summary>Shop minutes that pass for each real second spent squinting through a keyhole.</summary>
+    public const float LanternMinutesPerSecond = 5f;
 
     public static string Format(int minute) => $"{minute / 60}:{minute % 60:00}";
 }
@@ -50,7 +53,7 @@ public static class Market
             }
             case Archetype.Cautious:
             {
-                float belief = appraiserFor(origin).Estimate(chest, new Clues(false, false, true)).Mean;
+                float belief = appraiserFor(origin).ByLock(chest.Lock).Mean;
                 ask = belief * 1.25f;
                 reservation = belief * rng.Between(0.75f, 0.9f);
                 break;
@@ -81,7 +84,7 @@ public static class Market
                 var farmhouse = Provenances.Get("Farmhouse Cellar");
                 if (rng.NextFloat() < 0.7f)
                 {
-                    // Junk from a cellar, ballasted with stones and wearing a fake Royal Seal.
+                    // Junk from a cellar, with stones wrapped in rags so it feels full but doesn't rattle.
                     chest = ChestGenerator.Tamper(rng, ChestGenerator.Generate(rng, farmhouse, rng.Between(0f, 0.25f)));
                     ask = appraiserFor(claimed).Prior.Mean * rng.Between(0.9f, 1.3f);
                     reservation = ask * rng.Between(0.2f, 0.3f);
@@ -141,6 +144,12 @@ public sealed class GameState
     public int RentPayments { get; private set; }
     public Random Rng { get; private set; } = new();
 
+    /// <summary>What the player has learned. It survives starting over: knowledge is the real progression.</summary>
+    public Ledger Ledger { get; } = new();
+
+    /// <summary>Whether the next first day is the scripted one that teaches the clues.</summary>
+    public bool Guided { get; set; }
+
     public List<Visit> Queue { get; } = new();
     public Visit Current { get; private set; }
     public List<Purchase> Purchases { get; } = new();
@@ -171,6 +180,12 @@ public sealed class GameState
         Purchases.Clear();
         Queue.Clear();
         Current = null;
+        if (Guided && Day == 1)
+        {
+            Guided = false;
+            Queue.AddRange(Lessons.FirstDay.Select(lesson => Lessons.ToVisit(lesson, Rng)));
+            return;
+        }
         int count = 6 + (Rng.NextFloat() < 0.5f ? 1 : 0);
         foreach (var seller in Sellers.All.OrderBy(_ => Rng.Next()).Take(count))
             Queue.Add(Market.CreateVisit(Rng, seller, AppraiserFor));

@@ -4,21 +4,24 @@ using LootFall.Core;
 
 namespace LootFall.Ui;
 
-/// <summary>A revealed item. Hover it to read the flavor text.</summary>
+/// <summary>A revealed item, with the sound it makes so the two stick together. Hover it to read the flavor text.</summary>
 public partial class ItemCard : Panel
 {
     public const float W = 180;
-    public const float H = 216;
+    public const float H = 236;
     const float IconWidth = 150, IconHeight = 100;
 
     public RevealedItem Item { get; }
+    readonly bool _new;
     Label _value;
 
     public ItemCard() { }
 
-    public ItemCard(RevealedItem item)
+    /// <param name="isNew">First time you've found one: it just went into the ledger.</param>
+    public ItemCard(RevealedItem item, bool isNew = false)
     {
         Item = item;
+        _new = isNew;
     }
 
     public override void _Ready()
@@ -54,8 +57,12 @@ public partial class ItemCard : Panel
         name.VerticalAlignment = VerticalAlignment.Center;
         AddChild(name);
 
+        string word = $"'{Item.Def.Sound.Word}'";
+        AddChild(UiKit.MakeLabel(_new ? $"NEW  {word}" : word, 16, _new ? Palette.Gold : Palette.Muted, HorizontalAlignment.Center)
+            .Place(0, 180, W, 20));
+
         _value = UiKit.MakeLabel("0g", 24, Item.Shattered ? Palette.Bad : Palette.Gold, HorizontalAlignment.Center, outline: 4)
-            .Place(0, 184, W, 28);
+            .Place(0, 202, W, 28);
         AddChild(_value);
 
         if (Item.Pristine) AddRibbon("+25%", 9);

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Godot;
 using LootFall.Core;
@@ -8,7 +9,8 @@ namespace LootFall.Debug;
 /// <summary>
 /// Plays the shop hands-free so it can be screenshotted, recorded or smoke-tested headlessly:
 /// `godot --path . -- --autoplay --seed=4306 [--shots=DIR] [--quit-at-end] [--days=N] [--bot-crowbar] [--bot-pass-odd]`.
-/// It shakes every chest, checks the lock on Silas's, peeks once for the camera, and haggles from 60% of the ask.
+/// It shakes, weighs and knocks on every chest, looks inside when a lesson calls for it (and once a day otherwise),
+/// passes on cons, and haggles from 60% of the ask.
 /// </summary>
 public partial class Autoplay : Node
 {
@@ -25,7 +27,7 @@ public partial class Autoplay : Node
     public bool PassOdd;
 
     int _customersToday;
-    bool _peeked;
+    bool _peekedToday, _ledgerShown;
 
     static GameState State => Main.Instance.State;
 
@@ -33,6 +35,7 @@ public partial class Autoplay : Node
     public bool OnDayStarted(int day)
     {
         _customersToday = 0;
+        _peekedToday = false;
         if (MaxDays <= 0 || day <= MaxDays) return true;
         GD.Print($"Autoplay finished {MaxDays} days with {State.Gold}g");
         GetTree().Quit();
@@ -64,45 +67,63 @@ public partial class Autoplay : Node
     {
         _customersToday++;
         var visit = counter.Visit;
+        var lesson = visit.Lesson;
+        bool Expects(Cue cue) => lesson != null && new Tutor(lesson).Expects(cue);
 
-        counter.Shake.AutoShake(1.8);
-        await Wait(0.9);
+        counter.Shake.AutoShake(2.4);
+        await Wait(1.0);
         Main.Instance.Moment("01_shake");
+        await Wait(2.2);
+        if (!IsInstanceValid(counter)) return;
+
+        if (!_ledgerShown || Expects(Cue.LedgerOpened))
+        {
+            _ledgerShown = true;
+            counter.OpenLedger();
+            await Wait(2.0);
+            if (!IsInstanceValid(counter)) return;
+            counter.CloseLedger();
+            await Wait(0.6);
+        }
+
+        // Handling the chest is free, so do all of it.
+        counter.Weigh();
+        await Wait(2.2);
+        if (!IsInstanceValid(counter)) return;
+        counter.Knock();
         await Wait(1.6);
         if (!IsInstanceValid(counter)) return;
 
-        if (!_peeked)
+        bool look = lesson != null ? Expects(Cue.SawItem) : visit.Seller.Type == Archetype.Con || !_peekedToday;
+        if (look)
         {
-            _peeked = true;
+            _peekedToday = true;
             counter.Peek();
-            await Wait(1.8);
+            await Wait(0.3);
+            counter.Keyhole?.AutoSweep(3.2);
+            await Wait(3.6);
             if (!IsInstanceValid(counter)) return;
             counter.CloseKeyhole();
             await Wait(0.8);
+            if (!IsInstanceValid(counter)) return;
         }
 
-        if (PassOdd && _customersToday % 2 == 0)
+        // The lantern shows the rag-wrapped stones.
+        if (visit.Chest.Tampered || (PassOdd && _customersToday % 2 == 0))
         {
             counter.Pass();
             return;
         }
 
-        if (visit.Seller.Type == Archetype.Con)
+        // A lesson chest is a good buy by design: one offer, then pay.
+        if (lesson != null)
         {
-            counter.ExamineLock();
-            await Wait(1.2);
-            if (!IsInstanceValid(counter)) return;
-            if (visit.Chest.ShownLock != visit.Chest.Lock)
-            {
-                counter.Pass();
-                return;
-            }
-        }
-        else if (visit.Seller.Type == Archetype.Collector)
-        {
-            counter.Knock();
-            await Wait(1.2);
-            if (!IsInstanceValid(counter)) return;
+            counter.MakeOffer(Math.Min(State.Gold, Money.RoundTo5(visit.Ask * 0.8f)));
+            await Wait(1.3);
+            if (!IsInstanceValid(counter) || counter.Concluded) return;
+            if (State.Gold >= visit.Ask) counter.PayAsk();
+            else counter.Pass();
+            return;
         }
 
         foreach (float fraction in new[] { 0.6f, 0.72f, 0.85f })

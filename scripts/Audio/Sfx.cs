@@ -6,8 +6,8 @@ using Godot;
 namespace LootFall.Audio;
 
 /// <summary>
-/// Two kinds of sound: recorded CC0 samples in groups under res://assets/audio/ (the material vocabulary for
-/// shaking chests), and placeholder effects synthesized at startup for everything else.
+/// Two kinds of sound: recorded CC0 samples in groups under res://assets/audio/ (each item's own sound when a chest
+/// is shaken, plus handling noises), and placeholder effects synthesized at startup for everything else.
 /// </summary>
 public partial class Sfx : Node
 {
@@ -59,6 +59,9 @@ public partial class Sfx : Node
         if (streams.Length > 0) PlayStream(streams[_rng.Next(streams.Length)], pitch, volumeDb);
     }
 
+    /// <summary>An item's own sound, exactly as it rattles in a chest.</summary>
+    public void Play(Core.Signature sound, float volumeDb = 0f) => PlayGroup(sound.Group, sound.Pitch, sound.VolumeDb + volumeDb);
+
     void PlayStream(AudioStream stream, float pitch, float volumeDb)
     {
         var voice = _voices.FirstOrDefault(v => !v.Playing) ?? _voices[_nextVoice++ % _voices.Count];
@@ -89,10 +92,6 @@ public partial class Sfx : Node
         Add("blip", new Synth(0.35f).Tone(0, 0.35f, 880, 0.5f, 12).Tone(0, 0.35f, 1320, 0.22f, 18));
         Add("tick", new Synth(0.05f).Tone(0, 0.05f, 1500, 0.25f, 80));
         Add("bid", new Synth(0.15f).Tone(0, 0.15f, 620, 0.4f, 30).Tone(0, 0.15f, 930, 0.18f, 40));
-        Add("fold", new Synth(0.35f).Tone(0, 0.35f, 330, 0.35f, 9, freqEnd: 240));
-        Add("gavel", new Synth(0.45f)
-            .Tone(0, 0.15f, 190, 0.8f, 35).Noise(0, 0.05f, 0.5f, 90, 0.6f)
-            .Tone(0.2f, 0.2f, 170, 0.9f, 30).Noise(0.2f, 0.06f, 0.6f, 80, 0.6f));
         Add("coin", new Synth(0.5f)
             .Tone(0, 0.4f, 2350, 0.3f, 11).Tone(0, 0.4f, 3520, 0.2f, 14).Tone(0, 0.4f, 4980, 0.1f, 18)
             .Tone(0.07f, 0.4f, 2500, 0.18f, 12).Tone(0.07f, 0.4f, 3750, 0.12f, 15));
@@ -113,7 +112,11 @@ public partial class Sfx : Node
         Add("win", new Synth(0.8f).Tone(0, 0.6f, 659, 0.3f, 5).Tone(0.1f, 0.6f, 784, 0.3f, 5).Tone(0.2f, 0.6f, 1047, 0.35f, 4));
         Add("lose", new Synth(0.7f).Tone(0, 0.35f, 392, 0.35f, 6).Tone(0.22f, 0.45f, 330, 0.35f, 5, freqEnd: 300));
         Add("scale", new Synth(0.7f).Tone(0, 0.2f, 140, 0.6f, 20).Noise(0, 0.05f, 0.4f, 60, 0.5f).Tone(0.06f, 0.6f, 900, 0.15f, 7, freqEnd: 760));
-        Add("inspect_lock", new Synth(0.4f).Tone(0, 0.12f, 2400, 0.22f, 45).Tone(0.14f, 0.12f, 2650, 0.22f, 45).Noise(0, 0.03f, 0.2f, 100, 0.8f));
+        // A sealed hollow under the floor rings on like a drum; a solid chest has nothing like it.
+        Add("hollow", new Synth(1.4f)
+            .Tone(0, 1.4f, 92, 0.9f, 2.6f, freqEnd: 86).Tone(0, 1.2f, 139, 0.5f, 3.4f).Tone(0, 0.9f, 211, 0.25f, 5f)
+            .Noise(0, 0.06f, 0.5f, 40, 0.15f));
+        Add("lantern", new Synth(0.5f).Noise(0, 0.45f, 0.3f, 7, 0.08f, attack: 0.05f).Tone(0.02f, 0.3f, 1300, 0.08f, 12));
 
         var creak = new Synth(0.8f);
         for (float t = 0; t < 0.7f; t += 1f / Mathf.Lerp(30, 70, t / 0.7f))
@@ -123,35 +126,6 @@ public partial class Sfx : Node
         var shatter = new Synth(0.6f).Noise(0, 0.45f, 0.55f, 11, 0.9f, highpass: true);
         for (int i = 0; i < 12; i++) shatter.Tone(R(0, 0.3f), 0.2f, R(2800, 5600), R(0.08f, 0.18f), R(25, 45));
         Add("shatter", shatter);
-
-        var jingle = new Synth(0.7f);
-        for (int i = 0; i < 10; i++)
-        {
-            float t = R(0, 0.5f), f = R(2000, 3300);
-            jingle.Tone(t, 0.25f, f, 0.18f, 20).Tone(t, 0.25f, f * 1.5f, 0.08f, 28);
-        }
-        Add("shake_jingle", jingle);
-
-        var clink = new Synth(0.7f);
-        for (int i = 0; i < 7; i++) clink.Tone(R(0, 0.5f), 0.2f, R(3200, 5000), 0.2f, 40);
-        Add("shake_clink", clink);
-
-        var clank = new Synth(0.8f);
-        for (int i = 0; i < 4; i++)
-        {
-            float t = R(0, 0.5f), f = R(380, 700);
-            clank.Tone(t, 0.3f, f, 0.35f, 16).Tone(t, 0.3f, f * 2.76f, 0.12f, 24).Noise(t, 0.03f, 0.3f, 80, 0.6f);
-        }
-        Add("shake_clank", clank);
-
-        var thud = new Synth(0.8f);
-        foreach (float t in new[] { 0f, 0.22f, 0.45f })
-            thud.Tone(t, 0.3f, R(75, 95), 0.8f, 14, freqEnd: 50).Noise(t, 0.08f, 0.4f, 40, 0.08f);
-        Add("shake_thud", thud);
-
-        var rustle = new Synth(0.7f);
-        for (int i = 0; i < 8; i++) rustle.Noise(R(0, 0.5f), 0.15f, 0.25f, 12, 0.6f, highpass: true, attack: 0.02f);
-        Add("shake_rustle", rustle);
 
         // Integer frequencies over exactly one second loop seamlessly; the 110/111 pair gives a slow shimmer.
         var hum = new Synth(1f).Tone(0, 1f, 110, 0.3f, 0, attack: 0).Tone(0, 1f, 111, 0.18f, 0, attack: 0)
