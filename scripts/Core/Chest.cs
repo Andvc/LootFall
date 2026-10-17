@@ -21,18 +21,18 @@ public sealed class Chest
     /// <summary>Every chest in town comes from the same cooper, so an empty one always weighs the same.</summary>
     public const float EmptyWeight = 6f;
 
-    public Provenance Provenance { get; }
+    public Origin Origin { get; }
     public LockTier Lock { get; }
     public IReadOnlyList<ChestItem> Items { get; }
 
     /// <summary>A hidden compartment. Padded, so it never rattles, but its contents weigh and it knocks hollow.</summary>
     public ChestItem FalseBottom { get; }
 
-    /// <summary>Stones a con artist wrapped in sacking so they wouldn't rattle: dead weight to make a chest feel full.</summary>
+    /// <summary>Stones a con artist wrapped in rags so they wouldn't rattle: dead weight to make a chest feel full.</summary>
     public IReadOnlyList<float> Stones { get; }
 
-    public bool Tampered => Stones.Count > 0;
-    public bool HasFragile { get; }
+    public bool Tampered => Stones.Count > 0 || Items.Any(i => i.Def.Fake);
+    public bool HasFragile => Items.Any(i => i.Def.Fragile);
 
     /// <summary>Raw value of the loose contents, before lockpicking modifiers. The false bottom is a bonus on top.</summary>
     public int Value { get; }
@@ -42,88 +42,72 @@ public sealed class Chest
 
     public float Weight => EmptyWeight + ContentsWeight;
 
+    /// <summary>How hard a mana compass needle swings: 0 still, 1 a twitch, 2 or more a hard swing.</summary>
+    public int Magic => Items.Sum(i => i.Def.Magic) + (FalseBottom?.Def.Magic ?? 0);
+
+    /// <summary>How much iron and steel a lodestone feels, in pounds.</summary>
+    public float IronWeight => Items.Where(i => i.Def.Magnetic).Sum(i => i.Def.Weight);
+
     public IEnumerable<Rattler> Rattlers => Items.Select(i => new Rattler(i.Def));
 
-    public Chest(Provenance provenance, LockTier lockTier, IEnumerable<ChestItem> items, ChestItem falseBottom = null,
+    public Chest(Origin origin, LockTier lockTier, IEnumerable<ChestItem> items, ChestItem falseBottom = null,
         IReadOnlyList<float> stones = null)
     {
-        Provenance = provenance;
+        Origin = origin;
         Lock = lockTier;
         Items = items.ToList();
         FalseBottom = falseBottom;
         Stones = stones ?? Array.Empty<float>();
         Value = Items.Sum(i => i.Value);
-        HasFragile = Items.Any(i => i.Def.Fragile);
         float contents = Items.Sum(i => i.Def.Weight) + (falseBottom?.Def.Weight ?? 0f) + Stones.Sum();
         ContentsWeight = MathF.Round(contents * 10f) / 10f;
     }
 
-    /// <summary>Builds a chest with exactly these items (for the guided first day).</summary>
-    public static Chest Of(string provenance, int lockIndex, string[] items, string falseBottom = null, float[] stones = null) =>
-        new(Provenances.Get(provenance), LockTiers.All[lockIndex], items.Select(k => new ChestItem(ItemCatalog.Get(k))),
-            falseBottom == null ? null : new ChestItem(ItemCatalog.Get(falseBottom)), stones);
+    /// <summary>Builds a chest with exactly these items (for scripted customers).</summary>
+    public static Chest Of(Origin origin, int lockIndex, params string[] items) =>
+        new(origin, LockTiers.All[lockIndex], items.Select(k => new ChestItem(ItemCatalog.Get(k))));
 }
 
 public static class ChestGenerator
 {
     public const float FalseBottomChance = 0.15f;
 
-    /// <param name="wealth">Forces the hidden wealth roll (0..1) instead of rolling it.</param>
-    public static Chest Generate(Random rng, Provenance provenance, float? wealth = null)
+    /// <param name="itemTier">Highest item tier this seller has access to.</param>
+    /// <param name="falseBottoms">Whether hidden compartments turn up yet (they're a late-game surprise).</param>
+    public static Chest Generate(Random rng, Origin origin, int itemTier, bool falseBottoms = false)
     {
-        // A hidden "wealth" roll drives both the lock the owner bought and the rarity of what's inside.
-        float w = wealth ?? Math.Clamp(MathF.Pow(rng.NextFloat(), 1.5f) + provenance.WealthBias * 0.25f, 0f, 1f);
-
-        // Usually the lock matches the wealth, but sometimes a fancy lock guards junk (or the reverse).
-        int lockIndex = rng.NextFloat() < 0.8f
-            ? Math.Clamp((int)(w * 4f + rng.Between(-0.6f, 0.6f)), 0, 3)
-            : rng.Next(4);
-
-        // Never two things with the same sound in one chest: each sound you hear is exactly one item.
-        int count = 2 + rng.Next(3);
+        var pool = ItemCatalog.UpTo(itemTier).ToArray();
+        int count = 2 + rng.Next(itemTier >= 3 ? 4 : 3);
         var items = new List<ChestItem>(count);
-        var sounds = new HashSet<Signature>();
-        for (int attempt = 0; items.Count < count && attempt < 40; attempt++)
-        {
-            var def = RollItem(rng, provenance, w, 0f, d => !sounds.Contains(d.Sound));
-            if (def == null) continue;
-            items.Add(new ChestItem(def));
-            sounds.Add(def.Sound);
-        }
+        for (int i = 0; i < count; i++)
+            items.Add(new ChestItem(Roll(rng, origin, pool)));
 
-        var falseBottom = rng.NextFloat() < FalseBottomChance ? RollItem(rng, provenance, w, 0.25f) : null;
-        return new Chest(provenance, LockTiers.All[lockIndex], items, falseBottom == null ? null : new ChestItem(falseBottom));
+        int value = items.Sum(i => i.Value);
+        var falseBottom = falseBottoms && rng.NextFloat() < FalseBottomChance
+            ? new ChestItem(rng.PickWeighted(pool.Where(d => d.Value >= 40).ToArray(), d => ItemCatalog.Commonness(d)))
+            : null;
+        return new Chest(origin, LockTiers.For(rng, itemTier, value), items, falseBottom);
+    }
+
+    static ItemDef Roll(Random rng, Origin origin, ItemDef[] pool)
+    {
+        var families = Families.All.Where(f => pool.Any(d => d.Family == f)).ToArray();
+        var family = rng.PickWeighted(families, origin.Weight);
+        return rng.PickWeighted(pool.Where(d => d.Family == family).ToArray(), ItemCatalog.Commonness);
     }
 
     /// <summary>
-    /// A con artist's job. Stones wrapped in rags so they don't rattle: either a whole sack of them so the chest feels
-    /// full, or (the clever version) just enough to make a copper purse weigh what a purse of gold would. The scale
-    /// can't tell that apart; a look inside can.
+    /// A con artist's job. Either junk with a sack of rag-wrapped stones so it feels full, or iron slugs gilded to pass
+    /// for gold doubloons: same jingle, same weight. A look inside shows the rags; a lodestone grabs the slugs.
     /// </summary>
-    public static Chest Tamper(Random rng, Chest chest)
+    public static Chest Tamper(Random rng, Chest junk)
     {
         if (rng.NextFloat() < 0.5f)
         {
             var stones = Enumerable.Range(0, 1 + rng.Next(2)).Select(_ => MathF.Round(rng.Between(3f, 5f), 1)).ToList();
-            return new Chest(chest.Provenance, chest.Lock, chest.Items, chest.FalseBottom, stones);
+            return new Chest(Origins.Manor, junk.Lock, junk.Items, null, stones);
         }
-        var copper = ItemCatalog.Get("copper_purse");
-        var gold = ItemCatalog.Get("gold_purse");
-        var items = chest.Items.Where(i => i.Def.Sound != copper.Sound).Take(2).Append(new ChestItem(copper));
-        return new Chest(chest.Provenance, chest.Lock, items, chest.FalseBottom, new[] { gold.Weight - copper.Weight });
-    }
-
-    static ItemDef RollItem(Random rng, Provenance provenance, float wealth, float boost, Func<ItemDef, bool> allowed = null)
-    {
-        float roll = rng.NextFloat() * 0.32f + wealth * 0.68f + boost;
-        var rarity = roll switch
-        {
-            < 0.33f => Rarity.Common,
-            < 0.55f => Rarity.Uncommon,
-            < 0.74f => Rarity.Rare,
-            < 0.92f => Rarity.Epic,
-            _ => Rarity.Legendary,
-        };
-        return ItemCatalog.Pick(rng, provenance.RollFamily(rng), rarity, allowed);
+        var slugs = new ChestItem(ItemCatalog.Get("gilded_slugs"));
+        return new Chest(Origins.Manor, junk.Lock, junk.Items.Take(2).Append(slugs), null);
     }
 }

@@ -57,8 +57,9 @@ public partial class ItemCard : Panel
         name.VerticalAlignment = VerticalAlignment.Center;
         AddChild(name);
 
-        string word = $"'{Item.Def.Sound.Word}'";
-        AddChild(UiKit.MakeLabel(_new ? $"NEW  {word}" : word, 16, _new ? Palette.Gold : Palette.Muted, HorizontalAlignment.Center)
+        // The sound it made in the chest, so the two stick together.
+        string word = Families.Describe(Item.Def.Family, Item.Def.Variant);
+        AddChild(UiKit.MakeLabel(_new ? $"NEW: {word}" : word, 16, _new ? Palette.Gold : Palette.Muted, HorizontalAlignment.Center)
             .Place(0, 180, W, 20));
 
         _value = UiKit.MakeLabel("0g", 24, Item.Shattered ? Palette.Bad : Palette.Gold, HorizontalAlignment.Center, outline: 4)

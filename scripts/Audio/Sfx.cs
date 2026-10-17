@@ -6,8 +6,9 @@ using Godot;
 namespace LootFall.Audio;
 
 /// <summary>
-/// Two kinds of sound: recorded CC0 samples in groups under res://assets/audio/ (each item's own sound when a chest
-/// is shaken, plus handling noises), and placeholder effects synthesized at startup for everything else.
+/// Two kinds of sound: recorded CC0 samples in groups under res://assets/audio/ (what each family of things sounds
+/// like in a shaken chest, plus handling noises), and sounds synthesized at startup: the slosh of liquid, the fizz and
+/// hum of magic, and placeholder effects. A group name can be either kind.
 /// </summary>
 public partial class Sfx : Node
 {
@@ -41,9 +42,17 @@ public partial class Sfx : Node
         PlayStream(stream, pitch, volumeDb);
     }
 
-    /// <summary>Plays a random recording from res://assets/audio/{group}/ (files 0.ogg, 1.ogg, ...).</summary>
+    /// <summary>
+    /// Plays a synthesized sound by that name, or else a random recording from res://assets/audio/{group}/
+    /// (files 0.ogg, 1.ogg, ...).
+    /// </summary>
     public void PlayGroup(string group, float pitch = 1f, float volumeDb = 0f)
     {
+        if (_sounds.TryGetValue(group, out var synth))
+        {
+            PlayStream(synth, pitch, volumeDb);
+            return;
+        }
         if (!_groups.TryGetValue(group, out var streams))
         {
             var list = new List<AudioStream>();
@@ -59,8 +68,21 @@ public partial class Sfx : Node
         if (streams.Length > 0) PlayStream(streams[_rng.Next(streams.Length)], pitch, volumeDb);
     }
 
-    /// <summary>An item's own sound, exactly as it rattles in a chest.</summary>
-    public void Play(Core.Signature sound, float volumeDb = 0f) => PlayGroup(sound.Group, sound.Pitch, sound.VolumeDb + volumeDb);
+    /// <summary>An item's sound as it rattles in a chest: its family's sound at its pitch, plus any extra layer.</summary>
+    public void Play(Core.Signature sound, float volumeDb = 0f, float pitchJitter = 0f)
+    {
+        float pitch = sound.Pitch * (1f + pitchJitter);
+        PlayGroup(sound.Group, pitch, sound.VolumeDb + volumeDb);
+        if (sound.Layer != null) PlayGroup(sound.Layer, 1f + pitchJitter, volumeDb - 2f);
+    }
+
+    /// <summary>Writes every synthesized sound to WAV files, so they can be checked outside the game.</summary>
+    public void Export(string directory)
+    {
+        DirAccess.MakeDirRecursiveAbsolute(directory);
+        foreach (var (name, stream) in _sounds)
+            if (stream is AudioStreamWav wav) wav.SaveToWav($"{directory}/{name}.wav");
+    }
 
     void PlayStream(AudioStream stream, float pitch, float volumeDb)
     {
@@ -112,16 +134,43 @@ public partial class Sfx : Node
         Add("win", new Synth(0.8f).Tone(0, 0.6f, 659, 0.3f, 5).Tone(0.1f, 0.6f, 784, 0.3f, 5).Tone(0.2f, 0.6f, 1047, 0.35f, 4));
         Add("lose", new Synth(0.7f).Tone(0, 0.35f, 392, 0.35f, 6).Tone(0.22f, 0.45f, 330, 0.35f, 5, freqEnd: 300));
         Add("scale", new Synth(0.7f).Tone(0, 0.2f, 140, 0.6f, 20).Noise(0, 0.05f, 0.4f, 60, 0.5f).Tone(0.06f, 0.6f, 900, 0.15f, 7, freqEnd: 760));
+        // Liquid in a bottle: a tick of glass, a low rush of water and a run of rising bubbles ("bloop").
+        var slosh = new Synth(0.6f)
+            .Tone(0, 0.015f, 2600, 0.22f, 110)
+            .Noise(0.01f, 0.45f, 0.35f, 6.5f, 0.04f, attack: 0.06f)
+            .Noise(0.03f, 0.3f, 0.07f, 11, 0.2f, attack: 0.04f);
+        for (int i = 0; i < 9; i++)
+        {
+            float t = 0.04f + i * 0.045f + R(0, 0.025f), f = R(300, 640);
+            slosh.Tone(t, 0.07f, f, R(0.35f, 0.55f), 36, freqEnd: f * R(1.7f, 2.2f), attack: 0.004f);
+        }
+        Add("slosh", slosh);
+
+        // Magic: a crackling fizz, and a soft shimmering hum (two close notes beating against each other).
+        var fizz = new Synth(0.5f).Noise(0, 0.45f, 0.25f, 5, 0.9f, highpass: true, attack: 0.02f);
+        for (int i = 0; i < 180; i++) fizz.Tone(R(0, 0.42f), 0.004f, R(4200, 9000), R(0.12f, 0.28f), 600, attack: 0.0005f);
+        Add("fizz", fizz);
+        Add("hum", new Synth(0.7f)
+            .Tone(0, 0.7f, 196, 0.22f, 3, attack: 0.08f).Tone(0, 0.7f, 198.5f, 0.18f, 3, attack: 0.08f)
+            .Tone(0, 0.6f, 294, 0.12f, 4, attack: 0.1f).Tone(0, 0.5f, 392, 0.06f, 5, attack: 0.1f));
+        // Something soft but heavy landing: thick cloth, a book.
+        Add("thump", new Synth(0.25f).Tone(0, 0.2f, 88, 0.7f, 20, freqEnd: 52).Noise(0, 0.05f, 0.25f, 45, 0.05f));
+        // A compass needle swinging on its pivot.
+        var whirr = new Synth(0.5f);
+        for (int i = 0; i < 9; i++) whirr.Tone(0.02f + i * i * 0.006f, 0.02f, 3000 - i * 120, 0.3f, 120);
+        Add("compass", whirr);
+
         // A sealed hollow under the floor rings on like a drum; a solid chest has nothing like it.
         Add("hollow", new Synth(1.4f)
             .Tone(0, 1.4f, 92, 0.9f, 2.6f, freqEnd: 86).Tone(0, 1.2f, 139, 0.5f, 3.4f).Tone(0, 0.9f, 211, 0.25f, 5f)
             .Noise(0, 0.06f, 0.5f, 40, 0.15f));
         Add("lantern", new Synth(0.5f).Noise(0, 0.45f, 0.3f, 7, 0.08f, attack: 0.05f).Tone(0.02f, 0.3f, 1300, 0.08f, 12));
+        Add("peek", new Synth(0.3f).Tone(0, 0.08f, 1800, 0.2f, 40).Tone(0.06f, 0.1f, 2400, 0.15f, 35));
 
         var creak = new Synth(0.8f);
         for (float t = 0; t < 0.7f; t += 1f / Mathf.Lerp(30, 70, t / 0.7f))
             creak.Tone(t, 0.04f, R(260, 420), R(0.15f, 0.35f) * MathF.Sin(MathF.PI * t / 0.7f), 60);
-        Add("creak", creak);
+        Add("strain", creak);
 
         var shatter = new Synth(0.6f).Noise(0, 0.45f, 0.55f, 11, 0.9f, highpass: true);
         for (int i = 0; i < 12; i++) shatter.Tone(R(0, 0.3f), 0.2f, R(2800, 5600), R(0.08f, 0.18f), R(25, 45));

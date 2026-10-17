@@ -2,7 +2,7 @@ using Godot;
 
 namespace LootFall.Ui;
 
-/// <summary>Top bar: title, lot number and gold. Lives on its own layer so screen shake doesn't move it.</summary>
+/// <summary>Top bar: title, day and shop, gold. Lives on its own layer so screen shake doesn't move it.</summary>
 public partial class Hud : CanvasLayer
 {
     Label _lot;
@@ -18,7 +18,7 @@ public partial class Hud : CanvasLayer
             p.DrawRect(new Rect2(0, 54, 1280, 3), Palette.PanelBorder);
             p.DrawRect(new Rect2(0, 57, 1280, 3), new Color(0, 0, 0, 0.6f));
         }));
-        AddChild(UiKit.MakeSprite("res://assets/sprites/items/doubloons.png", new Vector2(1084, 27), 2));
+        AddChild(UiKit.MakeSprite("res://assets/sprites/items/gold_doubloons.png", new Vector2(1084, 27), 2));
         AddChild(UiKit.MakeLabel("LOOTFALL", 32, Palette.Gold, outline: 4).Place(24, 8, 300, 40));
         AddChild(UiKit.MakeLabel("prototype", 16, Palette.Muted).Place(196, 20, 160, 20));
         _lot = UiKit.MakeLabel("", 24, Palette.Text, HorizontalAlignment.Center).Place(440, 12, 400, 30);
@@ -28,7 +28,7 @@ public partial class Hud : CanvasLayer
         AddChild(_gold);
     }
 
-    public void SetClock(int day, int minute) => _lot.Text = $"Day {day}  -  {Core.ShopClock.Format(minute)}";
+    public void SetDay(int day, int tier) => _lot.Text = $"Day {day}  -  {Core.ShopTiers.Name(tier)}";
 
     public void SetGold(int gold, bool animate = true)
     {

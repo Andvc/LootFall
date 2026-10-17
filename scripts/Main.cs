@@ -11,8 +11,9 @@ namespace LootFall;
 
 /// <summary>
 /// Root of the game: owns the game state, audio, HUD and screen effects, and swaps between phases.
-/// Command-line flags (after `--`): --seed=N, --sim, --find-demo, --shake-test, --autoplay, --shots=DIR, --quit-at-end,
-/// --no-tutorial (skip the guided first day).
+/// Command-line flags (after `--`): --seed=N, --sim [--n=N], --shake-test, --export-sounds=DIR, --autoplay,
+/// --shots=DIR, --quit-at-end, --days=N, --bot-crowbar, --no-tutorial (no tips, no gentle first customer),
+/// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then).
 /// </summary>
 public partial class Main : Node2D
 {
@@ -50,15 +51,11 @@ public partial class Main : Node2D
             AddChild(new ShakeTest { Count = int.Parse(Arg(args, "--n") ?? "40") });
             return;
         }
-        if (args.Contains("--find-demo"))
-        {
-            Simulation.FindDemoSeeds();
-            GetTree().Quit();
-            return;
-        }
 
         int seed = int.TryParse(Arg(args, "--seed"), out var s) ? s : (int)(Time.GetUnixTimeFromSystem() % 1_000_000);
         State = new GameState(seed) { Guided = !args.Contains("--no-tutorial") };
+        if (int.TryParse(Arg(args, "--start-tier"), out var startTier))
+            State.SkipTo(Math.Clamp(startTier, 1, ShopTiers.Max), int.TryParse(Arg(args, "--gold"), out var g) ? g : 500);
         GD.Print($"LootFall seed {seed}");
 
         AddChild(new Painter(DrawBackground));
@@ -67,6 +64,13 @@ public partial class Main : Node2D
 
         Sfx = new Sfx();
         AddChild(Sfx);
+        if (Arg(args, "--export-sounds") is string soundDir)
+        {
+            Sfx.Export(soundDir);
+            GD.Print($"Exported synthesized sounds to {soundDir}");
+            GetTree().Quit();
+            return;
+        }
         Hud = new Hud();
         AddChild(Hud);
 
@@ -86,7 +90,6 @@ public partial class Main : Node2D
                 QuitAtEnd = args.Contains("--quit-at-end"),
                 MaxDays = int.TryParse(Arg(args, "--days"), out var days) ? days : 0,
                 UseCrowbar = args.Contains("--bot-crowbar"),
-                PassOdd = args.Contains("--bot-pass-odd"),
             };
             AddChild(_bot);
         }
@@ -105,11 +108,12 @@ public partial class Main : Node2D
         NextCustomer();
     }
 
-    /// <summary>Calls the next customer to the counter, or closes up and heads to the back room.</summary>
+    /// <summary>Calls the next customer to the counter, or closes up for the day.</summary>
     public void NextCustomer()
     {
+        Hud.SetDay(State.Day, State.Tier);
         if (State.NextCustomer()) SwitchTo(new CounterPhase());
-        else SwitchTo(new BackRoomPhase());
+        else SwitchTo(new DayEndPhase());
     }
 
     public async void SwitchTo(Phase next)

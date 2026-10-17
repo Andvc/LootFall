@@ -3,200 +3,273 @@ using System.Linq;
 
 namespace LootFall.Core;
 
-/// <summary>How a seller values their chest and haggles. Players learn these by meeting the same people again.</summary>
-public enum Archetype
+/// <summary>
+/// How a seller decides what to ask. Each one has a blind spot that one of your clues can see through, which is where
+/// profit comes from: you know something about the chest that they don't.
+/// </summary>
+public enum PriceRule
 {
-    /// <summary>Has no idea what's inside; prices on a hunch. Honest.</summary>
-    Clueless,
-    /// <summary>Judges by the lock, like an old scavenger. Fair, firm.</summary>
-    Cautious,
-    /// <summary>Thinks every heirloom is priceless. Sometimes secretly broke.</summary>
-    Braggart,
-    /// <summary>Knows exactly what's inside, but never knocks for false bottoms.</summary>
-    Collector,
-    /// <summary>Names one price. Take it or leave it.</summary>
-    Salvager,
-    /// <summary>Often sells junk dressed up as treasure. Folds fast when pushed.</summary>
-    Con,
-    /// <summary>Needs money today. Sells cheap.</summary>
+    /// <summary>Guesses. Sometimes way off, either way.</summary>
+    Hunch,
+    /// <summary>Needs money today: asks little, takes less.</summary>
     Desperate,
-    /// <summary>Nervous apprentice selling fragile tower stock below its worth.</summary>
-    Novice,
+    /// <summary>Counts the rattles, not what's rattling.</summary>
+    ByCount,
+    /// <summary>The same few coins for anything.</summary>
+    Flat,
+    /// <summary>Heavy means valuable. The scale shows when it isn't.</summary>
+    ByWeight,
+    /// <summary>Knows what's inside and prices it right. Bargains only from what they can't know about.</summary>
+    Fair,
+    /// <summary>Judges by the lock, not what's behind it.</summary>
+    ByLock,
+    /// <summary>Knows what kind of thing it is by the sound, but not which: copper or silver, iron or steel.</summary>
+    ByFamily,
+    /// <summary>Magic is priceless, everything else is junk. The compass shows which is which.</summary>
+    ByMagic,
+    /// <summary>Asks far too much; folds when pushed, sometimes.</summary>
+    Braggart,
+    /// <summary>A crook: junk dressed up as treasure.</summary>
+    Con,
 }
 
+/// <param name="Key">Portrait under res://assets/sprites/sellers/.</param>
+/// <param name="Tier">The shop tier at which they start coming in.</param>
+/// <param name="Quirk">What you learn about them: their pricing blind spot, in a sentence.</param>
+/// <param name="OnePrice">Never haggles.</param>
 public sealed record SellerDef(
     string Key,
     string Name,
-    Archetype Type,
-    int Patience,
-    float Concession,
-    string[] Origins,
+    int Tier,
+    Origin Origin,
+    PriceRule Rule,
+    string Quirk,
+    bool OnePrice,
     string[] Pitches,
     string[] Counters,
     string[] Accepts,
-    string[] Insulted,
-    string[] Leaves,
-    string[] Nervous);
+    string[] Leaves);
 
 public static class Sellers
 {
-    // Shared lines; {price}, {counter} and {origin} are filled in per visit.
     static readonly string[] Shrug = { "Suit yourself.", "Your loss.", "Another time, then." };
 
     public static readonly SellerDef[] All =
     {
-        new("hob", "Hob the Farmer", Archetype.Clueless, 3, 0.5f,
-            new[] { "Farmhouse Cellar", "Soldier's Footlocker" },
-            new[] { "Dug this up under the turnips. No idea what's in it. {price}?", "Found it in the old barn. Heavy thing. Say, {price}?" },
-            new[] { "Hmm. Meet me at {counter}?", "My wife'd skin me. {counter}." },
+        // Tier 1: the village. Everyday things, simple prices.
+        new("hob", "Hob the Farmer", 1, Origins.Farm, PriceRule.Hunch, "Prices on a hunch. Sometimes way off, either way.", false,
+            new[] { "Dug this up under the turnips. {price}?", "Found it in the old barn. Say, {price}?" },
+            new[] { "Hmm. {counter}, and that's my last word.", "My wife'd skin me. {counter}." },
             new[] { "Deal! Wait till I tell the missus.", "Done. Easy money!" },
-            new[] { "That won't buy a sack of seed.", "Now that's just rude." },
-            new[] { "I'll try the next town over.", "Forget it, then." },
-            Array.Empty<string>()),
-        new("marta", "Old Marta", Archetype.Cautious, 3, 0.4f,
-            new[] { "Shipwreck Salvage", "Noble Estate", "Soldier's Footlocker", "Wizard's Tower", "Farmhouse Cellar" },
-            new[] { "Look at that lock, dear. That's not junk. {price}.", "I know a lock when I see one. {price}." },
-            new[] { "{counter}, and my knees thank you.", "I'll come down to {counter}. No further." },
-            new[] { "Fair's fair.", "Take good care of it." },
-            new[] { "I was haggling before your mother was born.", "Don't insult an old woman." },
-            new[] { "I'll sell it to someone with manners.", "Good day." },
-            Array.Empty<string>()),
-        new("vex", "Baron Vex", Archetype.Braggart, 2, 0.3f,
-            new[] { "Noble Estate" },
-            new[] { "A Vex family heirloom. Priceless, really. But for you, {price}.", "From my own estate! Practically a steal at {price}." },
-            new[] { "A Vex does not haggle. ...{counter}.", "Absurd! {counter}, and not a copper less." },
-            new[] { "You have the eye of a gentleman.", "Splendid. Splendid!" },
-            new[] { "Do you know who I AM?", "Peasant arithmetic!" },
-            new[] { "I shall take my heirloom elsewhere!", "Unbelievable. Good DAY." },
-            Array.Empty<string>()),
-        new("pip", "Pip the Sharp", Archetype.Collector, 2, 0.2f,
-            new[] { "Noble Estate", "Wizard's Tower", "Shipwreck Salvage" },
-            new[] { "I know what's in this one. {price}, and it's fair.", "Quality piece. {price}." },
+            new[] { "Forget it, then." }),
+        new("penn", "Widow Penn", 1, Origins.Village, PriceRule.Desperate, "Needs money. Asks little and takes less.", false,
+            new[] { "It was my husband's. Would you give {price}?", "Rent's due. {price}, perhaps?" },
+            new[] { "Could you do {counter}? Please?", "{counter}... I can't go lower." },
+            new[] { "Thank you. Truly.", "Bless you." },
+            new[] { "I'll manage somehow." }),
+        new("mags", "Mags the Fishwife", 1, Origins.Village, PriceRule.ByCount, "Prices by how many things rattle, not what they are.", false,
+            new[] { "Hear all that? Lots in there! {price}.", "Full to the brim, love. {price}." },
+            new[] { "{counter}, and I'm robbing myself.", "Fine, fine. {counter}." },
+            new[] { "Pleasure doing business!", "Done, love." },
+            new[] { "Your loss, love." }),
+        new("tam", "Little Tam", 1, Origins.Farm, PriceRule.Flat, "Asks the same few coins for anything.", false,
+            new[] { "Found it by the river. {price}? Please?", "Is {price} too much?" },
+            new[] { "Um. {counter}?", "{counter}! Final offer! I think." },
+            new[] { "Yay!", "I'm buying sweets!" },
+            new[] { "Aww." }),
+
+        // Tier 2: soldiers and merchants.
+        new("brask", "Sergeant Brask", 2, Origins.Barracks, PriceRule.ByWeight, "Prices by weight. Heavy junk is treasure to him.", false,
+            new[] { "Feel the weight of that! {price}.", "Heavy as a mule. {price}, and cheap at that." },
+            new[] { "{counter}. Final.", "A soldier doesn't haggle. ...{counter}." },
+            new[] { "Done.", "Pleasure, citizen." },
+            new[] { "Waste of my leave." }),
+        new("tobias", "Tobias the Tinker", 2, Origins.Market, PriceRule.ByFamily, "Prices by the kind of sound. Can't tell copper from silver, or iron from steel.", false,
+            new[] { "Coins, a bit of metal, the usual. {price}.", "Odds and ends. {price}?" },
+            new[] { "{counter}, and you're robbing me.", "Tch. {counter}." },
+            new[] { "Done!", "Good doing business." },
+            new[] { "Hmph. Next time." }),
+        new("pip", "Pip the Sharp", 4, Origins.Market, PriceRule.Fair, "Knows exactly what's inside. A fair price, rarely a bargain.", false,
+            new[] { "I know what's in this one. {price}, and it's fair.", "Quality. {price}." },
             new[] { "{counter}. I know its worth.", "Mm. {counter}." },
             new[] { "Pleasure.", "You won't regret it. Probably." },
-            new[] { "Don't waste my time.", "Cute." },
-            new[] { "I'll find a buyer who knows quality.", "Pass." },
-            Array.Empty<string>()),
-        new("gull", "Captain Gull", Archetype.Salvager, 1, 0f,
-            new[] { "Shipwreck Salvage" },
-            new[] { "Hauled it off the Gullmouth reef. {price}. Take it or leave it.", "Sea gave it up this morning. {price}, no haggling." },
-            Array.Empty<string>(),
-            new[] { "Aye.", "Done. Tide's turning, I'm off." },
-            Array.Empty<string>(),
-            new[] { "Said take it or leave it. I'm leaving it.", "Waste of a tide." },
-            Array.Empty<string>()),
-        new("silas", "Silas", Archetype.Con, 3, 0.8f,
-            new[] { "Noble Estate", "Wizard's Tower" },
-            new[] { "From the {origin}, friend. Very rare. {price}.", "Don't tell anyone where I got this. {origin}. {price}." },
-            new[] { "You drive a hard bargain. {counter}?", "For you, friend... {counter}." },
-            new[] { "Wonderful! No refunds, of course.", "A pleasure. I must be going." },
-            new[] { "Friend, friend. Be serious.", "Ha! No." },
-            new[] { "Plenty of other buyers, friend.", "I don't need this." },
-            new[] { "Careful with that! It's... very old.", "No need to look so closely, friend.", "Ha. Ha. Is it warm in here?" }),
-        new("penn", "Widow Penn", Archetype.Desperate, 4, 0.7f,
-            new[] { "Soldier's Footlocker", "Noble Estate" },
-            new[] { "It was my husband's. I need the money... {price}?", "Rent's due. Would you give {price} for it?" },
-            new[] { "Could you do {counter}? Please?", "{counter}... I suppose." },
-            new[] { "Thank you. Truly.", "Bless you." },
-            new[] { "Oh. I see.", "That's... very little." },
-            new[] { "I'm sorry, I can't.", "I'll manage somehow." },
-            Array.Empty<string>()),
-        new("wren", "Wren the Apprentice", Archetype.Novice, 3, 0.5f,
-            new[] { "Wizard's Tower" },
-            new[] { "Master said to sell this. I think it's potions? {price}?", "Um. From the tower. Is {price} okay?" },
+            new[] { "I'll find a buyer who knows quality." }),
+        new("marta", "Old Marta", 2, Origins.Market, PriceRule.ByLock, "Prices by the lock, not what's behind it.", false,
+            new[] { "Look at that lock, dear. {price}.", "I know a lock when I see one. {price}." },
+            new[] { "{counter}, and my knees thank you.", "I'll come down to {counter}. No further." },
+            new[] { "Fair's fair.", "Take good care of it." },
+            new[] { "I'll sell it to someone with manners." }),
+
+        // Tier 3: mages.
+        new("wren", "Wren the Apprentice", 3, Origins.Tower, PriceRule.ByMagic, "Thinks anything magic is priceless and everything else is junk.", false,
+            new[] { "Master said to sell this. Um. {price}?", "From the tower. Is {price} okay?" },
             new[] { "Um. {counter}?", "Master will be cross. {counter}?" },
-            new[] { "Oh good! Careful, it clinks.", "Thank you! Don't tell Master the price." },
-            new[] { "That seems low? I think?", "Oh no." },
-            new[] { "I should ask Master first. Sorry!", "I'll come back. Maybe." },
-            Array.Empty<string>()),
+            new[] { "Oh good! Careful, it might clink.", "Thank you! Don't tell Master." },
+            new[] { "I should ask Master first. Sorry!" }),
+        new("orrin", "Magister Orrin", 3, Origins.Tower, PriceRule.ByMagic, "Prices magic right and the rest as junk. Never haggles.", true,
+            new[] { "Surplus from my study. {price}.", "{price}. I don't bargain." },
+            Array.Empty<string>(),
+            new[] { "Very well.", "Mind the scrolls." },
+            new[] { "Then we're done." }),
+
+        // Tier 4: nobles, adventurers and crooks.
+        new("vex", "Baron Vex", 4, Origins.Manor, PriceRule.Braggart, "Asks double. Comes down a long way if you push.", false,
+            new[] { "A Vex family heirloom. For you, {price}.", "Priceless, really. But {price}." },
+            new[] { "Absurd! ...{counter}.", "A Vex does not haggle. {counter}." },
+            new[] { "You have the eye of a gentleman.", "Splendid." },
+            new[] { "Peasant arithmetic! Good DAY." }),
+        new("gull", "Captain Gull", 4, Origins.Sea, PriceRule.Hunch, "One price. Take it or leave it.", true,
+            new[] { "Hauled it off the Gullmouth reef. {price}. No haggling.", "Sea gave it up this morning. {price}." },
+            Array.Empty<string>(),
+            new[] { "Aye.", "Tide's turning, I'm off." },
+            new[] { "Waste of a tide." }),
+        new("silas", "Silas", 4, Origins.Manor, PriceRule.Con, "Too good to be true, usually. Check everything.", false,
+            new[] { "Gold, friend. Hear it? {price}.", "From a noble house. Very rare. {price}." },
+            new[] { "For you, friend... {counter}.", "You drive a hard bargain. {counter}." },
+            new[] { "Wonderful! No refunds.", "A pleasure. I must be going." },
+            new[] { "Plenty of other buyers, friend." }),
     };
 
     public static SellerDef Get(string key) => All.First(s => s.Key == key);
 
-    public static string Fill(string line, int price, int counter, string origin) =>
-        line.Replace("{price}", $"{price}g").Replace("{counter}", $"{counter}g").Replace("{origin}", origin);
+    public static string Fill(string line, int price, int counter) =>
+        line.Replace("{price}", $"{price}g").Replace("{counter}", $"{counter}g");
 
     public static string PassLine(Random rng) => rng.PickOne(Shrug);
 }
 
-public enum ResponseKind { Accept, EagerAccept, Counter, Insulted, Leave }
+/// <summary>Builds a visit: what the seller brings and what they ask for it.</summary>
+public static class Market
+{
+    public static Visit CreateVisit(Random rng, SellerDef seller, int shopTier)
+    {
+        var typical = Appraiser.For(seller);
+        bool falseBottoms = shopTier >= 4 && seller.Rule is PriceRule.Fair or PriceRule.Braggart or PriceRule.ByLock;
+        var chest = seller.Rule == PriceRule.Con
+            ? ChestGenerator.Tamper(rng, ChestGenerator.Generate(rng, Origins.Farm, 1))
+            : ChestGenerator.Generate(rng, seller.Origin, seller.Tier, falseBottoms);
+
+        float ask, bottom;
+        switch (seller.Rule)
+        {
+            case PriceRule.Hunch:
+                ask = typical.MeanValue * rng.Between(0.5f, 1.5f);
+                bottom = ask * rng.Between(0.85f, 0.95f);
+                break;
+            case PriceRule.Desperate:
+                ask = typical.MeanValue * rng.Between(0.7f, 1.0f);
+                bottom = ask * 0.75f;
+                break;
+            case PriceRule.ByCount:
+                ask = chest.Items.Count * typical.MeanValue / typical.MeanCount * rng.Between(0.9f, 1.1f);
+                bottom = ask * 0.8f;
+                break;
+            case PriceRule.Flat:
+                ask = typical.MeanValue * rng.Between(0.8f, 0.95f);
+                bottom = ask * 0.8f;
+                break;
+            case PriceRule.ByWeight:
+                ask = chest.ContentsWeight * typical.MeanValue / typical.MeanWeight * rng.Between(0.9f, 1.1f);
+                bottom = ask * 0.8f;
+                break;
+            case PriceRule.Fair:
+                ask = chest.Value * rng.Between(1.1f, 1.3f);
+                bottom = chest.Value * rng.Between(0.95f, 1.05f);
+                break;
+            case PriceRule.ByLock:
+                ask = typical.MeanValue * (0.4f + 0.45f * chest.Lock.Index) * rng.Between(0.9f, 1.1f);
+                bottom = ask * 0.8f;
+                break;
+            case PriceRule.ByFamily:
+            {
+                // Every jingle priced as an average coin, every clank as average metal: right on average, blind to which.
+                float guess = chest.Items.Sum(i => FamilyAverage(seller.Tier, i.Def.Family));
+                ask = guess * rng.Between(0.85f, 1.05f);
+                bottom = ask * 0.8f;
+                break;
+            }
+            case PriceRule.ByMagic:
+            {
+                float magic = chest.Items.Where(i => i.Def.Magic > 0).Sum(i => i.Value);
+                float mundane = chest.Items.Where(i => i.Def.Magic == 0).Sum(i => i.Value);
+                ask = (magic * 1.5f + mundane * 0.5f) * rng.Between(0.9f, 1.1f);
+                bottom = ask * 0.8f;
+                break;
+            }
+            case PriceRule.Braggart:
+                ask = typical.MeanValue * rng.Between(1.6f, 2.4f);
+                bottom = ask * rng.Between(0.3f, 0.5f);
+                break;
+            default: // Con: asks like it's the real thing, takes almost anything
+                ask = typical.MeanValue * rng.Between(0.8f, 1.2f);
+                bottom = ask * rng.Between(0.25f, 0.4f);
+                break;
+        }
+        if (seller.OnePrice) bottom = ask;
+        return new Visit(seller, chest, (int)ask, (int)bottom, rng);
+    }
+
+    /// <summary>What a thing of this family is worth on average, among what turns up at a tier.</summary>
+    public static float FamilyAverage(int tier, Family family)
+    {
+        var items = ItemCatalog.UpTo(tier).Where(d => d.Family == family).ToArray();
+        return items.Sum(d => d.Value * ItemCatalog.Commonness(d)) / items.Sum(ItemCatalog.Commonness);
+    }
+}
+
+public enum ResponseKind { Accept, Counter, Refuse, Leave }
 
 public readonly record struct Response(ResponseKind Kind, int Price, string Line);
 
-public enum VisitOutcome { Haggling, Bought, Walked, Passed }
+public enum VisitOutcome { Deciding, Bought, Walked, Passed }
 
 /// <summary>
-/// One seller at the counter with one sealed chest. Their belief, walk-away price and patience are hidden;
-/// the player only sees the asking price, the story, the chest, and how the seller reacts.
+/// One seller at the counter with one chest. They ask a price. You can buy, pass, or make one offer: if it's at or
+/// above what they'll really take, it's yours at that price; if not, they name their final price.
 /// </summary>
 public sealed class Visit
 {
     public SellerDef Seller { get; }
     public Chest Chest { get; }
-
-    /// <summary>Where the seller says it's from. A con artist lies.</summary>
-    public Provenance Claimed { get; }
-
     public int OpeningAsk { get; }
     public int Ask { get; private set; }
-    public int Patience { get; private set; }
-    public int MaxPatience { get; }
-    public VisitOutcome Outcome { get; private set; } = VisitOutcome.Haggling;
+    public int OffersLeft { get; private set; } = 1;
+    public VisitOutcome Outcome { get; private set; } = VisitOutcome.Deciding;
     public int PricePaid { get; private set; }
     public string Pitch { get; }
 
     /// <summary>Hidden: the least the seller will take.</summary>
-    internal int Reservation { get; }
+    internal int Bottom { get; }
 
-    public bool Lying => Claimed != Chest.Provenance || Chest.Tampered;
-
-    /// <summary>Set on the guided first day: the clue this customer is here to teach.</summary>
-    public Lesson Lesson { get; init; }
-
-    public Visit(SellerDef seller, Chest chest, Provenance claimed, int ask, int reservation, Random rng, string pitch = null)
+    public Visit(SellerDef seller, Chest chest, int ask, int bottom, Random rng, string pitch = null)
     {
         Seller = seller;
         Chest = chest;
-        Claimed = claimed;
-        OpeningAsk = Ask = Math.Max(10, Money.RoundTo5(ask));
-        Reservation = Math.Clamp(Money.RoundTo5(reservation), 5, OpeningAsk);
-        Patience = MaxPatience = seller.Patience;
-        Pitch = pitch ?? Sellers.Fill(rng.PickOne(seller.Pitches), OpeningAsk, 0, claimed.Name);
+        OpeningAsk = Ask = Math.Max(5, Money.RoundTo5(ask));
+        Bottom = Math.Clamp(Money.RoundTo5(bottom), 5, OpeningAsk);
+        if (seller.OnePrice) OffersLeft = 0;
+        Pitch = pitch ?? Sellers.Fill(rng.PickOne(seller.Pitches), OpeningAsk, 0);
     }
 
-    /// <summary>
-    /// The seller's answer to an offer. A seller with patience to spare pushes back once even on an acceptable offer,
-    /// so "they countered" doesn't simply mean "too low". Insults cost twice the patience.
-    /// </summary>
+    public bool CanOffer => Outcome == VisitOutcome.Deciding && OffersLeft > 0;
+
     public Response Offer(int amount, Random rng)
     {
-        if (Outcome != VisitOutcome.Haggling) throw new InvalidOperationException("Visit is over");
+        if (!CanOffer) throw new InvalidOperationException("No offers left");
+        OffersLeft--;
         amount = Math.Max(0, amount);
-
-        if (amount >= Ask)
-            return Sell(Ask, ResponseKind.EagerAccept, rng);
-
-        // "Take it or leave it" means it.
-        if (Seller.Concession <= 0)
-            return Walk(rng);
-
-        if (amount >= Reservation)
+        if (amount >= Bottom) return Sell(Math.Min(amount, Ask), rng);
+        if (Seller.Rule == PriceRule.Braggart && amount < Ask * 0.3f)
         {
-            bool tryOnce = Patience >= 2 && Seller.Concession > 0 && amount < Reservation + 0.4f * (Ask - Reservation);
-            if (!tryOnce) return Sell(amount, ResponseKind.Accept, rng);
-            return CounterOffer(amount, rng);
+            Outcome = VisitOutcome.Walked;
+            return new Response(ResponseKind.Leave, Ask, rng.PickOne(Seller.Leaves));
         }
-
-        if (amount >= Reservation * 0.6f && Seller.Concession > 0)
-            return CounterOffer(amount, rng);
-
-        Patience -= Seller.Concession > 0 ? 2 : 1;
-        if (Patience <= 0) return Walk(rng);
-        return new Response(ResponseKind.Insulted, Ask, rng.PickOne(Seller.Insulted));
+        // Too low: they meet you partway, never below what they'd really take, and that's final.
+        Ask = Math.Max(Bottom, Money.RoundTo5(amount + (Ask - amount) * 0.5f));
+        return new Response(ResponseKind.Counter, Ask, Sellers.Fill(rng.PickOne(Seller.Counters), amount, Ask));
     }
 
-    /// <summary>Pay what they're asking right now.</summary>
-    public Response PayAsk(Random rng) => Sell(Ask, ResponseKind.Accept, rng);
+    public Response Buy(Random rng) => Sell(Ask, rng);
 
     public string Pass(Random rng)
     {
@@ -204,34 +277,11 @@ public sealed class Visit
         return Sellers.PassLine(rng);
     }
 
-    /// <summary>When the player looks hard at a con artist's chest, they tend to crack.</summary>
-    public string NervousLine(Random rng) =>
-        Lying && Seller.Nervous.Length > 0 && rng.NextFloat() < 0.7f ? rng.PickOne(Seller.Nervous) : null;
-
-    /// <summary>0 calm, 1 annoyed, 2 about to leave. Shown as the seller's mood, never as a number.</summary>
-    public int Mood => Patience >= MaxPatience ? 0 : Patience >= 2 ? 1 : 2;
-
-    Response CounterOffer(int amount, Random rng)
-    {
-        Patience--;
-        if (Patience <= 0) return Walk(rng);
-        int counter = Math.Max(Reservation, Money.RoundTo5(Ask - (Ask - amount) * Seller.Concession));
-        if (counter >= Ask) counter = Math.Max(Reservation, Ask - 5);
-        Ask = counter;
-        return new Response(ResponseKind.Counter, Ask, Sellers.Fill(rng.PickOne(Seller.Counters), amount, Ask, Claimed.Name));
-    }
-
-    Response Sell(int price, ResponseKind kind, Random rng)
+    Response Sell(int price, Random rng)
     {
         Outcome = VisitOutcome.Bought;
         PricePaid = price;
-        return new Response(kind, price, rng.PickOne(Seller.Accepts));
-    }
-
-    Response Walk(Random rng)
-    {
-        Outcome = VisitOutcome.Walked;
-        return new Response(ResponseKind.Leave, Ask, rng.PickOne(Seller.Leaves));
+        return new Response(ResponseKind.Accept, price, rng.PickOne(Seller.Accepts));
     }
 }
 

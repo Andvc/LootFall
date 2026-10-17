@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using LootFall.Core;
@@ -8,9 +9,9 @@ namespace LootFall.Debug;
 
 /// <summary>
 /// Plays the shop hands-free so it can be screenshotted, recorded or smoke-tested headlessly:
-/// `godot --path . -- --autoplay --seed=4306 [--shots=DIR] [--quit-at-end] [--days=N] [--bot-crowbar] [--bot-pass-odd]`.
-/// It shakes, weighs and knocks on every chest, looks inside when a lesson calls for it (and once a day otherwise),
-/// passes on cons, and haggles from 60% of the ask.
+/// `godot --path . -- --autoplay [--seed=N] [--shots=DIR] [--quit-at-end] [--days=N] [--bot-crowbar] [--start-tier=N]`.
+/// It reads Bram's tips, shakes every chest, uses every tool it owns, judges the chest the way the balance simulation
+/// does, makes one offer, and spends its earnings on upgrades in a sensible order.
 /// </summary>
 public partial class Autoplay : Node
 {
@@ -23,21 +24,15 @@ public partial class Autoplay : Node
     /// <summary>Force every lock with the crowbar instead of picking it.</summary>
     public bool UseCrowbar;
 
-    /// <summary>Pass on every other customer, to exercise walk-away and pass paths.</summary>
-    public bool PassOdd;
-
-    int _customersToday;
-    bool _peekedToday, _ledgerShown;
+    bool _ledgerShown;
 
     static GameState State => Main.Instance.State;
 
     /// <summary>Returns false (and quits) once the day limit is reached.</summary>
     public bool OnDayStarted(int day)
     {
-        _customersToday = 0;
-        _peekedToday = false;
         if (MaxDays <= 0 || day <= MaxDays) return true;
-        GD.Print($"Autoplay finished {MaxDays} days with {State.Gold}g");
+        GD.Print($"Autoplay finished {MaxDays} days with {State.Gold}g ({ShopTiers.Name(State.Tier)})");
         GetTree().Quit();
         return false;
     }
@@ -51,8 +46,8 @@ public partial class Autoplay : Node
             case CounterPhase counter:
                 await DriveCounter(counter);
                 break;
-            case BackRoomPhase room:
-                await DriveBackRoom(room);
+            case DayEndPhase dayEnd:
+                await DriveDayEnd(dayEnd);
                 break;
             case LockpickPhase lockpick:
                 await DriveLockpick(lockpick);
@@ -63,97 +58,104 @@ public partial class Autoplay : Node
         }
     }
 
+    /// <summary>Gives each of Bram's tips a moment on screen, then clicks on.</summary>
+    async Task ReadTips(Ui.MentorView mentor)
+    {
+        while (IsInstanceValid(mentor) && mentor.Showing)
+        {
+            await Wait(1.8);
+            if (!IsInstanceValid(mentor)) return;
+            mentor.Next();
+        }
+    }
+
     async Task DriveCounter(CounterPhase counter)
     {
-        _customersToday++;
         var visit = counter.Visit;
-        var lesson = visit.Lesson;
-        bool Expects(Cue cue) => lesson != null && new Tutor(lesson).Expects(cue);
+        var chest = visit.Chest;
+        await ReadTips(counter.Mentor);
+        if (!IsInstanceValid(counter)) return;
 
         counter.Shake.AutoShake(2.4);
         await Wait(1.0);
         Main.Instance.Moment("01_shake");
         await Wait(2.2);
         if (!IsInstanceValid(counter)) return;
+        await ReadTips(counter.Mentor);
+        if (!IsInstanceValid(counter)) return;
 
-        if (!_ledgerShown || Expects(Cue.LedgerOpened))
+        if (!_ledgerShown)
         {
             _ledgerShown = true;
             counter.OpenLedger();
-            counter.Ledger?.Show(ItemCatalog.Get("copper_purse"));
             await Wait(2.0);
             if (!IsInstanceValid(counter)) return;
             counter.CloseLedger();
+            await Wait(0.5);
+        }
+
+        // Handling with every tool it owns, cheapest first.
+        if (State.Has("scale"))
+        {
+            counter.Weigh();
+            await Wait(2.0);
+        }
+        if (State.Has("compass") && IsInstanceValid(counter))
+        {
+            counter.UseCompass();
+            await Wait(1.4);
+        }
+        if (State.Has("lodestone") && IsInstanceValid(counter))
+        {
+            counter.UseLodestone();
+            await Wait(1.4);
+        }
+        if (State.Has("hammer") && IsInstanceValid(counter))
+        {
+            counter.Knock();
+            await Wait(1.4);
+        }
+        bool worthAPeek = chest.Items.Any(i => i.Def.Family is Family.Cloth or Family.Paper) || visit.Seller.Rule == PriceRule.Con;
+        if (worthAPeek && State.PeeksLeft > 0 && IsInstanceValid(counter))
+        {
+            counter.Peek();
+            await Wait(2.2);
+            if (!IsInstanceValid(counter)) return;
+            counter.ClosePeephole();
             await Wait(0.6);
         }
-
-        // Handling the chest is free, so do all of it.
-        counter.Weigh();
-        await Wait(2.2);
         if (!IsInstanceValid(counter)) return;
-        counter.Knock();
-        await Wait(1.6);
+        await ReadTips(counter.Mentor);
         if (!IsInstanceValid(counter)) return;
 
-        bool look = lesson != null ? Expects(Cue.SawItem) : visit.Seller.Type == Archetype.Con || !_peekedToday;
-        if (look)
-        {
-            _peekedToday = true;
-            counter.Peek();
-            await Wait(0.3);
-            counter.Keyhole?.AutoSweep(3.2);
-            await Wait(3.6);
-            if (!IsInstanceValid(counter)) return;
-            counter.CloseKeyhole();
-            await Wait(0.8);
-            if (!IsInstanceValid(counter)) return;
-        }
-
-        // The lantern shows the rag-wrapped stones.
-        if (visit.Chest.Tampered || (PassOdd && _customersToday % 2 == 0))
+        var estimate = Estimator.Estimate(chest, visit.Seller, counter.Inspection, State.Ledger);
+        if (estimate is not float worth)
         {
             counter.Pass();
             return;
         }
-
-        // A lesson chest is a good buy by design: one offer, then pay.
-        if (lesson != null)
+        if (visit.CanOffer && State.CanHaggle)
         {
-            counter.MakeOffer(Math.Min(State.Gold, Money.RoundTo5(visit.Ask * 0.8f)));
-            await Wait(1.3);
-            if (!IsInstanceValid(counter) || counter.Concluded) return;
-            if (State.Gold >= visit.Ask) counter.PayAsk();
-            else counter.Pass();
-            return;
-        }
-
-        foreach (float fraction in new[] { 0.6f, 0.72f, 0.85f })
-        {
-            if (!IsInstanceValid(counter) || counter.Concluded) return;
-            if (visit.Ask <= visit.OpeningAsk * 0.8f && State.Gold >= visit.Ask)
+            int offer = Math.Min(State.Gold, Money.RoundTo5(Math.Min(worth * 0.7f, visit.Ask * 0.85f)));
+            if (offer < visit.Ask)
             {
-                counter.PayAsk();
-                return;
+                counter.MakeOffer(offer);
+                await Wait(1.4);
+                if (!IsInstanceValid(counter) || counter.Concluded) return;
             }
-            counter.MakeOffer(Money.RoundTo5(visit.Ask * fraction));
-            await Wait(1.3);
         }
-        if (IsInstanceValid(counter) && !counter.Concluded) counter.Pass();
+        if (visit.Ask <= worth * 0.95f && State.Gold >= visit.Ask) counter.Buy();
+        else counter.Pass();
     }
 
-    async Task DriveBackRoom(BackRoomPhase room)
+    async Task DriveDayEnd(DayEndPhase dayEnd)
     {
-        await Wait(0.6);
-        if (!IsInstanceValid(room)) return;
-        if (room.HasUnopened)
-        {
-            room.OpenNext();
-            return;
-        }
+        await Wait(1.0);
+        if (!IsInstanceValid(dayEnd)) return;
+        dayEnd.BuyInOrder(Simulation.BuyOrder, 20 + 15 * State.Tier);
         await Wait(2.0);
-        if (!IsInstanceValid(room)) return;
-        if (room.Bankrupt) room.StartOver();
-        else room.NextDay();
+        if (!IsInstanceValid(dayEnd)) return;
+        dayEnd.NextDay();
     }
 
     async Task DriveLockpick(LockpickPhase lockpick)
@@ -179,15 +181,17 @@ public partial class Autoplay : Node
 
     async Task DriveOpening(OpeningPhase opening)
     {
-        await Wait(0.5);
+        await Wait(0.4);
         Main.Instance.AutoHold = true;
         while (IsInstanceValid(opening) && !opening.Finished)
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Main.Instance.AutoHold = false;
 
-        await Wait(3.0);
+        await Wait(2.4);
+        if (!IsInstanceValid(opening)) return;
+        await ReadTips(opening.Mentor);
         if (QuitAtEnd) GetTree().Quit();
-        else if (IsInstanceValid(opening)) opening.BackToRoom();
+        else if (IsInstanceValid(opening)) opening.Next();
     }
 
     SignalAwaiter Wait(double seconds) => ToSignal(GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);

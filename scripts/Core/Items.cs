@@ -4,139 +4,205 @@ using System.Linq;
 
 namespace LootFall.Core;
 
+/// <summary>Colour band for the opening glow and cards, from an item's value.</summary>
 public enum Rarity { Common, Uncommon, Rare, Epic, Legendary }
 
-/// <summary>What an item is made of. It decides what kind of sound it makes and whether it can shatter.</summary>
-public enum Family { Coins, Glass, Steel, Wood, Paper }
+/// <summary>
+/// What an item is, as far as your ears can tell. Everything in a family makes the same kind of sound, the one you'd
+/// expect in real life: coins jingle, metal clanks, bottles slosh, cloth flumps, paper rustles, jewelry tinkles.
+/// </summary>
+public enum Family { Coins, Metal, Bottles, Cloth, Paper, Jewels }
 
 /// <summary>
-/// The sound an item makes when it hits the inside of a chest: one recording group at a fixed pitch, and the word
-/// that pops out with it. Every item keeps its signature for the whole game, so learning it pays off. Only
-/// deliberate sound-alikes share one, and each pair can be told apart another way (see <see cref="Tell"/>).
+/// How an item sounds when it hits the inside of a chest: its family's recording at a pitch (bigger is lower), plus an
+/// optional extra layer (a fizz, a hum, a soft thump). Within a family the differences are small and always the same.
 /// </summary>
-/// <param name="Group">Sound group under res://assets/audio/.</param>
-public sealed record Signature(string Group, float Pitch, string Word, float VolumeDb = 0f);
-
-/// <summary>How to tell an item from its sound-alike.</summary>
-public enum Tell
-{
-    None,
-    /// <summary>Same sound, different weight: the scale tells them apart.</summary>
-    Weight,
-    /// <summary>Same sound, different look: you have to see it through the keyhole.</summary>
-    Look,
-    /// <summary>Same sound, but one glows: obvious in the dark behind the keyhole.</summary>
-    Glow,
-}
+/// <param name="Group">Sound group: a recorded group under res://assets/audio/ or a synthesized sound.</param>
+/// <param name="Layer">A second sound played with it, or null.</param>
+public sealed record Signature(string Group, float Pitch, float VolumeDb = 0f, string Layer = null);
 
 /// <param name="Key">Sprite name under res://assets/sprites/items/ (see tools/import_art.py).</param>
-/// <param name="Value">What it always sells for. Values never vary, so the ledger stays true.</param>
+/// <param name="Tier">The shop tier at which this starts turning up.</param>
+/// <param name="Value">What it always sells for.</param>
 /// <param name="Weight">Pounds.</param>
-public sealed record ItemDef(string Key, string Name, Family Family, Rarity Rarity, int Value, float Weight, Signature Sound, string Flavor)
+/// <param name="Variant">The small difference within its family that a trained ear (or the ear trumpet) picks out.</param>
+public sealed record ItemDef(string Key, string Name, Family Family, int Tier, int Value, float Weight, string Variant,
+    Signature Sound, string Flavor)
 {
-    public bool Fragile => Family == Family.Glass;
+    /// <summary>0 none, 1 faint, 2 strong: how hard a mana compass needle swings toward it.</summary>
+    public int Magic { get; init; }
 
-    /// <summary>Gives off light, which you'd see in the dark behind the keyhole.</summary>
+    /// <summary>Iron or steel: a lodestone tugs at it.</summary>
+    public bool Magnetic { get; init; }
+
+    /// <summary>Gives off light, plain to see through a keyhole.</summary>
     public bool Glows { get; init; }
 
-    /// <summary>Sprite seen through the keyhole, when it looks like something else (a closed purse is a closed purse).</summary>
+    /// <summary>A con artist's fake. Never comes from honest sellers.</summary>
+    public bool Fake { get; init; }
+
+    /// <summary>Sprite seen through the keyhole, when it looks like something else.</summary>
     public string LooksLike { get; init; }
 
     public string LookKey => LooksLike ?? Key;
+    public bool Fragile => Family == Family.Bottles;
+    public string Word => Families.Word(Family);
+
+    public Rarity Rarity => Value switch
+    {
+        < 20 => Rarity.Common,
+        < 60 => Rarity.Uncommon,
+        < 150 => Rarity.Rare,
+        < 400 => Rarity.Epic,
+        _ => Rarity.Legendary,
+    };
+}
+
+/// <summary>The six sound families and the rules for telling things apart within each.</summary>
+public static class Families
+{
+    public static readonly Family[] All = Enum.GetValues<Family>();
+
+    public static string Word(Family family) => family switch
+    {
+        Family.Coins => "jingle",
+        Family.Metal => "clank",
+        Family.Bottles => "slosh",
+        Family.Cloth => "flump",
+        Family.Paper => "rustle",
+        _ => "tinkle",
+    };
+
+    public static string Name(Family family) => family switch
+    {
+        Family.Coins => "Coins",
+        Family.Metal => "Metal",
+        Family.Bottles => "Bottles",
+        Family.Cloth => "Cloth",
+        Family.Paper => "Paper",
+        _ => "Jewelry",
+    };
+
+    /// <summary>The shop tier at which this family first turns up.</summary>
+    public static int Tier(Family family) => family switch
+    {
+        Family.Paper => 2,
+        Family.Jewels => 3,
+        _ => 1,
+    };
+
+    /// <summary>The first thing to know about a family: what it sounds like and why.</summary>
+    public static string Rule(Family family) => family switch
+    {
+        Family.Coins => "Coins jingle. Count the jingles.",
+        Family.Metal => "Metal clanks. Heavy, and worth little unless it's good steel.",
+        Family.Bottles => "Bottles slosh. Glass, so a crowbar breaks them.",
+        Family.Cloth => "Cloth barely makes a sound: a soft flump. You have to see it to know it.",
+        Family.Paper => "Paper rustles. Books add a thump.",
+        _ => "Jewelry tinkles: tiny, light and often worth a lot.",
+    };
+
+    /// <summary>The word for a sound when you can hear its variant: "bright jingle", "fizzy slosh".</summary>
+    public static string Describe(Family family, string variant)
+    {
+        string adjective = variant switch
+        {
+            "rings" => "ringing",
+            "hums" => "humming",
+            "fizzing" => "fizzy",
+            "sparkle" => "sparkly",
+            "book" => "thumpy",
+            "loose" => "papery",
+            _ => variant,
+        };
+        return $"{adjective} {Word(family)}";
+    }
+
+    /// <summary>What a variant means within its family, once you've learned it.</summary>
+    public static string VariantRule(Family family, string variant) => (family, variant) switch
+    {
+        (Family.Coins, "dull") => "Dull jingle: copper.",
+        (Family.Coins, "bright") => "Bright jingle: silver.",
+        (Family.Coins, "heavy") => "Heavy jingle: gold. Weighs a lot.",
+        (Family.Metal, "dull") => "Dull clank: old iron.",
+        (Family.Metal, "rings") => "A clank that rings on: good steel.",
+        (Family.Metal, "hums") => "Rings and hums: enchanted.",
+        (Family.Bottles, "big") => "Big, deep slosh: a full bottle.",
+        (Family.Bottles, "thick") => "Slow, thick slosh: honey or oil.",
+        (Family.Bottles, "small") => "Small, quick slosh: a potion vial.",
+        (Family.Bottles, "fizzing") => "Slosh with a fizz: something magic.",
+        (Family.Cloth, "heavy") => "Heavier flump with a thump: thick wool.",
+        (Family.Cloth, "light") => "Light flump: rags, or fine silk. Look before you trust it.",
+        (Family.Paper, "loose") => "Plain rustle: loose paper. Letters, scrolls, maps.",
+        (Family.Paper, "book") => "Rustle and thump: a book.",
+        (Family.Jewels, "dull") => "Dull tinkle: brass.",
+        (Family.Jewels, "bright") => "Bright tinkle: silver or gold.",
+        (Family.Jewels, "sparkle") => "A tinkle that sparkles: a gem.",
+        _ => variant,
+    };
 }
 
 public static class ItemCatalog
 {
-    // Shared by sound-alike pairs; everything else has its own.
-    static readonly Signature Purse = new("purse", 0.85f, "chink");
-    static readonly Signature Vial = new("vial", 1.35f, "clink");
-    static readonly Signature Paper = new("paper", 1.0f, "shff");
-    static readonly Signature Cloth = new("cloth", 1.0f, "flmp", 2f);
+    // Family recordings at a pitch per variant. Bigger or heavier things sound lower.
+    static Signature Jingle(float pitch) => new("jingle", pitch);
+    static Signature Clank(float pitch) => new("clank", pitch);
+    static Signature Ring(float pitch, string layer = null) => new("clank_ring", pitch, 0f, layer);
+    static Signature Slosh(float pitch, string layer = null) => new("slosh", pitch, 2f, layer);
+    static Signature Flump(float pitch, string layer = null) => new("flump", pitch, 4f, layer);
+    static Signature Rustle(string layer = null) => new("rustle", 1f, 0f, layer);
+    static Signature Book(string layer = null) => new("rustle_book", 1f, 0f, layer ?? "bookthump");
+    static Signature Tinkle(float pitch) => new("tinkle", pitch);
 
     public static readonly ItemDef[] All =
     {
-        // Coins and jewelry
-        new("copper_purse", "Purse of Copper", Family.Coins, Rarity.Common, 12, 1.0f, Purse, "Mostly copper. Mostly."),
-        new("silver_crowns", "Silver Crowns", Family.Coins, Rarity.Uncommon, 45, 1.0f, new("crowns", 1.25f, "tiktik"), "Each one stamped with a king nobody remembers."),
-        new("signet_ring", "Tarnished Signet Ring", Family.Coins, Rarity.Uncommon, 60, 0.1f, new("ring", 1.5f, "ting"), "The family crest has been filed off. Interesting."),
-        new("doubloons", "Sunken Doubloons", Family.Coins, Rarity.Rare, 150, 2.0f, new("doubloons", 0.7f, "CHUNK"), "They still smell faintly of the sea."),
-        new("moonstone_pendant", "Moonstone Pendant", Family.Coins, Rarity.Rare, 230, 0.2f, new("pendant", 1.0f, "tsilin"), "Cold to the touch, even in summer."),
-        new("gold_purse", "Purse of Gold", Family.Coins, Rarity.Epic, 320, 2.5f, Purse, "Same purse, same chink. Twice the weight.") { LooksLike = "copper_purse" },
-        new("sunfire_diamond", "Sunfire Diamond", Family.Coins, Rarity.Legendary, 1200, 0.1f, new("diamond", 1.5f, "PLING"), "Catches light that isn't there."),
+        // Tier 1: what farmers and villagers have lying around.
+        new("copper_pouch", "Pouch of Copper", Family.Coins, 1, 15, 1.0f, "dull", Jingle(0.8f), "Mostly copper. Mostly."),
+        new("rusty_knife", "Rusty Knife", Family.Metal, 1, 3, 1.0f, "dull", Clank(1.15f), "Rust is just patina with ambition.") { Magnetic = true },
+        new("iron_lantern", "Iron Lantern", Family.Metal, 1, 12, 2.0f, "dull", Clank(0.85f), "Still smells of lamp oil.") { Magnetic = true },
+        new("ale_bottle", "Bottle of Ale", Family.Bottles, 1, 8, 2.0f, "big", Slosh(0.85f), "Brewed 'last spring'. Which spring?"),
+        new("honey_jar", "Jar of Honey", Family.Bottles, 1, 18, 1.5f, "thick", Slosh(0.65f), "Sticky, golden, and worth more than it looks."),
+        new("moth_eaten_cloak", "Moth-Eaten Cloak", Family.Cloth, 1, 2, 0.5f, "light", Flump(1.15f), "The moths were well fed."),
+        new("wool_coat", "Wool Coat", Family.Cloth, 1, 25, 1.5f, "heavy", Flump(0.8f, "thump"), "Warm, heavy, barely worn."),
 
-        // Glass: fragile, so a crowbar ruins it
-        new("hand_mirror", "Cracked Hand Mirror", Family.Glass, Rarity.Common, 8, 0.6f, new("mirror", 0.9f, "krik"), "Seven years' bad luck, already used up."),
-        new("old_brandy", "Bottle of Old Brandy", Family.Glass, Rarity.Common, 25, 2.5f, new("brandy", 0.8f, "glonk"), "Vintage: 'before the war.' Which war?"),
-        new("perfume_vial", "Perfume Vial", Family.Glass, Rarity.Uncommon, 55, 0.3f, Vial, "Smells like money and bad decisions."),
-        new("liquid_sunlight", "Vial of Liquid Sunlight", Family.Glass, Rarity.Epic, 380, 0.5f, new("sunlight", 0.8f, "shimm"), "Glows faintly. Smells like noon.") { Glows = true },
-        new("phoenix_tear", "Phoenix Tear", Family.Glass, Rarity.Legendary, 950, 0.3f, Vial, "Warm to the touch, even now.") { Glows = true },
+        // Tier 2: soldiers and merchants bring silver, steel and books.
+        new("silver_crowns", "Silver Crowns", Family.Coins, 2, 45, 1.0f, "bright", Jingle(1.25f), "Each one stamped with a king nobody remembers."),
+        new("steel_sword", "Steel Sword", Family.Metal, 2, 60, 3.0f, "rings", Ring(1.3f), "Balanced, sharp, and somebody's pride.") { Magnetic = true },
+        new("soldiers_helm", "Soldier's Helm", Family.Metal, 2, 30, 3.0f, "rings", Ring(1.0f), "Dented exactly where you'd hope it would be.") { Magnetic = true },
+        new("love_letters", "Bundle of Letters", Family.Paper, 2, 4, 0.3f, "loose", Rustle(), "Never sent."),
+        new("merchants_ledger", "Merchant's Ledger", Family.Paper, 2, 35, 2.0f, "book", Book(), "Two sets of books. One for the tax man."),
 
-        // Arms and armor
-        new("rusty_dagger", "Rusty Dagger", Family.Steel, Rarity.Common, 10, 1.0f, new("dagger", 1.2f, "tank"), "Rust is just patina with ambition."),
-        new("soldiers_helm", "Soldier's Helm", Family.Steel, Rarity.Common, 22, 3.0f, new("helm", 0.85f, "BONK"), "Dented exactly where you'd hope it would be."),
-        new("engraved_rapier", "Engraved Rapier", Family.Steel, Rarity.Uncommon, 75, 2.0f, new("rapier", 1.0f, "shiing"), "The engraving reads: 'Return to Gustav.'"),
-        new("commander_gauntlet", "Knight-Commander's Gauntlet", Family.Steel, Rarity.Epic, 470, 2.5f, new("gauntlet", 1.0f, "KLAKK"), "Still clenched."),
-        new("drowned_king_helm", "Helm of the Drowned King", Family.Steel, Rarity.Legendary, 1200, 4.0f, new("kinghelm", 0.75f, "BWONG"), "Heavier than it looks. Heavier than it should be."),
+        // Tier 3: mages bring potions, scrolls and magic; jewelry starts turning up.
+        new("healing_potion", "Healing Potion", Family.Bottles, 3, 45, 0.5f, "small", Slosh(1.35f), "Tastes like pennies. Works, though."),
+        new("mana_potion", "Mana Potion", Family.Bottles, 3, 130, 0.5f, "fizzing", Slosh(1.35f, "fizz"), "It hums when you hold it.") { Magic = 1 },
+        new("wizard_hat", "Wizard's Hat", Family.Cloth, 3, 80, 0.5f, "light", Flump(1.15f), "Pointy. Faintly smells of ozone.") { Magic = 1 },
+        new("spell_scroll", "Spell Scroll", Family.Paper, 3, 110, 0.3f, "loose", Rustle(), "Do not read aloud.") { Magic = 1 },
+        new("spellbook", "Spellbook", Family.Paper, 3, 200, 2.5f, "book", Book(), "Some of the pages turn by themselves.") { Magic = 2 },
+        new("rune_blade", "Rune Blade", Family.Metal, 3, 240, 3.0f, "hums", Ring(1.3f, "hum"), "The runes glow when it's drawn.") { Magic = 2, Magnetic = true },
+        new("brass_ring", "Brass Ring", Family.Jewels, 3, 10, 0.1f, "dull", Tinkle(1.2f), "Turns your finger green."),
+        new("gold_ring", "Gold Ring", Family.Jewels, 3, 120, 0.1f, "bright", Tinkle(1.7f), "Somebody's wedding ring."),
+        new("moonstone_pendant", "Moonstone Pendant", Family.Jewels, 3, 200, 0.2f, "bright", Tinkle(1.55f), "Cold to the touch, even in summer."),
 
-        // Wood and stone: heavy, solid things
-        new("splintered_buckler", "Splintered Buckler", Family.Wood, Rarity.Common, 4, 2.0f, new("buckler", 1.0f, "bok"), "Took one hit too many. Probably the last one."),
-        new("rusted_lantern", "Rusted Lantern", Family.Wood, Rarity.Common, 6, 2.0f, new("lantern", 1.2f, "klunk", -4f), "Still smells of lamp oil."),
-        new("carved_idol", "Carved Idol", Family.Wood, Rarity.Uncommon, 70, 2.5f, new("idol", 1.0f, "toktok"), "It's smiling. It wasn't smiling a minute ago."),
-        new("spiral_fossil", "Spiral Fossil", Family.Wood, Rarity.Rare, 260, 5.0f, new("fossil", 0.8f, "GRONK"), "Older than the mountains it was dug out of."),
-        new("dragon_scale", "Petrified Dragon Scale", Family.Wood, Rarity.Legendary, 1500, 6.0f, new("dragonscale", 0.6f, "KRANG"), "Petrified. Probably."),
+        // Tier 4: nobles, adventurers and crooks. Gold, gems, legends, and fakes.
+        new("gold_doubloons", "Gold Doubloons", Family.Coins, 4, 180, 2.5f, "heavy", Jingle(0.95f), "They still smell faintly of the sea."),
+        new("golden_mantle", "Golden Silk Mantle", Family.Cloth, 4, 260, 1.0f, "light", Flump(1.15f), "Woven for a queen who never wore it."),
+        new("treasure_map", "Treasure Map", Family.Paper, 4, 380, 0.2f, "loose", Rustle(), "One corner of something much bigger."),
+        new("phoenix_tear", "Phoenix Tear", Family.Bottles, 4, 650, 0.3f, "fizzing", Slosh(1.35f, "fizz"), "Warm to the touch, even now.") { Magic = 2, Glows = true },
+        new("commander_gauntlet", "Knight-Commander's Gauntlet", Family.Metal, 4, 420, 2.5f, "rings", Ring(0.9f), "Still clenched.") { Magnetic = true },
+        new("sunfire_diamond", "Sunfire Diamond", Family.Jewels, 4, 950, 0.1f, "sparkle", new("tinkle_gem", 1.4f), "Catches light that isn't there."),
 
-        // Paper and cloth: soft, and it all sounds much the same
-        new("love_letters", "Bundle of Love Letters", Family.Paper, Rarity.Common, 5, 0.2f, Paper, "Never sent."),
-        new("moth_eaten_cloak", "Moth-Eaten Cloak", Family.Paper, Rarity.Common, 9, 1.5f, Cloth, "The moths were well fed."),
-        new("merchants_ledger", "Merchant's Ledger", Family.Paper, Rarity.Uncommon, 40, 2.0f, new("ledger", 1.0f, "BAP"), "Two sets of books. One for the tax man."),
-        new("golden_mantle", "Golden Silk Mantle", Family.Paper, Rarity.Rare, 190, 1.5f, Cloth, "Woven for a queen who never wore it."),
-        new("treasure_map", "Treasure Map Fragment", Family.Paper, Rarity.Epic, 400, 0.2f, Paper, "One corner of something much bigger."),
-        new("royal_deed", "Royal Deed of Land", Family.Paper, Rarity.Epic, 520, 0.2f, new("deed", 0.9f, "pok"), "Rolled in a scroll case. Grants the bearer one (1) duchy. Terms apply."),
+        // Only from con artists: iron slugs gilded to pass for gold. Same jingle, same weight; a lodestone grabs them.
+        new("gilded_slugs", "Gilded Iron Slugs", Family.Coins, 4, 2, 2.5f, "heavy", Jingle(0.95f), "Gold paint on iron. Rubs off on your thumb.")
+            { Fake = true, Magnetic = true, LooksLike = "gold_doubloons" },
     };
 
     static readonly Dictionary<string, ItemDef> ByKey = All.ToDictionary(i => i.Key);
 
-    static readonly Dictionary<(Family, Rarity), ItemDef[]> ByKind = All
-        .GroupBy(i => (i.Family, i.Rarity))
-        .ToDictionary(g => g.Key, g => g.ToArray());
-
     public static ItemDef Get(string key) => ByKey[key];
 
-    public static string FamilyName(Family family) => family switch
-    {
-        Family.Coins => "Coins and jewelry",
-        Family.Glass => "Glass",
-        Family.Steel => "Arms and armor",
-        Family.Wood => "Wood and stone",
-        _ => "Paper and cloth",
-    };
+    /// <summary>Honest goods up to a tier.</summary>
+    public static IEnumerable<ItemDef> UpTo(int tier) => All.Where(i => !i.Fake && i.Tier <= tier);
 
-    /// <summary>Other items that make exactly the same sound.</summary>
-    public static IEnumerable<ItemDef> SoundAlikes(ItemDef item) => All.Where(i => i != item && i.Sound == item.Sound);
-
-    /// <summary>How to tell this item from its sound-alike(s), if it has any.</summary>
-    public static Tell TellFor(ItemDef item)
-    {
-        var other = SoundAlikes(item).FirstOrDefault();
-        if (other == null) return Tell.None;
-        if (other.Glows != item.Glows) return Tell.Glow;
-        if (other.LookKey == item.LookKey) return Tell.Weight;
-        return Tell.Look;
-    }
-
-    /// <summary>Picks an item of the given family, falling back to the nearest rarity (lower first) if none exists.</summary>
-    public static ItemDef Pick(Random rng, Family family, Rarity rarity, Func<ItemDef, bool> allowed = null)
-    {
-        for (int step = 0; step <= 4; step++)
-        {
-            foreach (int r in new[] { (int)rarity - step, (int)rarity + step })
-            {
-                if (r < 0 || r > (int)Rarity.Legendary) continue;
-                if (!ByKind.TryGetValue((family, (Rarity)r), out var pool)) continue;
-                var options = allowed == null ? pool : pool.Where(allowed).ToArray();
-                if (options.Length > 0) return options[rng.Next(options.Length)];
-            }
-        }
-        return null;
-    }
+    /// <summary>How likely an item is to turn up, among those a seller could bring. Pricier things are rarer.</summary>
+    public static float Commonness(ItemDef item) => 1f / (1f + item.Value / 60f);
 }

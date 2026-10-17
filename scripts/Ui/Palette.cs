@@ -32,11 +32,13 @@ public static class Palette
         _ => new Color("#ffb52e"),
     };
 
+    /// <summary>Lock plate colour by maker (see LockTiers); 0 is an unlocked crate's plain hasp.</summary>
     public static Color Lock(int tier) => tier switch
     {
-        0 => new Color("#8a5a3a"),
-        1 => new Color("#b9bac6"),
-        2 => new Color("#d08a3c"),
+        0 => new Color("#6e5a44"),
+        1 => new Color("#8a5a3a"),
+        2 => new Color("#b9bac6"),
+        3 => new Color("#d08a3c"),
         _ => new Color("#f5cf55"),
     };
 }

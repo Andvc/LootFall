@@ -33,7 +33,8 @@ public partial class LockpickPhase : Phase
     {
         _lock = State.Chest.Lock;
         _speed = _lock.NeedleSpeed;
-        _zoneWidth = _lock.ZoneDegrees;
+        // Fine lockpicks give a wider sweet spot.
+        _zoneWidth = _lock.ZoneDegrees * (State.Has("picks") ? 1.35f : 1f);
         _perfectWidth = _zoneWidth * 0.4f;
         PlaceZone();
 
@@ -147,7 +148,7 @@ public partial class LockpickPhase : Phase
             _ => ("CRACK.", "Forced open. Let's hope nothing in there was glass.", Palette.Bad, "crowbar"),
         };
         Sfx.Play(sound);
-        if (grade == PickGrade.Forced) Sfx.Play("creak", 0.8f);
+        if (grade == PickGrade.Forced) Sfx.Play("strain", 0.8f);
         Game.Shake(grade == PickGrade.Forced ? 0.45f : 0.25f);
         _status.Text = note;
         _status.AddThemeColorOverride("font_color", color);

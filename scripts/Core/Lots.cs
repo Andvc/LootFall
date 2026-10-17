@@ -3,73 +3,61 @@ using System.Linq;
 
 namespace LootFall.Core;
 
-/// <summary>Where a lot came from. Public information that shapes what is likely inside.</summary>
-public sealed class Provenance
+/// <summary>Where a seller's chests come from: what's likely inside, and the colour of the chest.</summary>
+public sealed class Origin
 {
     public string Name { get; }
-    public string Blurb { get; }
 
-    /// <summary>Chest color for lots from here (a sprite set under res://assets/sprites/chest/).</summary>
+    /// <summary>Chest colour (a sprite set under res://assets/sprites/chest/).</summary>
     public string Skin { get; }
 
-    public float WealthBias { get; }
     readonly float[] _familyWeights;
 
-    public Provenance(string name, string blurb, string skin, float wealthBias,
-        float coins, float glass, float steel, float wood, float paper)
+    public Origin(string name, string skin, float coins, float metal, float bottles, float cloth, float paper, float jewels)
     {
         Name = name;
-        Blurb = blurb;
         Skin = skin;
-        WealthBias = wealthBias;
-        _familyWeights = new[] { coins, glass, steel, wood, paper };
+        _familyWeights = new[] { coins, metal, bottles, cloth, paper, jewels };
     }
 
-    public Family RollFamily(Random rng)
-    {
-        float total = 0;
-        foreach (var w in _familyWeights) total += w;
-        float roll = rng.NextFloat() * total;
-        for (int i = 0; i < _familyWeights.Length; i++)
-        {
-            roll -= _familyWeights[i];
-            if (roll <= 0) return (Family)i;
-        }
-        return (Family)(_familyWeights.Length - 1);
-    }
+    public float Weight(Family family) => _familyWeights[(int)family];
 }
 
-public static class Provenances
+public static class Origins
 {
-    public static readonly Provenance[] All =
-    {
-        new("Shipwreck Salvage", "Dredged from the Gullmouth reef. Barnacles included free.", "blue", 0.15f,
-            coins: 3, glass: 2, steel: 1, wood: 2, paper: 0.5f),
-        new("Noble Estate", "Seized from a family whose debts outlived them.", "red", 0.3f,
-            coins: 3, glass: 2, steel: 1, wood: 1, paper: 3),
-        new("Soldier's Footlocker", "Unclaimed after the last campaign. Name scratched off.", "wood", -0.05f,
-            coins: 2, glass: 1, steel: 4, wood: 1, paper: 2),
-        new("Wizard's Tower", "From a tower that isn't there anymore. Handle with care.", "purple", 0.2f,
-            coins: 1, glass: 4, steel: 0.5f, wood: 3, paper: 2),
-        new("Farmhouse Cellar", "Found under a pile of turnips. Optimism advised.", "green", -0.3f,
-            coins: 1, glass: 2, steel: 1, wood: 3, paper: 3),
-    };
-
-    public static Provenance Get(string name) => All.First(p => p.Name == name);
+    public static readonly Origin Farm = new("Farm", "wood", coins: 2, metal: 3, bottles: 3, cloth: 3, paper: 0.5f, jewels: 0);
+    public static readonly Origin Village = new("Village", "green", coins: 3, metal: 1, bottles: 2, cloth: 3, paper: 1, jewels: 0.5f);
+    public static readonly Origin Barracks = new("Barracks", "wood", coins: 2, metal: 5, bottles: 1.5f, cloth: 1, paper: 1, jewels: 0.3f);
+    public static readonly Origin Market = new("Market", "blue", coins: 3, metal: 2, bottles: 2, cloth: 2, paper: 2, jewels: 1.5f);
+    public static readonly Origin Tower = new("Tower", "purple", coins: 1, metal: 1, bottles: 4, cloth: 2, paper: 4, jewels: 1.5f);
+    public static readonly Origin Manor = new("Manor", "red", coins: 3, metal: 1, bottles: 1.5f, cloth: 3, paper: 2, jewels: 3);
+    public static readonly Origin Sea = new("Sea", "blue", coins: 4, metal: 2, bottles: 2, cloth: 0.5f, paper: 1, jewels: 2);
 }
 
-/// <summary>A lock's maker sets both how valuable the owner thought the contents were and how hard it is to pick.</summary>
-public sealed record LockTier(int Index, string Name, string Description, int Pins, float ZoneDegrees, float NeedleSpeed);
+/// <summary>A lock's maker sets how hard it is to pick. Index 0 is a plain crate with no lock at all.</summary>
+public sealed record LockTier(int Index, string Name, string Difficulty, int Pins, float ZoneDegrees, float NeedleSpeed)
+{
+    public bool Locked => Pins > 0;
+}
 
 public static class LockTiers
 {
     public static readonly LockTier[] All =
     {
-        new(0, "Rusty Padlock", "A farmer's padlock. Nobody guards treasure with this... right?", 2, 56f, 120f),
-        new(1, "Guild Standard", "A merchant's honest tumbler lock, guild-stamped.", 3, 44f, 145f),
-        new(2, "Dwarven Tumbler", "Dwarven make. Dwarves don't waste good locks on junk.", 4, 34f, 175f),
-        new(3, "Royal Seal", "A royal seal. Someone very rich wanted this kept shut.", 5, 26f, 205f),
+        new(0, "No lock", "just lift the lid", 0, 0f, 0f),
+        new(1, "Rusty Padlock", "easy to pick", 2, 56f, 120f),
+        new(2, "Guild Lock", "fair to pick", 3, 44f, 145f),
+        new(3, "Dwarven Tumbler", "hard to pick", 4, 34f, 175f),
+        new(4, "Royal Seal", "very hard to pick", 5, 26f, 205f),
     };
+
+    /// <summary>A lock fit for what's inside, give or take: owners guard good things better.</summary>
+    public static LockTier For(Random rng, int sellerTier, int value)
+    {
+        if (sellerTier <= 1) return All[0];
+        int index = Math.Clamp(1 + (int)(value / 150f + rng.Between(-0.8f, 0.8f)), 1, 4);
+        return All[Math.Min(index, sellerTier)];
+    }
 }
 
 public static class RandomExtensions
@@ -77,4 +65,18 @@ public static class RandomExtensions
     public static float NextFloat(this Random rng) => (float)rng.NextDouble();
     public static float Between(this Random rng, float min, float max) => min + (max - min) * (float)rng.NextDouble();
     public static T PickOne<T>(this Random rng, T[] items) => items[rng.Next(items.Length)];
+
+    /// <summary>Picks by weight. Returns default if nothing has weight.</summary>
+    public static T PickWeighted<T>(this Random rng, T[] items, Func<T, float> weight)
+    {
+        float total = items.Sum(weight);
+        if (total <= 0) return default;
+        float roll = rng.NextFloat() * total;
+        foreach (var item in items)
+        {
+            roll -= weight(item);
+            if (roll <= 0) return item;
+        }
+        return items[^1];
+    }
 }

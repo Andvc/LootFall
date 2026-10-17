@@ -1,7 +1,8 @@
 # LootFall
 
-A small game about the satisfaction of opening treasure chests. You run a pawnshop for sealed chests: people bring
-them to your counter, you shake them, listen, look closely at the seller, haggle, and crack them open after closing.
+A small game about the satisfaction of opening treasure chests. You inherit a roadside stall; people bring you
+chests. Shake them and listen, use the tools you've bought, decide what a chest is worth, then open it on the spot.
+Grow the stall into the finest shop in the kingdom.
 
 **Status:** playable prototype. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
 Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam.
@@ -9,24 +10,32 @@ Design rationale: [docs/design.md](docs/design.md).
 
 ## The loop
 
-1. **The counter (9:00 to 17:00).** Sellers queue up, each with one sealed chest, a story and an asking price.
-   Nothing tells you what a chest is worth; you work it out by handling it.
-   - **Shake it** (drag): everything loose inside rattles with its own sound and word, always the same for that
-     item. The ledger records what each sound is and what it sells for.
-   - **Knock** (click the chest): a false bottom booms; a solid chest just goes "tok".
-   - **Weigh** (drop it on the scale): the dial reads what the contents weigh. Some things sound alike but weigh
-     differently, and con artists hide stones wrapped in rags.
-   - **Look inside** (click the keyhole): aim a lantern around the dark interior. Some sound-alikes only differ by
-     look or by glow. The shop clock runs while you look.
-   - **Haggle:** each offer takes 10 minutes. Sellers have hidden limits and patience, and some of them lie.
-2. **The back room.** After closing, open what you bought:
-   - **Lockpick:** press when the pick is in the green zone. No slips = **Masterful** (+25% value, and you'll find
-     hidden compartments). Three slips snaps the pick. The crowbar always works, but fragile things shatter.
-   - **Open:** hold to open. Items come out one by one with the sound they made in the chest; anything new goes
-     into the ledger.
-3. **Rent** is due every third day, and it keeps rising.
+1. **A customer brings a chest.** Drag it to shake it: everything inside rattles with the everyday sound of its
+   kind. Coins jingle, metal clanks, bottles slosh, cloth flumps, paper rustles, jewelry tinkles. Small, consistent
+   differences within a kind (a bright jingle is silver) are yours to learn, or the ear trumpet spells them out.
+2. **Use your tools:** the scale, the keyhole lens (it says how much of the inside you can see), the mana compass,
+   the lodestone, the tapping hammer. You buy them as the shop grows.
+3. **Decide:** buy, pass, or (from day 2) make one offer. Every seller prices by a habit with a blind spot.
+4. **Open it right away:** pick the lock if there is one, hold to open, and see what you paid against what it held,
+   and why.
+5. **End of day:** spend your earnings on renovations (new customers, new things, new sounds) and tools.
 
-The first day is guided: Uncle Bram, who's handing you the shop, introduces one clue per customer.
+Day one is guided: Uncle Bram, who's handing you the stall, explains each new thing as it comes up.
+
+## Controls
+
+| Action | Input |
+|---|---|
+| Shake a chest | Drag it with the left mouse button |
+| Weigh it | Drag it onto the scale |
+| Peek inside | Click the keyhole, or the Peek button |
+| Compass, lodestone, knock | Tool buttons on the right (knock: click the chest) |
+| Ledger | L, or the Ledger button |
+| Make an offer | Set the slider, then Offer (once per customer) |
+| Set a pin | Space or left click |
+| Force the lock | F or the crowbar button |
+| Open the chest | Hold Space or left mouse |
+| Next tip from Bram | Click his box |
 
 ## Development
 
@@ -34,10 +43,10 @@ The code is split so the game rules can be tested without the engine:
 
 | Folder | What's in it |
 |---|---|
-| `scripts/Core` | Pure C# rules: items and their sounds, chests, the ledger, the guided first day, sellers and haggling, the shop day, rent, loot. No Godot types. |
-| `scripts/Phases` | The screens of the loop (counter, back room, lockpick, opening). |
-| `scripts/Ui` | Visuals: the shakeable chest, scale, lantern view, ledger, mentor, seller, item cards, HUD, particles and styling. |
-| `scripts/Audio` | Recorded sounds (one group per item sound) plus placeholder synthesized effects. |
+| `scripts/Core` | Pure C# rules: sound families and items, chests, sellers and their pricing habits, upgrades, the shop's progress, the ledger, Bram's hints, loot. No Godot types. |
+| `scripts/Phases` | The screens of the loop (counter, lockpick, opening, end of day). |
+| `scripts/Ui` | Visuals: the shakeable chest, scale, peephole, ledger, Bram, seller, item cards, HUD, particles and styling. |
+| `scripts/Audio` | Recorded family sounds, synthesized liquid and magic sounds, placeholder effects. |
 | `scripts/Debug` | Balance simulation and an autoplay bot for screenshots and recordings. |
 | `assets/` | Sprites, portraits, backgrounds, sounds, UI frames and font, generated by `tools/import_art.py` from CC0 packs. |
 
@@ -46,12 +55,12 @@ Useful commands (Linux; run `tools/setup-cloud.sh` first in a fresh container):
 ```bash
 dotnet build                                               # compile
 godot --headless --path . -- --sim                         # balance report
-godot --headless --path . -- --find-demo                   # seeds with a showy first customer
 godot --headless --path . -- --shake-test                  # check that shaking makes every item heard
 xvfb-run -a godot --path . --rendering-driver opengl3 -- \
   --autoplay --days=1 --shots=$PWD/shots                   # play the guided day, save screenshots
+# add --start-tier=3 --gold=600 to jump ahead with the tools you'd have by then
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```
 
 Add `--write-movie movies/day.avi --fixed-fps 60` to the autoplay command to record video with sound, and
-`--no-tutorial` to start on a random day instead of the guided one.
+`--no-tutorial` to turn off Bram's tips and the gentle first customer.

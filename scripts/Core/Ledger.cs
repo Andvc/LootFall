@@ -4,45 +4,36 @@ using System.Linq;
 namespace LootFall.Core;
 
 /// <summary>
-/// The shop's notebook: every item you've learned, with its sound, weight and price. It only ever holds what you
-/// found out yourself (or inherited with the shop); it never says what a particular chest is worth.
+/// The shop's notebook: what you've learned. Families and their rules as you hear them, each item once you've opened
+/// one, the small differences within a family once you've found them, and each regular's pricing habit once Bram has
+/// told you. It never says what a particular chest is worth.
 /// </summary>
 public sealed class Ledger
 {
-    /// <summary>Uncle Bram's entries: the everyday stuff any pawnbroker knows by ear.</summary>
-    public static readonly string[] Inherited =
-    {
-        "copper_purse", "silver_crowns", "perfume_vial", "hand_mirror", "old_brandy", "rusty_dagger", "soldiers_helm",
-        "splintered_buckler", "rusted_lantern", "love_letters", "moth_eaten_cloak",
-    };
+    readonly HashSet<string> _items = new();
+    readonly HashSet<(Family, string)> _variants = new();
+    readonly HashSet<Family> _families = new();
+    readonly HashSet<string> _sellers = new();
 
-    readonly HashSet<string> _known;
+    public int ItemCount => _items.Count;
 
-    public Ledger(IEnumerable<string> known = null)
+    public bool Knows(ItemDef item) => _items.Contains(item.Key);
+    public bool Knows(Family family) => _families.Contains(family);
+    public bool Knows(Family family, string variant) => _variants.Contains((family, variant));
+    public bool Knows(SellerDef seller) => _sellers.Contains(seller.Key);
+
+    /// <summary>Writes down an item you've opened. Returns true if it's new.</summary>
+    public bool Learn(ItemDef item)
     {
-        _known = new HashSet<string>(known ?? Inherited);
+        _families.Add(item.Family);
+        _variants.Add((item.Family, item.Variant));
+        return _items.Add(item.Key);
     }
 
-    public int Count => _known.Count;
+    /// <summary>Notes a family you've heard. Returns true the first time.</summary>
+    public bool Hear(Family family) => _families.Add(family);
 
-    public bool Knows(ItemDef item) => _known.Contains(item.Key);
+    public bool Meet(SellerDef seller) => _sellers.Add(seller.Key);
 
-    /// <summary>Writes an item down. Returns true if it's a new entry.</summary>
-    public bool Learn(ItemDef item) => _known.Add(item.Key);
-
-    public IEnumerable<ItemDef> Entries => ItemCatalog.All.Where(Knows);
-
-    /// <summary>Bram's note in the margin: how to tell sound-alikes apart. Null for most items.</summary>
-    public static string Note(ItemDef item) => item.Key switch
-    {
-        "copper_purse" => "A purse of GOLD makes the same chink. Gold is heavy: weigh it.",
-        "gold_purse" => "Chinks like copper. Weighs 2.5 lb, not 1.",
-        "perfume_vial" => "All small vials clink alike. If it glows in the dark, it isn't perfume.",
-        "phoenix_tear" => "Clinks like perfume, but glows. Look through the keyhole.",
-        "love_letters" => "Paper is paper to the ear. Look before you pay for a map.",
-        "treasure_map" => "Rustles like old letters. You have to see it.",
-        "moth_eaten_cloak" => "Cloth all flumps the same. Gold thread shines in lantern light.",
-        "golden_mantle" => "Flumps like a moth-eaten cloak. Gold thread shows under the lantern.",
-        _ => null,
-    };
+    public IEnumerable<string> KnownVariants(Family family) => _variants.Where(v => v.Item1 == family).Select(v => v.Item2);
 }

@@ -24,18 +24,19 @@ public partial class ShakeTest : Node2D
         var total = new Dictionary<string, int>();
         for (int i = 0; i < Count; i++)
         {
-            var chest = ChestGenerator.Generate(rng, rng.PickOne(Provenances.All));
+            var chest = ChestGenerator.Generate(rng, rng.PickOne(new[] { Origins.Farm, Origins.Barracks, Origins.Tower, Origins.Manor }), 4);
             var box = new ShakeBox(chest, new Rect2(330, 200, 430, 250)) { Position = new Vector2(430, 450) };
-            var got = new HashSet<ItemDef>();
-            box.Impacted += (r, _) => got.Add(r.Item);
+            var got = new HashSet<int>();
+            box.Impacted += (index, _) => got.Add(index);
             AddChild(box);
             await ToSignal(GetTree().CreateTimer(0.9), SceneTreeTimer.SignalName.Timeout);
             box.AutoShake(Seconds);
             await ToSignal(GetTree().CreateTimer(Seconds + 0.6), SceneTreeTimer.SignalName.Timeout);
-            foreach (var item in chest.Items.Select(c => c.Def))
+            for (int k = 0; k < chest.Items.Count; k++)
             {
+                var item = chest.Items[k].Def;
                 total[item.Key] = total.GetValueOrDefault(item.Key) + 1;
-                if (!got.Contains(item)) missed[item.Key] = missed.GetValueOrDefault(item.Key) + 1;
+                if (!got.Contains(k)) missed[item.Key] = missed.GetValueOrDefault(item.Key) + 1;
             }
             items += chest.Items.Count;
             heard += got.Count;

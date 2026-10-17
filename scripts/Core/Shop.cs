@@ -4,127 +4,27 @@ using System.Linq;
 
 namespace LootFall.Core;
 
-/// <summary>
-/// Shop hours and what costs time. Handling a chest (shaking, weighing, knocking) is free; looking inside and
-/// haggling are not.
-/// </summary>
-public static class ShopClock
+/// <summary>The shop's size: who comes in, how many, and what they bring.</summary>
+public static class ShopTiers
 {
-    public const int Open = 9 * 60;
-    public const int Close = 17 * 60;
+    public const int Max = 4;
 
-    public const int Greeting = 20;
-    public const int Offer = 10;
-
-    /// <summary>Shop minutes that pass for each real second spent squinting through a keyhole.</summary>
-    public const float LanternMinutesPerSecond = 5f;
-
-    public static string Format(int minute) => $"{minute / 60}:{minute % 60:00}";
-}
-
-public static class Rent
-{
-    public const int EveryDays = 3;
-
-    /// <summary>Rent for the Nth payment (0-based): it climbs, so the shop has to keep finding bargains.</summary>
-    public static int Amount(int paymentIndex) => 150 + 100 * paymentIndex;
-}
-
-/// <summary>Builds each visit: who's selling, what's really inside, and what they believe it's worth.</summary>
-public static class Market
-{
-    public static Visit CreateVisit(Random rng, SellerDef seller, Func<Provenance, Appraiser> appraiserFor)
+    public static string Name(int tier) => tier switch
     {
-        var origin = Provenances.Get(rng.PickOne(seller.Origins));
-        // Sellers price off the average chest from that origin; the long tail of legendaries is part of the price.
-        float prior = appraiserFor(origin).Prior.Mean;
-        var chest = ChestGenerator.Generate(rng, origin);
-        var claimed = origin;
-        float ask, reservation;
-
-        switch (seller.Type)
-        {
-            case Archetype.Clueless:
-            {
-                float belief = prior * rng.Between(0.6f, 1.4f);
-                ask = belief * rng.Between(1.05f, 1.3f);
-                reservation = belief * rng.Between(0.6f, 0.8f);
-                break;
-            }
-            case Archetype.Cautious:
-            {
-                float belief = appraiserFor(origin).ByLock(chest.Lock).Mean;
-                ask = belief * 1.25f;
-                reservation = belief * rng.Between(0.75f, 0.9f);
-                break;
-            }
-            case Archetype.Braggart:
-            {
-                float belief = prior * rng.Between(1.5f, 2.2f);
-                ask = belief * rng.Between(1.0f, 1.15f);
-                reservation = belief * rng.Between(0.55f, 0.7f);
-                if (rng.NextFloat() < 0.3f) reservation *= 0.5f; // secretly in debt
-                break;
-            }
-            case Archetype.Collector:
-            {
-                // Knows the contents, but never checks for a false bottom.
-                float belief = chest.Value * rng.Between(0.9f, 1.1f);
-                ask = belief * rng.Between(1.25f, 1.4f);
-                reservation = belief * rng.Between(0.85f, 0.95f);
-                break;
-            }
-            case Archetype.Salvager:
-            {
-                ask = reservation = prior * rng.Between(0.7f, 1.3f);
-                break;
-            }
-            case Archetype.Con:
-            {
-                var farmhouse = Provenances.Get("Farmhouse Cellar");
-                if (rng.NextFloat() < 0.7f)
-                {
-                    // Junk from a cellar, with stones wrapped in rags so it feels full but doesn't rattle.
-                    chest = ChestGenerator.Tamper(rng, ChestGenerator.Generate(rng, farmhouse, rng.Between(0f, 0.25f)));
-                    ask = appraiserFor(claimed).Prior.Mean * rng.Between(0.9f, 1.3f);
-                    reservation = ask * rng.Between(0.2f, 0.3f);
-                }
-                else
-                {
-                    chest = ChestGenerator.Generate(rng, farmhouse);
-                    claimed = farmhouse;
-                    ask = appraiserFor(farmhouse).Prior.Mean * rng.Between(1.0f, 1.3f);
-                    reservation = ask * 0.6f;
-                }
-                break;
-            }
-            case Archetype.Desperate:
-            {
-                ask = prior * rng.Between(0.7f, 0.9f);
-                reservation = prior * rng.Between(0.3f, 0.45f);
-                break;
-            }
-            default: // Novice
-            {
-                float belief = prior * rng.Between(0.5f, 1.2f);
-                ask = belief * rng.Between(0.9f, 1.1f);
-                reservation = belief * rng.Between(0.5f, 0.7f);
-                break;
-            }
-        }
-
-        return new Visit(seller, chest, claimed, (int)ask, (int)reservation, rng);
-    }
+        1 => "Roadside Stall",
+        2 => "Village Shop",
+        3 => "Town Shop",
+        _ => "The Emporium",
+    };
 }
 
-/// <summary>A chest bought today, waiting in the back room.</summary>
+/// <summary>A chest bought today. It's opened straight away.</summary>
 public sealed class Purchase
 {
     public Visit Visit { get; }
     public Chest Chest => Visit.Chest;
     public int Paid => Visit.PricePaid;
     public bool Shaken { get; set; }
-    public bool Opened { get; set; }
     public int Haul { get; set; }
 
     public Purchase(Visit visit)
@@ -133,103 +33,157 @@ public sealed class Purchase
     }
 }
 
+/// <summary>How the day went, for the end-of-day summary.</summary>
+public sealed class DayStats
+{
+    public int Bought, Passed, Spent, Earned;
+    public int Profit => Earned - Spent;
+}
+
 public sealed class GameState
 {
-    public const int StartingGold = 250;
+    public const int StartingGold = 60;
+
+    /// <summary>If you end a day broke, Bram tides you over with this much.</summary>
+    public const int Allowance = 30;
 
     public int Seed { get; }
     public int Gold { get; set; } = StartingGold;
     public int Day { get; private set; }
-    public int Minute { get; private set; } = ShopClock.Open;
-    public int RentPayments { get; private set; }
+    public int Tier { get; private set; } = 1;
     public Random Rng { get; private set; } = new();
 
-    /// <summary>What the player has learned. It survives starting over: knowledge is the real progression.</summary>
+    /// <summary>What the player has learned. Knowledge is the real progression.</summary>
     public Ledger Ledger { get; } = new();
 
-    /// <summary>Whether the next first day is the scripted one that teaches the clues.</summary>
-    public bool Guided { get; set; }
+    /// <summary>Whether Bram's tips are shown (and the first customer is a gentle one).</summary>
+    public bool Guided { get; set; } = true;
+
+    public HashSet<string> HintsSeen { get; } = new();
+    readonly HashSet<string> _owned = new();
 
     public List<Visit> Queue { get; } = new();
     public Visit Current { get; private set; }
-    public List<Purchase> Purchases { get; } = new();
+    public DayStats Today { get; private set; } = new();
+    public int PeeksLeft { get; private set; }
 
-    /// <summary>The purchase being opened in the back room.</summary>
+    /// <summary>The purchase being opened.</summary>
     public Purchase Opening { get; set; }
     public Chest Chest => Opening?.Chest;
     public int PricePaid => Opening?.Paid ?? 0;
     public PickGrade Grade { get; set; }
     public bool HeardFragile => Opening is { Shaken: true } && Opening.Chest.HasFragile;
 
-    public int RentDueDay => (RentPayments + 1) * Rent.EveryDays;
-    public int RentDue => Rent.Amount(RentPayments);
-    public int MinutesLeft => ShopClock.Close - Minute;
-
     public GameState(int seed)
     {
         Seed = seed;
+        // Uncle Bram's notes: the everyday things any pawnbroker knows. Everything past the stall you learn yourself.
+        foreach (var item in ItemCatalog.UpTo(1)) Ledger.Learn(item);
     }
 
-    public Appraiser AppraiserFor(Provenance provenance) => Appraiser.For(provenance);
+    public bool Has(string upgrade) => _owned.Contains(upgrade);
+
+    /// <summary>Haggling opens up on the second day, once the basics have sunk in.</summary>
+    public bool CanHaggle => Day >= 2 || !Guided || Tier > 1;
+
+    public int CustomersPerDay => 3 + Tier + (Has("sign") ? 1 : 0);
+    public int PeeksPerDay => Has("periscope") ? 4 : Has("lantern") ? 3 : Has("peephole") ? 2 : 0;
+
+    /// <summary>How many things a peek shows, nearest the keyhole first.</summary>
+    public int PeekReach => Has("periscope") ? 99 : Has("lantern") ? 2 : 1;
+
+    public bool Won => Has("warrant");
+
+    public bool CanBuy(Upgrade upgrade) => Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade);
+
+    public void BuyUpgrade(Upgrade upgrade)
+    {
+        if (!CanBuy(upgrade)) return;
+        Gold -= upgrade.Cost;
+        _owned.Add(upgrade.Key);
+        if (upgrade.SetsTier > 0) Tier = upgrade.SetsTier;
+    }
+
+    /// <summary>Hands out a hint key once. Returns false if it's been shown before or tips are off.</summary>
+    public bool FirstTime(string hint) => Guided && HintsSeen.Add(hint);
+
+    /// <summary>For debugging and screenshots: jump ahead with the tools a player would have by then.</summary>
+    public void SkipTo(int tier, int gold)
+    {
+        foreach (var upgrade in Upgrades.All.Where(u => u.MinTier < tier || (u.IsRenovation && u.SetsTier <= tier)))
+            if (upgrade.Key != "warrant") _owned.Add(upgrade.Key);
+        Tier = tier;
+        Gold = gold;
+        foreach (var item in ItemCatalog.UpTo(tier - 1)) Ledger.Learn(item);
+    }
 
     public void StartDay()
     {
         Day++;
-        Minute = ShopClock.Open;
         Rng = new Random(unchecked(Seed * 7919 + Day));
-        Purchases.Clear();
         Queue.Clear();
         Current = null;
-        if (Guided && Day == 1)
+        Today = new DayStats();
+        PeeksLeft = PeeksPerDay;
+
+        if (Day == 1 && Guided)
         {
-            Guided = false;
-            Queue.AddRange(Lessons.FirstDay.Select(lesson => Lessons.ToVisit(lesson, Rng)));
-            return;
+            // A gentle first customer: three different sounds, all of them easy, and a fair price.
+            var chest = Chest.Of(Origins.Farm, 0, "copper_pouch", "honey_jar", "wool_coat");
+            Queue.Add(new Visit(Sellers.Get("hob"), chest, 25, 20, Rng, "Found this in the barn. No idea what's in it. 25g?"));
         }
-        int count = 6 + (Rng.NextFloat() < 0.5f ? 1 : 0);
-        foreach (var seller in Sellers.All.OrderBy(_ => Rng.Next()).Take(count))
-            Queue.Add(Market.CreateVisit(Rng, seller, AppraiserFor));
+
+        // Each renovation brings its own crowd; the old regulars still drop by now and then. Nobody comes twice in a
+        // day unless everyone else already has.
+        var sellers = Sellers.All.Where(s => s.Tier <= Tier).ToArray();
+        while (Queue.Count < CustomersPerDay)
+        {
+            var fresh = sellers.Where(s => Queue.All(v => v.Seller != s)).ToArray();
+            var pool = fresh.Length > 0 ? fresh : sellers.Where(s => Queue[^1].Seller != s).ToArray();
+            var seller = Rng.PickWeighted(pool, s => s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 1f : 0.3f);
+            Queue.Add(Market.CreateVisit(Rng, seller, Tier));
+        }
     }
 
-    /// <summary>Calls in the next customer, if the shop is still open and anyone is waiting.</summary>
+    /// <summary>Calls in the next customer, if anyone is waiting.</summary>
     public bool NextCustomer()
     {
         Current = null;
-        if (Queue.Count == 0 || MinutesLeft < ShopClock.Greeting) return false;
+        if (Queue.Count == 0) return false;
         Current = Queue[0];
         Queue.RemoveAt(0);
-        Spend(ShopClock.Greeting);
         return true;
     }
 
-    public bool CanAfford(int minutes) => MinutesLeft >= minutes;
-
-    public void Spend(int minutes) => Minute = Math.Min(ShopClock.Close, Minute + minutes);
+    public bool UsePeek()
+    {
+        if (PeeksLeft <= 0) return false;
+        PeeksLeft--;
+        return true;
+    }
 
     public Purchase Buy(Visit visit)
     {
         Gold -= visit.PricePaid;
-        var purchase = new Purchase(visit);
-        Purchases.Add(purchase);
-        return purchase;
+        Today.Bought++;
+        Today.Spent += visit.PricePaid;
+        return new Purchase(visit);
     }
 
-    /// <summary>Pays rent if it's due today. Returns false if the shop can't cover it.</summary>
-    public bool PayRentIfDue(out int paid)
+    public void Pass() => Today.Passed++;
+
+    public void Earn(int amount)
     {
-        paid = 0;
-        if (Day < RentDueDay) return true;
-        paid = RentDue;
-        if (Gold < paid) return false;
-        Gold -= paid;
-        RentPayments++;
-        return true;
+        Gold += amount;
+        Today.Earned += amount;
     }
 
-    public void Reset()
+    /// <summary>Closes the day. Returns the allowance paid if the shop was broke, else 0.</summary>
+    public int EndDay()
     {
-        Gold = StartingGold;
-        Day = 0;
-        RentPayments = 0;
+        if (Gold >= Allowance) return 0;
+        int topUp = Allowance - Gold;
+        Gold = Allowance;
+        return topUp;
     }
 }

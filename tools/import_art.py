@@ -30,28 +30,37 @@ KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
 
 # Item key -> rpg-battle-system/item sprite number. Keys match ItemDef.Key in scripts/Core/Items.cs.
 ITEMS = {
-    "copper_purse": 21, "silver_crowns": 20, "signet_ring": 38, "doubloons": 19, "moonstone_pendant": 39,
+    # Tier 1: the village
+    "copper_pouch": 21, "rusty_knife": 31, "iron_lantern": 17, "ale_bottle": 61, "honey_jar": 63,
+    "moth_eaten_cloak": 81, "wool_coat": 43,
+    # Tier 2: soldiers and merchants
+    "silver_crowns": 20, "steel_sword": 78, "soldiers_helm": 1, "love_letters": 25, "merchants_ledger": 62,
+    # Tier 3: mages and jewelry
+    "healing_potion": 10, "mana_potion": 12, "wizard_hat": 44, "spell_scroll": 23, "spellbook": 41, "rune_blade": 67,
+    "brass_ring": 38, "gold_ring": 68, "moonstone_pendant": 39,
+    # Tier 4: nobles, adventurers, crooks
+    "gold_doubloons": 19, "golden_mantle": 76, "treasure_map": 22, "phoenix_tear": 47, "commander_gauntlet": 59,
     "sunfire_diamond": 57,
-    "hand_mirror": 29, "old_brandy": 61, "perfume_vial": 36, "liquid_sunlight": 13, "phoenix_tear": 47,
-    "rusty_dagger": 31, "soldiers_helm": 1, "engraved_rapier": 53, "commander_gauntlet": 59, "drowned_king_helm": 4,
-    "splintered_buckler": 28, "rusted_lantern": 17, "carved_idol": 60, "spiral_fossil": 75, "dragon_scale": 58,
-    "love_letters": 25, "moth_eaten_cloak": 81, "merchants_ledger": 62, "golden_mantle": 76, "treasure_map": 22,
-    "royal_deed": 23,
 }
 
-# Items drawn as one sprite with another tucked in its corner: key -> (base, overlay).
-# A purse of gold is the copper purse with a coin showing; through a keyhole it still looks like the plain purse.
-COMPOSITE_ITEMS = {"gold_purse": (21, 19)}
+# Items drawn as another item's sprite, greyed toward iron: key -> (sprite number, how much grey, 0..1).
+# The con artist's gilded slugs are gold coins with the paint worn thin.
+WORN_ITEMS = {"gilded_slugs": (19, 0.55)}
 
 BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 
 # Seller key -> Ninja Adventure faceset number. Keys match SellerDef.Key in scripts/Core/Sellers.cs, plus Uncle Bram.
-PORTRAITS = {"hob": 22, "marta": 4, "vex": 9, "pip": 17, "gull": 14, "silas": 13, "penn": 19, "wren": 6, "bram": 16}
+PORTRAITS = {
+    "hob": 22, "penn": 19, "mags": 5, "tam": 25,           # tier 1: the village
+    "brask": 18, "tobias": 10, "marta": 4,                 # tier 2: soldiers and merchants
+    "wren": 6, "orrin": 9,                                 # tier 3: mages
+    "vex": 3, "gull": 14, "silas": 13, "pip": 17,          # tier 4: nobles, adventurers, crooks
+    "bram": 16,                                            # Uncle Bram, who hands you the shop
+}
 
-# The sounds of things rattling in a chest. Every item has its own group (see Signature in scripts/Core/Items.cs),
-# except deliberate sound-alikes, which share one: purse (copper/gold), vial (perfume/phoenix tear), paper
-# (letters/map) and cloth (cloak/mantle). Within a material, bigger things get lower recordings. A royal deed
-# rides in a scroll case, so it knocks rather than rustles.
+# What things sound like in a shaken chest. One group per family, the sound you'd expect in real life; within a
+# family the game changes the pitch (bigger is lower) and may add a layer (see Signature in scripts/Core/Items.cs).
+# Bottles' slosh and the fizz, hum and thump layers are synthesized in scripts/Audio/Sfx.cs.
 # Group -> Kenney source files (pack folder, file stem).
 def _variants(pack, stem, indices, digits=3, sep="_"):
     return [(pack, f"{stem}{sep}{i:0{digits}d}") for i in indices]
@@ -59,40 +68,22 @@ def _variants(pack, stem, indices, digits=3, sep="_"):
 IMPACT, RPG, CASINO, UI = "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds"
 
 SOUNDS = {
-    # Coins and jewelry
-    "purse": [(RPG, "handleCoins")],
-    "crowns": [(CASINO, "chipsHandle1"), (CASINO, "chipsHandle3")],
-    "doubloons": [(CASINO, "chipsStack2"), (CASINO, "chipsStack4")],
-    "ring": _variants(IMPACT, "impactMetal_light", [0, 1, 4]),
-    "pendant": [(RPG, "beltHandle1"), (RPG, "beltHandle2")],
-    "diamond": _variants(UI, "glass", [1, 2, 3]),
-    # Glass
-    "mirror": _variants(IMPACT, "impactGlass_light", range(5)),
-    "brandy": _variants(IMPACT, "impactGlass_heavy", range(5)),
-    "vial": _variants(IMPACT, "impactGlass_medium", range(5)),
-    "sunlight": _variants(UI, "glass", [4]),
-    # Arms and armor
-    "dagger": _variants(IMPACT, "impactMetal_medium", range(5)),
-    "helm": _variants(IMPACT, "impactTin_medium", range(5)),
-    "rapier": [(RPG, "knifeSlice2")],
-    "gauntlet": _variants(IMPACT, "impactPlate_medium", [0, 1, 2]),
-    "kinghelm": _variants(IMPACT, "impactBell_heavy", [0, 1, 2]),
-    # Wood and stone
-    "buckler": _variants(IMPACT, "impactWood_medium", range(5)),
-    "lantern": [(RPG, "metalPot2"), (RPG, "metalPot3")],
-    "idol": [(CASINO, "dieThrow1"), (CASINO, "dieThrow3")],
-    "fossil": _variants(IMPACT, "impactMining", range(5)),
-    "dragonscale": _variants(IMPACT, "impactPlate_heavy", [1, 4]),
-    # Paper and cloth
-    "paper": [(CASINO, "cardShove1"), (CASINO, "cardShove2"), (CASINO, "cardShove4")],
-    "cloth": [(RPG, "cloth1")],
-    "ledger": [(RPG, "bookPlace1"), (RPG, "bookPlace2"), (RPG, "bookPlace3")],
-    "deed": _variants(UI, "drop", [2, 3]),
+    # Families
+    "jingle": [(RPG, "handleCoins")],
+    "clank": _variants(IMPACT, "impactTin_medium", range(5)),
+    "clank_ring": _variants(IMPACT, "impactBell_heavy", [0, 1, 2]),
+    "flump": [(RPG, "cloth1")],
+    "rustle": [(CASINO, "cardShove1"), (CASINO, "cardShove2"), (CASINO, "cardShove4")],
+    "rustle_book": [(CASINO, "cardFan2")],
+    "bookthump": [(RPG, "bookPlace1"), (RPG, "bookPlace2"), (RPG, "bookPlace3")],
+    "tinkle": _variants(IMPACT, "impactMetal_light", [0, 1, 4]),
+    "tinkle_gem": _variants(UI, "glass", [1, 2, 3]),
 
-    # Handling the chest
+    # Handling the chest and the tools
     "land": _variants(IMPACT, "impactPlank_medium", range(5)),
     "knock": _variants(IMPACT, "impactWood_light", range(5)),
     "scale_pan": _variants(IMPACT, "impactPlate_light", range(5)),
+    "clack": _variants(IMPACT, "impactMetal_heavy", range(3)),
     "pay": [(CASINO, f"chipsStack{i}") for i in range(1, 4)],
     "door_open": [(RPG, "doorOpen_1"), (RPG, "doorOpen_2")],
     "door_close": [(RPG, "doorClose_1"), (RPG, "doorClose_2")],
@@ -188,6 +179,208 @@ def build_ui():
     save(frame(dark, dark, light), "ui", "button_pressed.png")
 
 
+# Tool and upgrade icons, 16x16 pixel art drawn here (no CC0 pack has these), pre-scaled like the UI frames.
+ICON_PALETTE = {
+    "k": (20, 16, 26), "g": (242, 193, 78), "G": (176, 128, 44), "w": (240, 232, 214), "s": (190, 196, 210),
+    "S": (110, 116, 134), "r": (200, 60, 60), "b": (140, 90, 46), "B": (92, 56, 28), "c": (110, 200, 230),
+    "p": (160, 110, 230),
+}
+ICONS = {
+    "scale": [
+        "................",
+        ".......kk.......",
+        ".......gg.......",
+        ".kkkkkkggkkkkkk.",
+        ".gggggggggggggg.",
+        "..g....gg....g..",
+        "..g....gg....g..",
+        ".ggg...gg...ggg.",
+        "kGGGk..gg..kGGGk",
+        ".kkk...gg...kkk.",
+        ".......gg.......",
+        ".......gg.......",
+        ".....kggggk.....",
+        "....kggggggk....",
+        "....kkkkkkkk....",
+        "................",
+    ],
+    "lens": [
+        "................",
+        "....kkkkkkkk....",
+        "...kggggggggk...",
+        "..kggggggggggk..",
+        "..kgggkkkkgggk..",
+        "..kggkkkkkkggk..",
+        "..kggkkkkkkggk..",
+        "..kgggkkkkgggk..",
+        "..kggggkkggggk..",
+        "..kgggkkkkgggk..",
+        "..kgggkkkkgggk..",
+        "..kggkkkkkkggk..",
+        "..kggggggggggk..",
+        "...kGGGGGGGGk...",
+        "....kkkkkkkk....",
+        "................",
+    ],
+    "trumpet": [
+        "................",
+        "............kk..",
+        "...........kggk.",
+        "..........kgggk.",
+        ".........kggggk.",
+        "........kgggggk.",
+        ".kkk...kggggggk.",
+        "kgggkkkgggggGGk.",
+        "kGGGGGGGGGGGGGk.",
+        ".kkk...kggggggk.",
+        "........kgggggk.",
+        ".........kggggk.",
+        "..........kgggk.",
+        "...........kggk.",
+        "............kk..",
+        "................",
+    ],
+    "picks": [
+        "................",
+        "..........kkk...",
+        ".........ksssk..",
+        "........ksskssk.",
+        ".......ksssssk..",
+        "......kssskk....",
+        ".....kssk.......",
+        "....kssk........",
+        "...kssk.........",
+        "..kSSk..........",
+        ".kbbk...........",
+        "kbbBk...........",
+        "kBBk............",
+        ".kk.............",
+        "................",
+        "................",
+    ],
+    "sign": [
+        "................",
+        ".kkkkkkkkkkkkkk.",
+        ".kbbbbbbbbbbbbk.",
+        ".kkkkkkkkkkkkkk.",
+        "...k........k...",
+        "...k........k...",
+        ".kkkkkkkkkkkkkk.",
+        ".kggggggggggggk.",
+        ".kgkkggkkgkkggk.",
+        ".kgkggkgkgkgkgk.",
+        ".kgkkggkkgkkggk.",
+        ".kggggggggggggk.",
+        ".kkkkkkkkkkkkkk.",
+        "................",
+        "................",
+        "................",
+    ],
+    "shop": [
+        "................",
+        ".......kk.......",
+        "......krrk......",
+        ".....krrrrk.....",
+        "....krrrrrrk....",
+        "...krrrrrrrrk...",
+        "..krrrrrrrrrrk..",
+        ".kkkkkkkkkkkkkk.",
+        "..kbbbbbbbbbbk..",
+        "..kbkkbbbbkkbk..",
+        "..kbkcbbbbkcbk..",
+        "..kbkkbkkbkkbk..",
+        "..kbbbbkBkbbbk..",
+        "..kbbbbkBkbbbk..",
+        "..kkkkkkkkkkkk..",
+        "................",
+    ],
+    "compass": [
+        "................",
+        ".....kkkkkk.....",
+        "....kggggggk....",
+        "...kgwwwwwwgk...",
+        "..kgwwwwrwwwgk..",
+        "..kgwwwrrwwwgk..",
+        "..kgwwwrrwwwgk..",
+        "..kgwwwkkwwwgk..",
+        "..kgwwwsswwwgk..",
+        "..kgwwwsswwwgk..",
+        "..kgwwwswwwwgk..",
+        "...kgwwwwwwgk...",
+        "....kggggggk....",
+        ".....kkkkkk.....",
+        "................",
+        "................",
+    ],
+    "magnet": [
+        "................",
+        "...kkkkkkkkkk...",
+        "..krrrrrrrrrrk..",
+        ".krrrrrrrrrrrrk.",
+        ".krrrkkkkkkrrrk.",
+        ".krrrk....krrrk.",
+        ".krrrk....krrrk.",
+        ".krrrk....krrrk.",
+        ".krrrk....krrrk.",
+        ".kSSSk....kSSSk.",
+        ".ksssk....ksssk.",
+        ".ksssk....ksssk.",
+        ".kkkkk....kkkkk.",
+        "................",
+        "................",
+        "................",
+    ],
+    "hammer": [
+        "................",
+        "...kkkkkkkk.....",
+        "..kssssssssk....",
+        "..kSSSSSSSSk....",
+        "..kssssssssk....",
+        "...kkkbbkkk.....",
+        "......kbk.......",
+        "......kbk.......",
+        "......kbk.......",
+        "......kbk.......",
+        "......kBk.......",
+        "......kbk.......",
+        "......kBk.......",
+        "......kkk.......",
+        "................",
+        "................",
+    ],
+    "crown": [
+        "................",
+        "................",
+        "..k....kk....k..",
+        ".kgk..kggk..kgk.",
+        ".kggk.kggk.kggk.",
+        ".kgggkggggkgggk.",
+        ".kggggggggggggk.",
+        ".kgrggggggggrgk.",
+        ".kggggrggrggggk.",
+        ".kGGGGGGGGGGGGk.",
+        ".kkkkkkkkkkkkkk.",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+    ],
+}
+
+
+def build_icons():
+    for name, rows in ICONS.items():
+        assert len(rows) == 16 and all(len(r) == 16 for r in rows), f"icon {name} must be 16x16"
+        img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+        px = img.load()
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch != ".":
+                    px[x, y] = (*ICON_PALETTE[ch], 255)
+        save(img.resize((16 * UI_SCALE, 16 * UI_SCALE), Image.NEAREST), "ui", "icons", f"{name}.png")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cache", default=os.path.expanduser("~/.cache/lootfall-art"))
@@ -207,12 +400,15 @@ def main():
 
     for key, number in ITEMS.items():
         save(item_sprite(number), "sprites", "items", f"{key}.png")
-    for key, (base_number, overlay_number) in COMPOSITE_ITEMS.items():
-        base, overlay = item_sprite(base_number), item_sprite(overlay_number)
-        out = Image.new("RGBA", (base.width + overlay.width // 2, base.height + overlay.height // 3), (0, 0, 0, 0))
-        out.alpha_composite(base, (0, 0))
-        out.alpha_composite(overlay, (out.width - overlay.width, out.height - overlay.height))
-        save(out, "sprites", "items", f"{key}.png")
+    for key, (number, grey) in WORN_ITEMS.items():
+        img = item_sprite(number)
+        px = img.load()
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = px[x, y]
+                lum = (r * 3 + g * 6 + b) // 10
+                px[x, y] = (round(r + (lum - r) * grey), round(g + (lum - g) * grey), round(b + (lum - b) * grey), a)
+        save(img, "sprites", "items", f"{key}.png")
 
     for name, number in BACKGROUNDS.items():
         save(Image.open(os.path.join(sp, f"rpg-battle-system/backgrounds/{number}.png")).convert("RGBA"), "backgrounds", f"{name}.png")
@@ -230,6 +426,7 @@ def main():
 
     build_chests(sp)
     build_ui()
+    build_icons()
 
     fonts = os.path.join(ASSETS, "fonts")
     os.makedirs(fonts, exist_ok=True)

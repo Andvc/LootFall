@@ -9,7 +9,7 @@ namespace LootFall.Ui;
 
 /// <summary>
 /// A closed chest you can pick up, shake, knock on and set down. Whatever is inside is simulated as invisible physics
-/// bodies in a box that follows the chest; every hit plays that item's own recording and pops its word out of the
+/// bodies in a box that follows the chest; every hit plays that item's family sound and pops its word out of the
 /// chest. Stones wrapped in rags take part in the physics but make no sound. Heavier chests lag behind the mouse and
 /// land harder. Nothing here states a value: the player listens.
 /// </summary>
@@ -22,8 +22,11 @@ public partial class ShakeBox : Node2D
 
     public ChestView View { get; private set; }
 
-    /// <summary>Fires on every audible hit inside, with how hard it was (px/s of velocity change).</summary>
-    public event Action<Rattler, float> Impacted;
+    /// <summary>Fires on every audible hit inside: which item (index into the chest's items), and how hard.</summary>
+    public event Action<int, float> Impacted;
+
+    /// <summary>With an ear trumpet, the words say which kind: "bright jingle" rather than "jingle".</summary>
+    public bool ShowVariants;
 
     /// <summary>A short click on the chest (not a drag): knock on it.</summary>
     public event Action Clicked;
@@ -58,7 +61,7 @@ public partial class ShakeBox : Node2D
     readonly Random _rng = new();
     readonly List<(RigidBody2D Body, Rattler Rattler, float Radius)> _items = new();
     readonly Dictionary<RigidBody2D, (Vector2 Velocity, double Cooldown)> _last = new();
-    readonly Dictionary<ItemDef, double> _wordCooldown = new();
+    readonly Dictionary<int, double> _wordCooldown = new();
     Vector2 _rest, _pos, _vel, _target, _grab, _pressAt;
     AnimatableBody2D _box;
     Node2D _words;
@@ -84,7 +87,7 @@ public partial class ShakeBox : Node2D
         Position = Vector2.Zero;
         _totalWeight = _chest.Weight;
 
-        View = new ChestView { Position = _rest, PixelSize = 12, Skin = _chest.Provenance.Skin };
+        View = new ChestView { Position = _rest, PixelSize = 12, Skin = _chest.Origin.Skin };
         AddChild(View);
 
         _box = new AnimatableBody2D { SyncToPhysics = true, Position = _rest, CollisionLayer = 1, CollisionMask = 0 };
@@ -127,8 +130,8 @@ public partial class ShakeBox : Node2D
     /// What's inside and where, in the cavity's own frame (origin at the lock, y down), for the keyhole view.
     /// Item is null for a stone.
     /// </summary>
-    public IEnumerable<(ItemDef Item, Vector2 Position, float Radius)> Contents() =>
-        _items.Select(e => (e.Rattler?.Item, (e.Body.Position - _pos).Rotated(-_box.Rotation), e.Radius));
+    public IEnumerable<(int Index, ItemDef Item, Vector2 Position, float Radius)> Contents() =>
+        _items.Select((e, i) => (i, e.Rattler?.Item, (e.Body.Position - _pos).Rotated(-_box.Rotation), e.Radius));
 
     public static Rect2 Cavity => new(-CavityHalfWidth, CavityTop, CavityHalfWidth * 2, CavityBottom - CavityTop);
 
@@ -294,8 +297,9 @@ public partial class ShakeBox : Node2D
         View.Position = _pos;
         View.Rotation = tilt;
 
-        foreach (var (body, rattler, _) in _items)
+        for (int index = 0; index < _items.Count; index++)
         {
+            var (body, rattler, _) = _items[index];
             // A very fast drag can push an item through a wall; put it back rather than lose it.
             if (body.Position.DistanceTo(_pos) > 180)
             {
@@ -309,32 +313,29 @@ public partial class ShakeBox : Node2D
             if (rattler != null && _settling <= 0 && hit > ImpactThreshold && cooldown <= 0 && body.GetContactCount() > 0)
             {
                 cooldown = 0.12;
-                Impact(rattler, hit, body.Position);
+                Impact(index, rattler, hit);
             }
             _last[body] = (body.LinearVelocity, cooldown);
         }
     }
 
-    void Impact(Rattler rattler, float strength, Vector2 at)
+    void Impact(int index, Rattler rattler, float strength)
     {
         HeardAnything = true;
         float loud = Mathf.Clamp((strength - ImpactThreshold) / 700f, 0f, 1f);
-        // Always the same recording at the same pitch (give or take a hair), so each item is learnable by ear.
-        var sound = rattler.Sound;
-        Sfx.PlayGroup(sound.Group, sound.Pitch * (0.98f + 0.04f * (float)_rng.NextDouble()),
-            Mathf.LinearToDb(0.45f + 0.55f * loud) + 3f + sound.VolumeDb);
+        // Always the family's sound at the item's pitch, give or take a hair: things of a kind sound alike.
+        Sfx.Play(rattler.Sound, Mathf.LinearToDb(0.45f + 0.55f * loud) + 3f, 0.04f * (float)(_rng.NextDouble() - 0.5));
         // Each item shows its word on its own clock, so a quiet item isn't drowned out by a noisy one.
-        if (_wordCooldown.GetValueOrDefault(rattler.Item) <= 0)
+        if (_wordCooldown.GetValueOrDefault(index) <= 0)
         {
-            _wordCooldown[rattler.Item] = 0.3;
-            bool big = rattler.Sound.Word.ToUpperInvariant() == rattler.Sound.Word;
-            // Words burst outward from the chest, each item in its own lane, so overlapping hits stay readable.
-            var outward = (at - _pos).Normalized();
-            int lane = _items.FindIndex(e => e.Rattler == rattler);
-            var spot = _pos + outward * 120f + new Vector2(Rand() * 24, -44 + (lane % 4) * 30 + Rand() * 8);
-            PopWord(rattler.Sound.Word, spot, big ? 32 : 24, new Color("#fff4dc"));
+            _wordCooldown[index] = 0.3;
+            var item = rattler.Item;
+            string word = ShowVariants ? Families.Describe(item.Family, item.Variant) : item.Word;
+            // Each item has its own spot in a little grid above the chest, so you can count them.
+            var spot = _pos + new Vector2((index % 3 - 1) * 115f + Rand() * 6f, -128f - index / 3 * 36f + Rand() * 4f);
+            PopWord(word, spot, item.Weight >= 2f ? 32 : 24, new Color("#fff4dc"));
         }
-        Impacted?.Invoke(rattler, strength);
+        Impacted?.Invoke(index, strength);
     }
 
     void PopWord(string text, Vector2 at, int size, Color color)
