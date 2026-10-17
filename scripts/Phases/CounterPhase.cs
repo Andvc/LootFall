@@ -31,7 +31,7 @@ public partial class CounterPhase : Phase
     {
         public Category? Category;
         public Button Button;
-        public Label Value, Word;
+        public Label Value;
         public Painter Box;
     }
 
@@ -302,8 +302,8 @@ public partial class CounterPhase : Phase
         button.AddChild(row.Box);
         button.AddChild(category is Category kind ? UiKit.MakeKindIcon(kind, new Vector2(60, RowH / 2)) : UiKit.MakeKindIcon("hidden", new Vector2(60, RowH / 2)));
         button.AddChild(UiKit.MakeLabel(name, 16, Palette.Text).Place(88, 9, 140, 20));
-        row.Word = UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(212, 9, 80, 20);
-        button.AddChild(row.Word);
+        // Just a reminder of each kind's sound: the slip doesn't keep track of what you've heard.
+        button.AddChild(UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(212, 9, 80, 20));
         if (category is Category claimed ? _visit.Claim.Contains(claimed) : _visit.ClaimsHidden)
             button.AddChild(UiKit.MakeLabel("said", 16, Palette.Muted).Place(278, 9, 50, 20));
         row.Value = UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(PanelW - 112, 9, 100, 20);
@@ -356,16 +356,8 @@ public partial class CounterPhase : Phase
             {
                 int value = _slip.ValueOf(kind, mark == Mark.None ? Mark.Plain : mark);
                 row.Value.Text = $"~{value}g";
-                bool heard = _hearing.HeardAny(kind);
-                row.Word.AddThemeColorOverride("font_color", _hearing.Broke(kind) ? Palette.Bad
-                    : _hearing.Glowed(kind) ? Palette.Magic : heard ? Palette.Word : Palette.Muted.Darkened(0.2f));
-                row.Word.Text = _hearing.Broke(kind) ? "broke!" : Categories.Get(kind).Word;
             }
-            else
-            {
-                row.Value.Text = $"~{_slip.HiddenValue}g";
-                row.Word.AddThemeColorOverride("font_color", _hearing.Hollow ? Palette.Word : Palette.Muted.Darkened(0.2f));
-            }
+            else row.Value.Text = $"~{_slip.HiddenValue}g";
             row.Value.AddThemeColorOverride("font_color", mark switch { Mark.Magic => Palette.Magic, Mark.Plain => Palette.Gold, _ => Palette.Muted.Darkened(0.2f) });
             row.Box.QueueRedraw();
             row.Button.Disabled = !open;
@@ -376,14 +368,16 @@ public partial class CounterPhase : Phase
         _worth.Text = $"~{worth}g";
         string who = _visit.Seller.Short;
         bool offering = _visit.CanOffer;
+        bool bought = _visit.Outcome == VisitOutcome.Bought;
         _askLabel.Text = _visit.Trade switch
         {
+            _ when bought => "You paid",
             Trade.Offer when _visit.Ask == 0 => $"{who} wants you to name a price",
             Trade.Haggle when _visit.OffersMade > 0 => $"{who}'s final price",
             Trade.Haggle => $"{who} asks (make an offer?)",
             _ => $"{who} asks",
         };
-        _ask.Text = _visit.Ask > 0 ? $"{_visit.Ask}g" : "?";
+        _ask.Text = bought ? $"{_visit.PricePaid}g" : _visit.Ask > 0 ? $"{_visit.Ask}g" : "?";
 
         _slider.Visible = offering && open;
         _offer.Visible = offering;
@@ -392,7 +386,7 @@ public partial class CounterPhase : Phase
         _offer.Text = $"Offer {offer}g";
         _offer.Disabled = !open || offer > State.Gold;
         // With an offer to make, the buy button moves aside (hagglers) or isn't there (name-a-price).
-        _buy.Visible = _visit.Ask > 0 && !(offering && _visit.Trade == Trade.Offer);
+        _buy.Visible = !bought && _visit.Ask > 0 && !(offering && _visit.Trade == Trade.Offer);
         _buy.Text = $"Buy {_visit.Ask}g";
         _buy.Disabled = !open || State.Gold < _visit.Ask;
         if (offering && _visit.Trade == Trade.Haggle)
@@ -408,8 +402,9 @@ public partial class CounterPhase : Phase
             _pass.Place(PanelX + 196, 590, 188, 50);
         }
         _pass.Disabled = !open;
+        if (bought) _pass.Visible = false;
 
-        int price = offering ? offer : _visit.Ask;
+        int price = bought ? _visit.PricePaid : offering ? offer : _visit.Ask;
         int margin = worth - price;
         _profit.Visible = !_slider.Visible;
         _profit.Text = worth == 0 ? "Tick what you think is inside." : $"{(margin > 0 ? "+" : "")}{margin}g on average, if you're right";
@@ -435,9 +430,7 @@ public partial class CounterPhase : Phase
     void OnHeard(Item item, Shake level)
     {
         bool glowed = _lamp && item.Magic;
-        bool first = !_hearing.HeardAny(item.Category);
         _hearing.Heard(item.Category, level, _magnet, glowed);
-        if (first || glowed) Refresh();
         Teach($"heard_{item.Category}");
         if (glowed)
         {
