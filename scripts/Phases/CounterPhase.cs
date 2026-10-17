@@ -8,96 +8,79 @@ using LootFall.Ui;
 namespace LootFall.Phases;
 
 /// <summary>
-/// One seller, one chest. Shake it and listen: every family of things has its own everyday sound. Tools you've bought
-/// tell you more: the scale, the keyhole lens, the compass, the lodestone, the hammer. Then buy, make one offer, or
-/// pass. Whatever you buy is opened straight away. Nothing on this screen states what the chest is worth.
+/// One seller, one chest, one puzzle. The seller says how hard they shook it and what they heard, and asks a price for
+/// that. Shake it yourself at every strength: the meter under the chest records what you heard at each. Correct the
+/// appraisal slip (tick what's there, untick what isn't, mark what glowed as magic) and buy if it's worth more than
+/// the ask. Pass, and they show you what was inside. Nothing on this screen knows what the chest is worth: the slip only
+/// adds up what you ticked.
 /// </summary>
 public partial class CounterPhase : Phase
 {
-    static readonly Vector2 ChestRest = new(430, 450);
-    static readonly Vector2 ScaleAt = new(700, 440);
-    static readonly Vector2 ScaleSpot = ScaleAt + new Vector2(0, ScaleView.ChestOffsetY);
-    static readonly Rect2 DragBounds = new(330, 200, 430, 250);
-    const float PanelX = 844, PanelW = 384;
+    static readonly Vector2 ChestRest = new(556, 416);
+    static readonly Rect2 DragBounds = new(452, 220, 232, 196);
+    const float PanelX = 844, PanelW = 384, RowH = 40, RowStep = 46, RowsY = 150;
+
+    /// <summary>Shaking at a strength this long counts as having tried it.</summary>
+    const double TryTime = 0.5;
+
+    sealed class Row
+    {
+        public Category Category;
+        public Button Button;
+        public Label Tick, Value;
+        public Painter Box;
+    }
 
     Visit _visit;
+    Appraisal _slip;
+    readonly Hearing _hearing = new();
+    readonly Dictionary<(Shake, bool), double> _shaken = new();
+    readonly List<Row> _rows = new();
     SellerView _seller;
     ShakeBox _shake;
-    ScaleView _scale;
+    HearingChart _chart;
     MentorView _mentor;
-    Label _notes, _hint, _ask, _wasAsk, _offerNote, _footer;
-    HSlider _slider;
-    Button _ledgerButton, _offer, _buy, _pass, _peekButton;
-    readonly List<Button> _toolButtons = new();
-    PeepholeView _peephole;
     LedgerView _ledger;
-    Node2D _gauge;
-    bool _busy, _onScale, _heardAll;
-    readonly List<int> _heard = new();
-    readonly HashSet<int> _seen = new();
-    float? _weighed, _iron;
-    int? _magic;
-    bool? _hollow;
+    ColorRect _dark;
+    Label _hint, _worth, _profit, _footer;
+    Button _buy, _pass, _lampButton, _magnetButton, _ledgerButton;
+    Control _reveal;
+    bool _busy, _lamp, _magnet;
 
     public Visit Visit => _visit;
+    public Appraisal Slip => _slip;
+    public Hearing Hearing => _hearing;
     public ShakeBox Shake => _shake;
-    public bool Concluded => _visit.Outcome != VisitOutcome.Deciding;
-    public bool Busy => _busy || _peephole != null || _ledger != null;
-    public PeepholeView Peephole => _peephole;
-    public LedgerView Ledger => _ledger;
     public MentorView Mentor => _mentor;
-
-    /// <summary>Everything found out about this chest so far (the bot reasons from this).</summary>
-    public Inspection Inspection => new()
-    {
-        Variants = State.Has("trumpet"),
-        Seen = _seen.Where(i => i < _visit.Chest.Items.Count).Select(i => _visit.Chest.Items[i]).ToHashSet(),
-        Weight = _weighed,
-        Magic = _magic,
-        Iron = _iron,
-        Hollow = _hollow,
-    };
+    public LedgerView Ledger => _ledger;
+    public bool Concluded => _visit.Outcome != VisitOutcome.Deciding;
+    public bool Busy => _busy || _ledger != null;
+    public bool Revealing => _reveal != null;
+    public bool LampOn => _lamp;
+    public bool MagnetOn => _magnet;
 
     public override void _Ready()
     {
         _visit = State.Current;
+        _slip = new Appraisal(_visit);
         Add(UiKit.MakeBackdrop("cellar_night", 0.75f));
         Add(new Painter(DrawCounter));
 
-        _seller = Add(new SellerView(_visit.Seller) { Position = new Vector2(176, 330) });
-        if (State.Has("scale"))
-        {
-            _scale = Add(new ScaleView { Position = ScaleAt });
-            _scale.Settled += OnWeighed;
-        }
-        _shake = Add(new ShakeBox(_visit.Chest, DragBounds)
-        {
-            Position = ChestRest,
-            RestFor = at => _scale != null && MathF.Abs(at.X - ScaleAt.X) < 100 ? ScaleSpot : ChestRest,
-            ShowVariants = State.Has("trumpet"),
-        });
-        _shake.View.LockColor = Palette.Lock(_visit.Chest.Lock.Index);
-        _shake.View.RefreshLock();
-        _shake.Impacted += (index, _) => OnHeard(index);
-        _shake.Clicked += Knock;
-        _shake.KeyholeClicked += Peek;
-        _shake.Lifted += () =>
-        {
-            if (_onScale) _scale?.SetLoad(null);
-            _onScale = false;
-        };
-        _shake.Landed += spot =>
-        {
-            _onScale = _scale != null && spot.DistanceTo(ScaleSpot) < 1;
-            if (_onScale) _scale.SetLoad(_visit.Chest.ContentsWeight);
-        };
+        _seller = Add(new SellerView(_visit.Seller) { Position = new Vector2(150, 196) });
+        _shake = Add(new ShakeBox(_visit.Chest, DragBounds) { Position = ChestRest });
+        _shake.Heard += OnHeard;
+        _chart = Add(new HearingChart { Position = new Vector2(316, 486), ZIndex = 10 });
+        _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(316, 452, HearingChart.W, 20));
+        _hint.ZIndex = 10;
 
-        Add(UiKit.MakeLabel(_visit.Seller.Name, 24, Palette.Gold, outline: 4).Place(40, 534, 360, 30));
-        _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(180, 540, 500, 20));
+        // The witchlight: the room goes dark so magic can glow. The panel, the meter and the words stay lit.
+        _dark = Add(new ColorRect { Color = new Color(0.03f, 0f, 0.08f, 0.78f), MouseFilter = Control.MouseFilterEnum.Ignore, Visible = false }
+            .Place(-100, -100, 1480, 920));
+        _dark.ZIndex = 5;
+
         BuildQueue();
         BuildPanel();
-        // Above the peephole and ledger overlays, so Bram can comment on what you see there.
-        _mentor = Add(new MentorView { Position = new Vector2(352, 586), ZIndex = 20 });
+        _mentor = Add(new MentorView { Position = new Vector2(322, 588), ZIndex = 40 });
 
         Sfx.PlayGroup("door_open", 1f, -6);
         _seller.Enter();
@@ -105,20 +88,23 @@ public partial class CounterPhase : Phase
         Game.Hud.SetDay(State.Day, State.Tier);
         Game.Hud.SetGold(State.Gold, animate: false);
         GreetingHints();
+        RefreshChart();
         Refresh();
+        Game.Moment("01_counter", 1.0);
     }
 
-    /// <summary>Bram's tips for whatever is new about this customer: the day, the tools, the person, the lock.</summary>
+    /// <summary>Bram's tips for whatever is new about this customer.</summary>
     void GreetingHints()
     {
         bool firstOfDay = State.Today.Bought + State.Today.Passed == 0;
-        if (firstOfDay && State.Day == 1) Teach("intro");
+        bool met = State.Meet(_visit.Seller);
+        if (State.Day == 1 && State.Tier == 1 && State.Guided)
+        {
+            Teach(_visit.Seller.Key == "tam" ? "intro" : $"first_{_visit.Seller.Key}");
+            return;
+        }
         if (firstOfDay && State.Tier > 1) Teach($"tier{State.Tier}");
-        if (firstOfDay && State.Day >= 2) Teach("haggle");
-        foreach (var tool in new[] { "scale", "peephole", "lantern", "periscope", "trumpet", "compass", "lodestone", "hammer" })
-            if (State.Has(tool)) Teach(tool);
-        if (State.Ledger.Meet(_visit.Seller) && !(State.Day == 1 && firstOfDay)) Teach($"seller_{_visit.Seller.Key}");
-        if (_visit.Chest.Lock.Locked) Teach("locked");
+        if (met) Teach($"seller_{_visit.Seller.Key}");
     }
 
     void Teach(string key)
@@ -130,15 +116,25 @@ public partial class CounterPhase : Phase
 
     public override void _Process(double delta)
     {
-        if (_scale != null) _scale.Highlight = _shake.Dragging && MathF.Abs(_shake.View.Position.X - ScaleAt.X) < 100;
-        _hint.Text = _shake.Hover switch
+        var level = _shake.Level;
+        _chart.SetShake(_shake.Speed, level);
+        if (_shake.Dragging && level > Core.Shake.Still)
         {
-            _ when Busy || Concluded => "",
-            ShakeBox.Part.Keyhole when State.PeeksPerDay > 0 => "Click the keyhole to peek inside",
-            ShakeBox.Part.Body or ShakeBox.Part.Keyhole => (State.Has("hammer") ? "Drag to shake. Click to knock." : "Drag to shake it.") +
-                                                           (_scale != null && !_onScale ? " Drop it on the scale to weigh it." : ""),
-            _ => _shake.HeardAnything ? "" : "Drag the chest to shake it",
-        };
+            var key = (level, _magnet);
+            double before = _shaken.GetValueOrDefault(key);
+            _shaken[key] = before + delta;
+            if (before < TryTime && _shaken[key] >= TryTime)
+            {
+                _hearing.Tried(level, _magnet);
+                RefreshChart();
+            }
+        }
+        _hint.Text = Busy || Concluded ? ""
+            : _shake.Dragging ? $"Shaking {Categories.Adverb(level)}{(_magnet ? ", magnet on" : "")}"
+            : _shake.Hover ? "Drag to shake: slowly for gentle, fast for hard"
+            : _magnet ? "Magnet on: iron can't move"
+            : _lamp ? "Witchlight on: magic glows"
+            : _shake.HeardAnything ? "" : "Drag the chest to shake it";
     }
 
     public override void _UnhandledInput(InputEvent e)
@@ -152,7 +148,7 @@ public partial class CounterPhase : Phase
 
     void DrawCounter(Painter p)
     {
-        const float top = 512, right = 816;
+        const float top = 476, right = 816;
         p.DrawRect(new Rect2(0, top, right, 18), new Color("#93602f"));
         p.DrawRect(new Rect2(0, top, right, 3), new Color("#b07a40"));
         p.DrawRect(new Rect2(0, top + 18, right, 720 - top), new Color("#5e3718"));
@@ -163,298 +159,206 @@ public partial class CounterPhase : Phase
     void BuildQueue()
     {
         if (State.Queue.Count == 0) return;
-        Add(UiKit.MakeLabel("Waiting", 16, Palette.Muted, outline: 4).Place(40, 600, 120, 20));
-        for (int i = 0; i < State.Queue.Count; i++)
+        Add(UiKit.MakeLabel("Waiting", 16, Palette.Muted, outline: 4).Place(24, 616, 120, 20));
+        for (int i = 0; i < Math.Min(7, State.Queue.Count); i++)
         {
-            var face = Add(UiKit.MakeSprite($"res://assets/sprites/sellers/{State.Queue[i].Seller.Key}.png", new Vector2(60 + i * 46, 652), 1));
+            var face = Add(UiKit.MakeSprite($"res://assets/sprites/sellers/{State.Queue[i].Seller.Key}.png", new Vector2(44 + i * 38, 668), 1));
             face.Modulate = new Color(0.8f, 0.8f, 0.85f);
         }
     }
 
     void BuildPanel()
     {
-        Add(UiKit.MakePanel().Place(820, 66, 432, 640));
+        var panel = Add(new Node2D { ZIndex = 10 });
+        panel.AddChild(UiKit.MakePanel().Place(820, 66, 432, 640));
+        panel.AddChild(Header("YOUR APPRAISAL", PanelX, 80));
+        _ledgerButton = UiKit.MakeButton("Ledger [L]", Palette.Gold, 16, OpenLedger).Place(PanelX + 236, 72, 148, 36);
+        panel.AddChild(_ledgerButton);
+        string who = _visit.Claim.Count == 0 ? $"{_visit.Seller.Short} heard nothing, so nothing's ticked."
+            : $"Ticked: what {_visit.Seller.Short} heard.";
+        panel.AddChild(UiKit.MakeLabel($"{who} Click a row to change it.", 16, Palette.Muted).Wrapped().Place(PanelX, 106, PanelW, 40));
 
-        Add(Header("WHAT YOU KNOW", PanelX, 82));
-        _ledgerButton = Add(UiKit.MakeButton("Ledger  [L]", Palette.Gold, 16, OpenLedger).Place(PanelX + 224, 74, 160, 40));
-        _notes = Add(UiKit.MakeLabel("", 16, Palette.Text).Wrapped().Place(PanelX, 122, PanelW, 206));
+        var kinds = Categories.UpTo(State.Tier).ToList();
+        for (int i = 0; i < kinds.Count; i++) panel.AddChild(MakeRow(kinds[i], RowsY + i * RowStep));
 
-        // Only the tools you own. The scale is used by dragging the chest onto it.
-        var tools = new List<(string Icon, string Text, Action Use)>();
-        bool crowded = new[] { "compass", "lodestone", "hammer" }.Count(State.Has) >= 2;
-        if (State.PeeksPerDay > 0) tools.Add(("lens", "Peek", Peek));
-        if (State.Has("compass")) tools.Add(("compass", crowded ? "Magic" : "Compass", UseCompass));
-        if (State.Has("lodestone")) tools.Add(("magnet", crowded ? "Iron" : "Lodestone", UseLodestone));
-        if (State.Has("hammer")) tools.Add(("hammer", crowded ? "Tap" : "Knock", Knock));
-        if (tools.Count > 0)
+        float y = RowsY + kinds.Count * RowStep + 4;
+        bool lamp = State.Has("lamp"), magnet = State.Has("magnet");
+        if (lamp || magnet)
         {
-            Add(Header("TOOLS", PanelX, 332));
-            float w = (PanelW - (tools.Count - 1) * 8) / tools.Count;
-            for (int i = 0; i < tools.Count; i++)
+            float w = lamp && magnet ? (PanelW - 8) / 2 : PanelW;
+            float x = PanelX;
+            if (lamp)
             {
-                var button = Add(ToolButton(tools[i].Icon, tools[i].Text, tools[i].Use, crowded).Place(PanelX + i * (w + 8), 354, w, 44));
-                _toolButtons.Add(button);
-                if (tools[i].Icon == "lens") _peekButton = button;
+                _lampButton = ToolButton("lamp", ToggleLamp).Place(x, y, w, 40);
+                panel.AddChild(_lampButton);
+                x += w + 8;
+            }
+            if (magnet)
+            {
+                _magnetButton = ToolButton("magnet", ToggleMagnet).Place(x, y, w, 40);
+                panel.AddChild(_magnetButton);
             }
         }
 
-        Add(Header("DEAL", PanelX, 410));
-        Add(UiKit.MakeLabel("Asking", 16, Palette.Muted).Place(PanelX, 432, 200, 20));
-        _ask = Add(UiKit.MakeLabel("", 40, Palette.Gold, outline: 4).Place(PanelX, 448, 200, 48));
-        _wasAsk = Add(UiKit.MakeLabel("", 16, Palette.Muted).Place(PanelX + 200, 466, 184, 20));
-
-        _slider = new HSlider { Step = 5, MinValue = 5, FocusMode = Control.FocusModeEnum.None };
-        StyleSlider(_slider);
-        _slider.ValueChanged += _ => Refresh();
-        Add(_slider.Place(PanelX, 504, PanelW, 28));
-        _offer = Add(UiKit.MakeButton("", Palette.Good, 16, MakeOffer).Place(PanelX, 538, PanelW, 48));
-        _offerNote = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center).Wrapped().Place(PanelX, 508, PanelW, 72));
-        _offerNote.VerticalAlignment = VerticalAlignment.Center;
-        _buy = Add(UiKit.MakeButton("", Palette.Gold, 16, Buy).Place(PanelX, 596, 188, 52));
-        _pass = Add(UiKit.MakeButton("Pass", Palette.Bad, 16, Pass).Place(PanelX + 196, 596, 188, 52));
-        _footer = Add(UiKit.MakeLabel("", 16, Palette.Muted).Wrapped().Place(PanelX, 656, PanelW, 44));
-
-        _slider.MaxValue = Math.Max(5, _visit.Ask - 5);
-        _slider.Value = Money.RoundTo5(_visit.Ask * 0.7f);
+        panel.AddChild(UiKit.MakeLabel("If you're right, it's worth", 16, Palette.Muted).Place(PanelX, 500, 260, 20));
+        _worth = UiKit.MakeLabel("", 32, Palette.Text, HorizontalAlignment.Right, outline: 4).Place(PanelX + 220, 488, 164, 40);
+        panel.AddChild(_worth);
+        panel.AddChild(UiKit.MakeLabel($"{_visit.Seller.Short} asks", 16, Palette.Muted).Place(PanelX, 540, 260, 20));
+        panel.AddChild(UiKit.MakeLabel($"{_visit.Ask}g", 32, Palette.Gold, HorizontalAlignment.Right, outline: 4).Place(PanelX + 220, 528, 164, 40));
+        _profit = UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Right).Place(PanelX, 570, PanelW, 20);
+        panel.AddChild(_profit);
+        _buy = UiKit.MakeButton("", Palette.Gold, 24, Buy).Place(PanelX, 598, 188, 52);
+        _pass = UiKit.MakeButton("Pass", Palette.Bad, 24, Pass).Place(PanelX + 196, 598, 188, 52);
+        panel.AddChild(_buy);
+        panel.AddChild(_pass);
+        _footer = UiKit.MakeLabel("", 16, Palette.Muted).Wrapped().Place(PanelX, 658, PanelW, 44);
+        panel.AddChild(_footer);
     }
 
-    static Button ToolButton(string icon, string text, Action use, bool crowded)
+    Button MakeRow(CategoryDef kind, float y)
     {
-        var button = UiKit.MakeButton(text, Palette.Gold, 16, use);
-        button.Alignment = HorizontalAlignment.Right;
-        button.ClipText = true;
-        button.AddThemeConstantOverride("h_separation", crowded ? 2 : 6);
-        button.Icon = GD.Load<Texture2D>($"res://assets/ui/icons/{icon}.png");
-        button.ExpandIcon = false;
-        button.AddThemeConstantOverride("icon_max_width", crowded ? 24 : 32);
+        var row = new Row { Category = kind.Category };
+        var button = UiKit.MakeButton("", Palette.PanelBorder, 16, () => Cycle(kind.Category)).Place(PanelX, y, PanelW, RowH);
+        row.Button = button;
+        row.Box = new Painter(p => DrawBox(p, _slip[kind.Category])) { Position = new Vector2(10, 8) };
+        button.AddChild(row.Box);
+        row.Tick = UiKit.MakeLabel("", 16, Palette.Bg, HorizontalAlignment.Center).Place(10, 10, 24, 20);
+        button.AddChild(row.Tick);
+        button.AddChild(UiKit.MakeKindIcon(kind.Category, new Vector2(60, RowH / 2)));
+        button.AddChild(UiKit.MakeLabel(kind.Name, 16, Palette.Text).Place(88, 10, 120, 20));
+        button.AddChild(UiKit.MakeLabel(kind.Word, 16, Palette.Word.Darkened(0.25f)).Place(196, 10, 80, 20));
+        button.AddChild(UiKit.MakeLabel(_visit.Claim.Contains(kind.Category) ? "said" : "", 16, Palette.Muted).Place(270, 10, 50, 20));
+        row.Value = UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(PanelW - 112, 10, 100, 20);
+        button.AddChild(row.Value);
+        _rows.Add(row);
         return button;
     }
 
-    static void StyleSlider(HSlider slider)
+    static void DrawBox(Painter p, Mark mark)
     {
-        var coin = GD.Load<Texture2D>("res://assets/sprites/items/gold_doubloons.png");
-        var track = new StyleBoxFlat { BgColor = new Color("#120e1a"), BorderColor = Palette.PanelBorder, AntiAliasing = false };
-        track.SetBorderWidthAll(3);
-        track.SetContentMarginAll(6);
-        var fill = new StyleBoxFlat { BgColor = Palette.Gold.Darkened(0.35f), AntiAliasing = false };
-        fill.SetContentMarginAll(6);
-        slider.AddThemeStyleboxOverride("slider", track);
-        slider.AddThemeStyleboxOverride("grabber_area", fill);
-        slider.AddThemeStyleboxOverride("grabber_area_highlight", fill);
-        slider.AddThemeIconOverride("grabber", coin);
-        slider.AddThemeIconOverride("grabber_highlight", coin);
+        var color = mark switch { Mark.Plain => Palette.Gold, Mark.Magic => Palette.Magic, _ => Palette.Muted.Darkened(0.3f) };
+        p.DrawRect(new Rect2(0, 0, 24, 24), new Color(0, 0, 0, 0.5f));
+        if (mark != Mark.None) p.DrawRect(new Rect2(3, 3, 18, 18), color);
+        p.DrawRect(new Rect2(0, 0, 24, 24), color, false, 3);
+    }
+
+    static Button ToolButton(string icon, Action use)
+    {
+        var button = UiKit.MakeButton("", Palette.Magic.Darkened(0.45f), 16, use);
+        button.Icon = GD.Load<Texture2D>($"res://assets/ui/icons/{icon}.png");
+        button.ExpandIcon = false;
+        button.AddThemeConstantOverride("icon_max_width", 24);
+        return button;
     }
 
     void Refresh()
     {
         bool open = !Concluded && !Busy;
-        _ask.Text = $"{_visit.Ask}g";
-        _wasAsk.Text = _visit.Ask != _visit.OpeningAsk ? $"was {_visit.OpeningAsk}g" : "";
+        foreach (var row in _rows)
+        {
+            var mark = _slip[row.Category];
+            int value = _slip.ValueOf(row.Category, mark == Mark.None ? Mark.Plain : mark);
+            row.Value.Text = mark == Mark.Magic ? $"x{Categories.MagicMultiplier} {value}g" : $"{value}g";
+            row.Value.AddThemeColorOverride("font_color", mark switch { Mark.Magic => Palette.Magic, Mark.Plain => Palette.Gold, _ => Palette.Muted.Darkened(0.2f) });
+            row.Tick.Text = mark == Mark.Magic ? "*" : "";
+            row.Box.QueueRedraw();
+            row.Button.Disabled = !open;
+            row.Button.Modulate = mark == Mark.None ? new Color(1, 1, 1, 0.75f) : Colors.White;
+        }
+
+        int worth = _slip.Worth;
+        int margin = worth - _visit.Ask;
+        _worth.Text = $"{worth}g";
+        _profit.Text = worth == 0 ? "Tick what you think is inside."
+            : margin > 0 ? $"+{margin}g if you're right"
+            : $"{margin}g if you're right";
+        _profit.AddThemeColorOverride("font_color", worth == 0 ? Palette.Muted : margin > 0 ? Palette.Good : Palette.Bad);
         _buy.Text = $"Buy {_visit.Ask}g";
         _buy.Disabled = !open || State.Gold < _visit.Ask;
         _pass.Disabled = !open;
         _ledgerButton.Disabled = Busy;
-        foreach (var button in _toolButtons) button.Disabled = !open;
-        if (_peekButton != null)
+        if (_lampButton != null)
         {
-            _peekButton.Text = _toolButtons.Count >= 4 ? "Peek" : $"Peek ({State.PeeksLeft})";
-            _peekButton.Disabled = !open || State.PeeksLeft <= 0;
+            _lampButton.Text = _lamp ? "Witchlight on" : "Witchlight";
+            _lampButton.Disabled = !open;
         }
-
-        // One offer per customer, from the second day on.
-        bool canOffer = State.CanHaggle && _visit.CanOffer && !Concluded;
-        _slider.Visible = _offer.Visible = canOffer;
-        _offerNote.Visible = !canOffer;
-        _offerNote.Text = !State.CanHaggle ? "Today: buy or pass. Bram will show you how to haggle tomorrow."
-            : _visit.Seller.OnePrice ? $"{_visit.Seller.Name} never haggles."
-            : Concluded ? "" : "You've made your offer. Buy at their price, or pass.";
-        if (canOffer)
+        if (_magnetButton != null)
         {
-            _slider.MaxValue = Math.Max(5, Math.Min(_visit.Ask - 5, State.Gold));
-            int offer = (int)_slider.Value;
-            _offer.Text = $"Offer {offer}g (one try)";
-            _offer.Disabled = !open || offer <= 0;
+            _magnetButton.Text = _magnet ? "Magnet on" : "Magnet";
+            _magnetButton.Disabled = !open;
         }
 
         int left = State.Queue.Count;
-        _footer.Text = $"{(left == 0 ? "Last customer today." : $"{left} more waiting today.")}" +
-                       (State.PeeksPerDay > 0 ? $" Peeks left: {State.PeeksLeft}." : "") +
+        _footer.Text = (left == 0 ? "Last customer today." : $"{left} more waiting today.") +
                        (State.Gold < _visit.Ask ? $" You have {State.Gold}g." : "");
-        _notes.Text = string.Join("\n", Notes());
     }
 
-    /// <summary>Only facts and what you perceived. Judging them is your job.</summary>
-    IEnumerable<string> Notes()
+    void RefreshChart() => _chart.Show(_hearing, _magnet);
+
+    void OnHeard(Item item, Shake level)
     {
-        var chest = _visit.Chest;
-        if (State.Ledger.Knows(_visit.Seller)) yield return $"{_visit.Seller.Name}: {_visit.Seller.Quirk.Split(". ")[0].TrimEnd('.')}.";
-        bool variants = State.Has("trumpet");
-        var words = _heard.Select(i => variants ? Families.Describe(chest.Items[i].Def.Family, chest.Items[i].Def.Variant) : chest.Items[i].Def.Word);
-        yield return _heard.Count == 0 ? "Heard: nothing yet. Shake it!" : $"Heard {_heard.Count} thing{(_heard.Count == 1 ? "" : "s")}: {string.Join(", ", words)}";
-        string lockLine = chest.Lock.Locked ? $"{chest.Lock.Name}, {chest.Lock.Difficulty}." : "No lock.";
-        yield return _weighed is float w ? $"{lockLine} Scale: {Describe.Pounds(w)} inside." : lockLine;
-        if (_seen.Count > 0)
+        bool glowed = _lamp && item.Magic;
+        _hearing.Heard(item.Category, level, _magnet, glowed);
+        RefreshChart();
+        Teach($"heard_{item.Category}");
+        if (glowed)
         {
-            var names = _seen.OrderBy(i => i).Select(i => i >= chest.Items.Count ? "a heavy bundle of rags" : SeenName(chest.Items[i].Def));
-            yield return $"Seen: {string.Join(", ", names)}.";
+            Teach("glow");
+            Game.Moment("04_glow", 0.1);
         }
-        var readings = new List<string>();
-        if (_magic is int m) readings.Add($"Compass: {MagicWords(m)}.");
-        if (_iron is float iron) readings.Add($"Lodestone: {IronWords(iron)}.");
-        if (_hollow is bool hollow) readings.Add(hollow ? "Knock: HOLLOW, something's under the floor!" : "Knock: solid.");
-        if (readings.Count > 0) yield return string.Join(" ", readings);
+        Game.Moment("01_shake", 0.1);
     }
 
-    string SeenName(ItemDef item)
+    /// <summary>Clicking a row: ticked, (with a witchlight) magic, unticked.</summary>
+    public void Cycle(Category category)
     {
-        var looks = item.LooksLike != null ? ItemCatalog.Get(item.LooksLike) : item;
-        return State.Ledger.Knows(looks) ? looks.Name : "something new";
-    }
-
-    static string MagicWords(int magic) => magic switch
-    {
-        0 => "the needle doesn't move",
-        1 => "a twitch",
-        2 => "swings hard",
-        _ => "spins wildly",
-    };
-
-    static string IronWords(float iron) => iron switch
-    {
-        < 0.1f => "nothing",
-        < 2f => "a faint tug",
-        < 5f => "a firm pull",
-        _ => "pulls hard",
-    };
-
-    void OnHeard(int index)
-    {
-        var chest = _visit.Chest;
-        if (index >= chest.Items.Count || _heard.Contains(index)) return;
-        _heard.Add(index);
-        var family = chest.Items[index].Def.Family;
-        if (State.Ledger.Hear(family) && Families.Tier(family) > 1) Teach($"family_{family}");
+        if (Busy || Concluded) return;
+        _slip.Cycle(category, State.Has("lamp"));
+        Sfx.Play("tick", 1f + 0.2f * (int)_slip[category], -4);
         Refresh();
-        if (!_heardAll && _heard.Count == chest.Items.Count)
-        {
-            _heardAll = true;
-            Teach("heard");
-            Teach("deal");
-        }
+        Teach("slip");
+        Game.Moment("02_slip", 0.2);
     }
 
-    void OnWeighed(float pounds)
+    /// <summary>Sets a row directly (the bot uses this).</summary>
+    public void SetMark(Category category, Mark mark)
     {
-        _weighed = pounds;
-        Refresh();
-        Game.Moment("03_scale", 0.2);
-    }
-
-    /// <summary>Raps on the chest with the tapping hammer. Without one, a knock tells you nothing.</summary>
-    public void Knock()
-    {
-        if (Busy || Concluded || !State.Has("hammer")) return;
-        _shake.Knock();
-        bool hollow = _visit.Chest.FalseBottom != null;
-        GetTree().CreateTimer(hollow ? 0.9 : 0.5).Timeout += () =>
-        {
-            if (!Alive) return;
-            _hollow = hollow;
-            Refresh();
-        };
-    }
-
-    /// <summary>Carries the chest onto the scale (the bot uses this; players drag it).</summary>
-    public void Weigh()
-    {
-        if (Busy || Concluded || _onScale || _scale == null) return;
-        _shake.MoveTo(ScaleSpot);
-    }
-
-    /// <summary>Looks through the keyhole with whatever lens you own. Uses one of the day's peeks.</summary>
-    public void Peek()
-    {
-        if (Busy || Concluded || State.PeeksPerDay == 0 || !State.UsePeek()) return;
-        _peephole = Add(new PeepholeView(_shake.Contents(), State.PeekReach, State.PeeksLeft, State.Ledger));
-        _seen.UnionWith(_peephole.Seen);
-        _peephole.Closed += () =>
-        {
-            _peephole = null;
-            Refresh();
-        };
-        Game.Moment("04_peek", 0.5);
+        if (Busy || Concluded) return;
+        _slip[category] = mark;
+        Sfx.Play("tick", 1f + 0.2f * (int)mark, -4);
         Refresh();
     }
 
-    public void ClosePeephole() => _peephole?.Close();
-
-    /// <summary>Holds the mana compass to the chest: the needle swings toward magic.</summary>
-    public void UseCompass()
+    public void ToggleLamp()
     {
-        if (Busy || Concluded || !State.Has("compass")) return;
-        _magic = _visit.Chest.Magic;
-        float swing = Mathf.DegToRad(new[] { 0f, 35f, 75f, 110f }[Math.Min(3, _magic.Value)]);
-        Sfx.Play("compass");
-        ShowGauge("compass", p =>
-        {
-            var c = new Vector2(0, 0);
-            p.DrawCircle(c, 34, new Color("#8a6a2a"));
-            p.DrawCircle(c, 30, new Color("#efe3c4"));
-            float wobble = MathF.Sin(Time.GetTicksMsec() / 90f) * (swing > 0 ? 0.08f : 0.02f);
-            var dir = Vector2.FromAngle(-Mathf.Pi / 2 + swing + wobble);
-            p.DrawLine(c, c + dir * 26, new Color("#c0392b"), 4);
-            p.DrawLine(c, c - dir * 14, new Color("#4a4a58"), 4);
-            p.DrawCircle(c, 4, new Color("#4a3a2a"));
-        }, $"Compass: {MagicWords(_magic.Value)}");
+        if (Busy || Concluded || !State.Has("lamp")) return;
+        _lamp = !_lamp;
+        _shake.Witchlight = _lamp;
+        _dark.Visible = _lamp;
+        Sfx.Play("lantern", _lamp ? 1f : 0.8f);
+        if (_lamp) Teach("lamp");
+        RefreshChart();
         Refresh();
+        Game.Moment("04_witchlight", 0.6);
     }
 
-    /// <summary>Holds the lodestone to the chest: it tugs toward iron and steel.</summary>
-    public void UseLodestone()
+    public void ToggleMagnet()
     {
-        if (Busy || Concluded || !State.Has("lodestone")) return;
-        _iron = _visit.Chest.IronWeight;
-        float pull = Mathf.Clamp(_iron.Value * 6f, 0f, 30f);
-        if (pull > 0)
-        {
-            Sfx.PlayGroup("clack", 1.2f, -2);
-            var tug = _shake.CreateTween();
-            tug.TweenProperty(_shake, "position:x", -pull, 0.12f).SetTrans(Tween.TransitionType.Back);
-            tug.TweenProperty(_shake, "position:x", 0f, 0.5f).SetDelay(0.6f);
-        }
-        ShowGauge("magnet", null, $"Lodestone: {IronWords(_iron.Value)}");
+        if (Busy || Concluded || !State.Has("magnet")) return;
+        _magnet = !_magnet;
+        _shake.Magnet = _magnet;
+        Sfx.PlayGroup("clack", _magnet ? 1.2f : 0.9f, -2);
+        _shake.View.Wobble(0.4f);
+        if (_magnet) Teach("magnet");
+        RefreshChart();
         Refresh();
-    }
-
-    /// <summary>A tool held up next to the chest for a couple of seconds, with what it shows.</summary>
-    void ShowGauge(string icon, Action<Painter> draw, string reading)
-    {
-        _gauge?.QueueFree();
-        // Held up just above the chest, wherever it's sitting.
-        _gauge = Add(new Node2D { Position = _shake.Resting + new Vector2(0, -150) });
-        if (draw != null)
-        {
-            var painter = new Painter(draw);
-            _gauge.AddChild(painter);
-            var redraw = painter.CreateTween().SetLoops();
-            redraw.TweenCallback(Callable.From(painter.QueueRedraw)).SetDelay(0.03f);
-        }
-        else
-        {
-            _gauge.AddChild(UiKit.MakeSprite($"res://assets/ui/icons/{icon}.png", Vector2.Zero, 1));
-        }
-        _gauge.AddChild(UiKit.MakeLabel(reading, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(-160, -66, 320, 20));
-        var fade = _gauge.CreateTween();
-        fade.TweenInterval(2.6f);
-        fade.TweenProperty(_gauge, "modulate:a", 0f, 0.4f);
-        fade.TweenCallback(Callable.From(_gauge.QueueFree));
-        Game.Moment($"04_{icon}", 0.6);
+        Game.Moment("05_magnet", 0.6);
     }
 
     public void OpenLedger()
     {
         if (Busy) return;
-        _ledger = Add(new LedgerView(State.Ledger, State.Tier));
+        _ledger = Add(new LedgerView(State) { ZIndex = 30 });
         _ledger.Closed += () =>
         {
             _ledger = null;
@@ -466,72 +370,110 @@ public partial class CounterPhase : Phase
 
     public void CloseLedger() => _ledger?.Close();
 
-    public void MakeOffer() => MakeOffer((int)_slider.Value);
-
-    public void MakeOffer(int amount)
-    {
-        if (Busy || Concluded || !State.CanHaggle || !_visit.CanOffer) return;
-        var response = _visit.Offer(Math.Min(amount, State.Gold), State.Rng);
-        Sfx.Play("bid");
-        _seller.Say(response.Line, response.Kind switch
-        {
-            ResponseKind.Accept => Palette.Good,
-            ResponseKind.Leave => Palette.Bad,
-            _ => (Color?)null,
-        });
-        if (response.Kind == ResponseKind.Counter) _seller.SetMood(1);
-        Game.Moment("05_offer", 0.3);
-        if (Concluded) AfterDeal();
-        else Refresh();
-    }
-
     public void Buy()
     {
         if (Busy || Concluded || State.Gold < _visit.Ask) return;
-        _seller.Say(_visit.Buy(State.Rng).Line, Palette.Good);
-        AfterDeal();
+        _seller.Say(_visit.Buy(State.Rng), Palette.Good);
+        _seller.Bob();
+        AfterBuy();
+    }
+
+    async void AfterBuy()
+    {
+        _busy = true;
+        Refresh();
+        State.Opening = State.Buy(_visit, _slip);
+        Game.Hud.SetGold(State.Gold);
+        Sfx.PlayGroup("pay");
+        FloatText($"-{_visit.PricePaid}g", new Vector2(1036, 560), Palette.Gold, 32);
+
+        await Wait(1.0);
+        if (!Alive) return;
+        var exit = _shake.CreateTween();
+        exit.TweenProperty(_shake, "position:y", 60f, 0.3f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
+        Sfx.PlayGroup("door_close", 1f, -6);
+        await ToSignal(_seller.Leave(), Tween.SignalName.Finished);
+        if (!Alive) return;
+        Game.SwitchTo(new OpeningPhase());
     }
 
     public void Pass()
     {
         if (Busy || Concluded) return;
         _seller.Say(_visit.Pass(State.Rng));
-        AfterDeal();
+        State.Pass();
+        ShowWhatWasInside();
     }
 
-    async void AfterDeal()
+    /// <summary>Passing still teaches: the seller opens the lid to show you, and each thing is checked against your slip.</summary>
+    async void ShowWhatWasInside()
     {
         _busy = true;
         Refresh();
-        bool bought = _visit.Outcome == VisitOutcome.Bought;
-        if (bought)
-        {
-            var purchase = State.Buy(_visit);
-            purchase.Shaken = _shake.HeardAnything;
-            State.Opening = purchase;
-            State.Grade = PickGrade.Clean;
-            Game.Hud.SetGold(State.Gold);
-            Sfx.PlayGroup("pay");
-            FloatText($"-{_visit.PricePaid}g", new Vector2(600, 300), Palette.Gold, 32);
-        }
-        else
-        {
-            State.Pass();
-        }
-
-        await Wait(1.4);
+        await Wait(0.6);
         if (!Alive) return;
-        var chestExit = _shake.CreateTween();
-        if (bought)
-            chestExit.TweenProperty(_shake, "position:y", 60f, 0.3f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
-        else
-            chestExit.TweenProperty(_shake, "modulate:a", 0f, 0.3f);
+
+        var lid = _shake.View.DetachLid();
+        _shake.View.ShowOpen();
+        Sfx.PlayGroup("latch", 1f, -4);
+        var fling = lid.CreateTween().SetParallel();
+        fling.TweenProperty(lid, "position", lid.Position + new Vector2(150, -40), 0.35f).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
+        fling.TweenProperty(lid, "rotation", 0.6f, 0.35f);
+        fling.TweenProperty(lid, "modulate:a", 0f, 0.3f).SetDelay(0.1f);
+
+        var chest = _visit.Chest;
+        var report = _slip.Check(chest);
+        _reveal = Add(UiKit.MakePanel(Palette.PanelBorder).Place(312, 72, 492, 262));
+        _reveal.ZIndex = 20;
+        _reveal.AddChild(UiKit.MakeLabel($"{_visit.Seller.Short} shows you what was inside", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 10, 492, 20));
+        float colW = 492f / chest.Items.Count;
+        for (int i = 0; i < report.Items.Count; i++)
+        {
+            var read = report.Items[i];
+            var at = new Vector2(colW * (i + 0.5f), 70);
+            var icon = UiKit.MakeSprite($"res://assets/sprites/items/{read.Item.Sprite}.png", at, 1);
+            int scale = Math.Max(1, (int)MathF.Min(48f / icon.Texture.GetWidth(), 48f / icon.Texture.GetHeight()));
+            _reveal.AddChild(icon);
+            Pop(icon, scale, i * 0.15f);
+            _reveal.AddChild(UiKit.MakeLabel(read.Item.Name, 16, read.Item.Magic ? Palette.Magic : Palette.Text, HorizontalAlignment.Center)
+                .Wrapped().Place(at.X - colW / 2 + 4, 100, colW - 8, 40));
+            _reveal.AddChild(UiKit.MakeLabel($"{read.Item.Value}g", 16, Palette.Gold, HorizontalAlignment.Center).Place(at.X - 60, 140, 120, 20));
+            _reveal.AddChild(UiKit.MakeCheck(read.Right, new Vector2(at.X + 34, 52), 1));
+        }
+        int worth = chest.Value, diff = worth - _visit.Ask;
+        string verdict = diff > 0 ? $"Worth {worth}g for {_visit.Ask}g: you'd have made {diff}g."
+            : $"Worth {worth}g for {_visit.Ask}g. Good pass.";
+        _reveal.AddChild(UiKit.MakeLabel(verdict, 16, diff > 0 ? Palette.Warn : Palette.Good, HorizontalAlignment.Center).Place(0, 166, 492, 20));
+        string ghosts = string.Join(", ", report.Ghosts.Select(c => $"no {Categories.Get(c).Name.ToLowerInvariant()}"));
+        string why = ghosts.Length > 0 ? $"{_visit.Explain()} (Your slip: {ghosts}.)" : _visit.Explain();
+        _reveal.AddChild(UiKit.MakeLabel(why, 16, Palette.Muted, HorizontalAlignment.Center).Wrapped().Place(16, 190, 460, 64));
+        foreach (var read in report.Items) Sfx.PlayGroup(read.Item.Def.Sound, read.Item.Def.Pitch, -6);
+
+        bool last = State.Queue.Count == 0;
+        _buy.Visible = _pass.Visible = false;
+        var next = UiKit.MakeButton(last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Continue).Place(PanelX, 598, PanelW, 52);
+        var layer = Add(new Node2D { ZIndex = 10 });
+        layer.AddChild(next);
+        Teach("passed");
+        Game.Moment("03_passed", 0.8);
+    }
+
+    static void Pop(Node2D node, float scale, float delay)
+    {
+        node.Scale = Vector2.Zero;
+        var tween = node.CreateTween();
+        tween.TweenInterval(delay);
+        tween.TweenProperty(node, "scale", Vector2.One * scale, 0.25f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+    }
+
+    /// <summary>After a pass: on to the next customer, or the end of the day.</summary>
+    public async void Continue()
+    {
+        if (_reveal == null || !Alive) return;
+        _reveal = null;
         Sfx.PlayGroup("door_close", 1f, -6);
         await ToSignal(_seller.Leave(), Tween.SignalName.Finished);
         if (!Alive) return;
-
-        // Bought chests are opened right away: pick the lock if there is one, then lift the lid.
-        if (bought) Game.SwitchTo(_visit.Chest.Lock.Locked ? new LockpickPhase() : new OpeningPhase());
-        else Game.NextCustomer();
+        Game.NextCustomer();
     }
 }

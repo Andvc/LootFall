@@ -18,34 +18,34 @@ public static class ShopTiers
     };
 }
 
-/// <summary>A chest bought today. It's opened straight away.</summary>
+/// <summary>A chest bought today, with the slip the player bought it on. It's opened straight away.</summary>
 public sealed class Purchase
 {
     public Visit Visit { get; }
+    public Appraisal Slip { get; }
     public Chest Chest => Visit.Chest;
     public int Paid => Visit.PricePaid;
-    public bool Shaken { get; set; }
-    public int Haul { get; set; }
 
-    public Purchase(Visit visit)
+    public Purchase(Visit visit, Appraisal slip)
     {
         Visit = visit;
+        Slip = slip;
     }
 }
 
 /// <summary>How the day went, for the end-of-day summary.</summary>
 public sealed class DayStats
 {
-    public int Bought, Passed, Spent, Earned;
+    public int Bought, Passed, Spent, Earned, PerfectReads;
     public int Profit => Earned - Spent;
 }
 
 public sealed class GameState
 {
-    public const int StartingGold = 60;
+    public const int StartingGold = 40;
 
-    /// <summary>If you end a day broke, Bram tides you over with this much.</summary>
-    public const int Allowance = 30;
+    /// <summary>If you end a day with less than this, Bram tops you up to it.</summary>
+    public const int Allowance = 20;
 
     public int Seed { get; }
     public int Gold { get; set; } = StartingGold;
@@ -53,44 +53,31 @@ public sealed class GameState
     public int Tier { get; private set; } = 1;
     public Random Rng { get; private set; } = new();
 
-    /// <summary>What the player has learned. Knowledge is the real progression.</summary>
-    public Ledger Ledger { get; } = new();
-
-    /// <summary>Whether Bram's tips are shown (and the first customer is a gentle one).</summary>
+    /// <summary>Whether Bram's tips are shown (and the first day is the scripted one).</summary>
     public bool Guided { get; set; } = true;
 
     public HashSet<string> HintsSeen { get; } = new();
+
+    /// <summary>Regulars you've met: their habits go in the ledger.</summary>
+    public HashSet<string> Met { get; } = new();
+
     readonly HashSet<string> _owned = new();
 
     public List<Visit> Queue { get; } = new();
     public Visit Current { get; private set; }
     public DayStats Today { get; private set; } = new();
-    public int PeeksLeft { get; private set; }
 
     /// <summary>The purchase being opened.</summary>
     public Purchase Opening { get; set; }
-    public Chest Chest => Opening?.Chest;
-    public int PricePaid => Opening?.Paid ?? 0;
-    public PickGrade Grade { get; set; }
-    public bool HeardFragile => Opening is { Shaken: true } && Opening.Chest.HasFragile;
 
     public GameState(int seed)
     {
         Seed = seed;
-        // Uncle Bram's notes: the everyday things any pawnbroker knows. Everything past the stall you learn yourself.
-        foreach (var item in ItemCatalog.UpTo(1)) Ledger.Learn(item);
     }
 
     public bool Has(string upgrade) => _owned.Contains(upgrade);
 
-    /// <summary>Haggling opens up on the second day, once the basics have sunk in.</summary>
-    public bool CanHaggle => Day >= 2 || !Guided || Tier > 1;
-
     public int CustomersPerDay => 3 + Tier + (Has("sign") ? 1 : 0);
-    public int PeeksPerDay => Has("periscope") ? 4 : Has("lantern") ? 3 : Has("peephole") ? 2 : 0;
-
-    /// <summary>How many things a peek shows, nearest the keyhole first.</summary>
-    public int PeekReach => Has("periscope") ? 99 : Has("lantern") ? 2 : 1;
 
     public bool Won => Has("warrant");
 
@@ -110,11 +97,10 @@ public sealed class GameState
     /// <summary>For debugging and screenshots: jump ahead with the tools a player would have by then.</summary>
     public void SkipTo(int tier, int gold)
     {
-        foreach (var upgrade in Upgrades.All.Where(u => u.MinTier < tier || (u.IsRenovation && u.SetsTier <= tier)))
-            if (upgrade.Key != "warrant") _owned.Add(upgrade.Key);
+        foreach (var upgrade in Upgrades.All.Where(u => u.Key != "warrant" && (u.IsRenovation ? u.SetsTier <= tier : u.MinTier < tier)))
+            _owned.Add(upgrade.Key);
         Tier = tier;
         Gold = gold;
-        foreach (var item in ItemCatalog.UpTo(tier - 1)) Ledger.Learn(item);
     }
 
     public void StartDay()
@@ -124,13 +110,11 @@ public sealed class GameState
         Queue.Clear();
         Current = null;
         Today = new DayStats();
-        PeeksLeft = PeeksPerDay;
 
-        if (Day == 1 && Guided)
+        if (Day == 1 && Guided && Tier == 1)
         {
-            // A gentle first customer: three different sounds, all of them easy, and a fair price.
-            var chest = Chest.Of(Origins.Farm, 0, "copper_pouch", "honey_jar", "wool_coat");
-            Queue.Add(new Visit(Sellers.Get("hob"), chest, 25, 20, Rng, "Found this in the barn. No idea what's in it. 25g?"));
+            Queue.AddRange(FirstDay(Rng));
+            return;
         }
 
         // Each renovation brings its own crowd; the old regulars still drop by now and then. Nobody comes twice in a
@@ -140,9 +124,25 @@ public sealed class GameState
         {
             var fresh = sellers.Where(s => Queue.All(v => v.Seller != s)).ToArray();
             var pool = fresh.Length > 0 ? fresh : sellers.Where(s => Queue[^1].Seller != s).ToArray();
-            var seller = Rng.PickWeighted(pool, s => s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 1f : 0.3f);
+            var seller = Rng.PickWeighted(pool, s => s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 0.6f : 0.15f);
             Queue.Add(Market.CreateVisit(Rng, seller, Tier));
         }
+    }
+
+    /// <summary>
+    /// The first day teaches one thing per customer: a gentle shake and the slip (Tam never shook his chest), a hard
+    /// shake (Penn shook hers too gently to hear the coat), a gentle shake under a clank (Hob shook hard and the
+    /// knife drowned out the coins), and passing (Mags heard everything there was).
+    /// </summary>
+    static IEnumerable<Visit> FirstDay(Random rng)
+    {
+        Visit Scripted(string seller, int ask, params Category[] kinds) =>
+            Market.Price(rng, Sellers.Get(seller), new Chest(kinds.Select(k => new Item(k, 1)), Sellers.Get(seller).Skin), 1, ask);
+
+        yield return Scripted("tam", 4, Category.Coins);
+        yield return Scripted("penn", 3, Category.Cloth);
+        yield return Scripted("hob", 7, Category.Coins, Category.Metal);
+        yield return Scripted("mags", 7, Category.Metal);
     }
 
     /// <summary>Calls in the next customer, if anyone is waiting.</summary>
@@ -155,19 +155,15 @@ public sealed class GameState
         return true;
     }
 
-    public bool UsePeek()
-    {
-        if (PeeksLeft <= 0) return false;
-        PeeksLeft--;
-        return true;
-    }
+    /// <summary>Records meeting a seller. True the first time.</summary>
+    public bool Meet(SellerDef seller) => Met.Add(seller.Key);
 
-    public Purchase Buy(Visit visit)
+    public Purchase Buy(Visit visit, Appraisal slip)
     {
         Gold -= visit.PricePaid;
         Today.Bought++;
         Today.Spent += visit.PricePaid;
-        return new Purchase(visit);
+        return new Purchase(visit, slip);
     }
 
     public void Pass() => Today.Passed++;
@@ -178,7 +174,7 @@ public sealed class GameState
         Today.Earned += amount;
     }
 
-    /// <summary>Closes the day. Returns the allowance paid if the shop was broke, else 0.</summary>
+    /// <summary>Closes the day. Returns the allowance paid if the shop was nearly broke, else 0.</summary>
     public int EndDay()
     {
         if (Gold >= Allowance) return 0;

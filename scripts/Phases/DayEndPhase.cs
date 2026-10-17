@@ -31,7 +31,8 @@ public partial class DayEndPhase : Phase
         string summary = today.Bought == 0
             ? $"You passed on all {today.Passed} customers."
             : $"Bought {today.Bought}, passed on {today.Passed}. Spent {today.Spent}g, the chests held {today.Earned}g: " +
-              $"{(today.Profit >= 0 ? "+" : "")}{today.Profit}g.";
+              $"{(today.Profit >= 0 ? "+" : "")}{today.Profit}g." +
+              (today.PerfectReads > 0 ? $" Perfect reads: {today.PerfectReads}." : "");
         Add(UiKit.MakeLabel(summary, 24, today.Profit > 0 ? Palette.Good : today.Profit < 0 ? Palette.Bad : Palette.Text,
             HorizontalAlignment.Center, outline: 4).Place(0, 118, 1280, 30));
         if (_topUp > 0)
@@ -65,9 +66,7 @@ public partial class DayEndPhase : Phase
             _cards.AddChild(MakeCard(offers[i], x, y));
         }
 
-        // Lenses replace each other, so only the best one shows.
-        var owned = Upgrades.All.Where(u => State.Has(u.Key) && !u.IsRenovation)
-            .Where(u => !(u.Key == "peephole" && State.Has("lantern")) && !(u.Key == "lantern" && State.Has("periscope"))).ToList();
+        var owned = Upgrades.All.Where(u => State.Has(u.Key) && !u.IsRenovation).ToList();
         if (owned.Count == 0) return;
         _cards.AddChild(UiKit.MakeLabel("Your tools", 16, Palette.Muted).Place(520, 590, 200, 20));
         for (int i = 0; i < owned.Count; i++)
@@ -133,8 +132,8 @@ public partial class DayEndPhase : Phase
         var panel = Add(UiKit.MakePanel(Palette.Gold).Place(290, 200, 700, 300));
         panel.ZIndex = 10;
         panel.AddChild(UiKit.MakeLabel("APPRAISER TO THE CROWN", 32, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(0, 30, 700, 40));
-        panel.AddChild(UiKit.MakeLabel($"From a roadside stall to the finest shop in the kingdom in {State.Day} days. " +
-                                       $"You've learned {State.Ledger.ItemCount} of {ItemCatalog.All.Length} things by their sound.",
+        panel.AddChild(UiKit.MakeLabel($"From a roadside stall to the finest shop in the kingdom in {State.Day} days, " +
+                                       $"and {State.Met.Count} regulars who'll never shake a chest as well as you.",
             16, Palette.Text, HorizontalAlignment.Center).Wrapped().Place(40, 96, 620, 60));
         panel.AddChild(UiKit.MakeLabel("Keep trading as long as you like.", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 170, 700, 20));
         panel.AddChild(UiKit.MakeButton("Carry on", Palette.Gold, 24, () => panel.QueueFree()).Place(230, 214, 240, 56));

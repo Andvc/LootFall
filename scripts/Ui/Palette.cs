@@ -15,6 +15,10 @@ public static class Palette
     public static readonly Color Good = new("#6fdc8c");
     public static readonly Color Bad = new("#ff6b6b");
     public static readonly Color Warn = new("#ffa94d");
+    public static readonly Color Magic = new("#c792ff");
+
+    /// <summary>The words that pop out of a shaken chest.</summary>
+    public static readonly Color Word = new("#fff4dc");
 
     public static readonly Color Wood = new("#7a4a24");
     public static readonly Color WoodDark = new("#4e2c12");
@@ -30,15 +34,5 @@ public static class Palette
         Rarity.Rare => new Color("#4ea3ff"),
         Rarity.Epic => new Color("#b46bff"),
         _ => new Color("#ffb52e"),
-    };
-
-    /// <summary>Lock plate colour by maker (see LockTiers); 0 is an unlocked crate's plain hasp.</summary>
-    public static Color Lock(int tier) => tier switch
-    {
-        0 => new Color("#6e5a44"),
-        1 => new Color("#8a5a3a"),
-        2 => new Color("#b9bac6"),
-        3 => new Color("#d08a3c"),
-        _ => new Color("#f5cf55"),
     };
 }

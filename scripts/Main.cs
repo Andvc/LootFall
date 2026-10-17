@@ -12,8 +12,9 @@ namespace LootFall;
 /// <summary>
 /// Root of the game: owns the game state, audio, HUD and screen effects, and swaps between phases.
 /// Command-line flags (after `--`): --seed=N, --sim [--n=N], --shake-test, --export-sounds=DIR, --autoplay,
-/// --shots=DIR, --quit-at-end, --days=N, --bot-crowbar, --no-tutorial (no tips, no gentle first customer),
+/// --shots=DIR, --quit-at-end, --days=N, --no-tutorial (no tips, no scripted first day),
 /// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then).
+/// Autoplay sets --days=N to stop after that many days.
 /// </summary>
 public partial class Main : Node2D
 {
@@ -23,7 +24,7 @@ public partial class Main : Node2D
     public Sfx Sfx { get; private set; }
     public Hud Hud { get; private set; }
 
-    /// <summary>Set by the autoplay bot to hold the lid open without input.</summary>
+    /// <summary>Set by the autoplay bot to hold the chest open without input.</summary>
     public bool AutoHold { get; set; }
 
     readonly Random _rng = new();
@@ -89,7 +90,6 @@ public partial class Main : Node2D
             {
                 QuitAtEnd = args.Contains("--quit-at-end"),
                 MaxDays = int.TryParse(Arg(args, "--days"), out var days) ? days : 0,
-                UseCrowbar = args.Contains("--bot-crowbar"),
             };
             AddChild(_bot);
         }
@@ -124,11 +124,21 @@ public partial class Main : Node2D
             fadeOut.TweenProperty(_fade, "color:a", 1f, 0.18f);
             await ToSignal(fadeOut, Tween.SignalName.Finished);
             _phase.QueueFree();
+            Zoom(1f, Center);
         }
         _phase = next;
         AddChild(next);
         CreateTween().TweenProperty(_fade, "color:a", 0f, 0.22f);
         _bot?.OnPhase(next);
+    }
+
+    static readonly Vector2 Center = new(640, 360);
+
+    /// <summary>Zooms the camera in (above 1) or out, keeping <paramref name="focus"/> where it is on screen.</summary>
+    public void Zoom(float zoom, Vector2 focus)
+    {
+        _camera.Zoom = Vector2.One * zoom;
+        _camera.Position = focus - (focus - Center) / zoom;
     }
 
     /// <summary>Adds screen-shake "trauma" (0..1). Shake strength is trauma squared, so small hits stay subtle.</summary>

@@ -46,7 +46,7 @@ jobs:
         run: |
           $log = Join-Path $pwd "smoke.log"
           $game = Start-Process build/windows/LootFall.exe -PassThru -ArgumentList `
-            "--headless", "--log-file", "`"$log`"", "--", "--autoplay", "--seed=4306", "--days=2", "--bot-crowbar"
+            "--headless", "--log-file", "`"$log`"", "--", "--autoplay", "--seed=4306", "--days=2"
           if (-not $game.WaitForExit(840000)) { $game.Kill(); throw "Game did not finish within 14 minutes" }
           Get-Content $log
           if (-not (Select-String -Path $log -Pattern "Autoplay finished 2 days" -Quiet)) { throw "Smoke test failed" }

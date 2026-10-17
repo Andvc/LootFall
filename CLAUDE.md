@@ -13,26 +13,31 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 1. `dotnet build` must report 0 warnings and 0 errors.
 2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after.
 3. Visual changes: run the autoplay bot under Xvfb with `--shots=<dir>` and look at the PNGs.
-   Bot flags: `--seed=N --quit-at-end --days=N --bot-crowbar --no-tutorial --start-tier=N --gold=N`. `--start-tier`
+   Bot flags: `--seed=N --quit-at-end --days=N --no-tutorial --start-tier=N --gold=N`. `--start-tier`
    jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens).
    Keep screenshot folders named `shots*` (git- and export-ignored).
-4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear every item in every chest.
+4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear everything the rules say is
+   audible at each strength (and with the magnet), with no leaks.
 5. For feel/timing, record with `--write-movie movies/lot.avi --fixed-fps 60` and convert with ffmpeg.
 
 ## Conventions
 
 - `scripts/Core` stays engine-free (no `using Godot`) so it can be simulated headlessly.
-- Design rules (see `docs/design.md`): never show the player a computed value before purchase. Clues are
-  perceptual (sounds, words, readings, glimpses) or factual (lock maker); judging them is the player's job. The
-  ledger only holds what the player has learned (items, family rules, sellers' habits), never a chest's total.
-- Sounds come in families that match real life (coins jingle, bottles slosh...). Within a family, differences are a
-  pitch or an added layer, always the same for a variant (`Signature` in `Items.cs`). Introduce new things one at a
-  time: by shop tier (`ItemDef.Tier`, `SellerDef.Tier`, `Families.Tier`) and with a Bram hint (`Hints.cs`).
-- Every seller prices by a habit with a blind spot that some clue exposes (`PriceRule`); the results screen says why
-  a deal went the way it did. Keep that link when adding sellers.
+- Design rules (see `docs/design.md`): the whole puzzle is three rules (a thing only sounds once the shake stirs it;
+  clanks drown out delicate things; sellers price only what they heard at their own shake). Never show the player
+  what a chest is worth before purchase: the slip only adds up what the player ticked. Clues are perceptual (which
+  sounds come at which strength, what glows, what the magnet silences) or stated (what the seller says they heard).
+- One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`); kinds differ in how
+  hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
+  Introduce new things one at a time: by shop tier (`CategoryDef.Tier`, `SellerDef.Tier`) and with a Bram hint
+  (`Hints.cs`).
+- Every seller shakes at one strength and prices what they heard (`SellerDef.Notices`); the pitch says how hard and
+  what. Profit is what they missed, and the results and pass screens say why (`Visit.Explain`). Keep that link when
+  adding sellers.
+- `ShakeBox` gates sounds with the same rules as `Chest.Audible`: change both together (the shake test checks them).
 - UI is built in code with `UiKit` and `Painter` (absolute positions on a 1280x720 canvas), not in .tscn files.
-- Buttons use `FocusMode.None`: Space is reserved for lockpicking and holding the lid. L opens the ledger.
-- `Estimator` (in `Appraiser.cs`) models a reasonable player for the sim and the bot. Update it when a clue changes.
+- Buttons use `FocusMode.None`: Space is reserved for holding the chest open. L opens the ledger.
+- `Hearing.Read` models a careful player for the sim and the bot. Update it when a rule or tool changes.
 - Phases are swapped by `Main.SwitchTo`; check `Alive` after every `await` in a phase.
 - Screen effects go through `Main` (`Shake`, `Flash`, `HitStop`); capture points use `Main.Moment(name)`.
 - Godot C# naming differs from GDScript in places (e.g. `CpuParticles2D`, `AudioStreamWav`).
@@ -46,6 +51,8 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   filtering (project default), and Kenney Mini at multiples of 8px (`UiKit.MakeLabel` snaps sizes; min 16).
 - Kenney Mini has no fallback font: stick to ASCII in UI strings.
 - Panels and buttons use the 9-slice frames from `UiKit` (`MakePanel`, `MakeFrame`, `MakeButton`), not StyleBoxFlat.
+- Item sprites vary in size (up to 72px); in 32px slots use the kind icons (`UiKit.MakeKindIcon`), drawn as 16x16
+  pixel art in `tools/import_art.py` like the tool icons.
 
 ## Known gaps
 

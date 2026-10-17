@@ -3,14 +3,15 @@ using LootFall.Core;
 
 namespace LootFall.Ui;
 
-/// <summary>The person across the counter: face, name, what they're saying, and how patient they look.</summary>
+/// <summary>The person across the counter: face, name, and what they're saying, in a bubble under them.</summary>
 public partial class SellerView : Node2D
 {
     const int FaceScale = 4;
+    public const float BubbleW = 280, BubbleH = 150;
 
     readonly SellerDef _seller;
     Node2D _body;
-    Label _text, _emote;
+    Label _text;
     Panel _bubble;
 
     public SellerView() { }
@@ -30,15 +31,14 @@ public partial class SellerView : Node2D
             Texture = GD.Load<Texture2D>($"res://assets/sprites/sellers/{_seller.Key}.png"),
             Scale = Vector2.One * FaceScale,
         });
-        _emote = UiKit.MakeLabel("", 24, Palette.Bad, HorizontalAlignment.Center, outline: 4).Place(52, -112, 72, 32);
-        _body.AddChild(_emote);
+        _body.AddChild(UiKit.MakeLabel(_seller.Name, 24, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(-140, 94, 280, 30));
 
         _bubble = UiKit.MakePanel(Palette.Text);
-        _bubble.Place(-112, -244, 420, 128);
+        _bubble.Place(-BubbleW / 2, 136, BubbleW, BubbleH);
         _body.AddChild(_bubble);
         _body.AddChild(new Painter(p =>
-            p.DrawColoredPolygon(new[] { new Vector2(-30, -119), new Vector2(0, -119), new Vector2(-20, -96) }, Palette.Text)));
-        _text = UiKit.MakeLabel("", 16, Palette.Text).Wrapped().Place(-94, -232, 384, 104);
+            p.DrawColoredPolygon(new[] { new Vector2(-14, 139), new Vector2(14, 139), new Vector2(0, 124) }, Palette.Text)));
+        _text = UiKit.MakeLabel("", 16, Palette.Text).Wrapped().Place(-BubbleW / 2 + 16, 146, BubbleW - 32, BubbleH - 20);
         _text.VerticalAlignment = VerticalAlignment.Center;
         _body.AddChild(_text);
     }
@@ -47,30 +47,9 @@ public partial class SellerView : Node2D
     {
         _text.Text = line;
         _text.AddThemeColorOverride("font_color", color ?? Palette.Text);
-        _bubble.PivotOffset = new Vector2(0, 128);
+        _bubble.PivotOffset = new Vector2(BubbleW / 2, 0);
         _bubble.Scale = new Vector2(0.96f, 0.9f);
         _bubble.CreateTween().TweenProperty(_bubble, "scale", Vector2.One, 0.12f).SetTrans(Tween.TransitionType.Back);
-    }
-
-    /// <summary>0 calm, 1 annoyed, 2 about to walk. The only hint of how much patience is left.</summary>
-    public void SetMood(int mood)
-    {
-        (_emote.Text, var color) = mood switch
-        {
-            0 => ("", Palette.Text),
-            1 => ("...", Palette.Warn),
-            _ => ("#!", Palette.Bad),
-        };
-        _emote.AddThemeColorOverride("font_color", color);
-        if (mood > 0) Bob(4);
-    }
-
-    /// <summary>A bead of sweat and a twitch.</summary>
-    public void Sweat()
-    {
-        _emote.Text = "!?";
-        _emote.AddThemeColorOverride("font_color", new Color("#7fd3ff"));
-        Bob(6);
     }
 
     public void Enter()
@@ -86,7 +65,8 @@ public partial class SellerView : Node2D
         return tween;
     }
 
-    void Bob(float amount)
+    /// <summary>A little hop, e.g. when a deal is struck.</summary>
+    public void Bob(float amount = 6)
     {
         var tween = _body.CreateTween();
         tween.TweenProperty(_body, "position:y", -amount, 0.06f);

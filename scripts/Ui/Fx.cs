@@ -72,6 +72,37 @@ public static class Fx
         parent.GetTree().CreateTimer(1.2).Timeout += particles.QueueFree;
     }
 
+    /// <summary>A puff of dust where something lands, freed when done.</summary>
+    public static void Dust(Node parent, Vector2 position, float strength = 1f)
+    {
+        var ramp = new Gradient();
+        ramp.Offsets = new[] { 0f, 1f };
+        ramp.Colors = new[] { new Color("#c9b79a") with { A = 0.8f }, new Color("#c9b79a") with { A = 0f } };
+        var dust = new CpuParticles2D
+        {
+            Emitting = false,
+            OneShot = true,
+            Amount = (int)(14 * strength) + 4,
+            Lifetime = 0.6f,
+            Explosiveness = 1f,
+            Texture = Pixel,
+            Direction = Vector2.Up,
+            Spread = 80,
+            InitialVelocityMin = 60 * strength,
+            InitialVelocityMax = 200 * strength,
+            Gravity = new Vector2(0, 260),
+            DampingMin = 120,
+            DampingMax = 240,
+            ScaleAmountMin = 2f,
+            ScaleAmountMax = 4f,
+            ColorRamp = ramp,
+            Position = position,
+        };
+        parent.AddChild(dust);
+        dust.Emitting = true;
+        parent.GetTree().CreateTimer(1.0).Timeout += dust.QueueFree;
+    }
+
     /// <summary>The pixel explosion ring (Superpowers fx #1), played once and freed.</summary>
     public static void Explosion(Node parent, Vector2 position, int scale, Color tint)
     {

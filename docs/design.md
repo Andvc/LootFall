@@ -2,123 +2,128 @@
 
 ## The game in one paragraph
 
-You inherit a roadside stall from Uncle Bram. People bring you chests. You shake them and listen, use whatever
-tools you've bought, and decide whether the asking price is worth it. Whatever you buy, you open right away, and
-see what you paid against what it held and why. Earnings go into the shop: a bigger shop brings new customers
-with new things to learn; tools tell you more about each chest. The goal is the Royal Warrant.
+You inherit a roadside stall from Uncle Bram. People bring you chests and tell you what they heard when they shook
+them. Shake each one yourself, gently, firmly and hard, and listen for what they missed. Tick what you think is
+inside on your appraisal slip, buy if it's worth more than they ask, and open it on the spot: every thing comes flying
+out with a tick or a cross against your slip. Earnings go into the shop: each renovation brings richer customers and
+one new thing to listen for. The goal is the Royal Warrant.
 
-## Pillars
+## The puzzle: three rules
 
-1. **Sounds you already know.** Coins jingle, metal clanks, bottles slosh, cloth flumps, paper rustles, jewelry
-   tinkles. A player can name the family of everything in a chest on the first shake, without being taught.
-2. **Small, consistent rules within a family.** Copper jingles dull, silver bright, gold heavy. Iron clanks, steel
-   rings on. A plain slosh is a drink; a fizzing one is magic. The same rule always holds, so learning it pays.
-3. **One new thing at a time.** The stall only sees four families and seven kinds of things. Each renovation brings
-   new customers, things and sounds; each tool arrives with a tip on how to use it.
-4. **Every profit has a reason.** Each seller prices by a habit (a hunch, the weight, the lock, the kind of sound),
-   and each habit has a blind spot one of your clues can see through. The results screen names it.
-5. **Payoff within a minute.** Buy, open, see the result, next customer. No waiting until night.
-6. **Evidence, never answers.** Nothing states what a chest is worth before you buy it. The ledger holds only what
-   you've learned: what each thing sounds like, weighs and sells for.
+1. **Every kind of thing has one sound, and it only sounds when the shake is strong enough to stir it.** Light, hard
+   things (coins jingle, bottles slosh, jewelry tinkles) rattle at the gentlest shake. Metal is heavy: it only clanks
+   at a firm shake. Soft things (cloth flumps, paper rustles) only make a sound when you shake hard.
+2. **While metal clanks, you can't hear anything delicate.** Shake gently and the metal stays put, so the quiet
+   things come through.
+3. **Sellers shake too, as hard as they like, and price only what they heard.** Their pitch says how hard they shook
+   and what they heard ("Gave it a right hard shake. Heard a clank. 7g?"), and the slip starts ticked with it.
 
-## The loop
+So every chest asks one question: what did this seller miss (or make up)? How hard you drag sets the shake strength;
+a meter under the chest shows it and records which sounds you heard at each strength. Everything is in plain sight:
+there's nothing to memorize but six everyday sounds and which shake wakes them.
 
-- **A customer arrives** with a chest and an asking price.
-- **Inspect:** drag to shake. Each thing inside rattles on its own and the panel lists what you heard
-  ("Heard 3 things: jingle, slosh, flump"). Then any tools you own.
-- **Decide:** buy, pass, or (from day 2) make **one offer**. If the offer is at or above what they'll really take,
-  it's yours at that price; if not, they name a final price and you buy at that or pass. One clear decision, no
-  clicking up a ladder.
-- **Open it now:** lockpick if it's locked (from the village shop on), hold to open, items come out one by one with
-  the sound each made in the chest. Then the verdict: paid, worth, profit, and a sentence on why ("Sergeant Brask
-  priced it by weight: 1.3 lb. A steal.").
-- **End of day:** summary, then spend on renovations and tools. If you end a day broke, Bram tops you up to 30g.
+Shake strength comes from how fast the chest moves (gentle from 40 px/s, firm from 520, hard from 1150). The
+`ShakeBox` gates its physics impacts by `Chest.Audible`, and the shake test checks the two agree.
 
-## Sound families
+## Feedback
 
-| Family | Sound | Within the family |
-|---|---|---|
-| Coins | jingle | dull = copper, bright = silver, heavy = gold (and gilded iron fakes) |
-| Metal | clank | dull = old iron, rings = steel, rings and hums = enchanted |
-| Bottles | slosh (bubbles) | big = ale, thick = honey, small = potion, fizzy = magic |
-| Cloth | flump | heavy = wool, light = rags or fine silk (look before you trust it) |
-| Paper | rustle | loose = letters, scrolls, maps; thumpy = books |
-| Jewelry | tinkle | dull = brass, bright = silver or gold, sparkly = a gem |
+- **The slip** adds up what you ticked: "If you're right, it's worth 17g. Hob asks 7g. +10g if you're right." The
+  value of a kind of thing is common knowledge (it's in the ledger); what's in this chest is your judgment.
+- **Opening** checks each thing against the slip: a tick or a cross, "you missed it", "magic!", "FAKE". Then the
+  verdict stamp (profit or loss), coins flying into your purse, and PERFECT READ when every tick was right.
+- **Every result says why**, in terms of the rules: "The clank drowned out the jingle for Hob: Pouch of Copper,
+  unpriced." "Tobias made up the slosh: there were no bottles."
+- **Passing still teaches**: the seller opens the lid to show you, checked against your slip.
 
-The base word is all you see at first. Variants are in the sound itself (pitch, an added fizz, hum or thump), so a
-practiced ear learns them; the ear trumpet spells them out ("bright jingle").
+## Stages: one new thing per renovation
 
-## Progression
-
-| Shop | Cost | Customers/day | Who comes in | New things to learn |
+| Shop | Cost | Customers/day | Things are worth | New |
 |---|---|---|---|---|
-| Roadside Stall | start | 4 | Hob, Widow Penn, Mags, Little Tam | jingle, clank, slosh, flump |
-| Village Shop | 120g | 5 | Sergeant Brask, Tobias the Tinker, Old Marta | silver, steel, paper; locked chests |
-| Town Shop | 300g | 6 | Wren, Magister Orrin | potions, magic, jewelry |
-| The Emporium | 900g | 7 | Baron Vex, Captain Gull, Silas, Pip | gold, gems, false bottoms, fakes |
-| Royal Warrant | 2000g | | | the goal |
+| Roadside Stall | start | 4 | x1 | jingle, clank, flump; three shake strengths; clanks drown out jingles |
+| Village Shop | 60g | 5 | x4 | two more sounds in the same scheme (slosh: gentle and delicate; rustle: hard); Tobias, who claims a sound that isn't there |
+| Town Shop | 100g | 6 | x8 | jewelry (tinkle); mages, whose things are often magic (x4); the Witchlight (150g) |
+| The Emporium | 600g | 7 | x16 | Silas, who sells gilded iron as gold and jewels, cheap; the Magnet (300g) |
+| Royal Warrant | 3500g | | | the goal |
 
-| Tool | Shop | Cost | What it tells you |
+The Painted Sign (40g, from the village) adds a customer a day.
+
+The two tools each answer one question the ear can't, by the same rules:
+
+- **Witchlight**: the room goes dark and magic glows when it makes a sound. No seller ever prices magic.
+- **Magnet**: iron can't move, so it makes no sound. Metal goes quiet (nothing drowns out the delicate things), and so
+  does a crook's gilded fake, while real gold still jingles.
+
+## The first day (scripted, one lesson per customer)
+
+| Customer | Shook it | Chest | Lesson |
 |---|---|---|---|
-| Shop Scale | stall | 25g | Weight of the contents. A wool coat outweighs a rag; gold outweighs copper. |
-| Keyhole Lens | stall | 40g | 2 peeks a day; you see the one thing nearest the keyhole, and the view says how many you can't see. |
-| Ear Trumpet | village | 60g | Names the variant of each sound. |
-| Lantern Lens | village | 120g | 3 peeks a day; you see the two nearest things. |
-| Fine Lockpicks | village | 80g | A wider sweet spot, so more masterful picks (+25%). |
-| Painted Sign | village | 100g | One more customer a day. |
-| Mana Compass | town | 150g | The needle swings toward magic: still, a twitch, hard. |
-| Brass Periscope | town | 300g | 4 peeks a day; you see everything. |
-| Lodestone | emporium | 150g | Pulls at iron and steel. Gold doesn't stick; gilded iron slugs do. |
-| Tapping Hammer | emporium | 120g | Click the chest to knock: a false bottom booms hollow. |
+| Little Tam | not at all | coins | a gentle shake, the slip, buying, opening |
+| Widow Penn | gently | a cloak | soft things only sound at a hard shake |
+| Hob the Farmer | hard | a knife and coins | clanks drown out jingles: shake gently to hear past them |
+| Mags the Fishwife | firmly | a knife | she heard everything: pass, and see what was inside |
 
-## Regulars and their blind spots
+## Regulars
 
-| Seller | Shop | Prices by | Your edge |
+| Seller | Shop | Shakes | Blind spot |
 |---|---|---|---|
-| Hob the Farmer | stall | a hunch | listen: he's often way off |
-| Widow Penn | stall | need: asks low | a cheap offer usually works |
-| Mags the Fishwife | stall | how many things rattle | many rags cost as much as many coats: listen and weigh |
-| Little Tam | stall | a flat few coins | usually junk, sometimes not |
-| Sergeant Brask | village | weight | the scale: light silver is cheap, heavy iron dear |
-| Tobias the Tinker | village | the kind of sound, not which | the ear trumpet: silver at copper prices |
-| Old Marta | village | the lock | a padlock on good things |
-| Wren the Apprentice | town | magic high, the rest as junk | the compass: plain good things come cheap |
-| Magister Orrin | town | the same, never haggles | the compass |
-| Baron Vex | emporium | double, folds when pushed | a firm low offer |
-| Captain Gull | emporium | one price | peek: gold and jewels, or barnacles |
-| Silas | emporium | a con: stones and gilded iron | the scale, a peek and the lodestone |
-| Pip the Sharp | emporium | fair | the hammer: he doesn't know about false bottoms |
+| Little Tam | stall | not at all | everything (asks a few coins) |
+| Widow Penn | stall | gently | metal, cloth, paper |
+| Hob the Farmer | stall | hard | delicate things under a clank |
+| Mags the Fishwife | stall | firmly | cloth and paper; delicate things under a clank |
+| Sergeant Brask | village | hard | delicate things under a clank |
+| Tobias the Tinker | village | firmly | as Mags, and he often claims a sound that isn't there |
+| Old Marta | village | gently | metal, cloth, paper |
+| Wren the Apprentice | town | gently | as Penn; brings magic |
+| Magister Orrin | town | hard | as Hob; brings magic |
+| Baron Vex | emporium | firmly | as Mags |
+| Captain Gull | emporium | hard | as Hob |
+| Pip the Sharp | emporium | gently, then hard | only magic |
+| Silas | emporium | (knows) | sells gilded iron as the real thing, at 50-70% of its worth |
 
-## Evidence (`godot --headless --path . -- --sim`, 200 campaigns of 40 days)
+Sellers ask 1.4 to 1.8 times the value of what they heard (2 to 4g a tier if they heard nothing). Each seller's chest
+holds something their shaking can't hear about 55% of the time (40% for the richest), which keeps buying blind from
+paying while listening does.
 
-Simulated players hear every family, know what's in their ledger (it grows as they open chests), and buy upgrades
-in a sensible order.
+## Kinds of things
 
-| Style | Village | Town | Emporium | Royal Warrant | Good buys |
-|---|---|---|---|---|---|
-| Pays the asking price | day 9 | day 34 | never | never | 54% |
-| Haggles blind | day 3 | day 12 | day 23 | never | 66% |
-| Listens, no tools | day 3 | day 12 | day 23 | never | 76% |
-| Listens and uses tools | day 4 | day 14 | day 24 | day 36 | 97% |
-| Practiced ear and tools | day 4 | day 13 | day 23 | day 35 | 98% |
+| Kind | Sound | Stirs at | Note | Stall | Village | Town | Emporium |
+|---|---|---|---|---|---|---|---|
+| Coins | jingle | gentle | delicate | 12g | 48g | 96g | 192g |
+| Metal | clank | firm | loud, iron | 5g | 20g | 40g | 80g |
+| Cloth | flump | hard | soft | 6g | 24g | 48g | 96g |
+| Bottles | slosh | gentle | delicate | 8g | 32g | 64g | 128g |
+| Paper | rustle | hard | soft | 5g | 20g | 40g | 80g |
+| Jewelry | tinkle | gentle | delicate | 20g | 80g | 160g | 320g |
 
-The stall is gentle: anyone gets through it. From the town shop on, profit per customer is about 20g with tools and
-12g without; at the Emporium, blind play earns nothing (cons and fakes) while tool users make about 25g a customer.
-Only players who use their tools reach the Royal Warrant.
+A chest holds at most one of each kind, so the slip is one tick per kind. Magic is worth four times as much; a fake
+is worth 1g.
+
+## Evidence (`godot --headless --path . -- --sim`, 200 campaigns of 30 days)
+
+| Style | Village | Town | Emporium | Royal Warrant | Good buys | Perfect reads |
+|---|---|---|---|---|---|---|
+| Buys every chest | day 4 | day 10 | day 18 | never | 57% | 31% |
+| Trusts the seller's slip | never | never | never | never | - | - |
+| One hard shake, keeps the seller's ticks | day 4 | day 11 | day 25 | never | 97% | 72% |
+| Every strength, no tools | day 3 | day 7 | day 12 | day 21 | 91% | 75% |
+| Every strength and both tools | day 3 | day 7 | day 12 | day 19 | 100% | 99% |
+
+Profit per customer for the careful player: 5g at the stall, 8g in the village, 25g in town (21g without the
+witchlight), 77g at the Emporium (53g without the tools). Only players who shake at every strength reach the Warrant.
 
 ## What was cut, and why
 
-1. **Auction (v1).** The game did the judging (it showed an estimate), and bidding against one bot had a dominant
-   strategy: raise until your number.
-2. **One unique sound per item (v2).** 28 sounds to memorize from the start, with no logic connecting a sound to a
-   thing; the knock, peek and lock buttons each gave little; payoff waited until night.
-3. **This version (v3)** groups sounds by real-world family, introduces families and tools gradually, opens chests
-   immediately, and ties every profit to a seller habit the player can learn.
+1. **Auction (v1).** The game did the judging, and bidding against one bot had a dominant strategy.
+2. **One unique sound per item (v2).** 28 sounds to memorize, with no logic connecting a sound to a thing.
+3. **Sound families with variants, many tools, haggling, lockpicking (v3).** Too much at once: pitch variants,
+   scale, keyhole, compass, lodestone, hammer and twelve pricing habits. Profit came from habits the player couldn't
+   see. v4 keeps the families' everyday sounds, drops the variants, and builds the whole game on one physical idea:
+   how hard you shake decides what you hear, for you and for the seller.
 
 ## Open questions
 
-- Do the synthesized slosh, fizz and hum read as liquid and magic to players? They're the only non-recorded family
-  sounds.
-- The middle of the game (village to town) takes about ten days; is that too long?
+- Is drag speed a good stand-in for shake strength with a real mouse? The thresholds need playtesting; the meter
+  shows the strength live.
+- The slip adds up the values for you. Does that make the decision too easy, or is the listening enough of a puzzle?
 - Selling is automatic at the item's value. Keeping items for collections, or selling to particular buyers, is a
   natural next layer.

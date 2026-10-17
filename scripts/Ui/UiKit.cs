@@ -121,6 +121,32 @@ public static class UiKit
         };
     }
 
+    /// <summary>The 32px icon for a kind of thing (coins, metal...), centered on <paramref name="center"/>.</summary>
+    public static Sprite2D MakeKindIcon(Core.Category category, Vector2 center) =>
+        MakeSprite($"res://assets/ui/kinds/{category.ToString().ToLowerInvariant()}.png", center, 1);
+
+    /// <summary>A chunky pixel tick (right) or cross (wrong), 24px at scale 1, centered on <paramref name="center"/>.</summary>
+    public static Painter MakeCheck(bool right, Vector2 center, int scale)
+    {
+        var color = right ? Palette.Good : Palette.Bad;
+        // Drawn on an 8x8 grid of 3px squares so it reads as pixel art next to the font.
+        string[] rows = right
+            ? new[] { "........", ".......#", "......##", "#....##.", "##..##..", ".####...", "..##....", "........" }
+            : new[] { "##....##", ".##..##.", "..####..", "...##...", "..####..", ".##..##.", "##....##", "........" };
+        return new Painter(p =>
+        {
+            for (int y = 0; y < 8; y++)
+            for (int x = 0; x < 8; x++)
+            {
+                if (rows[y][x] != '#') continue;
+                p.DrawRect(new Rect2(x * 3 - 13, y * 3 - 11, 5, 5), new Color(0, 0, 0, 0.8f));
+            }
+            for (int y = 0; y < 8; y++)
+            for (int x = 0; x < 8; x++)
+                if (rows[y][x] == '#') p.DrawRect(new Rect2(x * 3 - 12, y * 3 - 12, 3, 3), color);
+        }) { Position = center, Scale = Vector2.One * scale };
+    }
+
     /// <summary>A full-screen pixel-art backdrop (640x480 source at 2x), dimmed so UI and effects stand out.</summary>
     public static Node2D MakeBackdrop(string name, float brightness = 0.6f)
     {

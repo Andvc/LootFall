@@ -28,24 +28,32 @@ KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
     "kenney_fontpackage", "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds",
 ])
 
-# Item key -> rpg-battle-system/item sprite number. Keys match ItemDef.Key in scripts/Core/Items.cs.
+# Item sprite -> rpg-battle-system/item sprite number. Names match the sprites in scripts/Core/Items.cs: one per kind of
+# thing per seller tier, a magic one and (for coins and jewelry) a crook's fake.
 ITEMS = {
-    # Tier 1: the village
-    "copper_pouch": 21, "rusty_knife": 31, "iron_lantern": 17, "ale_bottle": 61, "honey_jar": 63,
-    "moth_eaten_cloak": 81, "wool_coat": 43,
-    # Tier 2: soldiers and merchants
-    "silver_crowns": 20, "steel_sword": 78, "soldiers_helm": 1, "love_letters": 25, "merchants_ledger": 62,
-    # Tier 3: mages and jewelry
-    "healing_potion": 10, "mana_potion": 12, "wizard_hat": 44, "spell_scroll": 23, "spellbook": 41, "rune_blade": 67,
-    "brass_ring": 38, "gold_ring": 68, "moonstone_pendant": 39,
-    # Tier 4: nobles, adventurers, crooks
-    "gold_doubloons": 19, "golden_mantle": 76, "treasure_map": 22, "phoenix_tear": 47, "commander_gauntlet": 59,
-    "sunfire_diamond": 57,
+    # Coins
+    "copper_pouch": 21, "silver_crowns": 20, "gold_doubloons": 19,
+    # Metal
+    "rusty_knife": 31, "soldiers_helm": 1, "steel_sword": 78, "knights_gauntlet": 59, "rune_blade": 67,
+    # Cloth
+    "wool_coat": 43, "golden_mantle": 76, "wizard_hat": 44,
+    # Bottles
+    "ale_bottle": 61, "honey_jar": 63, "mana_potion": 12,
+    # Paper
+    "love_letters": 25, "merchants_ledger": 62, "treasure_map": 22, "spell_scroll": 23,
+    # Jewelry
+    "brass_ring": 38, "gold_ring": 68, "sunfire_diamond": 57, "moonstone_pendant": 39,
 }
 
-# Items drawn as another item's sprite, greyed toward iron: key -> (sprite number, how much grey, 0..1).
-# The con artist's gilded slugs are gold coins with the paint worn thin.
-WORN_ITEMS = {"gilded_slugs": (19, 0.55)}
+# Sprites greyed toward iron or dust: key -> (sprite number, how much grey, 0..1).
+# The crook's fakes are the real thing with the gilt worn thin; the moth-eaten cloak is a faded cape.
+WORN_ITEMS = {"gilded_slugs": (19, 0.55), "paste_diamond": (57, 0.6), "moth_eaten_cloak": (81, 0.6)}
+
+# Sprites with their hue turned: key -> (sprite number, hue shift in degrees, saturation multiplier).
+TINTED_ITEMS = {"silk_cloak": (81, 180, 0.8), "vintage_brandy": (61, -25, 1.3), "fairy_gold": (19, 110, 1.1)}
+
+# Sprites made of a few copies of another, for "a lot of it": key -> (sprite number, [(x, y) offsets]).
+PILED_ITEMS = {"royal_gold": (19, [(0, 6), (9, 6), (4, 0)])}
 
 BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 
@@ -58,9 +66,6 @@ PORTRAITS = {
     "bram": 16,                                            # Uncle Bram, who hands you the shop
 }
 
-# What things sound like in a shaken chest. One group per family, the sound you'd expect in real life; within a
-# family the game changes the pitch (bigger is lower) and may add a layer (see Signature in scripts/Core/Items.cs).
-# Bottles' slosh and the fizz, hum and thump layers are synthesized in scripts/Audio/Sfx.cs.
 # Group -> Kenney source files (pack folder, file stem).
 def _variants(pack, stem, indices, digits=3, sep="_"):
     return [(pack, f"{stem}{sep}{i:0{digits}d}") for i in indices]
@@ -68,28 +73,20 @@ def _variants(pack, stem, indices, digits=3, sep="_"):
 IMPACT, RPG, CASINO, UI = "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds"
 
 SOUNDS = {
-    # Families
-    "jingle": [(RPG, "handleCoins")],
+    # Kinds of things: the sound you'd expect from each in a shaken chest. Bottles' slosh is synthesized in Sfx.cs.
+    "jingle": [(RPG, "handleCoins"), (RPG, "handleCoins2")],
     "clank": _variants(IMPACT, "impactTin_medium", range(5)),
-    "clank_ring": _variants(IMPACT, "impactBell_heavy", [0, 1, 2]),
-    "flump": [(RPG, "cloth1")],
+    "flump": [(RPG, f"cloth{i}") for i in range(1, 5)],
     "rustle": [(CASINO, "cardShove1"), (CASINO, "cardShove2"), (CASINO, "cardShove4")],
-    "rustle_book": [(CASINO, "cardFan2")],
-    "bookthump": [(RPG, "bookPlace1"), (RPG, "bookPlace2"), (RPG, "bookPlace3")],
-    "tinkle": _variants(IMPACT, "impactMetal_light", [0, 1, 4]),
-    "tinkle_gem": _variants(UI, "glass", [1, 2, 3]),
+    "tinkle": _variants(UI, "glass", [1, 2, 3]),
 
-    # Handling the chest and the tools
+    # Handling the chest and the shop
     "land": _variants(IMPACT, "impactPlank_medium", range(5)),
-    "knock": _variants(IMPACT, "impactWood_light", range(5)),
-    "scale_pan": _variants(IMPACT, "impactPlate_light", range(5)),
     "clack": _variants(IMPACT, "impactMetal_heavy", range(3)),
     "pay": [(CASINO, f"chipsStack{i}") for i in range(1, 4)],
     "door_open": [(RPG, "doorOpen_1"), (RPG, "doorOpen_2")],
     "door_close": [(RPG, "doorClose_1"), (RPG, "doorClose_2")],
-    "creak": [(RPG, f"creak{i}") for i in range(1, 4)],
     "latch": [(RPG, "metalLatch"), (RPG, "metalClick")],
-    "page": [(RPG, "bookFlip1"), (RPG, "bookFlip3")],
     "book": [(RPG, "bookOpen")],
 }
 
@@ -186,78 +183,6 @@ ICON_PALETTE = {
     "p": (160, 110, 230),
 }
 ICONS = {
-    "scale": [
-        "................",
-        ".......kk.......",
-        ".......gg.......",
-        ".kkkkkkggkkkkkk.",
-        ".gggggggggggggg.",
-        "..g....gg....g..",
-        "..g....gg....g..",
-        ".ggg...gg...ggg.",
-        "kGGGk..gg..kGGGk",
-        ".kkk...gg...kkk.",
-        ".......gg.......",
-        ".......gg.......",
-        ".....kggggk.....",
-        "....kggggggk....",
-        "....kkkkkkkk....",
-        "................",
-    ],
-    "lens": [
-        "................",
-        "....kkkkkkkk....",
-        "...kggggggggk...",
-        "..kggggggggggk..",
-        "..kgggkkkkgggk..",
-        "..kggkkkkkkggk..",
-        "..kggkkkkkkggk..",
-        "..kgggkkkkgggk..",
-        "..kggggkkggggk..",
-        "..kgggkkkkgggk..",
-        "..kgggkkkkgggk..",
-        "..kggkkkkkkggk..",
-        "..kggggggggggk..",
-        "...kGGGGGGGGk...",
-        "....kkkkkkkk....",
-        "................",
-    ],
-    "trumpet": [
-        "................",
-        "............kk..",
-        "...........kggk.",
-        "..........kgggk.",
-        ".........kggggk.",
-        "........kgggggk.",
-        ".kkk...kggggggk.",
-        "kgggkkkgggggGGk.",
-        "kGGGGGGGGGGGGGk.",
-        ".kkk...kggggggk.",
-        "........kgggggk.",
-        ".........kggggk.",
-        "..........kgggk.",
-        "...........kggk.",
-        "............kk..",
-        "................",
-    ],
-    "picks": [
-        "................",
-        "..........kkk...",
-        ".........ksssk..",
-        "........ksskssk.",
-        ".......ksssssk..",
-        "......kssskk....",
-        ".....kssk.......",
-        "....kssk........",
-        "...kssk.........",
-        "..kSSk..........",
-        ".kbbk...........",
-        "kbbBk...........",
-        "kBBk............",
-        ".kk.............",
-        "................",
-        "................",
-    ],
     "sign": [
         "................",
         ".kkkkkkkkkkkkkk.",
@@ -294,21 +219,21 @@ ICONS = {
         "..kkkkkkkkkkkk..",
         "................",
     ],
-    "compass": [
+    "lamp": [
         "................",
+        ".......kk.......",
+        "......kSSk......",
         ".....kkkkkk.....",
-        "....kggggggk....",
-        "...kgwwwwwwgk...",
-        "..kgwwwwrwwwgk..",
-        "..kgwwwrrwwwgk..",
-        "..kgwwwrrwwwgk..",
-        "..kgwwwkkwwwgk..",
-        "..kgwwwsswwwgk..",
-        "..kgwwwsswwwgk..",
-        "..kgwwwswwwwgk..",
-        "...kgwwwwwwgk...",
-        "....kggggggk....",
+        "....kSkppkSk....",
+        "....kkpwwpkk....",
+        "....kSpwwpSk....",
+        "....kkpppkkk....",
+        "....kSkppkSk....",
         ".....kkkkkk.....",
+        "......kSSk......",
+        "......kkkk......",
+        "...p........p...",
+        ".....p....p.....",
         "................",
         "................",
     ],
@@ -327,24 +252,6 @@ ICONS = {
         ".ksssk....ksssk.",
         ".kkkkk....kkkkk.",
         "................",
-        "................",
-        "................",
-    ],
-    "hammer": [
-        "................",
-        "...kkkkkkkk.....",
-        "..kssssssssk....",
-        "..kSSSSSSSSk....",
-        "..kssssssssk....",
-        "...kkkbbkkk.....",
-        "......kbk.......",
-        "......kbk.......",
-        "......kbk.......",
-        "......kbk.......",
-        "......kBk.......",
-        "......kbk.......",
-        "......kBk.......",
-        "......kkk.......",
         "................",
         "................",
     ],
@@ -369,16 +276,136 @@ ICONS = {
 }
 
 
+# One small icon per kind of thing (matching Category in scripts/Core/Items.cs), for the slip and the ledger rows,
+# where item sprites are too big. Saved at 2x under assets/ui/kinds/.
+KIND_ICONS = {
+    "coins": [
+        "................",
+        "................",
+        "................",
+        ".....kkkkkk.....",
+        "....kggggggk....",
+        "....kGGGGGGk....",
+        "...kkkkkkkkkk...",
+        "..kggggggggggk..",
+        "..kGGGGGGGGGGk..",
+        "..kkkkkkkkkkkk..",
+        ".kggggggggggggk.",
+        ".kGGGGGGGGGGGGk.",
+        ".kggggggggggggk.",
+        ".kGGGGGGGGGGGGk.",
+        "..kkkkkkkkkkkk..",
+        "................",
+    ],
+    "metal": [
+        "................",
+        ".............kk.",
+        "............kwk.",
+        "...........kssk.",
+        "..........kssk..",
+        ".........kssk...",
+        "........kssk....",
+        "...kk..kssk.....",
+        "...kGkkssk......",
+        "....kGssk.......",
+        "....kkGk........",
+        "...kbkkGk.......",
+        "..kbk..kk.......",
+        ".kbk............",
+        ".kk.............",
+        "................",
+    ],
+    "cloth": [
+        "................",
+        "................",
+        "....kkkkkkkk....",
+        "...krrrrrrrrk...",
+        "..krrrrrrrrrrk..",
+        "..krrkrrrrkrrk..",
+        "..krrkrrrrkrrk..",
+        "..krrkrrrrkrrk..",
+        "..krrkrrrrkrrk..",
+        "..krkrrrrrrkrk..",
+        "..krkrrrrrrkrk..",
+        "..kkrrrrrrrrkk..",
+        "..krrrrrrrrrrk..",
+        "..kkkkkkkkkkkk..",
+        "................",
+        "................",
+    ],
+    "bottles": [
+        "................",
+        "......kkkk......",
+        "......kbbk......",
+        ".......kk.......",
+        "......kwck......",
+        "......kwck......",
+        ".....kccccck....",
+        "....kccccccck...",
+        "....kwcccccck...",
+        "....kwcccccck...",
+        "....kccccccck...",
+        "....kccccccck...",
+        "....kccccccck...",
+        ".....kkkkkkk....",
+        "................",
+        "................",
+    ],
+    "paper": [
+        "................",
+        "................",
+        "..kkkkkkkkkkk...",
+        ".kwwwwwwwwwwwk..",
+        ".kwkkkkkkkwwwk..",
+        "..kwwwwwwwwwwk..",
+        "..kwkkkkkkkwwk..",
+        "..kwwwwwwwwwwk..",
+        "..kwkkkkkkwwwk..",
+        "..kwwwwwwwwwwk..",
+        "..kwkkkkkkkwwk..",
+        "..kwwwwwwwwwwwk.",
+        "...kkkkkkkkkkkk.",
+        "................",
+        "................",
+        "................",
+    ],
+    "jewels": [
+        "................",
+        "................",
+        ".....kkkkkk.....",
+        "....kcwcccck....",
+        "...kcwcccccck...",
+        "..kkkkkkkkkkkk..",
+        "..kcwcccccccck..",
+        "...kcwcccccck...",
+        "....kcwcccck....",
+        ".....kcccck.....",
+        "......kcck......",
+        ".......kk.......",
+        "................",
+        "................",
+        "................",
+        "................",
+    ],
+}
+
+
 def build_icons():
     for name, rows in ICONS.items():
-        assert len(rows) == 16 and all(len(r) == 16 for r in rows), f"icon {name} must be 16x16"
-        img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-        px = img.load()
-        for y, row in enumerate(rows):
-            for x, ch in enumerate(row):
-                if ch != ".":
-                    px[x, y] = (*ICON_PALETTE[ch], 255)
-        save(img.resize((16 * UI_SCALE, 16 * UI_SCALE), Image.NEAREST), "ui", "icons", f"{name}.png")
+        save(pixel_icon(rows, name).resize((16 * UI_SCALE, 16 * UI_SCALE), Image.NEAREST), "ui", "icons", f"{name}.png")
+    for name, rows in KIND_ICONS.items():
+        save(pixel_icon(rows, name).resize((32, 32), Image.NEAREST), "ui", "kinds", f"{name}.png")
+
+
+def pixel_icon(rows, name):
+    assert len(rows) == 16 and all(len(r) == 16 for r in rows), f"icon {name} must be 16x16"
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    px = img.load()
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                px[x, y] = (*ICON_PALETTE[ch], 255)
+    return img
 
 
 def main():
@@ -395,7 +422,8 @@ def main():
         return img.crop(img.getbbox())
 
     # Rebuilt from scratch so renamed or dropped items and sounds don't linger.
-    for folder in (os.path.join(ASSETS, "sprites", "items"), os.path.join(ASSETS, "audio")):
+    for folder in (os.path.join(ASSETS, "sprites", "items"), os.path.join(ASSETS, "audio"), os.path.join(ASSETS, "ui", "icons"),
+                   os.path.join(ASSETS, "ui", "kinds")):
         shutil.rmtree(folder, ignore_errors=True)
 
     for key, number in ITEMS.items():
@@ -409,6 +437,23 @@ def main():
                 lum = (r * 3 + g * 6 + b) // 10
                 px[x, y] = (round(r + (lum - r) * grey), round(g + (lum - g) * grey), round(b + (lum - b) * grey), a)
         save(img, "sprites", "items", f"{key}.png")
+
+    for key, (number, hue, sat) in TINTED_ITEMS.items():
+        img = item_sprite(number)
+        h, sv, v = img.convert("RGB").convert("HSV").split()
+        h = h.point(lambda x: (x + round(hue * 255 / 360)) % 256)
+        sv = sv.point(lambda x: min(255, round(x * sat)))
+        tinted = Image.merge("HSV", (h, sv, v)).convert("RGBA")
+        tinted.putalpha(img.getchannel("A"))
+        save(tinted, "sprites", "items", f"{key}.png")
+    for key, (number, offsets) in PILED_ITEMS.items():
+        img = item_sprite(number)
+        w = max(x for x, _ in offsets) + img.width
+        h = max(y for _, y in offsets) + img.height
+        pile = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        for x, y in offsets:
+            pile.alpha_composite(img, (x, y))
+        save(pile, "sprites", "items", f"{key}.png")
 
     for name, number in BACKGROUNDS.items():
         save(Image.open(os.path.join(sp, f"rpg-battle-system/backgrounds/{number}.png")).convert("RGBA"), "backgrounds", f"{name}.png")

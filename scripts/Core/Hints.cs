@@ -3,8 +3,8 @@ using System.Collections.Generic;
 namespace LootFall.Core;
 
 /// <summary>
-/// Uncle Bram's tips. Each one shows the first time its moment comes up (a new tool, a new kind of customer, a new
-/// sound), so the game teaches one thing at a time, when it's in front of you.
+/// Uncle Bram's tips. Each one shows the first time its moment comes up (a sound, a customer, a tool, a renovation),
+/// so the game teaches one thing at a time, when it's in front of you.
 /// </summary>
 public static class Hints
 {
@@ -12,46 +12,50 @@ public static class Hints
 
     static readonly Dictionary<string, string> Text = new()
     {
-        ["intro"] = "Morning! The stall's yours now. Grab Hob's chest and shake it: drag it around with the mouse, and listen.",
-        ["heard"] = "Everything inside rattles on its own. Coins jingle, metal clanks, bottles slosh, cloth just flumps. " +
-                    "What you've heard is listed on the right.",
-        ["deal"] = "Worth more than he's asking? Copper's about 12g, a bottle 8 to 16, a good coat 20. " +
-                   "If it's worth more, buy it. If not, pass. You open what you buy straight away.",
-        ["opened"] = "See? Same sounds as everything of its kind, every time. It's all in the ledger now (L).",
-        ["dayend"] = "Not bad for a first day. Spend what you earn on the shop. A scale's a good start: " +
-                     "a heavy flump is a good coat, a light one is rags.",
-        ["haggle"] = "You can haggle now: make one offer below the asking price. If it's enough, it's yours. " +
-                     "If not, they'll name a final price.",
-        ["scale"] = "Drop the chest on the scale. It reads what's inside: a wool coat weighs three rags, a pouch of copper about a pound.",
-        ["peephole"] = "Click the keyhole to peek. You'll only see the one thing nearest it. " +
-                       "Shake the chest and peek again to see something else. Two peeks a day.",
-        ["lantern"] = "The lantern lens shows the two things nearest the keyhole. Three peeks a day.",
-        ["periscope"] = "The periscope shows everything inside. Four peeks a day.",
-        ["trumpet"] = "With the ear trumpet you'll hear the differences: a dull jingle is copper, a bright one silver. " +
-                      "Iron clanks; steel rings on.",
-        ["compass"] = "The mana compass. Click it with a chest on the counter: the needle swings toward magic.",
-        ["lodestone"] = "The lodestone pulls at iron and steel. Gold doesn't stick to it. Iron painted gold does.",
-        ["hammer"] = "Knock with the hammer. A false bottom sounds hollow: there's something hidden underneath.",
-        ["locked"] = "This one's locked. Buy it and you'll pick the lock before you open it. Gently: a crowbar breaks glass.",
-        ["tier2"] = "A proper village shop! Soldiers and merchants now, with locked chests and new sounds: " +
-                    "silver jingles brighter, steel rings, paper rustles.",
-        ["tier3"] = "A town shop! Mages now: bottles that fizz, magic paper and cloth, and jewelry. Listen for the tinkle.",
-        ["tier4"] = "The Emporium. Nobles, adventurers and crooks: gold, gems, false bottoms and fakes. Check everything twice.",
-        ["family_Paper"] = "That rustle is paper. Letters are worth nothing, a ledger something. Books thump as well.",
-        ["family_Jewels"] = "Hear that tiny tinkle? Jewelry. Light as a feather and often worth a fortune.",
+        // The first day: one lesson per customer.
+        ["intro"] = "Morning! The stall's yours now. Tam never shakes anything, so he can't know what's inside. " +
+                    "Drag the chest slowly: a gentle shake.",
+        ["heard_Coins"] = "A jingle: coins. Light things rattle at the gentlest shake. Tick Coins on your slip, on the right.",
+        ["slip"] = "The slip adds up what you've ticked. If it's worth more than they ask, buy it.",
+        ["first_penn"] = "Penn only shook it gently and heard nothing. Try every strength yourself: gentle, firm, hard.",
+        ["heard_Cloth"] = "Flump: cloth. Soft things only make a sound when you shake hard.",
+        ["first_hob"] = "Hob shook it hard and heard a clank. Shake it yourself, at every strength.",
+        ["heard_Metal"] = "Clank: metal. It only moves at a firm shake, and while it clanks you can't hear anything delicate. " +
+                          "Shake gently to hear past it.",
+        ["first_mags"] = "Mags shook it firmly. If you hear nothing she didn't, pass: sellers always ask a bit more than it's worth.",
+        ["passed"] = "When you pass, they show you what was inside. Worth knowing either way.",
+        ["opened"] = "A tick is a good read. A cross is something to listen for next time.",
+        ["dayend"] = "Spend what you earn on the shop. A bigger shop brings richer customers, and new sounds.",
 
-        ["seller_hob"] = "Hob prices on a hunch. Sometimes he asks too much, sometimes far too little.",
-        ["seller_penn"] = "Widow Penn needs the money. She asks little and takes less.",
-        ["seller_mags"] = "Mags prices by how many things rattle. Four rags cost the same as four coats to her.",
-        ["seller_tam"] = "Little Tam asks the same few coins for anything. Usually junk. Usually.",
-        ["seller_brask"] = "Sergeant Brask prices by weight. Heavy junk is treasure to him, and light silver is nothing. Weigh it.",
-        ["seller_pip"] = "Pip knows what's inside and prices it fair. You won't get rich off Pip, unless there's something he can't see.",
-        ["seller_marta"] = "Old Marta prices by the lock. A fancy lock on junk, a padlock on treasure: that's your chance.",
-        ["seller_wren"] = "Wren thinks magic is priceless and the rest is junk. Plain good things come cheap from her.",
-        ["seller_orrin"] = "Magister Orrin prices magic right and the rest as junk. He never haggles.",
-        ["seller_vex"] = "Baron Vex asks double. Offer low and he'll come down a long way. Too low and he storms off.",
-        ["seller_gull"] = "Captain Gull names one price. Sea salvage: gold and jewels, or barnacles.",
-        ["seller_silas"] = "Silas. If he says gold, it's probably iron. If it feels full, it's probably stones. Check.",
+        // Each renovation brings one new thing.
+        ["tier2"] = "Village folk bring two new sounds. Bottles slosh at a gentle shake, like coins. " +
+                    "Paper rustles only at a hard shake, like cloth.",
+        ["heard_Bottles"] = "Slosh: a bottle. Delicate, like coins: a clank drowns it out.",
+        ["heard_Paper"] = "Rustle: paper. Soft, like cloth: it only sounds at a hard shake.",
+        ["tier3"] = "Mages come to the town shop. They bring jewelry, which tinkles at a gentle shake, and magic, " +
+                    "which sounds like anything else. A witchlight would show it.",
+        ["heard_Jewels"] = "Tinkle: jewelry. Delicate, and worth the most.",
+        ["lamp"] = "Witchlight's on: magic glows when it makes a sound. Click a tick again to mark it magic.",
+        ["glow"] = "It glowed! That one's enchanted: five times the value. Click its tick again to mark it magic.",
+        ["tier4"] = "The Emporium. Mind Silas: he sells gilded iron as gold and jewels, and it sounds just like the real thing. " +
+                    "A magnet would catch it.",
+        ["magnet"] = "Magnet's on: iron can't move. Metal goes quiet, so nothing drowns out the delicate things. " +
+                     "And gilded fakes go quiet too.",
+
+        // Regulars, the first time they come in after the first day.
+        ["seller_tam"] = "Tam never shakes anything. Whatever's inside, he doesn't know.",
+        ["seller_penn"] = "Penn only shakes gently. Heavy things and soft things make no sound for her.",
+        ["seller_hob"] = "Hob shakes hard. The clanking drowns out anything delicate.",
+        ["seller_mags"] = "Mags shakes firmly: soft things stay quiet for her, and clanks drown out the delicate ones.",
+        ["seller_brask"] = "Brask shakes hard, like Hob. Listen for what's under the clank.",
+        ["seller_tobias"] = "Tobias talks things up. He'll claim a sound that isn't there: check every tick on the slip.",
+        ["seller_marta"] = "Marta only shakes gently, like Penn. Shake hard yourself.",
+        ["seller_wren"] = "Wren shakes gently and never checks for magic.",
+        ["seller_orrin"] = "Orrin shakes hard and never checks for magic.",
+        ["seller_vex"] = "Vex's butler shakes firmly. Soft things stay quiet for him.",
+        ["seller_gull"] = "Gull shakes hard. Listen for what's under the clank.",
+        ["seller_pip"] = "Pip shakes gently, then hard. He hears everything. Only magic gets past him.",
+        ["seller_silas"] = "Silas. If he says gold, it may be gilded iron. Too cheap to be true, usually.",
     };
 
     public static string Get(string key) => Text.TryGetValue(key, out var text) ? text : null;
