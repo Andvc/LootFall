@@ -47,7 +47,7 @@ public partial class OpeningPhase : Phase
     {
         _purchase = State.Opening;
         _report = _purchase.Slip.Check(_purchase.Chest);
-        _top = _purchase.Chest.Everything.Max(i => i.Rarity);
+        _top = _purchase.Chest.Everything.Select(i => i.Rarity).DefaultIfEmpty(Rarity.Common).Max();
 
         Add(UiKit.MakeBackdrop("cellar_night", 0.4f));
         _rays = Add(new Painter(DrawRays) { Position = SeamPos, Material = Fx.Additive() });
@@ -192,6 +192,17 @@ public partial class OpeningPhase : Phase
             }
             Launch(reads[i], 640 + (i - (n - 1) / 2f) * spacing, i);
             await Wait(last ? 0.95 : 0.38);
+            if (!Alive) return;
+        }
+        if (n == 0)
+        {
+            // Nothing rattled because there was nothing there.
+            _chest.Wobble(0.6f);
+            Sfx.Play("thud", 0.8f, 0);
+            Sfx.Play("lose", 0.8f, -6);
+            FloatText("...EMPTY!", SeamPos + new Vector2(0, -150), Palette.Bad, 40);
+            Game.Moment("08_empty", 0.3);
+            await Wait(1.0);
             if (!Alive) return;
         }
         var ghosts = _report.Ghosts.Select(c => $"no {Categories.Get(c).Name.ToLowerInvariant()}?").ToList();
@@ -386,22 +397,17 @@ public partial class OpeningPhase : Phase
 
     /// <summary>
     /// A button under something grand enough to show: keep it for display instead of selling it. You give up its price;
-    /// the exhibition draws more and better customers, and the Crown wants to see one.
+    /// the exhibition draws more and better customers, and the Crown wants to see one. Magic things count double. With
+    /// the display full, you pick something on display to sell to make room.
     /// </summary>
     void AddKeepButton(Item item, Vector2 at, int worth)
     {
         if (!item.Displayable) return;
-        var button = UiKit.MakeButton($"Keep (-{worth}g)", Palette.Magic.Darkened(0.3f), 16).Place(at.X - 80, 644, 160, 34);
+        var button = UiKit.MakeButton("", Palette.Magic.Darkened(0.3f), 16).Place(at.X - 92, 644, 184, 34);
         button.Pressed += () =>
         {
-            if (!State.Keep(item, worth)) return;
-            button.Text = "On display";
-            button.Disabled = true;
-            Sfx.Play("sting", 1.4f, -4);
-            Game.Hud.SetGold(State.Gold);
-            FloatText($"+{item.Prestige} exhibition", at + new Vector2(0, -80), Palette.Magic, 16);
-            Teach("kept");
-            RefreshKeep();
+            if (State.DisplayFull) ShowSwap(item, worth, at);
+            else if (State.Keep(item, worth)) Kept(item, at);
         };
         _keepButtons.Add((button, item, worth));
         Add(button);
@@ -409,24 +415,104 @@ public partial class OpeningPhase : Phase
     }
 
     readonly List<(Button Button, Item Item, int Worth)> _keepButtons = new();
+    Control _swap;
+
+    void Kept(Item item, Vector2 at)
+    {
+        Sfx.Play("sting", 1.4f, -4);
+        Game.Hud.SetGold(State.Gold);
+        FloatText(item.Magic ? $"+{item.Prestige} exhibition (x2: magic!)" : $"+{item.Prestige} exhibition", at + new Vector2(0, -80),
+            Palette.Magic, 16);
+        Teach("kept");
+        RefreshKeep();
+    }
 
     void RefreshKeep()
     {
         foreach (var (button, item, worth) in _keepButtons)
         {
-            if (State.Display.Contains(item)) continue;
-            button.Disabled = State.DisplayFull || State.Gold < worth;
-            button.Text = State.DisplayFull ? "Display full" : $"Keep (-{worth}g)";
+            if (State.Display.Contains(item))
+            {
+                button.Text = "On display";
+                button.Disabled = true;
+                continue;
+            }
+            // The points it would add, so a magic thing's double shows before you choose.
+            string points = item.Magic ? $"+{item.Prestige}*" : $"+{item.Prestige}";
+            button.Disabled = _swap != null || State.Gold + (State.DisplayFull ? State.Display.Max(i => i.Value) : 0) < worth;
+            button.Text = State.DisplayFull ? $"Swap {points} (-{worth}g)" : $"Keep {points} (-{worth}g)";
+            button.TooltipText = $"{item.Prestige} exhibition points" + (item.Magic ? " (double: it's magic)" : "") +
+                                 (State.DisplayFull ? ". Your display is full: sell something on it to make room." : ".");
         }
     }
 
-    /// <summary>Keeps one of the things that came out for display (the bot uses this).</summary>
+    /// <summary>The display is full: pick something on it to sell, and the new thing takes its place.</summary>
+    void ShowSwap(Item item, int worth, Vector2 at)
+    {
+        if (_swap != null) return;
+        var shown = State.Display.ToList();
+        int columns = 3, rows = (shown.Count + columns - 1) / columns;
+        float w = 984, h = 104 + rows * 48;
+        // Clicking outside the chooser closes it, and nothing behind it can be pressed meanwhile.
+        _swap = Add(new ColorRect { Color = new Color(0, 0, 0, 0.5f), MouseFilter = Control.MouseFilterEnum.Stop }.Place(-100, -100, 1480, 920));
+        _swap.ZIndex = 30;
+        _swap.GuiInput += e =>
+        {
+            if (e is InputEventMouseButton { Pressed: true }) CloseSwap();
+        };
+        var panel = UiKit.MakePanel(Palette.Magic).Place(248, 296, w, h);
+        _swap.AddChild(panel);
+        panel.AddChild(UiKit.MakeLabel($"Your display is full. Sell something to make room for the {item.Name} (+{item.Prestige} points):",
+            16, Palette.Text, HorizontalAlignment.Center).Place(0, 14, w, 20));
+        for (int i = 0; i < shown.Count; i++)
+        {
+            var old = shown[i];
+            bool affordable = State.Gold + old.Value >= worth;
+            var choice = UiKit.MakeButton($"{old.Name}: +{old.Value}g, -{old.Prestige} pts", Palette.Of(old.Rarity).Darkened(0.4f), 16,
+                () => Swap(item, worth, at, old)).Place(16 + i % columns * 320, 44 + i / columns * 48, 312, 40);
+            choice.Disabled = !affordable;
+            choice.AddChild(UiKit.MakeKindIcon(old.Category, new Vector2(18, 20)));
+            panel.AddChild(choice);
+        }
+        panel.AddChild(UiKit.MakeButton("Never mind", Palette.Text, 16, CloseSwap).Place(w / 2 - 90, h - 52, 180, 40));
+        Sfx.PlayGroup("book", 1.2f, -6);
+        RefreshKeep();
+        Game.Moment("09_swap", 0.3);
+    }
+
+    void Swap(Item item, int worth, Vector2 at, Item old)
+    {
+        if (!State.Display.Contains(old)) return;
+        State.SellFromDisplay(old);
+        CloseSwap();
+        Sfx.PlayGroup("pay");
+        FloatText($"Sold the {old.Name}: +{old.Value}g", new Vector2(640, 196), Palette.Gold, 16);
+        if (State.Keep(item, worth)) Kept(item, at);
+        else Game.Hud.SetGold(State.Gold);
+    }
+
+    void CloseSwap()
+    {
+        _swap?.QueueFree();
+        _swap = null;
+        RefreshKeep();
+    }
+
+    /// <summary>Presses one thing's keep button (the bot uses this): it goes on display, or with the display full, the swap chooser opens.</summary>
     public bool Keep(Item item)
     {
         var entry = _keepButtons.FirstOrDefault(k => k.Item == item);
         if (entry.Button == null || entry.Button.Disabled) return false;
         entry.Button.EmitSignal(BaseButton.SignalName.Pressed);
         return State.Display.Contains(item);
+    }
+
+    /// <summary>With the swap chooser open, sells this exhibit to make room (the bot uses this).</summary>
+    public void ChooseSwap(Item item, Item replace)
+    {
+        var entry = _keepButtons.FirstOrDefault(k => k.Item == item);
+        var at = _landed.FirstOrDefault(l => l.Item == item).At;
+        if (_swap != null && entry.Button != null) Swap(item, entry.Worth, at, replace);
     }
 
     public IEnumerable<(Item Item, int Worth)> Revealed => _landed.Select(l => (l.Item, l.Value));

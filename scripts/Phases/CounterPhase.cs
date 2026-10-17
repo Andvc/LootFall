@@ -24,11 +24,14 @@ public partial class CounterPhase : Phase
     /// <summary>Shaking at a strength this long counts as having tried it.</summary>
     const double TryTime = 0.5;
 
+    /// <summary>How long a hard shake a seller who hates them lets go before they mind.</summary>
+    const double HardShakeTolerance = 0.2;
+
     sealed class Row
     {
         public Category? Category;
         public Button Button;
-        public Label Tick, Value, Word;
+        public Label Value, Word;
         public Painter Box;
     }
 
@@ -42,9 +45,8 @@ public partial class CounterPhase : Phase
     ShakeBox _shake;
     MentorView _mentor;
     LedgerView _ledger;
-    ColorRect _dark;
     Label _hint, _notes, _worth, _askLabel, _ask, _profit, _footer, _timer;
-    Button _buy, _pass, _offer, _lampButton, _magnetButton, _ledgerButton;
+    Button _buy, _pass, _offer, _magnetButton, _ledgerButton;
     HSlider _slider;
     Control _reveal;
     bool _busy, _lamp, _magnet;
@@ -76,17 +78,15 @@ public partial class CounterPhase : Phase
         _shake.View.LockColor = Palette.Lock(_visit.Chest.Lock);
         _shake.Heard += OnHeard;
         _shake.Landed += OnLanded;
+        // Once you own the witchlight it's always lit: magic glows when it makes a sound.
+        _lamp = State.Has("lamp");
+        _shake.Witchlight = _lamp;
         _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(316, 452, 484, 20));
         _hint.ZIndex = 10;
         _notes = Add(UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(316, 492, 484, 88));
         _notes.ZIndex = 10;
         _timer = Add(UiKit.MakeLabel("", 32, Palette.Warn, HorizontalAlignment.Center, outline: 6).Place(206, 92, 64, 40));
         _timer.ZIndex = 10;
-
-        // The witchlight: the room goes dark so magic can glow. The panel and the words stay lit.
-        _dark = Add(new ColorRect { Color = new Color(0.03f, 0f, 0.08f, 0.78f), MouseFilter = Control.MouseFilterEnum.Ignore, Visible = false }
-            .Place(-100, -100, 1480, 920));
-        _dark.ZIndex = 5;
 
         BuildQueue();
         BuildPanel();
@@ -125,6 +125,7 @@ public partial class CounterPhase : Phase
         if (met) Teach($"seller_{_visit.Seller.Key}");
         Teach(_visit.Trade switch { Trade.Haggle => "haggle", Trade.Offer => "offer", _ => "fixed" });
         if (_visit.Chest.Lock.Locked) Teach("locked");
+        if (_lamp) Teach("lamp");
     }
 
     void Teach(string key)
@@ -143,12 +144,14 @@ public partial class CounterPhase : Phase
             double before = _shaken.GetValueOrDefault(key);
             _shaken[key] = before + delta;
             if (before < TryTime && _shaken[key] >= TryTime) _hearing.Tried(level, _magnet);
+            // Some sellers won't have their chest shaken hard: a moment of it (not a stray flick) and up goes the price.
+            if (level == Core.Shake.Hard && _visit.Seller.HatesHardShake && _shaken[key] >= HardShakeTolerance && !Concluded && !_busy)
+                Angered(_visit.Anger(_rng));
         }
         _hint.Text = Busy || Concluded ? ""
             : _shake.Hover ? "Drag to shake it. Lift it high and let go to drop it."
             : _magnet ? "Magnet on: iron can't move"
-            : _lamp ? "Witchlight on: magic glows"
-            : _shake.HeardAnything ? "" : "Drag the chest to shake it";
+            : _shake.HeardAnything ? "" : _lamp ? "Drag the chest to shake it. The witchlight's lit." : "Drag the chest to shake it";
 
         // An impatient seller's clock runs while you're deciding (not while Bram is talking).
         if (_visit.Seller.Patience > 0 && !Concluded && !_busy && !_mentor.Showing)
@@ -220,8 +223,10 @@ public partial class CounterPhase : Phase
         panel.AddChild(Header("YOUR APPRAISAL", PanelX, 80));
         _ledgerButton = UiKit.MakeButton("Ledger [L]", Palette.Gold, 16, OpenLedger).Place(PanelX + 236, 72, 148, 36);
         panel.AddChild(_ledgerButton);
-        string who = _visit.Claim.Count == 0 ? $"{_visit.Seller.Short} heard nothing, so nothing's ticked."
-            : $"Ticked: what {_visit.Seller.Short} heard.";
+        var seller = _visit.Seller;
+        string who = _visit.Claim.Count == 0
+            ? seller.Listens ? $"{seller.Short} heard nothing, so nothing's ticked." : $"{seller.Short} didn't listen, so nothing's ticked."
+            : seller.Listens ? $"Ticked: what {seller.Short} heard." : $"Ticked: what {seller.Short} says is inside.";
         panel.AddChild(UiKit.MakeLabel($"{who} Values are averages for a {Categories.ChestSkin(_visit.Chest.Quality)} chest.", 16, Palette.Muted)
             .Wrapped().Place(PanelX, 106, PanelW, 40));
 
@@ -245,8 +250,11 @@ public partial class CounterPhase : Phase
             float x = PanelX;
             if (lamp)
             {
-                _lampButton = ToolButton("lamp", ToggleLamp).Place(x, y + 2, w, 36);
-                panel.AddChild(_lampButton);
+                // Always lit: a sign, not a switch.
+                var lit = UiKit.MakePanel(Palette.Magic.Darkened(0.3f)).Place(x, y + 2, w, 36);
+                lit.AddChild(UiKit.MakeSprite("res://assets/ui/icons/lamp.png", new Vector2(24, 18), 1));
+                lit.AddChild(UiKit.MakeLabel(magnet ? "Witchlight lit" : "Witchlight lit: magic glows", 16, Palette.Magic).Place(44, 8, w - 52, 20));
+                panel.AddChild(lit);
                 x += w + 8;
             }
             if (magnet)
@@ -292,13 +300,11 @@ public partial class CounterPhase : Phase
         row.Button = button;
         row.Box = new Painter(p => DrawBox(p, MarkOf(category))) { Position = new Vector2(10, 7) };
         button.AddChild(row.Box);
-        row.Tick = UiKit.MakeLabel("", 16, Palette.Bg, HorizontalAlignment.Center).Place(10, 9, 24, 20);
-        button.AddChild(row.Tick);
         button.AddChild(category is Category kind ? UiKit.MakeKindIcon(kind, new Vector2(60, RowH / 2)) : UiKit.MakeKindIcon("hidden", new Vector2(60, RowH / 2)));
         button.AddChild(UiKit.MakeLabel(name, 16, Palette.Text).Place(88, 9, 140, 20));
         row.Word = UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(212, 9, 80, 20);
         button.AddChild(row.Word);
-        if (category is Category claimed && _visit.Claim.Contains(claimed))
+        if (category is Category claimed ? _visit.Claim.Contains(claimed) : _visit.ClaimsHidden)
             button.AddChild(UiKit.MakeLabel("said", 16, Palette.Muted).Place(278, 9, 50, 20));
         row.Value = UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(PanelW - 112, 9, 100, 20);
         button.AddChild(row.Value);
@@ -349,7 +355,7 @@ public partial class CounterPhase : Phase
             if (row.Category is Category kind)
             {
                 int value = _slip.ValueOf(kind, mark == Mark.None ? Mark.Plain : mark);
-                row.Value.Text = mark == Mark.Magic ? $"x{Categories.MagicMultiplier} ~{value}g" : $"~{value}g";
+                row.Value.Text = $"~{value}g";
                 bool heard = _hearing.HeardAny(kind);
                 row.Word.AddThemeColorOverride("font_color", _hearing.Broke(kind) ? Palette.Bad
                     : _hearing.Glowed(kind) ? Palette.Magic : heard ? Palette.Word : Palette.Muted.Darkened(0.2f));
@@ -361,7 +367,6 @@ public partial class CounterPhase : Phase
                 row.Word.AddThemeColorOverride("font_color", _hearing.Hollow ? Palette.Word : Palette.Muted.Darkened(0.2f));
             }
             row.Value.AddThemeColorOverride("font_color", mark switch { Mark.Magic => Palette.Magic, Mark.Plain => Palette.Gold, _ => Palette.Muted.Darkened(0.2f) });
-            row.Tick.Text = mark == Mark.Magic ? "*" : "";
             row.Box.QueueRedraw();
             row.Button.Disabled = !open;
             row.Button.Modulate = mark == Mark.None ? new Color(1, 1, 1, 0.75f) : Colors.White;
@@ -410,11 +415,6 @@ public partial class CounterPhase : Phase
         _profit.Text = worth == 0 ? "Tick what you think is inside." : $"{(margin > 0 ? "+" : "")}{margin}g on average, if you're right";
         _profit.AddThemeColorOverride("font_color", worth == 0 ? Palette.Muted : margin > 0 ? Palette.Good : Palette.Bad);
         _ledgerButton.Disabled = Busy;
-        if (_lampButton != null)
-        {
-            _lampButton.Text = _lamp ? "Witchlight on" : "Witchlight";
-            _lampButton.Disabled = !open;
-        }
         if (_magnetButton != null)
         {
             _magnetButton.Text = _magnet ? "Magnet on" : "Magnet";
@@ -488,6 +488,7 @@ public partial class CounterPhase : Phase
         _seller.Bob(8);
         Sfx.Play("lose", 0.9f, -4);
         FloatText($"Price +{(int)((Market.AngerMarkup - 1) * 100)}%", new Vector2(1036, 520), Palette.Bad, 24);
+        Game.Moment($"05_angry_{_visit.Seller.Key}", 0.3);
     }
 
     /// <summary>Clicking a row: ticked, (with a witchlight) magic, unticked. The false bottom row is just ticked or not.</summary>
@@ -523,18 +524,6 @@ public partial class CounterPhase : Phase
     {
         if (Busy || Concluded) return;
         _shake.LiftAndDrop();
-    }
-
-    public void ToggleLamp()
-    {
-        if (Busy || Concluded || !State.Has("lamp")) return;
-        _lamp = !_lamp;
-        _shake.Witchlight = _lamp;
-        _dark.Visible = _lamp;
-        Sfx.Play("lantern", _lamp ? 1f : 0.8f);
-        if (_lamp) Teach("lamp");
-        Refresh();
-        Game.Moment("04_witchlight", 0.6);
     }
 
     public void ToggleMagnet()
@@ -675,7 +664,12 @@ public partial class CounterPhase : Phase
         _reveal = Add(UiKit.MakePanel(Palette.PanelBorder).Place(312, 72, 492, 262));
         _reveal.ZIndex = 20;
         _reveal.AddChild(UiKit.MakeLabel($"{_visit.Seller.Short} shows you what was inside", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 10, 492, 20));
-        float colW = 492f / report.Items.Count;
+        if (report.Items.Count == 0)
+        {
+            _reveal.AddChild(UiKit.MakeLabel("Nothing. It's empty!", 24, Palette.Bad, HorizontalAlignment.Center, outline: 4).Place(0, 76, 492, 30));
+            Game.Moment("03_passed_empty", 0.8);
+        }
+        float colW = 492f / Math.Max(1, report.Items.Count);
         for (int i = 0; i < report.Items.Count; i++)
         {
             var read = report.Items[i];

@@ -1,8 +1,8 @@
 # LootFall
 
 A small game about the satisfaction of opening treasure chests. You inherit a roadside stall; people bring you
-chests and tell you what they heard when they shook them. Shake each one yourself, gently, firmly and hard, find what
-they missed, trade for it, and open it on the spot. Keep the best for your exhibition and grow the stall into the
+chests and price them their own way: by what they heard, by weight, by the chest's colour, or by a dream. Shake each
+one yourself, gently, firmly and hard, find what they missed or misjudged, trade for it, and open it on the spot. Keep the best for your exhibition and grow the stall into the
 finest shop in the kingdom.
 
 **Status:** playable prototype. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
@@ -11,8 +11,10 @@ Design rationale: [docs/design.md](docs/design.md).
 
 ## The loop
 
-1. **A customer brings a chest** and says how hard they shook it and what they heard. The chest's colour (wood,
-   green, blue, purple) says how good things inside tend to be. Each customer has one habit worth learning.
+1. **A customer brings a chest** and prices it their way: some say how hard they shook it and what they heard, some
+   heft it, some go by its colour, some feel for magic, some have no idea. The chest's colour (wood, green, blue,
+   purple) says how good things inside tend to be. Each customer has one habit worth learning, and a few won't stand
+   for something (a hard shake, a drop, a magnet).
 2. **Shake it yourself.** How fast you drag is how hard you shake. Light things (coins jingle, bottles slosh,
    jewelry tinkles) rattle at a gentle shake; metal only clanks at a firm one, and its clanking drowns out anything
    delicate; soft things (cloth flumps, paper rustles) only sound at a hard shake. Lift it high and let go to drop it:
@@ -35,13 +37,13 @@ Day one is guided: Uncle Bram, who's handing you the stall, brings in four custo
 |---|---|
 | Shake a chest | Drag it with the left mouse button: slowly for gentle, fast for hard |
 | Drop it | Lift it high and let go |
-| Tick or untick a kind on the slip | Click its row (again to mark it magic, once you have the Witchlight) |
+| Tick or untick a kind on the slip | Click its row (again to mark it magic, once you have the Witchlight, which stays lit) |
 | Make an offer | Set the slider, then Offer |
-| Witchlight, Magnet | Buttons on the right, once you own them |
+| Magnet | Button on the right, once you own it |
 | Ledger (sounds, regulars, collection) | L, or the Ledger button |
 | Pick a lock | Space or left click when the pick is in the green; F for the crowbar |
 | Open the chest | Hold Space or the left mouse button |
-| Keep something for display | Its Keep button after an opening; sell it back from the exhibition at day end |
+| Keep something for display | Its Keep button after an opening (Swap when the display is full); sell it back from the exhibition at day end |
 | Next tip from Bram | Click his box |
 
 ## Development

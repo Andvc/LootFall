@@ -8,7 +8,7 @@ Source: https://github.com/sparklinlabs/superpowers-asset-packs
 
 - Chest: Ninja Adventure pack (`ninja-adventure/items/big-treasure-chest.png`), recolored per lot origin.
 - Items, backgrounds and the burst effect: RPG Battle System pack (`rpg-battle-system/item`, `backgrounds`, `fx`).
-- Seller portraits and Uncle Bram: Ninja Adventure pack (`ninja-adventure/characters/faceset`).
+- Seller portraits and Uncle Bram: Ninja Adventure pack (`ninja-adventure/characters/faceset`); Granny Wick is one of them recoloured.
 
 ## Font and sound
 

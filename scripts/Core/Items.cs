@@ -140,6 +140,24 @@ public static class Categories
     /// <summary>Kinds of things that turn up at a shop (or seller) tier.</summary>
     public static IEnumerable<CategoryDef> UpTo(int tier) => All.Where(c => c.Tier <= tier);
 
+    /// <summary>How heavy one is: metal and coins weigh a lot, paper and jewelry next to nothing.</summary>
+    public static float Heft(Category category) => category switch
+    {
+        Category.Metal => 3f,
+        Category.Coins => 2f,
+        Category.Bottles => 1.5f,
+        Category.Cloth => 1.5f,
+        Category.Paper => 0.5f,
+        _ => 0.3f,
+    };
+
+    public static string HeftWord(Category category) => Heft(category) switch
+    {
+        >= 2 => "heavy",
+        >= 1 => "middling",
+        _ => "light",
+    };
+
     public static string LevelName(Shake level) => level switch
     {
         Shake.Gentle => "gentle",

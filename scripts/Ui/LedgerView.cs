@@ -7,8 +7,8 @@ namespace LootFall.Ui;
 
 /// <summary>
 /// The shop's ledger. Sounds: the rules of shaking, and one row per kind of thing your shop sees (its sound, how hard
-/// you must shake to hear it, and what one is worth in a chest of each colour); click a row to hear it. Regulars: how
-/// each seller you've met shakes, trades and behaves. Collection: everything you've found so far.
+/// you must shake to hear it, how heavy it is, and what one is worth in a chest of each colour); click a row to hear it.
+/// Regulars: how each seller you've met judges a chest, trades and behaves. Collection: everything you've found so far.
 /// </summary>
 public partial class LedgerView : Node2D
 {
@@ -58,7 +58,7 @@ public partial class LedgerView : Node2D
     public void ShowPage(int page)
     {
         foreach (var child in _page.GetChildren()) child.QueueFree();
-        if (page == 1) BuildRegulars();
+        if (page == 1) BuildRegulars(_state.Tier >= 3 ? 1 : 0);
         else if (page == 2) BuildCollection();
         else BuildSounds();
     }
@@ -121,11 +121,13 @@ public partial class LedgerView : Node2D
         }.Where(r => r != null).ToArray();
         _page.AddChild(UiKit.MakeLabel(string.Join("\n", rules.Select(r => "- " + r)), 16, Palette.Text).Place(TableX, PanelY + 64, PanelW - 48, 90));
 
-        float y = PanelY + 160;
+        // Below the rules (five lines at the Emporium).
+        float y = PanelY + 180;
         Header("Kind", TableX + 48, y);
         Header("Sound", TableX + 220, y);
         Header("Shake", TableX + 330, y);
-        Header("Note", TableX + 440, y);
+        Header("Weight", TableX + 420, y);
+        Header("Note", TableX + 520, y);
         for (int c = 0; c < 4; c++) Header(Categories.ChestSkin((Rarity)c), TableX + 760 + c * 104, y);
 
         var kinds = Categories.UpTo(tier).ToList();
@@ -144,9 +146,10 @@ public partial class LedgerView : Node2D
         row.AddChild(UiKit.MakeLabel(kind.Name, 16, Palette.Text).Place(56, 10, 160, 20));
         row.AddChild(UiKit.MakeLabel(kind.Word, 16, Palette.Word).Place(228, 10, 100, 20));
         row.AddChild(UiKit.MakeLabel(Categories.LevelName(kind.StirsAt), 16, Palette.Level(kind.StirsAt)).Place(338, 10, 100, 20));
-        string note = kind.Loud ? "loud: drowns out delicate things" : kind.Delicate ? "delicate: drowned out by clanks" : "soft: needs a hard shake";
-        if (kind.FakeName != null && tier >= 4) note += "; Silas fakes it";
-        row.AddChild(UiKit.MakeLabel(note, 16, Palette.Muted).Place(448, 10, 310, 20));
+        row.AddChild(UiKit.MakeLabel(Categories.HeftWord(kind.Category), 16, Palette.Text).Place(428, 10, 100, 20));
+        string note = kind.Loud ? "loud: drowns delicate" : kind.Delicate ? "delicate: clanks drown it" : "soft: hard shake only";
+        if (kind.FakeName != null && tier >= 4) note = "delicate; Silas fakes it";
+        row.AddChild(UiKit.MakeLabel(note, 16, Palette.Muted).Place(528, 10, 236, 20));
         for (int c = 0; c < 4; c++)
             row.AddChild(UiKit.MakeLabel($"~{Categories.Expected(kind.Category, (Rarity)c)}g", 16, Palette.Of((Rarity)c)).Place(768 + c * 104, 10, 96, 20));
         row.GuiInput += e =>
@@ -161,9 +164,22 @@ public partial class LedgerView : Node2D
         return row;
     }
 
-    void BuildRegulars()
+    /// <summary>The regulars, a spread per two shops (the stall and village, then the town and the Emporium).</summary>
+    void BuildRegulars(int spread)
     {
-        var met = Sellers.All.Where(s => s.Tier <= _state.Tier && _state.Met.Contains(s.Key)).ToList();
+        int total = Sellers.All.Count(s => s.Tier <= _state.Tier);
+        int metCount = Sellers.All.Count(s => s.Tier <= _state.Tier && _state.Met.Contains(s.Key));
+        _page.AddChild(UiKit.MakeLabel($"{metCount} of {total} met", 16, Palette.Muted, HorizontalAlignment.Right)
+            .Place(PanelX + PanelW - 224, PanelY + PanelH - 32, 200, 20));
+        if (_state.Tier >= 3)
+        {
+            _page.AddChild(UiKit.MakeButton("Stall, village", spread == 0 ? Palette.Gold : Palette.Text, 16, () => ShowRegulars(0))
+                .Place(PanelX + 676, PanelY + 14, 172, 36));
+            _page.AddChild(UiKit.MakeButton("Town, Emporium", spread == 1 ? Palette.Gold : Palette.Text, 16, () => ShowRegulars(1))
+                .Place(PanelX + 856, PanelY + 14, 172, 36));
+        }
+
+        var met = Sellers.All.Where(s => s.Tier <= _state.Tier && (s.Tier + 1) / 2 - 1 == spread && _state.Met.Contains(s.Key)).ToList();
         if (met.Count == 0)
         {
             _page.AddChild(UiKit.MakeLabel("You haven't met anyone yet.", 24, Palette.Muted, HorizontalAlignment.Center).Place(PanelX, 300, PanelW, 30));
@@ -171,14 +187,18 @@ public partial class LedgerView : Node2D
         }
         for (int i = 0; i < met.Count; i++)
         {
-            float x = TableX + i % 2 * 580, y = PanelY + 62 + i / 2 * 56;
+            float x = TableX + i % 2 * 580, y = PanelY + 66 + i / 2 * 88;
             _page.AddChild(UiKit.MakeSprite($"res://assets/sprites/sellers/{met[i].Key}.png", new Vector2(x + 20, y + 24), 1));
             string trade = met[i].Trade switch { Trade.Haggle => "haggles", Trade.Offer => "you name the price", _ => "fixed price" };
-            _page.AddChild(UiKit.MakeLabel($"{met[i].Name}: shakes {met[i].ShakeWord}, {trade}", 16, Palette.Gold).Place(x + 52, y + 2, 520, 20));
-            _page.AddChild(UiKit.MakeLabel(met[i].Habit, 16, Palette.Text).Wrapped().Place(x + 52, y + 22, 510, 40));
+            _page.AddChild(UiKit.MakeLabel($"{met[i].Name}: {met[i].JudgeWord}, {trade}", 16, Palette.Gold).Place(x + 52, y + 2, 520, 20));
+            _page.AddChild(UiKit.MakeLabel(met[i].Habit, 16, Palette.Text).Wrapped().Place(x + 52, y + 22, 510, 64));
         }
-        int total = Sellers.All.Count(s => s.Tier <= _state.Tier);
-        _page.AddChild(UiKit.MakeLabel($"{met.Count} of {total} met", 16, Palette.Muted).Place(PanelX + 690, PanelY + 24, 300, 20));
+    }
+
+    void ShowRegulars(int spread)
+    {
+        foreach (var child in _page.GetChildren()) child.QueueFree();
+        BuildRegulars(spread);
     }
 
     public override void _UnhandledInput(InputEvent e)

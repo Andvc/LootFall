@@ -33,9 +33,12 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
   Introduce new things one at a time: by shop tier (`CategoryDef.Tier`, `SellerDef.Tier`) and with a Bram hint
   (`Hints.cs`).
-- Every seller has one habit with a believable reason and a reward for putting up with it (`SellerDef`: how they
-  judge, how they trade, traits like `Patience`, `HatesDrop`, `HatesMagnet`). The results and pass screens say why a
-  deal went the way it did (`Visit.Explain`). The sim's per-seller table must show a careful player profits from each.
+- Every seller has one way of judging a chest (`Judgment`: listening, counting rattles, weight, colour, a dream, a
+  trade they know, a sense for magic, no idea) with a blind spot a careful player can see through, one way to trade,
+  and maybe one thing they won't stand for, with a reward for putting up with it (`SellerDef` traits like `Patience`,
+  `HatesDrop`, `HatesMagnet`, `HatesHardShake`). `Market` rolls and prices their chests; `Visit` trades, and its
+  `Explain` says on the results and pass screens why a deal went the way it did. The sim's per-seller table must show
+  a careful player profits from each, and buying blind shouldn't (Tam, who takes a few coins, is the exception).
 - `ShakeBox` gates sounds with the same rules as `Chest.Audible`: change both together (the shake test checks them).
 - UI is built in code with `UiKit` and `Painter` (absolute positions on a 1280x720 canvas), not in .tscn files.
 - Buttons use `FocusMode.None`: Space is reserved for lockpicking and holding the chest open. L opens the ledger.

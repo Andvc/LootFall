@@ -63,7 +63,10 @@ public sealed class Appraisal
         foreach (var category in marked ?? Enumerable.Empty<Category>()) _marks[(int)category] = Mark.Plain;
     }
 
-    public Appraisal(Visit visit, int tier) : this(visit.Chest.Quality, tier, visit.Claim) { }
+    public Appraisal(Visit visit, int tier) : this(visit.Chest.Quality, tier, visit.Claim)
+    {
+        Hidden = visit.ClaimsHidden;
+    }
 
     public Mark this[Category category]
     {

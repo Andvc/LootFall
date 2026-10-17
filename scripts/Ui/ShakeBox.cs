@@ -125,20 +125,9 @@ public partial class ShakeBox : Node2D
         AddChild(_words);
     }
 
-    /// <summary>Rough heft, for the physics only: metal is heavy, paper and jewelry light.</summary>
-    static float Heft(Category category) => category switch
-    {
-        Category.Metal => 3f,
-        Category.Cloth => 2f,
-        Category.Bottles => 1.5f,
-        Category.Coins => 1f,
-        Category.Paper => 0.6f,
-        _ => 0.3f,
-    };
-
     void AddBody(Item item)
     {
-        float heft = Heft(item.Category);
+        float heft = Categories.Heft(item.Category);
         var body = new RigidBody2D
         {
             Mass = 0.2f + heft,

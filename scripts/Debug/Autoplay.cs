@@ -10,8 +10,8 @@ namespace LootFall.Debug;
 /// <summary>
 /// Plays the shop hands-free so it can be screenshotted, recorded or smoke-tested headlessly:
 /// `godot --path . -- --autoplay [--seed=N] [--shots=DIR] [--quit-at-end] [--days=N] [--start-tier=N]`.
-/// It reads Bram's tips, shakes every chest gently, firmly and hard (with the witchlight on, and again gently with the
-/// magnet once it has them), drops it when that's safe, fills in the slip from what it heard the way a careful player
+/// It reads Bram's tips, shakes every chest at the strengths <see cref="Strategy.Levels"/> allows (again gently with
+/// the magnet once it has one), drops it when that's safe, fills in the slip from what it heard the way a careful player
 /// would, and trades the way <see cref="Strategy"/> says: buys, haggles or names a price. It picks locks, keeps grand
 /// things for display, and between days spends on upgrades in a sensible order.
 /// </summary>
@@ -85,11 +85,9 @@ public partial class Autoplay : Node
         await ReadTips(counter.Mentor);
         if (!IsInstanceValid(counter)) return;
 
-        if (State.Has("lamp")) counter.ToggleLamp();
-        // An impatient seller only gets a gentle and a hard shake: that's enough to hear every kind.
+        // Every strength, but only gently and hard for an impatient seller, and never hard for one who'd mind.
         bool hurried = visit.Seller.Patience > 0;
-        var levels = hurried ? new[] { Core.Shake.Gentle, Core.Shake.Hard } : new[] { Core.Shake.Gentle, Core.Shake.Firm, Core.Shake.Hard };
-        foreach (var level in levels)
+        foreach (var level in Strategy.Levels(visit))
             if (!await Shake(counter, level, hurried ? 1.2 : ShakeSeconds)) return;
         // A jingle or tinkle that goes quiet under the magnet is gilded iron.
         if (Strategy.ShouldUseMagnet(visit, counter.Hearing, State))
@@ -142,7 +140,7 @@ public partial class Autoplay : Node
         if (!IsInstanceValid(counter) || counter.Concluded) return;
 
         Main.Instance.Moment($"06_decide_d{State.Day}_{visit.Seller.Key}");
-        int worth = counter.Slip.Worth;
+        int worth = Strategy.Worth(visit, counter.Slip, counter.Hearing);
         switch (visit.Trade)
         {
             case Trade.Fixed:
@@ -227,8 +225,13 @@ public partial class Autoplay : Node
         {
             var (keep, replace) = Strategy.ShouldKeep(State, item, worth);
             if (!keep || !IsInstanceValid(opening)) continue;
-            if (replace != null) State.SellFromDisplay(replace);
             opening.Keep(item);
+            await Wait(0.6);
+            if (replace == null || !IsInstanceValid(opening)) continue;
+            // The display's full: the chooser is open; sell the plainest to make room.
+            await Wait(0.8);
+            if (!IsInstanceValid(opening)) return;
+            opening.ChooseSwap(item, replace);
             await Wait(0.6);
         }
         if (!IsInstanceValid(opening)) return;

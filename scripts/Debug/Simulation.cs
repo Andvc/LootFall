@@ -19,8 +19,6 @@ public static class Simulation
     public static readonly string[] BuyOrder =
         { "shop2", "sign", "cabinet1", "picks", "shop3", "lamp", "cabinet2", "shop4", "magnet", "cabinet3", "warrant" };
 
-    static readonly Shake[] Every = { Shake.Gentle, Shake.Firm, Shake.Hard };
-    static readonly Shake[] Quick = { Shake.Gentle, Shake.Hard };
 
     enum Care { Blind, OneShake, Listens, Tools }
 
@@ -77,7 +75,7 @@ public static class Simulation
             state.SkipTo(seller.Tier, 100000);
             if (seller.Tier >= 3) state.BuyUpgrade(Upgrades.Get("lamp"));
             if (seller.Tier >= 4) state.BuyUpgrade(Upgrades.Get("magnet"));
-            int buys = 0, n = 600;
+            int buys = 0, n = 2000;
             float profit = 0, blind = 0;
             for (int i = 0; i < n; i++)
             {
@@ -109,7 +107,6 @@ public static class Simulation
     {
         int tier = state.Tier;
         var chest = visit.Chest;
-        bool hurried = visit.Seller.Patience > 0;
         if (care == Care.Blind)
         {
             slip = new Appraisal(visit, tier);
@@ -123,13 +120,14 @@ public static class Simulation
         if (care == Care.OneShake)
         {
             hearing = Hearing.Simulate(chest, new[] { Shake.Hard });
+            if (visit.Seller.HatesHardShake) visit.Anger(rng);
             slip = new Appraisal(visit, tier);
             foreach (var item in chest.HeardAt(Shake.Hard)) slip[item.Category] = Mark.Plain;
         }
         else
         {
             bool lamp = care == Care.Tools && state.Has("lamp");
-            var levels = hurried ? Quick : Every;
+            var levels = Strategy.Levels(visit);
             hearing = Hearing.Simulate(chest, levels, lamp);
             if (care == Care.Tools && Strategy.ShouldUseMagnet(visit, hearing, state))
                 hearing = Hearing.Simulate(chest, levels, lamp, new[] { Shake.Gentle });
@@ -141,7 +139,7 @@ public static class Simulation
             slip = hearing.Read(chest.Quality, tier);
         }
 
-        int worth = slip.Worth;
+        int worth = Strategy.Worth(visit, slip, hearing);
         switch (visit.Trade)
         {
             case Trade.Fixed:

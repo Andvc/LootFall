@@ -10,6 +10,7 @@ Usage: python3 tools/import_art.py [--cache DIR]
 Requires Pillow. Sources are cloned (partially) into the cache on first run.
 """
 import argparse
+import colorsys
 import os
 import shutil
 import subprocess
@@ -68,9 +69,15 @@ BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 PORTRAITS = {
     "hob": 22, "penn": 19, "mags": 5, "tam": 25,           # tier 1: the village
     "brask": 18, "tobias": 10, "marta": 4,                 # tier 2: soldiers and merchants
-    "wren": 6, "orrin": 9, "grit": 8,                      # tier 3: mages and a miner
+    "wren": 6, "orrin": 9, "grit": 8, "zara": 24,          # tier 3: mages, a miner and a fortune-teller
     "vex": 3, "gull": 14, "silas": 13, "pip": 17, "ermine": 21,  # tier 4: nobles, adventurers, crooks
     "bram": 16,                                            # Uncle Bram, who hands you the shop
+}
+
+# Portraits made from another with some colours changed: key -> (faceset number, rules). Each rule takes the pixels
+# whose hue is in [low, high] degrees (and that aren't grey), turns the hue, and scales saturation and brightness.
+RECOLOURED_PORTRAITS = {
+    "wick": (4, [(250, 320, 0, 0.12, 1.12), (180, 249, -60, 0.9, 0.9)]),  # Marta's face, white hair and a green shawl
 }
 
 # Group -> Kenney source files (pack folder, file stem).
@@ -125,6 +132,25 @@ def fetch(url, paths, cache):
         subprocess.run(["git", "clone", "-q", "--filter=blob:none", "--no-checkout", "--depth", "1", url, dest], check=True)
     subprocess.run(["git", "-C", dest, "checkout", "HEAD", "--", *paths], check=True)
     return dest
+
+
+def recolour(img, rules):
+    """Turns the hue of (and rescales) the pixels in each rule's hue range: see RECOLOURED_PORTRAITS."""
+    img = img.copy()
+    px = img.load()
+    for y in range(img.height):
+        for x in range(img.width):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+            for low, high, turn, sat, val in rules:
+                if low <= h * 360 <= high and s > 0.15:
+                    h, s, v = (h * 360 + turn) % 360 / 360, min(1, s * sat), min(1, v * val)
+                    break
+            r, g, b = colorsys.hsv_to_rgb(h, s, v)
+            px[x, y] = (round(r * 255), round(g * 255), round(b * 255), a)
+    return img
 
 
 def save(image, *parts):
@@ -523,6 +549,9 @@ def main():
 
     for key, number in PORTRAITS.items():
         save(Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA"), "sprites", "sellers", f"{key}.png")
+    for key, (number, rules) in RECOLOURED_PORTRAITS.items():
+        img = Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA")
+        save(recolour(img, rules), "sprites", "sellers", f"{key}.png")
 
     for group, files in SOUNDS.items():
         out = os.path.join(ASSETS, "audio", group)
