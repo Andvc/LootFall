@@ -27,6 +27,23 @@ public static class Palette
     public static readonly Color MetalLight = new("#8a8a9c");
     public static readonly Color LockUnknown = new("#77778a");
 
+    /// <summary>A colour per shake strength, for the ledger's "how hard" column.</summary>
+    public static Color Level(Shake level) => level switch
+    {
+        Shake.Gentle => new Color("#7fd3ff"),
+        Shake.Firm => Gold,
+        _ => Warn,
+    };
+
+    /// <summary>Lock plate colour by maker (see LockTiers); null for no lock.</summary>
+    public static Color? Lock(LockTier lockTier) => lockTier.Index switch
+    {
+        0 => null,
+        1 => new Color("#b9bac6"),
+        2 => new Color("#5a8cff"),
+        _ => new Color("#d08a3c"),
+    };
+
     public static Color Of(Rarity rarity) => rarity switch
     {
         Rarity.Common => new Color("#c9c4d4"),

@@ -42,8 +42,14 @@ public partial class ShakeBox : Node2D
     /// <summary>The chest left the place it was resting.</summary>
     public event Action Lifted;
 
-    /// <summary>The chest came back to rest.</summary>
-    public event Action Landed;
+    /// <summary>The chest came back to rest after being let go this high above it (px).</summary>
+    public event Action<float> Landed;
+
+    /// <summary>
+    /// Let go at least this high and it's a drop: it hits hard enough to tell you something. Setting it down after a
+    /// shake isn't.
+    /// </summary>
+    public const float DropHeight = 150f;
 
     /// <summary>The magnet is on: iron can't move, so it makes no sound.</summary>
     public bool Magnet;
@@ -67,7 +73,7 @@ public partial class ShakeBox : Node2D
 
     public bool HeardAnything { get; private set; }
 
-    public bool Dragging => (_dragging && _moved) || _autoShakeLeft > 0;
+    public bool Dragging => (_dragging && _moved) || _autoShakeLeft > 0 || _liftLeft > 0;
 
     readonly Chest _chest;
     readonly Rect2 _dragBounds;
@@ -81,8 +87,9 @@ public partial class ShakeBox : Node2D
     AnimatableBody2D _box;
     Node2D _words;
     bool _dragging, _airborne, _moved;
-    double _autoShakeLeft, _autoShakeTime, _time, _lastClank = -9;
+    double _autoShakeLeft, _autoShakeTime, _liftLeft, _time, _lastClank = -9;
     double _settling = 0.8; // items drop into place when the chest appears; that shouldn't make noise
+    float _fallHeight;
     Shake _autoLevel;
     float _envelope;
 
@@ -166,6 +173,14 @@ public partial class ShakeBox : Node2D
         _autoLevel = level;
     }
 
+    /// <summary>Lifts the chest high and lets it fall (the bot uses this; players drag it up and let go).</summary>
+    public void LiftAndDrop()
+    {
+        if (Busy) return;
+        Lifted?.Invoke();
+        _liftLeft = 0.6;
+    }
+
     public override void _UnhandledInput(InputEvent e)
     {
         if (e is not InputEventMouseButton { ButtonIndex: MouseButton.Left } button) return;
@@ -196,6 +211,9 @@ public partial class ShakeBox : Node2D
     void Drop()
     {
         _airborne = true;
+        _fallHeight = _rest.Y - _pos.Y;
+        // Let go mid-shake, it hops a little rather than flying off: only lifting it high and letting go is a drop.
+        _vel.Y = MathF.Max(_vel.Y, -250f);
         float rise = _pos.Y - _rest.Y + 24f;
         if (rise > 0) _vel.Y = MathF.Min(_vel.Y, -MathF.Sqrt(2f * Gravity * rise));
     }
@@ -208,7 +226,14 @@ public partial class ShakeBox : Node2D
         foreach (var key in _wordCooldown.Keys.ToList()) _wordCooldown[key] -= delta;
         Hover = !_dragging && !_airborne && Over(GetGlobalMousePosition() - GlobalPosition);
 
-        if (_autoShakeLeft > 0)
+        if (_liftLeft > 0)
+        {
+            // Raised slowly, so lifting it doesn't count as a shake.
+            _liftLeft -= delta;
+            _target = _rest + new Vector2(0, -270f * (1f - (float)Math.Max(0, _liftLeft) / 0.6f));
+            if (_liftLeft <= 0) Drop();
+        }
+        else if (_autoShakeLeft > 0)
         {
             _autoShakeLeft -= delta;
             _autoShakeTime += delta;
@@ -257,7 +282,7 @@ public partial class ShakeBox : Node2D
                 _pos = _rest;
                 _airborne = false;
                 _vel = Vector2.Zero;
-                Landed?.Invoke();
+                Landed?.Invoke(_fallHeight);
                 if (impact > 150)
                 {
                     float loud = Mathf.Clamp(impact / 1400f, 0, 1);
@@ -321,6 +346,8 @@ public partial class ShakeBox : Node2D
     bool Impact(Item item, float strength)
     {
         var level = Level;
+        // Glass that broke in a drop doesn't slosh any more.
+        if (_chest.Get(item.Category)?.Broken == true) return false;
         // Not shaken hard enough to stir it, or held still by the magnet: it doesn't move, so it makes no sound.
         if (!Chest.Stirs(item, level, Magnet)) return false;
         if (item.Def.Loud) _lastClank = _time;
@@ -344,6 +371,9 @@ public partial class ShakeBox : Node2D
         Heard?.Invoke(item, level);
         return true;
     }
+
+    /// <summary>A word popped from the chest, e.g. what a drop sounded like.</summary>
+    public void Say(string text, Color color, int size = 32, float dx = 0) => PopWord(text, _pos + new Vector2(dx, -150), size, color, false);
 
     void PopWord(string text, Vector2 at, int size, Color color, bool glow)
     {

@@ -9,49 +9,35 @@ namespace LootFall.Debug;
 /// <summary>
 /// Headless balance report: `godot --headless --path . -- --sim [--n=200]`. Plays whole campaigns with simple player
 /// styles, buying upgrades between days. The design works if careful listening climbs the shop tiers at a steady pace,
-/// each tool pays for itself, and careless play stalls.
+/// each tool and the exhibition pay for themselves, careless play stalls, and every seller's quirk is worth putting up with.
 /// </summary>
 public static class Simulation
 {
     const int Days = 30;
 
     /// <summary>The order a sensible player buys things in.</summary>
-    public static readonly string[] BuyOrder = { "shop2", "sign", "shop3", "lamp", "shop4", "magnet", "warrant" };
+    public static readonly string[] BuyOrder =
+        { "shop2", "sign", "cabinet1", "picks", "shop3", "lamp", "cabinet2", "shop4", "magnet", "cabinet3", "warrant" };
 
     static readonly Shake[] Every = { Shake.Gentle, Shake.Firm, Shake.Hard };
+    static readonly Shake[] Quick = { Shake.Gentle, Shake.Hard };
 
-    /// <summary>How a simulated player handles a chest and decides.</summary>
-    sealed record Style(string Name, Func<Visit, GameState, Appraisal> Read, bool BuysTools = true, bool BuysAll = false);
+    enum Care { Blind, OneShake, Listens, Tools }
+
+    sealed record Style(string Name, Care Care, bool Collects);
 
     static readonly Style[] Styles =
     {
-        new("buys everything", (v, _) => new Appraisal(v), BuysTools: false, BuysAll: true),
-        new("trusts the seller", TrustsSeller, BuysTools: false),
-        new("one hard shake", HardShake, BuysTools: false),
-        new("every strength", (v, _) => Hearing.Simulate(v.Chest, Every).Read(v.Grade), BuysTools: false),
-        new("every strength + tools", Careful),
+        new("buys at their price", Care.Blind, false),
+        new("one hard shake", Care.OneShake, false),
+        new("every strength, drops", Care.Listens, false),
+        new("+ witchlight, magnet", Care.Tools, false),
+        new("+ keeps grand things", Care.Tools, true),
     };
-
-    /// <summary>Takes the seller's word, plus whatever a hard shake turns up.</summary>
-    static Appraisal TrustsSeller(Visit visit, GameState state) => new(visit);
-
-    static Appraisal HardShake(Visit visit, GameState state)
-    {
-        var slip = new Appraisal(visit);
-        foreach (var item in visit.Chest.HeardAt(Shake.Hard)) slip[item.Category] = Mark.Plain;
-        return slip;
-    }
-
-    /// <summary>Every strength, the witchlight always on, and a gentle shake with the magnet on.</summary>
-    public static Appraisal Careful(Visit visit, GameState state)
-    {
-        bool lamp = state.Has("lamp"), magnet = state.Has("magnet");
-        return Hearing.Simulate(visit.Chest, Every, lamp, magnet ? new[] { Shake.Gentle } : null).Read(visit.Grade);
-    }
 
     sealed class Log
     {
-        public int Bought, GoodBuys, Perfect, Gold20;
+        public int Bought, GoodBuys, Perfect, Gold20, Exhibition20;
         public readonly int[] ReachedTier = { 1, 1, 0, 0, 0 };
         public int WonDay;
         public readonly float[] ProfitByTier = new float[5];
@@ -61,7 +47,7 @@ public static class Simulation
     public static void Run(int campaigns)
     {
         GD.Print($"=== LootFall balance report ({campaigns} campaigns x {Days} days) ===");
-        GD.Print("\nStyle                    tier 2  tier 3  tier 4  warrant  gold day 20  good buys  perfect   profit/customer at tier 1 2 3 4");
+        GD.Print("\nStyle                   tier 2  tier 3  tier 4  warrant  gold d20  show d20  good buys  perfect   profit/customer at tier 1 2 3 4");
         foreach (var style in Styles)
         {
             var logs = Enumerable.Range(0, campaigns).Select(i => Campaign(style, 1000 + i)).ToList();
@@ -72,43 +58,140 @@ public static class Simulation
                 return n == 0 ? "   -" : $"{logs.Sum(l => l.ProfitByTier[t]) / n,4:0}";
             });
             int bought = Math.Max(1, logs.Sum(l => l.Bought));
-            GD.Print($"{style.Name,-23} {Reach(2),6}  {Reach(3),6}  {Reach(4),6}  {Median(logs.Select(l => l.WonDay).ToList()),7}  " +
-                     $"{logs.Average(l => l.Gold20),11:0}  {100f * logs.Sum(l => l.GoodBuys) / bought,8:0}%  {100f * logs.Sum(l => l.Perfect) / bought,6:0}%   " +
-                     string.Join(" ", perTier));
+            GD.Print($"{style.Name,-22} {Reach(2),6}  {Reach(3),6}  {Reach(4),6}  {Median(logs.Select(l => l.WonDay).ToList()),7}  " +
+                     $"{logs.Average(l => l.Gold20),8:0}  {logs.Average(l => l.Exhibition20),8:0}  {100f * logs.Sum(l => l.GoodBuys) / bought,8:0}%  " +
+                     $"{100f * logs.Sum(l => l.Perfect) / bought,6:0}%   " + string.Join(" ", perTier));
         }
         GD.Print("\n(tier columns: median day the renovation was bought; '-' = fewer than half the campaigns got there in " + Days + " days)");
-        PrintSellers(campaigns);
+        PrintSellers();
     }
 
-    /// <summary>Per seller, for a careful player with every tool: how often a chest is worth buying, and the profit.</summary>
-    static void PrintSellers(int campaigns)
+    /// <summary>Per seller, at their own shop: how often a careful player with every tool buys, and the profit, against buying blind.</summary>
+    static void PrintSellers()
     {
-        GD.Print("\nSeller (careful player, all tools)   buys   profit/buy   profit/visit   missed by blind buyer");
+        GD.Print("\nSeller                 trade    buys   profit/buy   profit/visit   blind buyer/visit");
         var rng = new Random(5);
-        var state = new GameState(1) { Guided = false };
-        state.SkipTo(4, 1000);
-        state.BuyUpgrade(Upgrades.Get("magnet"));
         foreach (var seller in Sellers.All)
         {
-            int buys = 0, n = 400;
+            var state = new GameState(1) { Guided = false };
+            state.SkipTo(seller.Tier, 100000);
+            if (seller.Tier >= 3) state.BuyUpgrade(Upgrades.Get("lamp"));
+            if (seller.Tier >= 4) state.BuyUpgrade(Upgrades.Get("magnet"));
+            int buys = 0, n = 600;
             float profit = 0, blind = 0;
             for (int i = 0; i < n; i++)
             {
-                var visit = Market.CreateVisit(rng, seller, Math.Max(seller.Tier, 1));
-                var slip = Careful(visit, state);
-                blind += visit.Chest.Value - visit.Ask;
-                if (slip.Worth <= visit.Ask) continue;
+                var visit = Market.CreateVisit(rng, seller, seller.Tier);
+                blind += BlindValue(visit, rng);
+                visit = Market.CreateVisit(rng, seller, seller.Tier);
+                int? paid = Deal(visit, state, rng, Care.Tools, out _);
+                if (paid is not int price) continue;
                 buys++;
-                profit += visit.Chest.Value - visit.Ask;
+                profit += Open(visit, rng, Care.Tools) - price;
             }
-            GD.Print($"{seller.Name,-22} ({seller.ShakeWord,-6})  {100f * buys / n,5:0}%   {profit / Math.Max(1, buys),9:0}   {profit / n,11:0}   {blind / n,11:0}");
+            GD.Print($"{seller.Name,-22} {seller.Trade,-7} {100f * buys / n,5:0}%   {profit / Math.Max(1, buys),9:0}   {profit / n,11:0}   {blind / n,14:0}");
         }
+    }
+
+    static float BlindValue(Visit visit, Random rng)
+    {
+        int price = visit.Trade == Trade.Offer ? Math.Max(1, visit.Seller.Tier * 6) : visit.Ask;
+        if (visit.Trade == Trade.Offer)
+        {
+            var response = visit.Offer(price, rng);
+            if (response.Kind != ResponseKind.Accept) return 0;
+        }
+        return Open(visit, rng, Care.Blind) - price;
+    }
+
+    /// <summary>Handles the chest and trades for it in this style. Returns the price paid, or null if no deal.</summary>
+    static int? Deal(Visit visit, GameState state, Random rng, Care care, out Appraisal slip)
+    {
+        int tier = state.Tier;
+        var chest = visit.Chest;
+        bool hurried = visit.Seller.Patience > 0;
+        if (care == Care.Blind)
+        {
+            slip = new Appraisal(visit, tier);
+            int blindPrice = visit.Trade == Trade.Offer ? tier * 6 : visit.Ask;
+            if (state.Gold < blindPrice) return null;
+            if (visit.Trade != Trade.Offer) return Paid(visit, rng);
+            return visit.Offer(blindPrice, rng).Kind == ResponseKind.Accept ? blindPrice : null;
+        }
+
+        Hearing hearing;
+        if (care == Care.OneShake)
+        {
+            hearing = Hearing.Simulate(chest, new[] { Shake.Hard });
+            slip = new Appraisal(visit, tier);
+            foreach (var item in chest.HeardAt(Shake.Hard)) slip[item.Category] = Mark.Plain;
+        }
+        else
+        {
+            bool lamp = care == Care.Tools && state.Has("lamp");
+            var levels = hurried ? Quick : Every;
+            hearing = Hearing.Simulate(chest, levels, lamp);
+            if (care == Care.Tools && Strategy.ShouldUseMagnet(visit, hearing, state))
+                hearing = Hearing.Simulate(chest, levels, lamp, new[] { Shake.Gentle });
+            if (Strategy.ShouldDrop(visit, hearing, tier))
+            {
+                var (hollow, broke) = chest.Drop(rng);
+                hearing.HeardDrop(hollow, broke.Select(i => i.Category));
+            }
+            slip = hearing.Read(chest.Quality, tier);
+        }
+
+        int worth = slip.Worth;
+        switch (visit.Trade)
+        {
+            case Trade.Fixed:
+                return worth > visit.Ask && state.Gold >= visit.Ask ? Paid(visit, rng) : null;
+            case Trade.Haggle:
+            {
+                int offer = Math.Min(state.Gold, Strategy.FirstOffer(visit, worth));
+                if (offer <= 0 || worth <= offer) return null;
+                var response = visit.Offer(offer, rng);
+                if (response.Kind == ResponseKind.Accept) return response.Price;
+                if (response.Kind == ResponseKind.Counter && worth > visit.Ask && state.Gold >= visit.Ask) return Paid(visit, rng);
+                return null;
+            }
+            default:
+            {
+                if (worth <= 1) return null;
+                var response = visit.Offer(Math.Min(state.Gold, Strategy.FirstOffer(visit, worth)), rng);
+                if (response.Kind == ResponseKind.Accept) return response.Price;
+                if (response.Kind != ResponseKind.TryAgain) return null;
+                response = visit.Offer(Math.Min(state.Gold, Strategy.SecondOffer(worth)), rng);
+                return response.Kind == ResponseKind.Accept ? response.Price : null;
+            }
+        }
+    }
+
+    static int Paid(Visit visit, Random rng)
+    {
+        visit.Buy(rng);
+        return visit.PricePaid;
+    }
+
+    /// <summary>Picks the lock (careful players are better at it) and adds up what came out.</summary>
+    static int Open(Visit visit, Random rng, Care care)
+    {
+        var grade = PickGrade.Clean;
+        if (visit.Chest.Lock.Locked)
+        {
+            float roll = rng.NextFloat();
+            grade = care >= Care.Listens ? (roll < 0.3f ? PickGrade.Masterful : roll < 0.85f ? PickGrade.Clean : PickGrade.Forced)
+                : roll < 0.6f ? PickGrade.Clean : PickGrade.Forced;
+        }
+        if (grade == PickGrade.Forced) visit.Chest.Force();
+        return visit.Chest.Everything.Sum(i => (int)MathF.Round(i.Value * Picks.Multiplier(grade)));
     }
 
     static Log Campaign(Style style, int seed)
     {
         var state = new GameState(seed) { Guided = false };
         var log = new Log();
+        var rng = new Random(seed);
         for (int day = 1; day <= Days; day++)
         {
             state.StartDay();
@@ -117,39 +200,52 @@ public static class Simulation
                 var visit = state.Current;
                 int tier = state.Tier;
                 log.CustomersByTier[tier]++;
-                var slip = style.Read(visit, state);
-                bool buy = state.Gold >= visit.Ask && (style.BuysAll || slip.Worth > visit.Ask);
-                if (!buy)
+                int? paid = Deal(visit, state, rng, style.Care, out var slip);
+                if (paid is not int price)
                 {
-                    visit.Pass(state.Rng);
+                    if (visit.Deciding) visit.Pass(rng);
                     state.Pass();
                     continue;
                 }
-                visit.Buy(state.Rng);
                 state.Buy(visit, slip);
-                int value = visit.Chest.Value;
+                bool perfect = slip.Check(visit.Chest).Perfect;
+                int value = Open(visit, rng, style.Care);
                 state.Earn(value);
                 log.Bought++;
-                if (value > visit.PricePaid) log.GoodBuys++;
-                if (slip.Check(visit.Chest).Perfect) log.Perfect++;
-                log.ProfitByTier[tier] += value - visit.PricePaid;
+                if (value > price) log.GoodBuys++;
+                if (perfect) log.Perfect++;
+                log.ProfitByTier[tier] += value - price;
+                foreach (var item in visit.Chest.Everything)
+                {
+                    state.Collect(item);
+                    if (!style.Collects) continue;
+                    var (keep, replace) = Strategy.ShouldKeep(state, item, item.Value);
+                    if (!keep) continue;
+                    if (replace != null) state.SellFromDisplay(replace);
+                    state.Keep(item, item.Value);
+                }
             }
             state.EndDay();
-            BuyUpgrades(state, style.BuysTools);
+            BuyUpgrades(state, style.Care == Care.Tools, style.Collects);
             for (int t = 2; t <= 4; t++)
                 if (log.ReachedTier[t] == 0 && state.Tier >= t) log.ReachedTier[t] = day;
             if (log.WonDay == 0 && state.Won) log.WonDay = day;
-            if (day == 20) log.Gold20 = state.Gold;
+            if (day == 20)
+            {
+                log.Gold20 = state.Gold;
+                log.Exhibition20 = state.Exhibition;
+            }
         }
         return log;
     }
 
     /// <summary>Buys upgrades in order while keeping some cash for tomorrow's chests.</summary>
-    public static void BuyUpgrades(GameState state, bool tools = true)
+    public static void BuyUpgrades(GameState state, bool tools = true, bool cabinets = true)
     {
         foreach (var key in BuyOrder)
         {
             if (!tools && key is "lamp" or "magnet") continue;
+            if (!cabinets && key.StartsWith("cabinet")) continue;
             var upgrade = Upgrades.Get(key);
             int reserve = key == "warrant" ? 0 : 10 + 15 * state.Tier;
             if (state.Gold - upgrade.Cost >= reserve && state.CanBuy(upgrade)) state.BuyUpgrade(upgrade);

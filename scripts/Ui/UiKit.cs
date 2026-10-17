@@ -122,8 +122,10 @@ public static class UiKit
     }
 
     /// <summary>The 32px icon for a kind of thing (coins, metal...), centered on <paramref name="center"/>.</summary>
-    public static Sprite2D MakeKindIcon(Core.Category category, Vector2 center) =>
-        MakeSprite($"res://assets/ui/kinds/{category.ToString().ToLowerInvariant()}.png", center, 1);
+    public static Sprite2D MakeKindIcon(Core.Category category, Vector2 center) => MakeKindIcon(category.ToString().ToLowerInvariant(), center);
+
+    /// <summary>A 32px row icon by name, e.g. "hidden" for a false bottom.</summary>
+    public static Sprite2D MakeKindIcon(string name, Vector2 center) => MakeSprite($"res://assets/ui/kinds/{name}.png", center, 1);
 
     /// <summary>A chunky pixel tick (right) or cross (wrong), 24px at scale 1, centered on <paramref name="center"/>.</summary>
     public static Painter MakeCheck(bool right, Vector2 center, int scale)

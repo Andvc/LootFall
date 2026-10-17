@@ -26,6 +26,9 @@ public sealed class Purchase
     public Chest Chest => Visit.Chest;
     public int Paid => Visit.PricePaid;
 
+    /// <summary>How the lock came open (Clean if there was none).</summary>
+    public PickGrade Grade { get; set; } = PickGrade.Clean;
+
     public Purchase(Visit visit, Appraisal slip)
     {
         Visit = visit;
@@ -36,13 +39,22 @@ public sealed class Purchase
 /// <summary>How the day went, for the end-of-day summary.</summary>
 public sealed class DayStats
 {
-    public int Bought, Passed, Spent, Earned, PerfectReads;
+    public int Bought, Passed, Spent, Earned, PerfectReads, NewFinds;
     public int Profit => Earned - Spent;
 }
 
 public sealed class GameState
 {
     public const int StartingGold = 40;
+
+    /// <summary>Display space you start with: a shelf behind the counter.</summary>
+    public const int ShelfSlots = 2;
+
+    /// <summary>Exhibition points per extra customer a day (up to two).</summary>
+    public const int ExhibitionPerCustomer = 10;
+
+    /// <summary>The Crown wants to see a collection before it grants the warrant.</summary>
+    public const int WarrantExhibition = 40;
 
     /// <summary>If you end a day with less than this, Bram tops you up to it.</summary>
     public const int Allowance = 20;
@@ -61,6 +73,24 @@ public sealed class GameState
     /// <summary>Regulars you've met: their habits go in the ledger.</summary>
     public HashSet<string> Met { get; } = new();
 
+    /// <summary>Every kind of thing you've found, by its collection name.</summary>
+    public HashSet<string> Found { get; } = new();
+
+    /// <summary>What you kept to show off in the shop instead of selling.</summary>
+    public List<Item> Display { get; } = new();
+
+    public int DisplaySlots => ShelfSlots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Slots);
+    public bool DisplayFull => Display.Count >= DisplaySlots;
+
+    /// <summary>The exhibition: what your displayed things are worth to visitors' eyes, not their purses.</summary>
+    public int Exhibition => Display.Sum(i => i.Prestige);
+
+    /// <summary>People come to see the exhibition: one more customer a day per so many points, up to two.</summary>
+    public int ExhibitionCustomers => Math.Min(2, Exhibition / ExhibitionPerCustomer);
+
+    /// <summary>And a fine exhibition draws a better class of customer: the chance a chest is one colour better.</summary>
+    public float BetterChests => MathF.Min(0.4f, Exhibition * 0.01f);
+
     readonly HashSet<string> _owned = new();
 
     public List<Visit> Queue { get; } = new();
@@ -77,11 +107,12 @@ public sealed class GameState
 
     public bool Has(string upgrade) => _owned.Contains(upgrade);
 
-    public int CustomersPerDay => 3 + Tier + (Has("sign") ? 1 : 0);
+    public int CustomersPerDay => 3 + Tier + (Has("sign") ? 1 : 0) + ExhibitionCustomers;
 
     public bool Won => Has("warrant");
 
-    public bool CanBuy(Upgrade upgrade) => Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade);
+    public bool CanBuy(Upgrade upgrade) => Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade) &&
+                                           (upgrade.Key != "warrant" || Exhibition >= WarrantExhibition);
 
     public void BuyUpgrade(Upgrade upgrade)
     {
@@ -125,7 +156,7 @@ public sealed class GameState
             var fresh = sellers.Where(s => Queue.All(v => v.Seller != s)).ToArray();
             var pool = fresh.Length > 0 ? fresh : sellers.Where(s => Queue[^1].Seller != s).ToArray();
             var seller = Rng.PickWeighted(pool, s => s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 0.6f : 0.15f);
-            Queue.Add(Market.CreateVisit(Rng, seller, Tier));
+            Queue.Add(Market.CreateVisit(Rng, seller, Tier, BetterChests));
         }
     }
 
@@ -137,9 +168,11 @@ public sealed class GameState
     static IEnumerable<Visit> FirstDay(Random rng)
     {
         Visit Scripted(string seller, int ask, params Category[] kinds) =>
-            Market.Price(rng, Sellers.Get(seller), new Chest(kinds.Select(k => new Item(k, 1)), Sellers.Get(seller).Skin), 1, ask);
+            Market.Price(rng, Sellers.Get(seller), new Chest(kinds.Select(k => new Item(k, Rarity.Common))), 1, ask, Trade.Fixed);
 
-        yield return Scripted("tam", 4, Category.Coins);
+        // Tam names a price today, so the first lesson is only about listening; from tomorrow he asks you to name one.
+        yield return Market.Price(rng, Sellers.Get("tam"), new Chest(new[] { new Item(Category.Coins, Rarity.Common) }), 1, 4, Trade.Fixed,
+            "Found it by the river. I didn't shake it, it might break! Is {price} okay?");
         yield return Scripted("penn", 3, Category.Cloth);
         yield return Scripted("hob", 7, Category.Coins, Category.Metal);
         yield return Scripted("mags", 7, Category.Metal);
@@ -164,6 +197,31 @@ public sealed class GameState
         Today.Bought++;
         Today.Spent += visit.PricePaid;
         return new Purchase(visit, slip);
+    }
+
+    /// <summary>Notes a find in the collection. True the first time this thing turns up.</summary>
+    public bool Collect(Item item)
+    {
+        if (item.Broken || !Found.Add(item.Entry)) return false;
+        Today.NewFinds++;
+        return true;
+    }
+
+    /// <summary>Puts something on display instead of selling it: you give up its price.</summary>
+    public bool Keep(Item item, int value)
+    {
+        if (!item.Displayable || DisplayFull || Gold < value) return false;
+        Display.Add(item);
+        Gold -= value;
+        Today.Earned -= value;
+        return true;
+    }
+
+    /// <summary>Takes something off display and sells it.</summary>
+    public void SellFromDisplay(Item item)
+    {
+        if (!Display.Remove(item)) return;
+        Gold += item.Value;
     }
 
     public void Pass() => Today.Passed++;

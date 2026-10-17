@@ -2,7 +2,8 @@
 
 A small game about the satisfaction of opening treasure chests. You inherit a roadside stall; people bring you
 chests and tell you what they heard when they shook them. Shake each one yourself, gently, firmly and hard, find what
-they missed, and open it on the spot. Grow the stall into the finest shop in the kingdom.
+they missed, trade for it, and open it on the spot. Keep the best for your exhibition and grow the stall into the
+finest shop in the kingdom.
 
 **Status:** playable prototype. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
 Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam.
@@ -10,17 +11,21 @@ Design rationale: [docs/design.md](docs/design.md).
 
 ## The loop
 
-1. **A customer brings a chest** and says how hard they shook it and what they heard. Their price is for that.
+1. **A customer brings a chest** and says how hard they shook it and what they heard. The chest's colour (wood,
+   green, blue, purple) says how good things inside tend to be. Each customer has one habit worth learning.
 2. **Shake it yourself.** How fast you drag is how hard you shake. Light things (coins jingle, bottles slosh,
    jewelry tinkles) rattle at a gentle shake; metal only clanks at a firm one, and its clanking drowns out anything
-   delicate; soft things (cloth flumps, paper rustles) only sound at a hard shake. The meter under the chest records
-   what you heard at each strength.
-3. **Correct the slip and decide.** Tick what's in there, untick what isn't. The slip adds up what you ticked
-   against the asking price. Buy, or pass and see what was inside.
-4. **Open it right away:** hold to wrench the lid, and watch everything fly out with a tick or a cross against your
-   slip, the profit stamped across the screen and why the seller missed it.
-5. **End of day:** spend your earnings on renovations (each brings richer customers and one new thing to listen for)
-   and two tools: the Witchlight (magic glows) and the Magnet (iron goes quiet, fakes included).
+   delicate; soft things (cloth flumps, paper rustles) only sound at a hard shake. Lift it high and let go to drop it:
+   a hollow boom means a false bottom (but glass may break).
+3. **Correct the slip and trade.** Tick what's in there, untick what isn't; the slip adds up what such things are
+   worth on average in a chest of that colour. Then pay their price, haggle, or name your own, depending on who it is.
+   Pass, and they show you what was inside.
+4. **Pick the lock and open it:** hold to wrench the lid, and watch everything fly out with its true quality, a tick
+   or a cross against your slip, the profit stamped across the screen and why the seller missed it. Keep grand
+   things for your exhibition instead of selling them.
+5. **End of day:** spend your earnings on renovations (each brings richer customers and something new), tools (the
+   Witchlight shows magic, the Magnet silences iron and fakes, Fine Lockpicks), and cabinets. The exhibition draws
+   more and better customers, and the Crown wants to see one before it grants the Royal Warrant.
 
 Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each.
 
@@ -29,10 +34,14 @@ Day one is guided: Uncle Bram, who's handing you the stall, brings in four custo
 | Action | Input |
 |---|---|
 | Shake a chest | Drag it with the left mouse button: slowly for gentle, fast for hard |
+| Drop it | Lift it high and let go |
 | Tick or untick a kind on the slip | Click its row (again to mark it magic, once you have the Witchlight) |
+| Make an offer | Set the slider, then Offer |
 | Witchlight, Magnet | Buttons on the right, once you own them |
-| Ledger | L, or the Ledger button |
+| Ledger (sounds, regulars, collection) | L, or the Ledger button |
+| Pick a lock | Space or left click when the pick is in the green; F for the crowbar |
 | Open the chest | Hold Space or the left mouse button |
+| Keep something for display | Its Keep button after an opening; sell it back from the exhibition at day end |
 | Next tip from Bram | Click his box |
 
 ## Development
@@ -41,9 +50,9 @@ The code is split so the game rules can be tested without the engine:
 
 | Folder | What's in it |
 |---|---|
-| `scripts/Core` | Pure C# rules: kinds of things and the shaking rules, chests, sellers and what they hear, the appraisal slip, a careful player's read, upgrades, the shop's progress, Bram's hints. No Godot types. |
-| `scripts/Phases` | The screens of the loop (counter, opening, end of day). |
-| `scripts/Ui` | Visuals: the shakeable chest, the shake meter, the ledger, Bram, the seller, HUD, particles and styling. |
+| `scripts/Core` | Pure C# rules: kinds, qualities and the shaking rules, chests, sellers and how they judge and trade, the appraisal slip, a careful player's read and strategy, upgrades, the shop's progress and exhibition, Bram's hints. No Godot types. |
+| `scripts/Phases` | The screens of the loop (counter, lockpicking, opening, end of day). |
+| `scripts/Ui` | Visuals: the shakeable chest, the ledger, Bram, the seller, HUD, particles and styling. |
 | `scripts/Audio` | Recorded sounds, the synthesized slosh, and placeholder effects. |
 | `scripts/Debug` | Balance simulation, the shake test and an autoplay bot for screenshots and recordings. |
 | `assets/` | Sprites, portraits, backgrounds, sounds, icons, UI frames and font, generated by `tools/import_art.py` from CC0 packs. |

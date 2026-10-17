@@ -4,15 +4,33 @@ using System.Linq;
 namespace LootFall.Core;
 
 /// <summary>
-/// What the player has heard from one chest: which sounds came at which shake, with the magnet on or off, and which
-/// glowed under the witchlight. The counter screen fills it from real shaking; the balance simulation fills it from the
-/// rules in <see cref="Chest"/>. <see cref="Read"/> is how a careful player turns it into an appraisal slip.
+/// What the player has heard from one chest: which sounds came at which shake, with the magnet on or off, which
+/// glowed under the witchlight, and what a drop to the floor sounded like. The counter screen fills it from real
+/// shaking; the balance simulation fills it from the rules in <see cref="Chest"/>. <see cref="Read"/> is how a careful
+/// player turns it into an appraisal slip.
 /// </summary>
 public sealed class Hearing
 {
     readonly HashSet<(Shake Level, bool Magnet)> _tried = new();
     readonly HashSet<(Shake Level, bool Magnet, Category Category)> _heard = new();
     readonly HashSet<Category> _glowed = new();
+    readonly HashSet<Category> _broke = new();
+
+    /// <summary>The chest has been dropped, and whether it boomed hollow.</summary>
+    public bool Dropped { get; private set; }
+    public bool Hollow { get; private set; }
+
+    public void HeardDrop(bool hollow, IEnumerable<Category> broke)
+    {
+        Dropped = true;
+        Hollow |= hollow;
+        _broke.UnionWith(broke);
+    }
+
+    /// <summary>You heard glass break in there when it hit the floor.</summary>
+    public bool Broke(Category category) => _broke.Contains(category);
+
+    public bool HeardAny(Category category) => _heard.Any(h => h.Category == category);
 
     public void Tried(Shake level, bool magnet)
     {
@@ -37,16 +55,17 @@ public sealed class Hearing
 
     /// <summary>
     /// A careful read: whatever made a sound is in there; anything that glowed is magic; a jingle or tinkle that goes
-    /// quiet once the magnet is on is gilded iron, so it doesn't count.
+    /// quiet once the magnet is on is gilded iron, so it doesn't count; glass you heard break is worth nothing now; a
+    /// hollow boom is a false bottom.
     /// </summary>
-    public Appraisal Read(int grade)
+    public Appraisal Read(Rarity chest, int tier)
     {
-        var slip = new Appraisal(grade);
+        var slip = new Appraisal(chest, tier) { Hidden = Hollow };
         foreach (var category in _heard.Select(h => h.Category).Distinct())
         {
             var def = Categories.Get(category);
             bool silencedByMagnet = !def.Iron && _tried.Any(t => t.Magnet && t.Level >= def.StirsAt) && !_heard.Any(h => h.Magnet && h.Category == category);
-            if (!silencedByMagnet) slip[category] = Glowed(category) ? Mark.Magic : Mark.Plain;
+            if (!silencedByMagnet && !Broke(category)) slip[category] = Glowed(category) ? Mark.Magic : Mark.Plain;
         }
         return slip;
     }

@@ -11,8 +11,9 @@ namespace LootFall.Phases;
 /// <summary>
 /// The payoff, right after you buy. Hold to wrench the lid: the chest rumbles, glows toward the best thing inside and
 /// the camera leans in. Then it bursts: the lid flies off and everything comes flying out, landing on the table one by
-/// one with its sound, its price and a tick or a cross against your slip. Last, the verdict slams down (profit or
-/// loss), the coins fly into your purse, and a perfect read gets its banner.
+/// one with its sound, its true quality and price, and a tick or a cross against your slip; a false bottom gives up its
+/// secret last. Then the verdict slams down (profit or loss), the coins fly into your purse, and a perfect read gets
+/// its banner. Anything first found goes in the collection, and anything grand can be kept for display.
 /// </summary>
 public partial class OpeningPhase : Phase
 {
@@ -36,6 +37,7 @@ public partial class OpeningPhase : Phase
     float _raysAlpha, _raysAngle, _time;
     Label _prompt, _worthLabel;
     CpuParticles2D _sparks;
+    readonly List<(Item Item, Vector2 At, int Value)> _landed = new();
 
     public float Progress { get; private set; }
     public MentorView Mentor => _mentor;
@@ -45,8 +47,7 @@ public partial class OpeningPhase : Phase
     {
         _purchase = State.Opening;
         _report = _purchase.Slip.Check(_purchase.Chest);
-        // Worst first, best last: the reveal climbs.
-        _top = _purchase.Chest.Items.Max(i => i.Rarity);
+        _top = _purchase.Chest.Everything.Max(i => i.Rarity);
 
         Add(UiKit.MakeBackdrop("cellar_night", 0.4f));
         _rays = Add(new Painter(DrawRays) { Position = SeamPos, Material = Fx.Additive() });
@@ -165,12 +166,23 @@ public partial class OpeningPhase : Phase
     async Task FlyOut()
     {
         _step = Step.Reveal;
-        var reads = _report.Items.OrderBy(r => r.Item.Value).ToList();
+        // Worst first, best last, so the reveal climbs; whatever was under a false bottom comes out after everything else.
+        var reads = _report.Items.OrderBy(r => r.Hidden).ThenBy(r => r.Item.Value).ToList();
         int n = reads.Count;
+        float spacing = n >= 5 ? 196 : 232;
         for (int i = 0; i < n; i++)
         {
             bool last = i == n - 1;
-            if (last && n > 1 && reads[i].Item.Rarity >= Rarity.Rare)
+            if (reads[i].Hidden)
+            {
+                _chest.Wobble(1f);
+                Sfx.Play("hollow", 1.2f, -2);
+                Sfx.Play("strain", 1.1f, -2);
+                FloatText("...wait. A false bottom!", SeamPos + new Vector2(0, -150), Palette.Gold, 32);
+                await Wait(0.9);
+                if (!Alive) return;
+            }
+            else if (last && n > 1 && reads[i].Item.Rarity >= Rarity.Rare)
             {
                 // A beat before the best thing.
                 _chest.Wobble(0.8f);
@@ -178,13 +190,15 @@ public partial class OpeningPhase : Phase
                 await Wait(0.45);
                 if (!Alive) return;
             }
-            Launch(reads[i], 640 + (i - (n - 1) / 2f) * 232, i);
+            Launch(reads[i], 640 + (i - (n - 1) / 2f) * spacing, i);
             await Wait(last ? 0.95 : 0.38);
             if (!Alive) return;
         }
-        for (int g = 0; g < _report.Ghosts.Count; g++)
+        var ghosts = _report.Ghosts.Select(c => $"no {Categories.Get(c).Name.ToLowerInvariant()}?").ToList();
+        if (_report.GhostHidden) ghosts.Add("no false bottom?");
+        for (int g = 0; g < ghosts.Count; g++)
         {
-            var ghost = UiKit.MakeLabel($"no {Categories.Get(_report.Ghosts[g]).Name.ToLowerInvariant()}?", 16, Palette.Bad, HorizontalAlignment.Center, outline: 4)
+            var ghost = UiKit.MakeLabel(ghosts[g], 16, Palette.Bad, HorizontalAlignment.Center, outline: 4)
                 .Place(960, 380 + g * 26, 280, 20);
             Add(ghost);
             Add(UiKit.MakeCheck(false, new Vector2(1000, 390 + g * 26), 1));
@@ -247,11 +261,31 @@ public partial class OpeningPhase : Phase
             Sfx.Play("lose", 1.2f, -6);
             FloatText("FAKE!", at + new Vector2(0, -70), Palette.Bad, 24);
         }
+        if (item.Broken)
+        {
+            Sfx.Play("shatter", 1.1f, -6);
+            sprite.Modulate = new Color(0.5f, 0.45f, 0.5f);
+        }
+        // Better or worse than the chest's colour promised: the surprise.
+        var chestColour = _purchase.Chest.Quality;
+        if (!item.Fake && !item.Broken && item.Quality > chestColour)
+        {
+            Sfx.Play("reveal_big", 1f + 0.1f * (item.Quality - chestColour), -4);
+            FloatText("BETTER THAN EXPECTED!", at + new Vector2(0, -96), Palette.Of(item.Quality), 16);
+        }
+        bool isNew = State.Collect(item);
+        int worth = (int)MathF.Round(item.Value * Picks.Multiplier(_purchase.Grade));
+        _landed.Add((item, at, worth));
 
-        var name = Add(UiKit.MakeLabel(item.Name, 16, item.Magic ? Palette.Magic : Palette.Text, HorizontalAlignment.Center, outline: 4)
-            .Place(at.X - 110, 572, 220, 20));
-        var value = Add(UiKit.MakeLabel($"{item.Value}g", 24, Palette.Of(item.Rarity), HorizontalAlignment.Center, outline: 4)
-            .Place(at.X - 70, 594, 140, 30));
+        var name = Add(UiKit.MakeLabel(item.Name, 16, Palette.Of(item.Rarity), HorizontalAlignment.Center, outline: 4)
+            .Place(at.X - 110, 568, 220, 20));
+        if (isNew)
+        {
+            var badge = Add(UiKit.MakeLabel("NEW!", 16, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(at.X - 40, 548, 80, 20));
+            badge.ZIndex = 6;
+        }
+        var value = Add(UiKit.MakeLabel($"{worth}g", 24, Palette.Of(item.Rarity), HorizontalAlignment.Center, outline: 4)
+            .Place(at.X - 70, 588, 140, 30));
         value.PivotOffset = new Vector2(70, 15);
         value.Scale = Vector2.One * 1.8f;
         value.CreateTween().TweenProperty(value, "scale", Vector2.One, 0.25f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
@@ -259,7 +293,7 @@ public partial class OpeningPhase : Phase
         name.CreateTween().TweenProperty(name, "modulate", Colors.White, 0.2f);
 
         // The mark against the slip stamps down a moment later.
-        var mark = Add(UiKit.MakeCheck(read.Right, new Vector2(at.X + 64, 609), 1));
+        var mark = Add(UiKit.MakeCheck(read.Right, new Vector2(at.X + 64, 603), 1));
         mark.Scale = Vector2.One * 3;
         mark.Modulate = Colors.Transparent;
         var stamp = mark.CreateTween();
@@ -270,12 +304,13 @@ public partial class OpeningPhase : Phase
             Sfx.Play(read.Right ? "blip" : "miss", read.Right ? 1.2f : 1f, -4);
         }));
         stamp.TweenProperty(mark, "scale", Vector2.One, 0.14f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
-        if (read.Note.Length > 0)
-            Add(UiKit.MakeLabel(read.Note, 16, read.Right ? Palette.Good : Palette.Warn, HorizontalAlignment.Center, outline: 4)
-                .Place(at.X - 110, 626, 220, 20));
+        string quality = item.Fake || item.Broken ? "" : Categories.QualityName(item.Quality);
+        string note = string.Join(", ", new[] { read.Note, quality }.Where(s => s.Length > 0));
+        Add(UiKit.MakeLabel(note, 16, read.Right ? Palette.Good : Palette.Warn, HorizontalAlignment.Center, outline: 4)
+            .Place(at.X - 110, 618, 220, 20));
 
         int from = _worth;
-        _worth += item.Value;
+        _worth += worth;
         var count = CreateTween();
         count.TweenMethod(Callable.From<float>(v => _worthLabel.Text = $"{Mathf.RoundToInt(v)}g"), (float)from, (float)_worth, 0.4f)
             .SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
@@ -296,7 +331,7 @@ public partial class OpeningPhase : Phase
 
         var color = profit > 0 ? Palette.Good : profit < 0 ? Palette.Bad : Palette.Text;
         string text = profit > 0 ? $"PROFIT +{profit}g" : profit < 0 ? $"LOSS {profit}g" : "BROKE EVEN";
-        var stamp = Add(UiKit.MakePanel(color).Place(400, 104, 480, 76));
+        var stamp = Add(UiKit.MakePanel(color).Place(320, 104, 480, 76));
         stamp.ZIndex = 10;
         stamp.AddChild(UiKit.MakeLabel(text, 40, color, HorizontalAlignment.Center, outline: 6).Place(0, 14, 480, 50));
         stamp.PivotOffset = new Vector2(240, 38);
@@ -323,20 +358,82 @@ public partial class OpeningPhase : Phase
             await Wait(0.35);
             if (!Alive) return;
             var banner = Add(UiKit.MakePanel(Palette.Gold).Place(-400, 188, 360, 44));
+            banner.PivotOffset = Vector2.Zero;
             banner.ZIndex = 10;
             banner.AddChild(UiKit.MakeLabel("PERFECT READ", 24, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(0, 8, 360, 30));
-            banner.CreateTween().TweenProperty(banner, "position:x", 460f, 0.35f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+            banner.CreateTween().TweenProperty(banner, "position:x", 380f, 0.35f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
             Sfx.Play("fanfare", 1.1f, -4);
-            Fx.Burst(this, new Vector2(640, 210), Palette.Gold, 70, 360f);
+            Fx.Burst(this, new Vector2(560, 210), Palette.Gold, 70, 360f);
         }
 
-        Add(UiKit.MakeLabel(visit.Explain(), 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(200, 240, 880, 64));
+        string grade = _purchase.Grade switch
+        {
+            PickGrade.Masterful => " Masterful pick: everything +25%.",
+            PickGrade.Forced => " Forced open: everything -10%.",
+            _ => "",
+        };
+        Add(UiKit.MakeLabel(visit.Explain() + grade, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(160, 238, 800, 64));
         bool last = State.Queue.Count == 0;
-        Add(UiKit.MakeButton(last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next).Place(500, 656, 280, 52));
+        Add(UiKit.MakeButton(last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next).Place(1000, 300, 260, 52));
+        foreach (var (item, at, worth) in _landed) AddKeepButton(item, at, worth);
 
         _mentor = Add(new MentorView { Position = new Vector2(812, 72), ZIndex = 20 });
-        if (State.FirstTime("opened")) _mentor.Say(Hints.Get("opened"));
+        Teach("opened");
+        if (_landed.Any(l => l.Item.Quality != _purchase.Chest.Quality && l.Item.Displayable)) Teach("quality");
+        if (_landed.Any(l => l.Item.Displayable && l.Item.Prestige >= 4)) Teach("keep");
         Game.Moment("08_verdict", 1.2);
+    }
+
+    /// <summary>
+    /// A button under something grand enough to show: keep it for display instead of selling it. You give up its price;
+    /// the exhibition draws more and better customers, and the Crown wants to see one.
+    /// </summary>
+    void AddKeepButton(Item item, Vector2 at, int worth)
+    {
+        if (!item.Displayable) return;
+        var button = UiKit.MakeButton($"Keep (-{worth}g)", Palette.Magic.Darkened(0.3f), 16).Place(at.X - 80, 644, 160, 34);
+        button.Pressed += () =>
+        {
+            if (!State.Keep(item, worth)) return;
+            button.Text = "On display";
+            button.Disabled = true;
+            Sfx.Play("sting", 1.4f, -4);
+            Game.Hud.SetGold(State.Gold);
+            FloatText($"+{item.Prestige} exhibition", at + new Vector2(0, -80), Palette.Magic, 16);
+            Teach("kept");
+            RefreshKeep();
+        };
+        _keepButtons.Add((button, item, worth));
+        Add(button);
+        RefreshKeep();
+    }
+
+    readonly List<(Button Button, Item Item, int Worth)> _keepButtons = new();
+
+    void RefreshKeep()
+    {
+        foreach (var (button, item, worth) in _keepButtons)
+        {
+            if (State.Display.Contains(item)) continue;
+            button.Disabled = State.DisplayFull || State.Gold < worth;
+            button.Text = State.DisplayFull ? "Display full" : $"Keep (-{worth}g)";
+        }
+    }
+
+    /// <summary>Keeps one of the things that came out for display (the bot uses this).</summary>
+    public bool Keep(Item item)
+    {
+        var entry = _keepButtons.FirstOrDefault(k => k.Item == item);
+        if (entry.Button == null || entry.Button.Disabled) return false;
+        entry.Button.EmitSignal(BaseButton.SignalName.Pressed);
+        return State.Display.Contains(item);
+    }
+
+    public IEnumerable<(Item Item, int Worth)> Revealed => _landed.Select(l => (l.Item, l.Value));
+
+    void Teach(string key)
+    {
+        if (State.FirstTime(key)) _mentor?.Say(Hints.Get(key));
     }
 
     /// <summary>Coins arc from the stamp into the purse in the corner, one tick each, and the purse counts up.</summary>

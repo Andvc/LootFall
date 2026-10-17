@@ -17,6 +17,9 @@ public partial class ChestView : Node2D
     /// <summary>Sprite set under res://assets/sprites/chest/ (red, blue, purple, wood, green).</summary>
     public string Skin = "red";
 
+    /// <summary>The lock plate's colour, by maker; null leaves the plain brass hasp of an unlocked chest.</summary>
+    public Color? LockColor;
+
     /// <summary>0..1 continuous jitter while the lid strains.</summary>
     public float Rumble;
 
@@ -35,7 +38,7 @@ public partial class ChestView : Node2D
     readonly Random _rng = new();
     Node2D _rig;
     Sprite2D _lid, _body;
-    Painter _shadow, _backGlow, _seamLight;
+    Painter _shadow, _backGlow, _seamLight, _lidLock, _bodyLock;
     float _time;
     float _wobble;
     bool _lidDetached, _open;
@@ -61,6 +64,12 @@ public partial class ChestView : Node2D
             Scale = Vector2.One * PixelSize,
         };
         _seamLight = new Painter(DrawSeamLight) { Material = Fx.Additive() };
+
+        // Lock plate overlays, drawn in art pixels on the sprites they belong to.
+        _lidLock = new Painter(DrawLidLock);
+        _bodyLock = new Painter(DrawBodyLock);
+        _lid.AddChild(_lidLock);
+        _body.AddChild(_bodyLock);
 
         _rig.AddChild(_shadow);
         _rig.AddChild(_backGlow);
@@ -88,6 +97,7 @@ public partial class ChestView : Node2D
         _open = true;
         _body.Texture = Load("open");
         _body.Position = new Vector2(-Width / 2, -OpenRimRows * PixelSize);
+        _bodyLock.Visible = false;
     }
 
     public override void _Process(double delta)
@@ -116,6 +126,21 @@ public partial class ChestView : Node2D
         // Stepped oval: three flat rectangles read as a pixel-art shadow.
         p.DrawRect(new Rect2(-w, y - PixelSize * 0.5f, w * 2, PixelSize), new Color(0, 0, 0, 0.35f));
         p.DrawRect(new Rect2(-w * 0.85f, y - PixelSize, w * 1.7f, PixelSize * 2), new Color(0, 0, 0, 0.2f));
+    }
+
+    // The lock sits on the gold band: lid row 6 (cols 7-9), body row 0 (cols 6 and 9, keyhole 7-8), body row 1 (cols 6-9).
+    void DrawLidLock(Painter p)
+    {
+        if (LockColor is not Color c) return;
+        p.DrawRect(new Rect2(7 - ArtWidth / 2f, 6 - LidRows / 2f, 3, 1), c);
+    }
+
+    void DrawBodyLock(Painter p)
+    {
+        if (LockColor is not Color c) return;
+        p.DrawRect(new Rect2(6, 0, 1, 1), c);
+        p.DrawRect(new Rect2(9, 0, 1, 1), c);
+        p.DrawRect(new Rect2(6, 1, 4, 1), c.Darkened(0.3f));
     }
 
     void DrawBackGlow(Painter p)

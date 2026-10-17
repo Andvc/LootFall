@@ -34,15 +34,16 @@ ITEMS = {
     # Coins
     "copper_pouch": 21, "silver_crowns": 20, "gold_doubloons": 19,
     # Metal
-    "rusty_knife": 31, "soldiers_helm": 1, "steel_sword": 78, "knights_gauntlet": 59, "rune_blade": 67,
+    "rusty_knife": 31, "soldiers_helm": 1, "steel_sword": 78, "knights_gauntlet": 59, "royal_rapier": 53, "rune_blade": 67,
     # Cloth
-    "wool_coat": 43, "golden_mantle": 76, "wizard_hat": 44,
+    "wool_coat": 43, "golden_mantle": 76, "royal_robe": 50, "wizard_hat": 44,
     # Bottles
-    "ale_bottle": 61, "honey_jar": 63, "mana_potion": 12,
+    "ale_bottle": 61, "honey_jar": 63, "ambrosia": 47, "mana_potion": 12,
     # Paper
-    "love_letters": 25, "merchants_ledger": 62, "treasure_map": 22, "spell_scroll": 23,
+    "love_letters": 25, "merchants_ledger": 62, "treasure_map": 22, "illuminated_codex": 42, "spell_scroll": 23,
     # Jewelry
-    "brass_ring": 38, "gold_ring": 68, "sunfire_diamond": 57, "moonstone_pendant": 39,
+    "brass_ring": 38, "silver_locket": 36, "gold_ring": 68, "sunfire_diamond": 57, "jeweled_chalice": 26,
+    "moonstone_pendant": 39,
 }
 
 # Sprites greyed toward iron or dust: key -> (sprite number, how much grey, 0..1).
@@ -50,10 +51,16 @@ ITEMS = {
 WORN_ITEMS = {"gilded_slugs": (19, 0.55), "paste_diamond": (57, 0.6), "moth_eaten_cloak": (81, 0.6)}
 
 # Sprites with their hue turned: key -> (sprite number, hue shift in degrees, saturation multiplier).
-TINTED_ITEMS = {"silk_cloak": (81, 180, 0.8), "vintage_brandy": (61, -25, 1.3), "fairy_gold": (19, 110, 1.1)}
+TINTED_ITEMS = {
+    "silk_cloak": (81, 180, 0.8), "vintage_brandy": (61, -25, 1.3), "fairy_gold": (19, 110, 1.1),
+    "elven_wine": (63, 200, 1.1), "royal_charter": (24, 15, 1.4),
+}
 
 # Sprites made of a few copies of another, for "a lot of it": key -> (sprite number, [(x, y) offsets]).
-PILED_ITEMS = {"royal_gold": (19, [(0, 6), (9, 6), (4, 0)])}
+PILED_ITEMS = {
+    "royal_gold": (19, [(0, 6), (9, 6), (4, 0)]),
+    "dragon_hoard": (19, [(0, 12), (9, 12), (18, 12), (4, 6), (13, 6), (9, 0)]),
+}
 
 BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 
@@ -61,8 +68,8 @@ BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 PORTRAITS = {
     "hob": 22, "penn": 19, "mags": 5, "tam": 25,           # tier 1: the village
     "brask": 18, "tobias": 10, "marta": 4,                 # tier 2: soldiers and merchants
-    "wren": 6, "orrin": 9,                                 # tier 3: mages
-    "vex": 3, "gull": 14, "silas": 13, "pip": 17,          # tier 4: nobles, adventurers, crooks
+    "wren": 6, "orrin": 9, "grit": 8,                      # tier 3: mages and a miner
+    "vex": 3, "gull": 14, "silas": 13, "pip": 17, "ermine": 21,  # tier 4: nobles, adventurers, crooks
     "bram": 16,                                            # Uncle Bram, who hands you the shop
 }
 
@@ -237,6 +244,42 @@ ICONS = {
         "................",
         "................",
     ],
+    "cabinet": [
+        "................",
+        "..kkkkkkkkkkkk..",
+        "..kBbbbbbbbbBk..",
+        "..kBkkkkkkkkBk..",
+        "..kBkcwccgckBk..",
+        "..kBkccccgckBk..",
+        "..kBkkkkkkkkBk..",
+        "..kBkcrccpckBk..",
+        "..kBkcrccpckBk..",
+        "..kBkkkkkkkkBk..",
+        "..kBkcccgcckBk..",
+        "..kBkccgggckBk..",
+        "..kBkkkkkkkkBk..",
+        "..kBbbbbbbbbBk..",
+        "..kkkkkkkkkkkk..",
+        "..kk........kk..",
+    ],
+    "picks": [
+        "................",
+        "...........kk...",
+        "..........ksk...",
+        ".........ksk....",
+        "........ksk.....",
+        ".......ksk......",
+        "......ksk..kk...",
+        ".....ksk..ksk...",
+        "...kkkk..ksk....",
+        "..kgggk.ksk.....",
+        "..kgGgkksk......",
+        "..kgggkkk.......",
+        "...kkkk.........",
+        "................",
+        "................",
+        "................",
+    ],
     "magnet": [
         "................",
         "...kkkkkkkkkk...",
@@ -365,6 +408,24 @@ KIND_ICONS = {
         "..kwkkkkkkkwwk..",
         "..kwwwwwwwwwwwk.",
         "...kkkkkkkkkkkk.",
+        "................",
+        "................",
+        "................",
+    ],
+    "hidden": [
+        "................",
+        "................",
+        ".kkkkkkkkkkkkkk.",
+        ".kbbbbbbbbbbbbk.",
+        ".kb..........bk.",
+        ".kb..........bk.",
+        ".kb..........bk.",
+        ".kbBBBBBBBBBBbk.",
+        ".kb..gggg....bk.",
+        ".kb.gGGGGg...bk.",
+        ".kbBBBBBBBBBBbk.",
+        ".kkkkkkkkkkkkkk.",
+        "................",
         "................",
         "................",
         "................",

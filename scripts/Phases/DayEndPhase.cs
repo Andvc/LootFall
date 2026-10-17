@@ -8,7 +8,8 @@ namespace LootFall.Phases;
 
 /// <summary>
 /// After the last customer: how the day went, then what to spend it on. Renovations bring new customers, new things
-/// and new sounds to learn; tools tell you more about each chest.
+/// and new sounds to learn; tools tell you more about each chest; cabinets show off what you keep. The exhibition
+/// along the bottom draws more and better customers; click something in it to sell it.
 /// </summary>
 public partial class DayEndPhase : Phase
 {
@@ -32,7 +33,8 @@ public partial class DayEndPhase : Phase
             ? $"You passed on all {today.Passed} customers."
             : $"Bought {today.Bought}, passed on {today.Passed}. Spent {today.Spent}g, the chests held {today.Earned}g: " +
               $"{(today.Profit >= 0 ? "+" : "")}{today.Profit}g." +
-              (today.PerfectReads > 0 ? $" Perfect reads: {today.PerfectReads}." : "");
+              (today.PerfectReads > 0 ? $" Perfect reads: {today.PerfectReads}." : "") +
+              (today.NewFinds > 0 ? $" New finds: {today.NewFinds}." : "");
         Add(UiKit.MakeLabel(summary, 24, today.Profit > 0 ? Palette.Good : today.Profit < 0 ? Palette.Bad : Palette.Text,
             HorizontalAlignment.Center, outline: 4).Place(0, 118, 1280, 30));
         if (_topUp > 0)
@@ -45,8 +47,9 @@ public partial class DayEndPhase : Phase
         BuildCards();
 
         Add(UiKit.MakeButton($"Open the shop: Day {State.Day + 1}", Palette.Gold, 24, NextDay).Place(900, 626, 340, 64));
-        _mentor = Add(new MentorView { Position = new Vector2(40, 576), ZIndex = 20 });
+        _mentor = Add(new MentorView { Position = new Vector2(40, 440), ZIndex = 20 });
         if (State.FirstTime("dayend")) _mentor.Say(Hints.Get("dayend"));
+        if (State.Display.Count > 0 && State.FirstTime("exhibition")) _mentor.Say(Hints.Get("exhibition"));
         Sfx.Play(today.Profit >= 0 ? "win" : "lose", 1f, -6);
         Game.Moment("09_dayend", 0.5);
     }
@@ -66,11 +69,46 @@ public partial class DayEndPhase : Phase
             _cards.AddChild(MakeCard(offers[i], x, y));
         }
 
-        var owned = Upgrades.All.Where(u => State.Has(u.Key) && !u.IsRenovation).ToList();
-        if (owned.Count == 0) return;
-        _cards.AddChild(UiKit.MakeLabel("Your tools", 16, Palette.Muted).Place(520, 590, 200, 20));
-        for (int i = 0; i < owned.Count; i++)
-            _cards.AddChild(UiKit.MakeSprite($"res://assets/ui/icons/{owned[i].Icon}.png", new Vector2(546 + i * 50, 640), 1));
+        BuildExhibition();
+    }
+
+    /// <summary>What's on display, what it does for the shop, and a click to sell any of it.</summary>
+    void BuildExhibition()
+    {
+        const float x0 = 40, y0 = 584;
+        int score = State.Exhibition;
+        string effect = score == 0 ? "Keep grand things when you open a chest, and they'll show here."
+            : $"{score} points: +{State.ExhibitionCustomers} customer{(State.ExhibitionCustomers == 1 ? "" : "s")} a day, " +
+              $"better chests {State.BetterChests:P0} of the time.";
+        _cards.AddChild(UiKit.MakeLabel($"EXHIBITION {State.Display.Count}/{State.DisplaySlots}", 16, Palette.Magic).Place(x0, y0, 300, 20));
+        _cards.AddChild(UiKit.MakeLabel(effect, 16, Palette.Muted).Place(x0 + 210, y0, 640, 20));
+        for (int i = 0; i < State.DisplaySlots; i++)
+        {
+            bool filled = i < State.Display.Count;
+            var slot = UiKit.MakePanel(filled ? Palette.Of(State.Display[i].Rarity) : Palette.PanelBorder).Place(x0 + i * 56, y0 + 26, 50, 50);
+            _cards.AddChild(slot);
+            if (!filled) continue;
+            var item = State.Display[i];
+            slot.AddChild(UiKit.MakeKindIcon(item.Category, new Vector2(25, 25)));
+            var sell = new Button { Flat = true, FocusMode = Control.FocusModeEnum.None, TooltipText = $"{item.Name}, {item.Prestige} points. Click to sell it for {item.Value}g." };
+            sell.Pressed += () => SellFromDisplay(item);
+            slot.AddChild(sell.Place(0, 0, 50, 50));
+        }
+        string found = $"Collection: {State.Found.Count} of {Collection.Size} found.";
+        string warrant = State.Has("warrant") || State.Tier < 4 ? ""
+            : score >= GameState.WarrantExhibition ? " The Crown is impressed by your exhibition."
+            : $" The Crown wants an exhibition of {GameState.WarrantExhibition} before the warrant.";
+        _cards.AddChild(UiKit.MakeLabel(found + warrant, 16, score >= GameState.WarrantExhibition ? Palette.Good : Palette.Muted)
+            .Place(x0, y0 + 84, 840, 20));
+    }
+
+    public void SellFromDisplay(Item item)
+    {
+        State.SellFromDisplay(item);
+        Game.Hud.SetGold(State.Gold);
+        Sfx.PlayGroup("pay");
+        FloatText($"+{item.Value}g", new Vector2(640, 560), Palette.Gold, 24);
+        BuildCards();
     }
 
     Control MakeCard(Upgrade upgrade, float x, float y)
