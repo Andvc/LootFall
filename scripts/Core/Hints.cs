@@ -36,7 +36,7 @@ public static class Hints
                     "which sounds like anything else. A witchlight would show it.",
         ["heard_Jewels"] = "Tinkle: jewelry. Delicate, and worth the most.",
         ["lamp"] = "Witchlight's on: magic glows when it makes a sound. Click a tick again to mark it magic.",
-        ["glow"] = "It glowed! That one's enchanted: five times the value. Click its tick again to mark it magic.",
+        ["glow"] = "It glowed! That one's enchanted: four times the value. Click its tick again to mark it magic.",
         ["tier4"] = "The Emporium. Mind Silas: he sells gilded iron as gold and jewels, and it sounds just like the real thing. " +
                     "A magnet would catch it.",
         ["magnet"] = "Magnet's on: iron can't move. Metal goes quiet, so nothing drowns out the delicate things. " +

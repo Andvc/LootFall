@@ -46,7 +46,7 @@ public sealed record CategoryDef(
 
 /// <summary>One thing in a chest.</summary>
 /// <param name="Grade">The tier of the seller who brought it: the same kind of thing is worth more from richer people.</param>
-/// <param name="Magic">Enchanted: worth five times as much. Nobody can hear magic; it glows in the dark.</param>
+/// <param name="Magic">Enchanted: worth four times as much. It sounds like any other; under a witchlight it glows.</param>
 /// <param name="Fake">A crook's gilded iron: sounds just like the real thing, worth nothing. A magnet holds it.</param>
 public sealed record Item(Category Category, int Grade, bool Magic = false, bool Fake = false)
 {

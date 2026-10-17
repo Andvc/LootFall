@@ -52,12 +52,8 @@ public partial class CounterPhase : Phase
     public Hearing Hearing => _hearing;
     public ShakeBox Shake => _shake;
     public MentorView Mentor => _mentor;
-    public LedgerView Ledger => _ledger;
     public bool Concluded => _visit.Outcome != VisitOutcome.Deciding;
     public bool Busy => _busy || _ledger != null;
-    public bool Revealing => _reveal != null;
-    public bool LampOn => _lamp;
-    public bool MagnetOn => _magnet;
 
     public override void _Ready()
     {
