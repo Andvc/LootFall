@@ -23,7 +23,7 @@ ASSETS = os.path.join(ROOT, "assets")
 
 SUPERPOWERS = ("https://github.com/sparklinlabs/superpowers-asset-packs", [
     "rpg-battle-system/item", "rpg-battle-system/backgrounds", "rpg-battle-system/fx",
-    "ninja-adventure/items", "ninja-adventure/characters/faceset", "LICENSE.txt",
+    "ninja-adventure/items", "ninja-adventure/characters/faceset", "western-fps-2d/background-elements", "LICENSE.txt",
 ])
 KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
     "kenney_fontpackage", "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds",
@@ -178,6 +178,11 @@ def build_chests(src):
                         px[x, y] = (*swap[(r, g, b)], a)
             return out
 
+        if skin == "purple":
+            # The window icon: the purple chest at 4x, centred on a 64px square.
+            icon = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+            icon.alpha_composite(recolor(closed).resize((64, 56), Image.NEAREST), (0, 4))
+            save(icon, "ui", "icon.png")
         save(recolor(closed.crop((0, LID_ROWS[0], 16, LID_ROWS[1]))), "sprites", "chest", f"{skin}_lid.png")
         save(recolor(closed.crop((0, BODY_ROWS[0], 16, BODY_ROWS[1]))), "sprites", "chest", f"{skin}_body.png")
         save(recolor(opened.crop((0, OPEN_BODY_ROWS[0], 16, OPEN_BODY_ROWS[1]))), "sprites", "chest", f"{skin}_open.png")
@@ -321,24 +326,6 @@ ICONS = {
         ".ksssk....ksssk.",
         ".ksssk....ksssk.",
         ".kkkkk....kkkkk.",
-        "................",
-        "................",
-        "................",
-    ],
-    "trumpet": [
-        "................",
-        "................",
-        "...........kkk..",
-        "..........kgggk.",
-        ".........kggGgk.",
-        "........kgggGgk.",
-        ".kkkkkkkgggggGk.",
-        "kGggggggggggggk.",
-        ".kkkkkkkgggggGk.",
-        "........kgggGgk.",
-        ".........kggGgk.",
-        "..........kgggk.",
-        "...........kkk..",
         "................",
         "................",
         "................",
@@ -532,6 +519,214 @@ KIND_ICONS = {
 }
 
 
+# The shop at each tier, as one 640x360 picture shown at 2x behind the counter (and, dimmed, behind the other screens):
+# a backdrop from the pack, the architecture drawn here as pixel art, a few props from the pack, and the counter. The
+# counter's top edge is at y 238 (476 on screen); the HUD covers the top 28 rows; on the counter screen the appraisal
+# panel covers x 410 and up. The display shelf (from the village shop) is at y 98, where the game stands what you keep.
+SHOP_W, SHOP_H, COUNTER_Y, SHELF_Y = 640, 360, 238, 98
+
+
+def build_shops(src):
+    from PIL import ImageDraw
+    bgs = os.path.join(src, "rpg-battle-system/backgrounds")
+    props = os.path.join(src, "western-fps-2d/background-elements")
+
+    def backdrop(number, box=(0, 0, SHOP_W, SHOP_H), shade=1.0):
+        img = Image.open(os.path.join(bgs, f"{number}.png")).convert("RGBA").crop(box)
+        if img.size != (SHOP_W, SHOP_H):
+            img = img.resize((SHOP_W, SHOP_H), Image.NEAREST)
+        if shade != 1.0:
+            img = Image.eval(img.convert("RGB"), lambda v: int(v * shade)).convert("RGBA")
+        return img
+
+    def prop(img, name, x, bottom):
+        p = Image.open(os.path.join(props, f"{name}.png")).convert("RGBA")
+        img.alpha_composite(p, (x, bottom - p.height))
+
+    def shadow(img, box, alpha):
+        layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        ImageDraw.Draw(layer).rectangle(box, fill=(0, 0, 0, alpha))
+        img.alpha_composite(layer)
+
+    def glow(img, cx, cy, radius, color):
+        # Hard-edged rings, brighter toward the middle: pixel-art light, not a smooth gradient.
+        layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+        for i in range(4, 0, -1):
+            r = radius * i // 4
+            d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(*color, 22))
+        img.alpha_composite(layer)
+
+    def lamp(img, d, x, top, length):
+        d.line((x, top, x, top + length), fill=(40, 30, 24, 255))
+        d.rectangle((x - 4, top + length, x + 4, top + length + 10), fill=(58, 40, 26, 255), outline=(30, 20, 14, 255))
+        d.rectangle((x - 2, top + length + 2, x + 2, top + length + 8), fill=(255, 214, 120, 255))
+        glow(img, x, top + length + 5, 34, (255, 190, 90))
+
+    def shelf(d, top, bottom_color, top_color, edge_color, bracket):
+        d.rectangle((150, top, 402, top + 5), fill=top_color)
+        d.line((150, top, 402, top), fill=edge_color)
+        d.line((150, top + 5, 402, top + 5), fill=bottom_color)
+        for x in (158, 388):
+            d.polygon([(x, top + 6), (x + 8, top + 6), (x, top + 14)], fill=bracket)
+
+    def planks(d, y0, y1, color, seam, every, x0=0, x1=SHOP_W):
+        d.rectangle((x0, y0, x1, y1), fill=color)
+        for x in range(x0 + every // 2, x1, every):
+            d.line((x, y0, x, y1), fill=seam)
+
+    shops = {}
+
+    # The roadside stall: a trestle table under a striped awning, outside the town walls.
+    img = backdrop(21)
+    d = ImageDraw.Draw(img)
+    shadow(img, (0, 58, SHOP_W, 74), 70)
+    d = ImageDraw.Draw(img)
+    for i, x in enumerate(range(0, SHOP_W, 16)):
+        colour = (184, 74, 60, 255) if i % 2 == 0 else (239, 225, 193, 255)
+        d.rectangle((x, 26, x + 15, 58), fill=colour)
+        d.ellipse((x, 52, x + 15, 66), fill=colour, outline=(59, 36, 24, 255))
+        d.line((x, 26, x + 15, 26), fill=(59, 36, 24, 255))
+    d.rectangle((0, 26, SHOP_W, 30), fill=(122, 46, 38, 255))
+    for x in (6, SHOP_W - 14):
+        d.rectangle((x, 30, x + 7, COUNTER_Y), fill=(110, 72, 38, 255), outline=(52, 32, 18, 255))
+    lamp(img, d, 120, 66, 10)
+    d = ImageDraw.Draw(img)
+    prop(img, "crate-2", 560, COUNTER_Y)
+    prop(img, "barrel", 520, COUNTER_Y)
+    d.rectangle((0, COUNTER_Y, SHOP_W, COUNTER_Y + 11), fill=(160, 112, 60, 255))
+    d.line((0, COUNTER_Y, SHOP_W, COUNTER_Y), fill=(196, 140, 84, 255))
+    d.line((0, COUNTER_Y + 11, SHOP_W, COUNTER_Y + 11), fill=(70, 44, 22, 255))
+    for x in range(70, SHOP_W, 150):
+        d.line((x, COUNTER_Y + 1, x, COUNTER_Y + 10), fill=(110, 72, 38, 255))
+    # A sacking cloth hangs down the front, ragged at the hem, with the trestle legs showing below.
+    for x in (40, 300, 560):
+        d.line((x, COUNTER_Y + 12, x + 22, SHOP_H), fill=(70, 44, 22, 255), width=4)
+        d.line((x + 22, COUNTER_Y + 12, x, SHOP_H), fill=(70, 44, 22, 255), width=4)
+    d.rectangle((0, COUNTER_Y + 12, SHOP_W, 326), fill=(176, 148, 104, 255))
+    for y in range(COUNTER_Y + 14, 326, 2):
+        for x in range((y // 2) % 2, SHOP_W, 2):
+            d.point((x, y), fill=(160, 132, 92, 255))
+    for x in range(0, SHOP_W, 6):
+        d.line((x, COUNTER_Y + 16, x + 3, COUNTER_Y + 16), fill=(120, 94, 60, 255))
+    for x in range(0, SHOP_W, 8):
+        d.polygon([(x, 326), (x + 8, 326), (x + 4, 331 + (x // 8) % 3)], fill=(176, 148, 104, 255))
+    shops[1] = img
+
+    # The village shop: a plastered wall, timber beams, oil lamps, and a shelf for what you keep.
+    img = backdrop(9, shade=0.92)
+    d = ImageDraw.Draw(img)
+    shadow(img, (0, 40, SHOP_W, 48), 60)
+    d = ImageDraw.Draw(img)
+    d.rectangle((0, 26, SHOP_W, 40), fill=(78, 44, 18, 255))
+    d.line((0, 27, SHOP_W, 27), fill=(110, 69, 32, 255))
+    d.line((0, 40, SHOP_W, 40), fill=(40, 22, 10, 255))
+    for x in (0, SHOP_W - 10):
+        d.rectangle((x, 26, x + 9, COUNTER_Y), fill=(78, 44, 18, 255), outline=(40, 22, 10, 255))
+    d.polygon([(10, 41), (34, 41), (10, 65)], fill=(78, 44, 18, 255), outline=(40, 22, 10, 255))
+    d.polygon([(SHOP_W - 11, 41), (SHOP_W - 35, 41), (SHOP_W - 11, 65)], fill=(78, 44, 18, 255), outline=(40, 22, 10, 255))
+    # Wainscoting along the bottom of the wall, behind the counter.
+    d.rectangle((10, 168, SHOP_W - 11, COUNTER_Y), fill=(120, 78, 40, 255))
+    d.rectangle((10, 168, SHOP_W - 11, 171), fill=(92, 56, 26, 255))
+    d.line((10, 168, SHOP_W - 11, 168), fill=(150, 100, 56, 255))
+    for x in range(30, SHOP_W - 11, 28):
+        d.line((x, 172, x, COUNTER_Y), fill=(98, 62, 30, 255))
+    lamp(img, d, 132, 41, 18)
+    lamp(img, d, 520, 41, 18)
+    d = ImageDraw.Draw(img)
+    shelf(d, SHELF_Y, (78, 44, 18, 255), (147, 96, 47, 255), (176, 122, 64, 255), (78, 44, 18, 255))
+    # Counter props stay in the corner by the appraisal panel, clear of the hints under the chest.
+    prop(img, "jar-2", 394, COUNTER_Y)
+    prop(img, "barrel", 470, COUNTER_Y)
+    d = ImageDraw.Draw(img)
+    planks(d, COUNTER_Y + 12, SHOP_H, (138, 90, 44, 255), (104, 66, 32, 255), 40)
+    d.rectangle((0, COUNTER_Y, SHOP_W, COUNTER_Y + 11), fill=(176, 122, 64, 255))
+    d.line((0, COUNTER_Y, SHOP_W, COUNTER_Y), fill=(208, 154, 90, 255))
+    d.line((0, COUNTER_Y + 11, SHOP_W, COUNTER_Y + 11), fill=(78, 44, 18, 255))
+    d.rectangle((0, 300, SHOP_W, 304), fill=(104, 66, 32, 255))
+    shops[2] = img
+
+    # The town shop: panelled walls and a big display window onto the square at sunset; what you keep stands on the
+    # sill. Brass-edged walnut counter, lanterns.
+    img = Image.new("RGBA", (SHOP_W, SHOP_H), (168, 142, 110, 255))
+    d = ImageDraw.Draw(img)
+    # Plaster above, with a faint mottle.
+    for y in range(26, 116, 3):
+        for x in range((y * 7) % 11, SHOP_W, 11):
+            d.point((x, y), fill=(156, 130, 100, 255))
+    view = Image.open(os.path.join(bgs, "15.png")).convert("RGBA").crop((60, 40, 60 + 380, 40 + 72))
+    img.alpha_composite(view, (140, 26))
+    d = ImageDraw.Draw(img)
+    d.rectangle((134, 24, 526, 29), fill=(52, 32, 20, 255))
+    for x in (134, 200, 266, 332, 398, 464, 522):
+        d.rectangle((x, 26, x + 4, SHELF_Y), fill=(52, 32, 20, 255))
+    d.rectangle((136, 60, 524, 62), fill=(52, 32, 20, 255))
+    # The sill: what you keep stands against the window.
+    d.rectangle((128, SHELF_Y, 532, SHELF_Y + 7), fill=(206, 194, 170, 255))
+    d.line((128, SHELF_Y, 532, SHELF_Y), fill=(236, 228, 210, 255))
+    d.line((128, SHELF_Y + 7, 532, SHELF_Y + 7), fill=(110, 96, 80, 255))
+    # A dado rail, then panelled wood down to the counter.
+    d.rectangle((0, 116, SHOP_W, COUNTER_Y), fill=(104, 70, 44, 255))
+    d.rectangle((0, 112, SHOP_W, 117), fill=(70, 44, 26, 255))
+    d.line((0, 112, SHOP_W, 112), fill=(130, 90, 58, 255))
+    for x in range(0, SHOP_W, 80):
+        d.rectangle((x + 6, 126, x + 74, 228), fill=(112, 76, 48, 255), outline=(60, 38, 22, 255))
+        d.line((x + 7, 127, x + 73, 127), fill=(140, 98, 64, 255))
+        d.line((x + 7, 127, x + 7, 227), fill=(140, 98, 64, 255))
+    # Goods on the far wall: a shelf of jars and bottles.
+    d.rectangle((548, 84, 628, 88), fill=(70, 44, 26, 255))
+    d = ImageDraw.Draw(img)
+    lamp(img, d, 110, 30, 30)
+    lamp(img, d, 562, 30, 22)
+    d = ImageDraw.Draw(img)
+    prop(img, "jar-2", 556, 84)
+    prop(img, "bottle-1", 580, 84)
+    prop(img, "jar-1", 598, 84)
+    prop(img, "bottle-1", 398, COUNTER_Y)
+    d = ImageDraw.Draw(img)
+    d.rectangle((0, COUNTER_Y + 12, SHOP_W, SHOP_H), fill=(74, 46, 28, 255))
+    for x in range(0, SHOP_W, 80):
+        d.rectangle((x + 8, COUNTER_Y + 22, x + 72, 312), fill=(82, 52, 32, 255), outline=(46, 28, 16, 255))
+        d.line((x + 9, COUNTER_Y + 23, x + 71, COUNTER_Y + 23), fill=(106, 68, 44, 255))
+    d.rectangle((0, COUNTER_Y, SHOP_W, COUNTER_Y + 11), fill=(90, 58, 36, 255))
+    d.line((0, COUNTER_Y + 1, SHOP_W, COUNTER_Y + 1), fill=(120, 80, 52, 255))
+    d.rectangle((0, COUNTER_Y + 10, SHOP_W, COUNTER_Y + 12), fill=(201, 160, 64, 255))
+    d.line((0, COUNTER_Y + 10, SHOP_W, COUNTER_Y + 10), fill=(240, 208, 112, 255))
+    shops[3] = img
+
+    # The Emporium: a colonnade in daylight, crimson drapes with gold, a marble ledge and a marble counter.
+    img = backdrop(23)
+    d = ImageDraw.Draw(img)
+    crimson = [(106, 20, 26, 255), (138, 28, 36, 255), (168, 36, 46, 255), (138, 28, 36, 255)]
+    for x0, x1 in ((0, 46), (SHOP_W - 46, SHOP_W)):
+        for i, x in enumerate(range(x0, x1, 6)):
+            d.rectangle((x, 26, x + 5, SHOP_H), fill=crimson[i % 4])
+        d.rectangle((x0, 118, x1, 124), fill=(212, 168, 56, 255), outline=(140, 100, 30, 255))
+    d.rectangle((0, 26, SHOP_W, 44), fill=(138, 28, 36, 255))
+    for x in range(0, SHOP_W, 20):
+        d.ellipse((x, 38, x + 19, 52), fill=(138, 28, 36, 255))
+        d.line((x + 2, 52, x + 17, 52), fill=(212, 168, 56, 255))
+        for fx in range(x + 2, x + 18, 3):
+            d.line((fx, 52, fx, 55), fill=(240, 200, 90, 255))
+    d.line((0, 27, SHOP_W, 27), fill=(212, 168, 56, 255))
+    shelf(d, SHELF_Y, (150, 140, 130, 255), (232, 228, 220, 255), (255, 255, 255, 255), (212, 168, 56, 255))
+    prop(img, "jar-2", 394, COUNTER_Y)
+    d = ImageDraw.Draw(img)
+    d.rectangle((0, COUNTER_Y + 16, SHOP_W, SHOP_H), fill=(52, 44, 60, 255))
+    for x in range(0, SHOP_W, 96):
+        d.rectangle((x + 10, COUNTER_Y + 26, x + 86, 318), outline=(212, 168, 56, 255))
+        d.line((x + 20, COUNTER_Y + 40, x + 60, 300), fill=(70, 62, 80, 255))
+    d.rectangle((0, COUNTER_Y, SHOP_W, COUNTER_Y + 12), fill=(236, 232, 224, 255))
+    for x in range(10, SHOP_W, 37):
+        d.line((x, COUNTER_Y + 2, x + 14, COUNTER_Y + 10), fill=(189, 182, 172, 255))
+    d.rectangle((0, COUNTER_Y + 12, SHOP_W, COUNTER_Y + 16), fill=(212, 168, 56, 255))
+    d.line((0, COUNTER_Y + 12, SHOP_W, COUNTER_Y + 12), fill=(244, 216, 120, 255))
+    shops[4] = img
+
+    for tier, img in shops.items():
+        save(img, "backgrounds", f"shop{tier}.png")
+
+
 # Small slots (the collection, the exhibition, the keep chooser) show each item's own sprite at 1x; one that's too big
 # is halved, each 2x2 block becoming its most common colour so the result stays crisp pixel art.
 ICON_MAX = 48
@@ -649,6 +844,7 @@ def main():
             shutil.copy(os.path.join(kenney, pack, "Audio", f"{stem}.ogg"), os.path.join(out, f"{i}.ogg"))
 
     build_chests(sp)
+    build_shops(sp)
     build_ui()
     build_icons()
 

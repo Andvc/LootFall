@@ -99,6 +99,8 @@ public static class UiKit
         button.AddThemeColorOverride("font_disabled_color", Palette.Muted.Darkened(0.2f));
         button.AddThemeConstantOverride("outline_size", 4);
         button.AddThemeColorOverride("font_outline_color", new Color(0, 0, 0, 0.85f));
+        // A soft click under whatever the button does.
+        button.Pressed += () => Main.Instance?.Sfx?.Play("tick", 1.1f, -16);
         if (onPressed != null) button.Pressed += onPressed;
         return button;
     }
@@ -201,6 +203,22 @@ public static class UiKit
         }) { Position = center, Scale = Vector2.One * scale };
     }
 
+    /// <summary>A pixel-framed slider with a gold coin for a grabber (the offer slider, the volume).</summary>
+    public static void StyleSlider(HSlider slider)
+    {
+        var coin = GD.Load<Texture2D>("res://assets/sprites/items/gold_doubloons.png");
+        var track = new StyleBoxFlat { BgColor = new Color("#120e1a"), BorderColor = Palette.PanelBorder, AntiAliasing = false };
+        track.SetBorderWidthAll(3);
+        track.SetContentMarginAll(6);
+        var fill = new StyleBoxFlat { BgColor = Palette.Good.Darkened(0.45f), AntiAliasing = false };
+        fill.SetContentMarginAll(6);
+        slider.AddThemeStyleboxOverride("slider", track);
+        slider.AddThemeStyleboxOverride("grabber_area", fill);
+        slider.AddThemeStyleboxOverride("grabber_area_highlight", fill);
+        slider.AddThemeIconOverride("grabber", coin);
+        slider.AddThemeIconOverride("grabber_highlight", coin);
+    }
+
     /// <summary>A full-screen pixel-art backdrop (640x480 source at 2x), dimmed so UI and effects stand out.</summary>
     public static Node2D MakeBackdrop(string name, float brightness = 0.6f)
     {
@@ -212,19 +230,41 @@ public static class UiKit
             Scale = Vector2.One * 2,
             Modulate = new Color(brightness, brightness, brightness * 1.05f),
         });
-        root.AddChild(new Painter(p =>
-        {
-            // Stepped vignette: hard bands read as pixel-art lighting rather than a smooth gradient.
-            for (int i = 0; i < 5; i++)
-            {
-                float inset = i * 24;
-                float a = 0.12f;
-                p.DrawRect(new Rect2(-100, -100, 1480, 100 + inset), new Color(0, 0, 0, a));
-                p.DrawRect(new Rect2(-100, 720 - inset, 1480, 100 + inset), new Color(0, 0, 0, a));
-                p.DrawRect(new Rect2(-100, -100, 100 + inset, 920), new Color(0, 0, 0, a));
-                p.DrawRect(new Rect2(1280 - inset, -100, 100 + inset, 920), new Color(0, 0, 0, a));
-            }
-        }));
+        root.AddChild(Vignette(0.12f));
         return root;
     }
+
+    /// <summary>
+    /// The shop as it looks at this tier, counter and all: the roadside stall, the village shop, the town shop or the
+    /// Emporium (640x360 pictures from tools/import_art.py, at 2x). Dimmed behind screens where the UI and effects
+    /// should stand out. The counter's top edge is at y 476; the display shelf (from the village shop) at y 196.
+    /// </summary>
+    public static Node2D MakeShop(int tier, float brightness = 1f)
+    {
+        var root = new Node2D();
+        // Beyond the picture's edges, for when the camera shakes or leans in.
+        root.AddChild(new ColorRect { Color = Palette.Bg, MouseFilter = Control.MouseFilterEnum.Ignore }.Place(-120, -120, 1520, 960));
+        root.AddChild(new Sprite2D
+        {
+            Texture = GD.Load<Texture2D>($"res://assets/backgrounds/shop{Math.Clamp(tier, 1, Core.ShopTiers.Max)}.png"),
+            Centered = false,
+            Scale = Vector2.One * 2,
+            Modulate = new Color(brightness, brightness, brightness * 1.03f),
+        });
+        root.AddChild(Vignette(brightness >= 0.8f ? 0.05f : 0.1f));
+        return root;
+    }
+
+    /// <summary>A stepped vignette: hard bands read as pixel-art lighting rather than a smooth gradient.</summary>
+    static Painter Vignette(float alpha) => new(p =>
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            float inset = i * 24;
+            p.DrawRect(new Rect2(-100, -100, 1480, 100 + inset), new Color(0, 0, 0, alpha));
+            p.DrawRect(new Rect2(-100, 720 - inset, 1480, 100 + inset), new Color(0, 0, 0, alpha));
+            p.DrawRect(new Rect2(-100, -100, 100 + inset, 920), new Color(0, 0, 0, alpha));
+            p.DrawRect(new Rect2(1280 - inset, -100, 100 + inset, 920), new Color(0, 0, 0, alpha));
+        }
+    });
 }

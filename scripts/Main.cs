@@ -10,16 +10,21 @@ using LootFall.Ui;
 namespace LootFall;
 
 /// <summary>
-/// Root of the game: owns the game state, audio, HUD and screen effects, and swaps between phases.
+/// Root of the game: owns the game state, audio, HUD and screen effects, and swaps between phases. It opens on the title
+/// screen; the shop is saved to user://save.json at the start of each day, and Esc pauses.
 /// Command-line flags (after `--`): --seed=N, --sim [--n=N], --shake-test, --export-sounds=DIR, --autoplay,
 /// --shots=DIR, --quit-at-end, --days=N, --no-tutorial (no tips, no scripted first day),
 /// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then), --opening-demo (opens a blue chest
 /// holding one thing of each quality, two of them better than the chest, to preview the opening's effects; quits
-/// after with --quit-at-end). Autoplay sets --days=N to stop after that many days.
+/// after with --quit-at-end), --shell-demo (with --shots: the title screen, a new game, the pause menu and the
+/// settings, one screenshot each, then quits). Autoplay sets --days=N to stop after that many days.
 /// </summary>
 public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
+
+    public const string Version = "Early Access 0.9";
+    const string SavePath = "user://save.json";
 
     public GameState State { get; private set; }
     public Sfx Sfx { get; private set; }
@@ -32,6 +37,10 @@ public partial class Main : Node2D
     Autoplay _bot;
     string _shotsDir;
     float _trauma;
+    int _seed;
+
+    /// <summary>A real game (not the bot or a debugging shortcut), so the shop is saved each day.</summary>
+    bool _saving;
 
     public override void _Ready()
     {
@@ -51,11 +60,18 @@ public partial class Main : Node2D
             return;
         }
 
-        int seed = int.TryParse(Arg(args, "--seed"), out var s) ? s : (int)(Time.GetUnixTimeFromSystem() % 1_000_000);
-        State = new GameState(seed) { Guided = !args.Contains("--no-tutorial") };
-        if (int.TryParse(Arg(args, "--start-tier"), out var startTier))
-            State.SkipTo(Math.Clamp(startTier, 1, ShopTiers.Max), int.TryParse(Arg(args, "--gold"), out var g) ? g : 500);
-        GD.Print($"LootFall seed {seed}");
+        Settings.Load();
+        GetTree().Root.Theme = MakeTheme();
+        _seed = int.TryParse(Arg(args, "--seed"), out var s) ? s : (int)(Time.GetUnixTimeFromSystem() % 1_000_000);
+        // Straight into a day for the bot and the debugging shortcuts; everyone else gets the title screen.
+        bool direct = args.Contains("--autoplay") || args.Contains("--opening-demo") || Arg(args, "--start-tier") != null;
+        if (direct)
+        {
+            State = new GameState(_seed) { Guided = !args.Contains("--no-tutorial") };
+            if (int.TryParse(Arg(args, "--start-tier"), out var startTier))
+                State.SkipTo(Math.Clamp(startTier, 1, ShopTiers.Max), int.TryParse(Arg(args, "--gold"), out var g) ? g : 500);
+        }
+        GD.Print($"LootFall seed {_seed}");
 
         AddChild(new Painter(DrawBackground));
         _camera = new Camera2D { Position = new Vector2(640, 360) };
@@ -84,7 +100,7 @@ public partial class Main : Node2D
 
         if (args.Contains("--autoplay"))
         {
-            MentorView.Trace = text => GD.Print($"[Bram d{State.Day} {State.Current?.Seller.Key ?? "-"}] {text}");
+            MentorView.Trace = text => GD.Print($"[Bram d{State?.Day} {State?.Current?.Seller.Key ?? "-"}] {text}");
             _bot = new Autoplay
             {
                 QuitAtEnd = args.Contains("--quit-at-end"),
@@ -95,9 +111,103 @@ public partial class Main : Node2D
         _shotsDir = Arg(args, "--shots");
         if (_shotsDir != null) DirAccess.MakeDirRecursiveAbsolute(_shotsDir);
 
+        if (args.Contains("--shell-demo")) ShellDemo();
+        else if (!direct) ToTitle();
+        else if (args.Contains("--opening-demo")) OpeningDemo(args.Contains("--quit-at-end"));
+        else BeginPlaying();
+    }
+
+    /// <summary>Walks through the title screen, a new game's first moments, the pause menu and the settings, for screenshots.</summary>
+    async void ShellDemo()
+    {
+        SignalAwaiter Wait(double s) => ToSignal(GetTree().CreateTimer(s, true), SceneTreeTimer.SignalName.Timeout);
+        ToTitle();
+        await Wait(2.5);
+        NewGame();
+        _saving = false;
+        await Wait(3.5);
+        Moment("10_newgame");
+        await Wait(0.5);
+        OpenPause();
+        await Wait(0.6);
+        Moment("11_pause");
+        await Wait(0.5);
+        var pause = GetChildren().OfType<PauseMenu>().First();
+        var settings = new SettingsView();
+        pause.AddChild(settings);
+        await Wait(0.6);
+        Moment("12_settings");
+        await Wait(0.8);
+        GetTree().Quit();
+    }
+
+    /// <summary>The saved shop, or null if there isn't one (or it's from an older version).</summary>
+    public static SaveData ReadSave()
+    {
+        if (!FileAccess.FileExists(SavePath)) return null;
+        using var file = FileAccess.Open(SavePath, FileAccess.ModeFlags.Read);
+        return file == null ? null : SaveData.FromJson(file.GetAsText());
+    }
+
+    void WriteSave()
+    {
+        using var file = FileAccess.Open(SavePath, FileAccess.ModeFlags.Write);
+        file?.StoreString(State.Save().ToJson());
+    }
+
+    /// <summary>Back to the title screen (from the pause menu).</summary>
+    public void ToTitle()
+    {
+        Hud.Visible = false;
+        SwitchTo(new TitlePhase(ReadSave()));
+    }
+
+    /// <summary>A new shop, saved over any old one when its first day starts.</summary>
+    public void NewGame()
+    {
+        State = new GameState(_seed) { Guided = Settings.Tips };
+        _seed++;
+        _saving = true;
+        BeginPlaying();
+    }
+
+    public void ContinueGame(SaveData save)
+    {
+        State = GameState.Load(save);
+        _saving = true;
+        BeginPlaying();
+    }
+
+    void BeginPlaying()
+    {
+        Hud.Visible = true;
         Hud.SetGold(State.Gold, animate: false);
-        if (args.Contains("--opening-demo")) OpeningDemo(args.Contains("--quit-at-end"));
-        else StartDay();
+        StartDay();
+    }
+
+    /// <summary>Esc during a day, or the HUD's Menu button: pause.</summary>
+    public void OpenPause()
+    {
+        if (State == null || _phase is TitlePhase || GetTree().Paused) return;
+        AddChild(new PauseMenu());
+    }
+
+    public override void _UnhandledInput(InputEvent e)
+    {
+        if (e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
+        {
+            GetViewport().SetInputAsHandled();
+            OpenPause();
+        }
+    }
+
+    /// <summary>The look of things Godot draws itself, like tooltips: a framed panel and the pixel font.</summary>
+    static Theme MakeTheme()
+    {
+        var theme = new Theme { DefaultFont = UiKit.Font, DefaultFontSize = 16 };
+        theme.SetStylebox("panel", "TooltipPanel", UiKit.PanelBox(10));
+        theme.SetColor("font_color", "TooltipLabel", Palette.Text);
+        return theme;
     }
 
     /// <summary>
@@ -107,6 +217,7 @@ public partial class Main : Node2D
     async void OpeningDemo(bool quit)
     {
         State.SkipTo(ShopTiers.Max, 1000);
+        Hud.SetGold(State.Gold, animate: false);
         var chest = new Chest(new[]
         {
             new Item(Category.Metal, Rarity.Common), new Item(Category.Cloth, Rarity.Uncommon), new Item(Category.Bottles, Rarity.Rare),
@@ -122,12 +233,35 @@ public partial class Main : Node2D
         if (quit) GetTree().Quit();
     }
 
-    /// <summary>Opens the shop for a new day and calls in the first customer.</summary>
+    /// <summary>Saves the shop (a real game only), opens it for a new day and calls in the first customer.</summary>
     public void StartDay()
     {
+        if (_saving) WriteSave();
         State.StartDay();
         if (_bot != null && !_bot.OnDayStarted(State.Day)) return;
+        DayCard();
         NextCustomer();
+    }
+
+    /// <summary>The day's title card, over the first customer: "Day 5", and the shop's name.</summary>
+    void DayCard()
+    {
+        var layer = new CanvasLayer { Layer = 40 };
+        AddChild(layer);
+        var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(440, 150, 400, 120);
+        card.MouseFilter = Control.MouseFilterEnum.Ignore;
+        card.AddChild(UiKit.MakeLabel($"DAY {State.Day}", 48, Palette.Gold, HorizontalAlignment.Center, outline: 6).Place(0, 12, 400, 56));
+        card.AddChild(UiKit.MakeLabel(ShopTiers.Name(State.Tier), 16, Palette.Text, HorizontalAlignment.Center).Place(0, 76, 400, 24));
+        layer.AddChild(card);
+        card.PivotOffset = new Vector2(200, 60);
+        card.Scale = new Vector2(0.9f, 0.9f);
+        card.Modulate = Colors.Transparent;
+        var tween = card.CreateTween();
+        tween.TweenProperty(card, "modulate", Colors.White, 0.25f).SetDelay(0.2f);
+        tween.Parallel().TweenProperty(card, "scale", Vector2.One, 0.25f).SetDelay(0.2f).SetTrans(Tween.TransitionType.Back);
+        tween.TweenInterval(1.0);
+        tween.TweenProperty(card, "modulate", Colors.Transparent, 0.35f);
+        tween.TweenCallback(Callable.From(layer.QueueFree));
     }
 
     /// <summary>Calls the next customer to the counter, or closes up for the day.</summary>
@@ -164,11 +298,11 @@ public partial class Main : Node2D
     }
 
     /// <summary>Adds screen-shake "trauma" (0..1). Shake strength is trauma squared, so small hits stay subtle.</summary>
-    public void Shake(float amount) => _trauma = Mathf.Min(1f, _trauma + amount);
+    public void Shake(float amount) => _trauma = Mathf.Min(1f, _trauma + amount * Settings.Shake);
 
     public void Flash(Color color, float alpha, float duration = 0.35f)
     {
-        _flash.Color = color with { A = alpha };
+        _flash.Color = color with { A = alpha * Settings.Shake };
         CreateTween().TweenProperty(_flash, "color:a", 0f, duration).SetEase(Tween.EaseType.Out);
     }
 

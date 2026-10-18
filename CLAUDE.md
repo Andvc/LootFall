@@ -18,6 +18,7 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
    jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens). With tips
    on, every seller's first visit is a lesson, so a guided run at a tier shows those lessons; the bot logs any lesson
    it couldn't finish. `--opening-demo` opens a crafted chest with every quality and two surprises (record it).
+   `--shell-demo` walks the title screen, a new game, the pause menu and the settings.
    Keep screenshot folders named `shots*` (git- and export-ignored).
 4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear everything the rules say is
    audible at each strength (and with the magnet), with no leaks.
@@ -35,9 +36,9 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   (what the seller says they heard). Any new way to judge a chest must follow a rule people know from real life.
   The slip values things as good as the chest's colour promises (`Categories.Nominal`); sellers price by the average
   (`Categories.Expected`); `Strategy` buys when the odds bar is on its side (`Appraisal.LikelyWorth`), like a player
-  would. Layers of deduction (padding, counting, sound-alikes like sand and gilded iron) arrive one shop at a time,
-  each taught by the seller it belongs to. Rules apply every time or not at all (any real cloth pads, `Chest.Padded`):
-  a hidden roll that makes a rule work only sometimes reads as a bug. Enchantment (`Item.Magic`) is something any
+  would. Layers of deduction (false bottoms, counting, sound-alikes like sand and gilded iron) arrive one shop at a
+  time, each taught by the seller it belongs to. Rules apply every time or not at all: a hidden roll that makes a rule
+  work only sometimes reads as a bug, and a rule people can't reason about from real life (v7's cloth padding) goes. Enchantment (`Item.Magic`) is something any
   thing can be: x2 value and exhibition, same quality, colour and sprite.
 - One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`); kinds differ in how
   hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
@@ -50,6 +51,15 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   it makes redundant. Read a guided `--autoplay` run's `[Bram ...]` lines to check the tutorial reads in order.
 - Synergies (`Synergies.cs`) come from what's been acquired (ten of a kind at a quality per level) or achieved; only
   active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
+- The shop opens up a step at a time (`GameState.UpgradesOpen` once it has earned `UpgradesAt`, `DisplayOpen` with
+  the village shop, `SynergiesOpen` with the town shop), each introduced by a Bram tip when it happens. Gate new
+  systems the same way, in Core, so the sim and the bot follow them.
+- Each shop tier has its own picture (`assets/backgrounds/shop{tier}.png`, drawn by `build_shops` in
+  `tools/import_art.py`, shown with `UiKit.MakeShop`); keep the counter top at y 476 and the shelf at y 196.
+- The game opens on `TitlePhase`; `Main` saves `GameState.Save()` to user://save.json at the start of each day (not
+  for the bot or debugging flags) and Esc opens `PauseMenu`. `Settings` (user://settings.cfg) scales screen shake and
+  flashes: route new screen effects through `Main.Shake`/`Flash`. Anything added to `GameState` that should survive
+  a day boundary goes in `SaveData` too.
 - Every seller has one way of judging a chest (`Judgment`: listening, counting rattles, weight, colour, a dream, a
   trade they know, a sense for magic, no idea) with a blind spot a careful player can see through, one way to trade,
   and maybe one thing they won't stand for, with a reward for putting up with it (`SellerDef` traits like `Patience`,
@@ -83,4 +93,5 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 
 - The Windows .exe has the default Godot icon (rcedit needs Wine; do it in CI instead).
 - Wine 9 in this container can't run the exported .exe. `.github/workflows/windows-build.yml` exports and smoke-tests on a real Windows runner on every push; download builds from the run's artifacts.
-- There's no save game yet, and sellers don't remember you (see `docs/design.md`).
+- The shop saves at the start of each day only (leaving mid-day replays that day), and sellers don't remember you
+  (see `docs/design.md`).

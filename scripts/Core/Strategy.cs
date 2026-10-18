@@ -41,6 +41,22 @@ public static class Strategy
     public static bool ShouldUseMagnet(Visit visit, Hearing hearing, GameState state) => MagnetLevels(visit, hearing, state).Length > 0;
 
     /// <summary>
+    /// What a careful player ticks on faith when they couldn't shake hard enough to hear it: a soft kind the seller
+    /// usually brings (Granny Wick's sewing). Their habit is in the ledger.
+    /// </summary>
+    public static void OnFaith(Visit visit, Appraisal slip, Hearing hearing)
+    {
+        if (hearing.HasTried(Shake.Hard, false)) return;
+        var seller = visit.Seller;
+        float total = seller.Kinds.Sum();
+        foreach (var kind in Categories.UpTo(slip.Tier).Where(k => k.StirsAt == Shake.Hard && slip.Count(k.Category) == 0))
+            if (seller.Kinds[(int)kind.Category] / total >= FaithShare) slip.Set(kind.Category, 1);
+    }
+
+    /// <summary>How much of what a seller brings has to be one kind before a careful player takes it on faith.</summary>
+    const float FaithShare = 0.35f;
+
+    /// <summary>
     /// A haggler's first answer: about half their asking price, never more than the chest is worth to you. When they ask
     /// you to name a price: half what it's worth to you, or just a few coins to someone who has no idea.
     /// </summary>

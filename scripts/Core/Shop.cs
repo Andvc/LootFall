@@ -59,6 +59,9 @@ public sealed class GameState
     /// <summary>If you end a day with less than this, Bram tops you up to it.</summary>
     public const int Allowance = 20;
 
+    /// <summary>Bram lets you spend on the shop once the stall has earned this much, all told.</summary>
+    public const int UpgradesAt = 120;
+
     public int Seed { get; }
     public int Gold { get; set; } = StartingGold;
     public int Day { get; private set; }
@@ -85,7 +88,22 @@ public sealed class GameState
     /// <summary>Sellers whose first-visit lesson has been given.</summary>
     public HashSet<string> Tutored { get; } = new();
 
-    public int DisplaySlots => ShelfSlots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Slots);
+    // The shop opens up a step at a time: renovations once the stall has earned its keep, a shelf to display things
+    // with the village shop, synergies with the town shop, where people start to know you by what you collect.
+
+    /// <summary>What every chest you've bought and opened made you, all told.</summary>
+    public int TotalProfit { get; private set; }
+
+    /// <summary>Renovations and tools are on offer: the stall has earned <see cref="UpgradesAt"/>.</summary>
+    public bool UpgradesOpen { get; private set; }
+
+    /// <summary>Keeping things for display: from the village shop, which has a shelf.</summary>
+    public bool DisplayOpen => Tier >= 2;
+
+    /// <summary>Synergies: from the town shop.</summary>
+    public bool SynergiesOpen => Tier >= 3;
+
+    public int DisplaySlots => DisplayOpen ? ShelfSlots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Slots) : 0;
     public bool DisplayFull => Display.Count >= DisplaySlots;
 
     /// <summary>The exhibition: what your displayed things are worth to visitors' eyes, not their purses.</summary>
@@ -115,12 +133,12 @@ public sealed class GameState
     public int SynergyLevel(string key) => Synergies.Get(key).Level(this);
 
     /// <summary>A synergy's level if it's active, else 0.</summary>
-    public int Active(string key) => ActiveSynergies.Contains(key) ? SynergyLevel(key) : 0;
+    public int Active(string key) => SynergiesOpen && ActiveSynergies.Contains(key) ? SynergyLevel(key) : 0;
 
     /// <summary>Turns a reached synergy on (if there's a free slot) or off. Returns whether it's active now.</summary>
     public bool ToggleSynergy(string key)
     {
-        if (ActiveSynergies.Remove(key)) return false;
+        if (ActiveSynergies.Remove(key) || !SynergiesOpen) return false;
         if (ActiveSynergies.Count >= SynergySlots || SynergyLevel(key) == 0) return false;
         ActiveSynergies.Add(key);
         return true;
@@ -185,7 +203,7 @@ public sealed class GameState
 
     public bool Won => Has("warrant");
 
-    public bool CanBuy(Upgrade upgrade) => Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade) &&
+    public bool CanBuy(Upgrade upgrade) => UpgradesOpen && Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade) &&
                                            (upgrade.Key != "warrant" || Exhibition >= WarrantExhibition);
 
     public void BuyUpgrade(Upgrade upgrade)
@@ -199,6 +217,45 @@ public sealed class GameState
     /// <summary>Hands out a hint key once. Returns false if it's been shown before or tips are off.</summary>
     public bool FirstTime(string hint) => Guided && HintsSeen.Add(hint);
 
+    /// <summary>What carries over to tomorrow, to be written to a save file (taken between days).</summary>
+    public SaveData Save()
+    {
+        var data = new SaveData
+        {
+            SavedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
+            Seed = Seed, Gold = Gold, Day = Day, Tier = Tier, Guided = Guided, TotalProfit = TotalProfit,
+            UpgradesOpen = UpgradesOpen, MagicFound = MagicFound, PerfectStreak = PerfectStreak, BestStreak = BestStreak,
+            Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
+            FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
+            Display = Display.Select(i => new SavedItem { Category = i.Category, Quality = i.Quality, Magic = i.Magic }).ToList(),
+        };
+        foreach (int count in _acquired) data.Acquired.Add(count);
+        return data;
+    }
+
+    /// <summary>A shop as it was saved: ready to start the next day.</summary>
+    public static GameState Load(SaveData data)
+    {
+        var state = new GameState(data.Seed)
+        {
+            Gold = data.Gold, Day = data.Day, Tier = Math.Clamp(data.Tier, 1, ShopTiers.Max), Guided = data.Guided,
+            TotalProfit = data.TotalProfit, UpgradesOpen = data.UpgradesOpen, MagicFound = data.MagicFound,
+            PerfectStreak = data.PerfectStreak, BestStreak = data.BestStreak,
+        };
+        state._owned.UnionWith(data.Owned);
+        state.HintsSeen.UnionWith(data.HintsSeen);
+        state.Met.UnionWith(data.Met);
+        state.Found.UnionWith(data.Found);
+        state.FoundEnchanted.UnionWith(data.FoundEnchanted);
+        state.Tutored.UnionWith(data.Tutored);
+        state.ActiveSynergies.UnionWith(data.ActiveSynergies.Where(key => Synergies.All.Any(s => s.Key == key)));
+        state.Display.AddRange(data.Display.Select(i => new Item(i.Category, i.Quality, i.Magic)));
+        int kinds = state._acquired.GetLength(0), qualities = state._acquired.GetLength(1);
+        for (int i = 0; i < Math.Min(data.Acquired.Count, kinds * qualities); i++)
+            state._acquired[i / qualities, i % qualities] = data.Acquired[i];
+        return state;
+    }
+
     /// <summary>For debugging and screenshots: jump ahead with the tools a player would have by then.</summary>
     public void SkipTo(int tier, int gold)
     {
@@ -206,6 +263,7 @@ public sealed class GameState
             _owned.Add(upgrade.Key);
         Tier = tier;
         Gold = gold;
+        UpgradesOpen = true;
     }
 
     public void StartDay()
@@ -312,7 +370,7 @@ public sealed class GameState
     /// <summary>Puts something on display instead of selling it: you give up its price.</summary>
     public bool Keep(Item item, int value)
     {
-        if (!item.Displayable || DisplayFull || Gold < value) return false;
+        if (!DisplayOpen || !item.Displayable || DisplayFull || Gold < value) return false;
         Display.Add(item);
         Gold -= value;
         Today.Earned -= value;
@@ -334,9 +392,14 @@ public sealed class GameState
         Today.Earned += amount;
     }
 
-    /// <summary>Closes the day. Returns the allowance paid if the shop was nearly broke, else 0.</summary>
+    /// <summary>
+    /// Closes the day: adds its profit to the total (renovations open once it's enough). Returns the allowance paid if
+    /// the shop was nearly broke, else 0.
+    /// </summary>
     public int EndDay()
     {
+        TotalProfit += Today.Profit;
+        if (TotalProfit >= UpgradesAt) UpgradesOpen = true;
         if (Gold >= Allowance) return 0;
         int topUp = Allowance - Gold;
         Gold = Allowance;

@@ -9,6 +9,7 @@ namespace LootFall.Phases;
 /// The lock between you and your chest. Timing mini-game: the pick sweeps around the lock; press when it's inside the
 /// green zone to set a pin. The bright centre is a perfect set. Three slips and the pick snaps, which means forcing the
 /// lid. A masterful pick leaves everything pristine (+25%); the crowbar scratches everything (-10%) and breaks glass.
+/// The first time, Bram explains, and the pick waits until you've read him.
 /// </summary>
 public partial class LockpickPhase : Phase
 {
@@ -26,8 +27,13 @@ public partial class LockpickPhase : Phase
     float _zoneCenter, _zoneWidth, _perfectWidth;
     float _zoneFlash, _slipFlash;
     int _set, _perfects, _slips;
+    MentorView _mentor;
 
     public bool Done { get; private set; }
+    public MentorView Mentor => _mentor;
+
+    /// <summary>Bram is explaining: the pick holds still and presses don't count.</summary>
+    bool Waiting => _mentor.Showing;
     public bool InPerfectZone => !Done && MathF.Abs(AngleDiff(_angle, _zoneCenter)) <= _perfectWidth / 2f - 0.5f;
 
     public override void _Ready()
@@ -41,7 +47,7 @@ public partial class LockpickPhase : Phase
         PlaceZone();
 
         var metal = Palette.Lock(_lock) ?? Palette.MetalLight;
-        Add(UiKit.MakeBackdrop("cellar_night", 0.5f));
+        Add(UiKit.MakeShop(State.Tier, 0.38f));
         Add(UiKit.MakeLabel("PICK THE LOCK", 32, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 64, 1280, 40));
         Add(UiKit.MakeLabel($"{_lock.Name}: {_lock.Pins} pins", 16, metal, HorizontalAlignment.Center, outline: 4).Place(0, 102, 1280, 24));
 
@@ -56,13 +62,15 @@ public partial class LockpickPhase : Phase
         string warning = glass ? "Your slip says there's glass in there. Forcing it will break it." : "Forcing it is quick, but it scratches everything and breaks glass.";
         Add(UiKit.MakeLabel(warning, 16, glass ? Palette.Warn : Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(0, 688, 1280, 20));
         _crowbar = Add(UiKit.MakeButton("Force it with a crowbar  [F]", Palette.Bad, 16, Force).Place(480, 624, 320, 52));
+        _mentor = Add(new MentorView { Position = new Vector2(24, 300), ZIndex = 20 });
+        if (State.FirstTime("lockpick")) _mentor.Say(Hints.Get("lockpick"));
         Game.Moment("06_lockpick", 0.6);
     }
 
     public override void _Process(double delta)
     {
         float dt = (float)delta;
-        if (!Done) _angle = Mathf.Wrap(_angle + _dir * _speed * dt, 0f, 360f);
+        if (!Done && !Waiting) _angle = Mathf.Wrap(_angle + _dir * _speed * dt, 0f, 360f);
         _zoneFlash = Mathf.Max(0, _zoneFlash - dt * 3f);
         _slipFlash = Mathf.Max(0, _slipFlash - dt * 2.5f);
         _dial.QueueRedraw();
@@ -83,7 +91,7 @@ public partial class LockpickPhase : Phase
 
     public void TryPin()
     {
-        if (Done) return;
+        if (Done || Waiting) return;
         float d = MathF.Abs(AngleDiff(_angle, _zoneCenter));
         if (d <= _zoneWidth / 2f)
         {
@@ -118,7 +126,7 @@ public partial class LockpickPhase : Phase
 
     public void Force()
     {
-        if (Done) return;
+        if (Done || Waiting) return;
         Finish(PickGrade.Forced);
     }
 

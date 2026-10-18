@@ -18,7 +18,7 @@ public static class Simulation
     /// <summary>The order a sensible player buys things in.</summary>
     public static readonly string[] BuyOrder =
     {
-        "shop2", "sign", "trumpet", "cabinet1", "picks", "shop3", "lamp", "charter", "cabinet2", "shop4", "magnet", "cabinet3", "seal",
+        "shop2", "sign", "cabinet1", "picks", "shop3", "lamp", "charter", "cabinet2", "shop4", "magnet", "cabinet3", "seal",
         "warrant",
     };
 
@@ -92,7 +92,6 @@ public static class Simulation
         {
             var state = new GameState(1) { Guided = false };
             state.SkipTo(seller.Tier, 100000);
-            if (seller.Tier >= 2) state.BuyUpgrade(Upgrades.Get("trumpet"));
             if (seller.Tier >= 3) state.BuyUpgrade(Upgrades.Get("lamp"));
             if (seller.Tier >= 4) state.BuyUpgrade(Upgrades.Get("magnet"));
             int buys = 0, n = 2000;
@@ -149,6 +148,7 @@ public static class Simulation
         {
             hearing = Listen(visit, state, rng, care == Care.Tools);
             slip = hearing.Read(chest.Quality, tier);
+            Strategy.OnFaith(visit, slip, hearing);
         }
 
         int worth = Strategy.Worth(visit, slip, hearing);
@@ -188,7 +188,7 @@ public static class Simulation
     {
         var chest = visit.Chest;
         bool lamp = tools && state.Has("lamp");
-        var hearing = Hearing.Simulate(chest, Strategy.Levels(visit), lamp, trumpet: tools && state.Has("trumpet"));
+        var hearing = Hearing.Simulate(chest, Strategy.Levels(visit), lamp);
         if (tools) hearing.Listen(chest, Strategy.MagnetLevels(visit, hearing, state), lamp, magnet: true);
         if (Strategy.ShouldDrop(visit, hearing, state.Tier))
         {
@@ -300,13 +300,13 @@ public static class Simulation
             var state = new GameState(3) { Guided = true };
             state.SkipTo(seller.Tier, 5000);
             if (tools)
-                foreach (var key in new[] { "trumpet", "lamp", "magnet" })
+                foreach (var key in new[] { "lamp", "magnet" })
                     if (Upgrades.Get(key).MinTier <= seller.Tier) state.BuyUpgrade(Upgrades.Get(key));
             var rng = new Random(7);
             var visit = lesson.Make(rng, state.Tier);
             visit.Lesson = lesson;
             var steps = lesson.For(state);
-            var hearing = new Hearing { Trumpet = state.Has("trumpet") };
+            var hearing = new Hearing();
             var slip = new Appraisal(visit, state.Tier);
             int step = 0;
             var check = () => new LessonCheck { Visit = visit, Slip = slip, Hearing = hearing, State = state };
@@ -331,6 +331,7 @@ public static class Simulation
                 Advance();
             }
             var read = hearing.Read(visit.Chest.Quality, state.Tier);
+            Strategy.OnFaith(visit, read, hearing);
             foreach (var kind in Categories.UpTo(state.Tier).Select(k => k.Category))
             {
                 slip.Set(kind, read.Count(kind), read.Magic(kind));

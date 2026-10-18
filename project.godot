@@ -6,10 +6,10 @@ config_version=5
 [application]
 
 config/name="LootFall"
-config/description="Appraise sealed chests, outbid rivals, pick the lock, and crack them open."
+config/description="Shake sealed chests, read the clues, strike a deal with each customer, and crack them open."
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://assets/ui/icon.png"
 
 [display]
 

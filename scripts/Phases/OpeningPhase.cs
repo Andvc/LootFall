@@ -23,7 +23,7 @@ public partial class OpeningPhase : Phase
 
     const float BuildSeconds = 0.9f;
     const int ChestPixel = 14;
-    const float TableY = 476, LandY = 564;
+    const float LandY = 564;
 
     /// <summary>The chest's origin is its lid seam, where light and loot come out.</summary>
     static readonly Vector2 SeamPos = new(640, 400);
@@ -56,9 +56,8 @@ public partial class OpeningPhase : Phase
         _report = _purchase.Slip.Check(_purchase.Chest);
         _colour = _purchase.Chest.Quality;
 
-        Add(UiKit.MakeBackdrop("cellar_night", 0.4f));
+        Add(UiKit.MakeShop(State.Tier, 0.42f));
         _rays = Add(new Painter(DrawRays) { Position = SeamPos, Material = Fx.Additive() });
-        Add(new Painter(DrawTable));
         _chest = Add(new ChestView { Position = SeamPos, PixelSize = ChestPixel, Skin = _purchase.Chest.Skin, GlowColor = Palette.Of(_colour) });
         // The burst is in the chest's own colour: what's better than that is for the things inside to show.
         _sparks = Add(Fx.Sparks(Palette.Of(_colour), 140, 280, 820, spread: 70f, lifetime: 1.4f));
@@ -590,12 +589,13 @@ public partial class OpeningPhase : Phase
         Add(UiKit.MakeLabel(visit.Explain() + grade, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(160, 246, 800, 64));
         bool last = State.Queue.Count == 0;
         Add(UiKit.MakeButton(last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next).Place(1000, 300, 260, 52));
-        foreach (var (item, at, worth) in _landed) AddKeepButton(item, at, worth);
+        if (State.DisplayOpen)
+            foreach (var (item, at, worth) in _landed) AddKeepButton(item, at, worth);
 
         _mentor = Add(new MentorView { Position = new Vector2(812, 72), ZIndex = 20 });
         Teach("opened");
         if (_landed.Any(l => l.Item.Quality != _purchase.Chest.Quality && l.Item.Displayable)) Teach("quality");
-        if (_landed.Any(l => l.Item.Displayable && l.Item.Prestige >= 4)) Teach("keep");
+        if (State.DisplayOpen && _landed.Any(l => l.Item.Displayable && l.Item.Prestige >= 4)) Teach("keep");
         Game.Moment("08_verdict", 1.2);
     }
 
@@ -729,7 +729,7 @@ public partial class OpeningPhase : Phase
     /// <summary>Coins arc from the stamp into the purse in the corner, one tick each, and the purse counts up.</summary>
     void FlyCoins(Vector2 from, int count)
     {
-        var purse = new Vector2(1084, 27);
+        var purse = Hud.Purse;
         // Above the HUD, so the coins land in the purse rather than sliding under the bar.
         var layer = Add(new CanvasLayer { Layer = 11 });
         for (int i = 0; i < count; i++)
@@ -758,15 +758,6 @@ public partial class OpeningPhase : Phase
         if (_step != Step.Done) return;
         Sfx.Play("bid");
         Game.NextCustomer();
-    }
-
-    void DrawTable(Painter p)
-    {
-        p.DrawRect(new Rect2(-100, TableY, 1480, 18), new Color("#93602f"));
-        p.DrawRect(new Rect2(-100, TableY, 1480, 3), new Color("#b07a40"));
-        p.DrawRect(new Rect2(-100, TableY + 18, 1480, 360), new Color("#5e3718"));
-        for (float x = 0; x < 1280; x += 128) p.DrawRect(new Rect2(x, TableY + 18, 3, 360), new Color("#4a2a14"));
-        p.DrawRect(new Rect2(-100, TableY + 18, 1480, 6), new Color(0, 0, 0, 0.35f));
     }
 
     void DrawRays(Painter p)

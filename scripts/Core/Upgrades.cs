@@ -25,7 +25,6 @@ public static class Upgrades
         new("shop2", "Village Shop", "5 customers a day, better chests, locks, and two new sounds: slosh and rustle.", 60, 1, "shop", SetsTier: 2),
 
         new("sign", "Painted Sign", "One more customer every day.", 40, 2, "sign"),
-        new("trumpet", "Ear Trumpet", "Hear through cloth: padded metal, coins and jewelry sound at their usual shake.", 100, 2, "trumpet"),
         new("cabinet1", "Oak Cabinet", "Room to display three more things. Displays draw customers.", 60, 2, "cabinet", Slots: 3),
         new("picks", "Fine Lockpicks", "A wider sweet spot when you pick a lock.", 50, 2, "picks"),
         new("shop3", "Town Shop", "6 customers a day: mages with enchanted things, a miner, and jewelry.", 200, 2, "shop", SetsTier: 3),
@@ -44,7 +43,10 @@ public static class Upgrades
 
     public static Upgrade Get(string key) => All.First(u => u.Key == key);
 
-    /// <summary>What's on offer now: the right tier, not owned yet, and only the next renovation.</summary>
-    public static IEnumerable<Upgrade> Available(GameState state) =>
+    /// <summary>
+    /// What's on offer now: nothing until the stall has earned its keep; then the right tier, not owned yet, and only
+    /// the next renovation.
+    /// </summary>
+    public static IEnumerable<Upgrade> Available(GameState state) => !state.UpgradesOpen ? Enumerable.Empty<Upgrade>() :
         All.Where(u => u.MinTier <= state.Tier && !state.Has(u.Key) && (!u.IsRenovation || u.SetsTier == state.Tier + 1));
 }

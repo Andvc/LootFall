@@ -18,9 +18,6 @@ public sealed class Hearing
     readonly HashSet<int> _glowed = new();
     readonly HashSet<int> _broke = new();
 
-    /// <summary>Listening through an ear trumpet: cloth doesn't muffle anything.</summary>
-    public bool Trumpet { get; set; }
-
     /// <summary>The chest has been dropped, and whether it boomed hollow.</summary>
     public bool Dropped { get; private set; }
     public bool Hollow { get; private set; }
@@ -78,24 +75,9 @@ public sealed class Hearing
     }
 
     /// <summary>
-    /// A hard thing that only sounded one shake later than it should, though the gentler shake was tried: cloth must be
-    /// packed around it, even if you never heard the flump.
-    /// </summary>
-    bool SoundsPadded(int item)
-    {
-        var def = Categories.Get(_kinds[item]);
-        var first = FirstHeard(item);
-        return !Trumpet && def.Muffled && first == def.StirsAt + 1 && HasTried(def.StirsAt, false);
-    }
-
-    /// <summary>A hard thing sounded a shake late: there's cloth in there.</summary>
-    public bool HeardPadded => _heard.Select(h => h.Item).Distinct().Any(SoundsPadded);
-
-    /// <summary>
     /// A careful read: every separate thing that made a sound is in there, counted kind by kind; anything that glowed is
     /// enchanted; a jingle or tinkle that goes quiet once the magnet is on is gilded iron, and a rustle at a gentle shake is
-    /// sand, so neither counts; glass you heard break is worth nothing now; a hard thing that only sounded one shake late
-    /// was padded, so there's cloth; a hollow boom is a false bottom.
+    /// sand, so neither counts; glass you heard break is worth nothing now; a hollow boom is a false bottom.
     /// </summary>
     public Appraisal Read(Rarity chest, int tier)
     {
@@ -103,17 +85,15 @@ public sealed class Hearing
         var real = _heard.Select(h => h.Item).Distinct().Where(id => !Silenced(id) && !TooSoon(id) && !_broke.Contains(id)).ToList();
         foreach (var kind in real.GroupBy(id => _kinds[id]))
             slip.Set(kind.Key, kind.Count(), kind.Any(_glowed.Contains));
-        if (slip.Count(Category.Cloth) == 0 && real.Any(SoundsPadded)) slip.Set(Category.Cloth, 1);
         return slip;
     }
 
     /// <summary>What a player perceives by shaking at these levels, by the rules.</summary>
     /// <param name="lamp">The witchlight is lit: anything enchanted glows when it sounds.</param>
     /// <param name="magnetLevels">Levels also tried with the magnet on.</param>
-    /// <param name="trumpet">Listening through an ear trumpet.</param>
-    public static Hearing Simulate(Chest chest, IEnumerable<Shake> levels, bool lamp = false, IEnumerable<Shake> magnetLevels = null, bool trumpet = false)
+    public static Hearing Simulate(Chest chest, IEnumerable<Shake> levels, bool lamp = false, IEnumerable<Shake> magnetLevels = null)
     {
-        var hearing = new Hearing { Trumpet = trumpet };
+        var hearing = new Hearing();
         hearing.Listen(chest, levels, lamp);
         hearing.Listen(chest, magnetLevels ?? Enumerable.Empty<Shake>(), lamp, magnet: true);
         return hearing;
@@ -125,7 +105,7 @@ public sealed class Hearing
         foreach (var level in levels)
         {
             Tried(level, magnet);
-            foreach (var item in chest.HeardAt(level, magnet, Trumpet)) Heard(item, level, magnet, lamp && item.Magic);
+            foreach (var item in chest.HeardAt(level, magnet)) Heard(item, level, magnet, lamp && item.Magic);
         }
     }
 }

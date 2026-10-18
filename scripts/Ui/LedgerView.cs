@@ -51,7 +51,9 @@ public partial class LedgerView : Node2D
         AddChild(UiKit.MakeButton("Sounds", Palette.Text, 16, () => ShowPage(0)).Place(PanelX + 220, PanelY + 14, 120, 36));
         AddChild(UiKit.MakeButton("Regulars", Palette.Text, 16, () => ShowPage(1)).Place(PanelX + 348, PanelY + 14, 140, 36));
         AddChild(UiKit.MakeButton("Collection", Palette.Text, 16, () => ShowPage(2)).Place(PanelX + 496, PanelY + 14, 160, 36));
-        AddChild(UiKit.MakeButton("Synergies", Palette.Text, 16, () => ShowPage(3)).Place(PanelX + 664, PanelY + 14, 152, 36));
+        // Synergies come with the town shop: before that, the journal just keeps its tally.
+        if (_state.SynergiesOpen)
+            AddChild(UiKit.MakeButton("Synergies", Palette.Text, 16, () => ShowPage(3)).Place(PanelX + 664, PanelY + 14, 152, 36));
         AddChild(UiKit.MakeButton("Close  [L]", Palette.Text, 16, Close).Place(PanelX + PanelW - 168, PanelY + 12, 144, 40));
         _page = new Node2D();
         AddChild(_page);
@@ -68,7 +70,7 @@ public partial class LedgerView : Node2D
         foreach (var child in _page.GetChildren()) child.QueueFree();
         if (page == 1) BuildRegulars(Spread(_state.Tier));
         else if (page == 2) BuildCollection();
-        else if (page == 3) BuildSynergies();
+        else if (page == 3 && _state.SynergiesOpen) BuildSynergies();
         else BuildSounds();
     }
 
@@ -196,7 +198,6 @@ public partial class LedgerView : Node2D
         {
             "Light things rattle at a gentle shake, metal at a firm one, soft things only at a hard one. Click a row to hear it.",
             "While metal clanks, delicate things go unheard: shake gently to hear past it.",
-            tier >= 2 ? "Cloth packed in a chest muffles metal, coins and jewelry: they sound one shake harder. An ear trumpet hears through it." : null,
             tier >= 2 ? "Dropped, a chest with a false bottom booms hollow. Glass may break." : null,
             tier >= 3 ? "Two or three of a kind each sound from their own spot: count them. Sand rustles like paper, but pours at a gentle shake." : null,
             tier >= 3 ? $"Anything can be enchanted: it sounds the same, but glows under a witchlight. Worth x{Categories.MagicMultiplier}." +

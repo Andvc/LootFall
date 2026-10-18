@@ -89,8 +89,7 @@ public partial class CounterPhase : Phase
         _visit = State.Current;
         _slip = new Appraisal(_visit, State.Tier);
         _patience = _visit.Seller.Patience;
-        Add(UiKit.MakeBackdrop("cellar_night", 0.75f));
-        Add(new Painter(DrawCounter));
+        Add(UiKit.MakeShop(State.Tier, 0.92f));
         BuildShelf();
 
         _seller = Add(new SellerView(_visit.Seller) { Position = new Vector2(150, 196) });
@@ -98,10 +97,9 @@ public partial class CounterPhase : Phase
         _shake.View.LockColor = Palette.Lock(_visit.Chest.Lock);
         _shake.Heard += OnHeard;
         _shake.Landed += OnLanded;
-        // Once you own the witchlight it's always lit: magic glows when it makes a sound. The trumpet hears through cloth.
+        // Once you own the witchlight it's always lit: anything enchanted glows when it makes a sound.
         _lamp = State.Has("lamp");
         _shake.Witchlight = _lamp;
-        _shake.Trumpet = _hearing.Trumpet = State.Has("trumpet");
         _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(316, 452, 484, 20));
         _hint.ZIndex = 10;
         _notes = Add(UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(316, 492, 484, 88));
@@ -204,13 +202,13 @@ public partial class CounterPhase : Phase
             return;
         }
         if (firstOfDay && State.Day == 2) Teach("colours");
+        if (!firstOfDay && State.Day >= 2) Teach("ledger");
         if (firstOfDay && State.Tier > 1) Teach($"tier{State.Tier}");
         // A seller's first visit is a lesson; one without a lesson gets Bram's tip.
         if (met && _visit.Lesson == null) Teach($"seller_{_visit.Seller.Key}");
         Teach(_visit.Trade switch { Trade.Haggle => "haggle", Trade.Offer => "offer", _ => "fixed" });
         if (_visit.Chest.Lock.Locked) Teach("locked");
         if (_lamp) Teach("lamp");
-        if (_shake.Trumpet) Teach("trumpet");
     }
 
     void Teach(string key)
@@ -261,27 +259,11 @@ public partial class CounterPhase : Phase
         }
     }
 
-    void DrawCounter(Painter p)
-    {
-        const float top = 476, right = 816;
-        p.DrawRect(new Rect2(0, top, right, 18), new Color("#93602f"));
-        p.DrawRect(new Rect2(0, top, right, 3), new Color("#b07a40"));
-        p.DrawRect(new Rect2(0, top + 18, right, 720 - top), new Color("#5e3718"));
-        for (float x = 0; x < right; x += 96) p.DrawRect(new Rect2(x, top + 18, 3, 720 - top), new Color("#4a2a14"));
-        p.DrawRect(new Rect2(0, top + 18, right, 6), new Color(0, 0, 0, 0.35f));
-    }
-
-    /// <summary>The shelf behind the counter, with whatever you've kept on display.</summary>
+    /// <summary>Whatever you've kept on display, standing on the shop's shelf (part of the picture from the village shop on).</summary>
     void BuildShelf()
     {
+        if (!State.DisplayOpen) return;
         const float y = 196, x0 = 300, w = 504;
-        Add(new Painter(p =>
-        {
-            p.DrawRect(new Rect2(x0, y, w, 8), new Color("#6e4520"));
-            p.DrawRect(new Rect2(x0, y, w, 2), new Color("#93602f"));
-            p.DrawRect(new Rect2(x0 + 8, y + 8, 6, 14), new Color("#4e2c12"));
-            p.DrawRect(new Rect2(x0 + w - 14, y + 8, 6, 14), new Color("#4e2c12"));
-        }));
         var shown = State.Display;
         for (int i = 0; i < shown.Count; i++)
         {
@@ -329,10 +311,9 @@ public partial class CounterPhase : Phase
             y += RowStep;
         }
 
-        // The tools: the witchlight and the trumpet are always on (signs), the magnet is a switch.
+        // The tools: the witchlight is always on (a sign), the magnet is a switch.
         var signs = new List<(string Icon, string Short, string Long)>();
         if (State.Has("lamp")) signs.Add(("lamp", "Witchlight", "Witchlight lit: enchanted things glow"));
-        if (State.Has("trumpet")) signs.Add(("trumpet", "Trumpet", "Ear trumpet: hears through cloth"));
         bool magnet = State.Has("magnet");
         int tools = signs.Count + (magnet ? 1 : 0);
         if (tools > 0)
@@ -372,7 +353,7 @@ public partial class CounterPhase : Phase
         panel.AddChild(_chanceText);
 
         _slider = new HSlider { Step = 1, MinValue = 1, FocusMode = Control.FocusModeEnum.None };
-        StyleSlider(_slider);
+        UiKit.StyleSlider(_slider);
         _slider.ValueChanged += _ => Refresh();
         panel.AddChild(_slider.Place(PanelX, 560, PanelW, 24));
 
@@ -386,7 +367,7 @@ public partial class CounterPhase : Phase
         panel.AddChild(_footer);
 
         int guess = Math.Max(1, _visit.Ask > 0 ? Money.Round(_visit.Ask * 0.55f) : Money.Round(_slip.Worth * 0.5f));
-        _slider.MaxValue = Math.Max(2, Math.Max(_visit.Ask, _slip.Worth * 2));
+        _slider.MaxValue = OfferCeiling(_slip.Worth);
         _slider.Value = guess;
     }
 
@@ -446,20 +427,6 @@ public partial class CounterPhase : Phase
         return button;
     }
 
-    static void StyleSlider(HSlider slider)
-    {
-        var coin = GD.Load<Texture2D>("res://assets/sprites/items/gold_doubloons.png");
-        var track = new StyleBoxFlat { BgColor = new Color("#120e1a"), BorderColor = Palette.PanelBorder, AntiAliasing = false };
-        track.SetBorderWidthAll(3);
-        track.SetContentMarginAll(6);
-        var fill = new StyleBoxFlat { BgColor = Palette.Good.Darkened(0.45f), AntiAliasing = false };
-        fill.SetContentMarginAll(6);
-        slider.AddThemeStyleboxOverride("slider", track);
-        slider.AddThemeStyleboxOverride("grabber_area", fill);
-        slider.AddThemeStyleboxOverride("grabber_area_highlight", fill);
-        slider.AddThemeIconOverride("grabber", coin);
-        slider.AddThemeIconOverride("grabber_highlight", coin);
-    }
 
     void Refresh()
     {
@@ -496,7 +463,7 @@ public partial class CounterPhase : Phase
         _slider.Visible = offering && open;
         _offer.Visible = offering;
         int offer = (int)_slider.Value;
-        _slider.MaxValue = Math.Max(2, Math.Min(State.Gold, Math.Max(_visit.Ask, worth * 2)));
+        _slider.MaxValue = OfferCeiling(worth);
         _offer.Text = $"Offer {offer}g";
         _offer.Disabled = !open || !TradeOpen || offer > State.Gold;
         // With an offer to make, the buy button moves aside (hagglers) or isn't there (name-a-price).
@@ -521,14 +488,16 @@ public partial class CounterPhase : Phase
         int price = bought ? _visit.PricePaid : offering ? offer : _visit.Ask;
         bool priced = price > 0 && worth > 0;
         _chanceShown = priced ? _slip.ChanceAbove(price, State.SaleMultiplier) : -1;
-        _chanceText.Text = worth == 0 ? "Tick what you think is inside."
+        _chanceText.Text = worth == 0 && _hearing.HasTried(Core.Shake.Hard, false) && _hearing.HasTried(Core.Shake.Gentle, false)
+                ? "Not a sound: empty, as far as you can tell."
+            : worth == 0 ? "Tick what you think is inside."
             : !priced ? "Name a price: the bar shows your odds."
             : $"Worth more than {price}g? {ChanceWords(_chanceShown)}";
         _chance.QueueRedraw();
         _ledgerButton.Disabled = Busy;
         if (_magnetButton != null)
         {
-            // Short, so it fits beside the witchlight and trumpet signs; the hint under the chest says what it does.
+            // Short, so it fits beside the witchlight's sign; the hint under the chest says what it does.
             _magnetButton.Text = _magnet ? "On" : "Magnet";
             _magnetButton.Disabled = !open;
         }
@@ -536,6 +505,12 @@ public partial class CounterPhase : Phase
         int left = State.Queue.Count;
         _footer.Text = left == 0 ? "Last customer today." : $"{left} more waiting today.";
     }
+
+    /// <summary>
+    /// The most the offer slider goes to: twice what the slip says (or their price), and never less than a few coins
+    /// a shop tier, so there's always room to name a price, even for a chest you think is empty. No more than you have.
+    /// </summary>
+    int OfferCeiling(int worth) => Math.Max(2, Math.Min(State.Gold, Math.Max(12 * State.Tier, Math.Max(_visit.Ask, worth * 2))));
 
     /// <summary>A chance as the bar says it: "62%", with "under 1%" and "over 99%" rather than a promise.</summary>
     static string ChanceWords(float chance) =>
@@ -565,7 +540,6 @@ public partial class CounterPhase : Phase
         bool glowed = _lamp && item.Magic;
         _hearing.Heard(item, level, _magnet, glowed);
         Teach($"heard_{item.Category}");
-        if (_hearing.HeardPadded) Teach("padded");
         if (glowed)
         {
             Teach("glow");

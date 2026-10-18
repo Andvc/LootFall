@@ -196,8 +196,7 @@ public sealed class Visit
             if (unheard.Count > 0)
             {
                 string words = Join(unheard.Select(i => i.Word).Distinct());
-                string why = unheard.All(i => Chest.Muffled(i, Seller.Shakes)) ? $"Cloth muffled the {words} for {name}"
-                    : unheard.All(i => i.Def.Delicate && Chest.Clanks(Seller.Shakes)) ? $"The clank drowned out the {words} for {name}"
+                string why = unheard.All(i => i.Def.Delicate && Chest.Clanks(Seller.Shakes)) ? $"The clank drowned out the {words} for {name}"
                     : unheard.All(i => i.StirsAt > Seller.Shakes) ? $"{name} didn't shake hard enough to stir the {words}"
                     : $"{name} shook {Categories.Adverb(Seller.Shakes)} and missed the {words}";
                 lines.Add($"{why}: {Join(unheard.Select(i => i.Name))}, unpriced.");

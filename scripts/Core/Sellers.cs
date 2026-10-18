@@ -262,8 +262,8 @@ public static class Sellers
         {
             Key = "wick", Name = "Granny Wick", Tier = 2, Shakes = Shake.Firm, HatesHardShake = true, MissRate = 0.45f, Markup = (1.8f, 2.1f),
             Kinds = new[] { 1f, 2, 5, 1, 3, 0.5f }, Colours = Village,
-            Habit = "A seamstress: listens firmly, never hard. There's usually cloth in her chests, which muffles the rest. " +
-                    "Shake one hard and it's half again.",
+            Habit = "A seamstress: listens firmly, never hard, so she never hears her own sewing (cloth only flumps at a hard " +
+                    "shake). There's usually some in her chests. Shake one hard and it's half again.",
             Pitches = new[] { "A firm shake is all it needs, dearie. {heard}. {price}. And don't you shake it hard!",
                               "Mind my sewing. Firm, never hard. {heard}. Just {price}." },
             Accepts = new[] { "Lovely.", "Mind you fold it nicely." },

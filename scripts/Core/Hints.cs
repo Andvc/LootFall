@@ -27,7 +27,8 @@ public static class Hints
                          "didn't, pass: sellers always ask a bit more than it's worth.",
         ["passed"] = "When you pass, they take it away unopened: you'll never know for sure. But your gut usually has an opinion.",
         ["opened"] = "A tick is a good read. A cross is something to listen for next time.",
-        ["dayend"] = "Spend what you earn on the shop. A bigger shop brings richer customers, and new sounds.",
+        ["dayend"] = $"That's a day's trading. Every coin goes toward fixing up the stall: once it's earned {GameState.UpgradesAt}g, " +
+                     "all told, we'll talk renovations.",
 
         // From the second day: chest colours and the ways people trade.
         ["colours"] = "Look at the chest's colour: wood, green, blue, purple. It tells you how good things inside tend to be. " +
@@ -43,12 +44,24 @@ public static class Hints
         ["kept"] = "On display. You'll see it on the shelf behind the counter.",
         ["exhibition"] = "Your exhibition. Click anything in it to sell it if you need the money.",
 
+        // The shop opens up a step at a time.
+        ["upgrades"] = $"{GameState.UpgradesAt}g earned: the stall pays its way! Now spend it on the shop. A Village Shop brings more customers, " +
+                       "richer chests, and a shelf for your best finds.",
+        ["display"] = "A shelf behind the counter! Now you can keep grand things for display instead of selling them: an " +
+                      "exhibition draws more customers, and better chests. Cabinets hold more.",
+        ["synergy"] = "Town folk know a shop by what it collects. Your journal has tallied everything you've acquired: ten of a " +
+                      "kind earns a synergy. Open Synergies and put one to work.",
+        ["slots"] = "Another synergy slot: open Synergies and put one more to work.",
+        ["warrant"] = $"The Emporium! Now for the Royal Warrant: {Upgrades.Get("warrant").Cost}g, and an exhibition of " +
+                      $"{GameState.WarrantExhibition} to impress the Crown.",
+        ["ledger"] = "Forgotten a sound? Press L for your ledger: the sounds, the regulars you've met, and everything you've found.",
+        ["lockpick"] = "The pick sweeps round the lock. Press Space, or click, while it's in the green to set a pin; outside it, " +
+                       "it slips. Set every pin cleanly for a masterful pick: everything inside is worth more.",
+
         // Each renovation brings one new thing.
         ["tier2"] = "Village folk bring two new sounds. Bottles slosh at a gentle shake, like coins. " +
                     "Paper rustles only at a hard shake, like cloth. And some chests are locked, or have a false bottom.",
         ["locked"] = "Locked. Buy it and you'll pick the lock before you open it. A crowbar's quicker, but it breaks glass.",
-        ["padded"] = "Heard it a shake late? Cloth in a chest settles around hard things (coins, metal, jewelry) and muffles " +
-                     "them: they sound one shake harder than usual. So there's cloth in there: tick it.",
         ["dropped"] = "Dropped! A solid thud is a plain chest. A hollow boom means a false bottom: something hidden nobody's priced.",
         ["hollow"] = "Hear that boom? A false bottom. Tick it on your slip: whatever's in there, nobody's priced it.",
         ["broke"] = "Glass breaks when you drop it. If you heard a slosh, think twice before dropping.",
@@ -59,10 +72,7 @@ public static class Hints
         ["heard_Jewels"] = "Tinkle: jewelry. Delicate, and worth the most.",
         ["lamp"] = "The witchlight's lit, and it stays lit: anything enchanted glows when it makes a sound. Click the star on a row " +
                    "to mark one enchanted.",
-        ["trumpet"] = "Your ear trumpet hears through cloth: padded things sound at their usual shake now. Sellers don't have one.",
         ["counted"] = "Two of a kind: each one adds its value. Sellers who don't count only price one.",
-        ["synergy"] = "The shop's getting a name for something: a synergy. Open Synergies and put it to work. One at a time, " +
-                      "until you buy a Guild Charter.",
         ["glow"] = "It glowed! That one's enchanted: worth twice as much. Click the star on its row to mark it.",
         ["tier4"] = "The Emporium. Nobles, adventurers and a crook. Mind Silas: he sells gilded iron as gold and jewels, " +
                     "and it sounds just like the real thing. A magnet would catch it.",

@@ -2,10 +2,11 @@
 
 A small game about the satisfaction of opening treasure chests. You inherit a roadside stall; people bring you
 chests and price them their own way: by what they heard, by weight, by the chest's colour, or by a dream. Shake each
-one yourself, gently, firmly and hard, find what they missed or misjudged, trade for it, and open it on the spot. Keep the best for your exhibition and grow the stall into the
-finest shop in the kingdom.
+one yourself, gently, firmly and hard, find what they missed or misjudged, trade for it, and open it on the spot.
+Keep the best for your exhibition and grow the stall into the finest shop in the kingdom.
 
-**Status:** playable prototype. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
+**Status:** Early Access (0.9): the full loop from roadside stall to Royal Warrant, with saves, settings and a guided
+start. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
 Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam.
 Design rationale: [docs/design.md](docs/design.md).
 
@@ -18,9 +19,9 @@ Design rationale: [docs/design.md](docs/design.md).
 2. **Shake it yourself.** How fast you drag is how hard you shake. Light things (coins jingle, bottles slosh,
    jewelry tinkles) rattle at a gentle shake; metal only clanks at a firm one, and its clanking drowns out anything
    delicate; soft things (cloth flumps, paper rustles) only sound at a hard shake. Lift it high and let go to drop it:
-   a hollow boom means a false bottom (but glass may break). As the shop grows, more to work out: cloth that muffles
-   the hard things packed with it, two or three of a kind (count the rattles), sand that rustles like paper, enchanted
-   things that only a witchlight shows, gilded fakes.
+   a hollow boom means a false bottom (but glass may break). As the shop grows, more to work out: two or three of a
+   kind (count the rattles), sand that rustles like paper, enchanted things that only a witchlight shows, gilded
+   fakes.
 3. **Correct the slip and trade.** Mark how many of each kind are in there; the slip adds them up at what they'd be
    worth if they're as good as the chest's colour promises, and an odds bar (red to green) says how likely it is to be
    worth more than the price, or your offer. Then pay their price, haggle, or name your own, depending on who it is.
@@ -29,12 +30,15 @@ Design rationale: [docs/design.md](docs/design.md).
    against your slip; anything better than its chest climbs, quality by quality, with more fuss for every step, and
    anything worse sags as its colour drains. The profit is stamped across the screen with your gut's verdict and why
    the seller missed it. Keep grand things for your exhibition (enchanted ones count double).
-5. **End of day:** spend your earnings on renovations (each brings richer customers and something new), tools (the
-   Ear Trumpet hears through cloth, the Witchlight shows what's enchanted, the Magnet silences iron and fakes, Fine Lockpicks),
-   and cabinets, and choose which of the shop's synergies to put to work (ten of a kind at a quality earns one).
+5. **End of day:** once the stall has earned 120g, spend your earnings on renovations (each brings richer customers,
+   a new look and something new), tools (the Witchlight shows what's enchanted, the Magnet silences iron and fakes,
+   Fine Lockpicks) and cabinets. From the town shop, choose which of the shop's synergies to put to work (ten of a
+   kind at a quality earns one).
 
 Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each. After
-that, each seller's first visit is a lesson in their habit.
+that, each seller's first visit is a lesson in their habit, and each new part of the shop (renovations, lockpicking,
+the display shelf, synergies, the warrant) comes with a word from Bram when it opens up. The shop saves at the start
+of every day.
 
 ## Controls
 
@@ -53,6 +57,7 @@ that, each seller's first visit is a lesson in their habit.
 | Keep something for display | Its Keep button after an opening (Swap when the display is full); sell it back from the exhibition at day end |
 | Choose synergies | Synergies, at the end of a day |
 | Next tip from Bram | Click his box |
+| Pause, settings, quit to title | Esc, or Menu in the top bar |
 
 ## Development
 
@@ -76,6 +81,7 @@ godot --headless --path . -- --shake-test                  # check that shaking 
 xvfb-run -a godot --path . --rendering-driver opengl3 -- \
   --autoplay --days=1 --shots=$PWD/shots                   # play the guided day, save screenshots
 # add --start-tier=3 --gold=600 to jump ahead with the tools you'd have by then
+xvfb-run -a godot --path . -- --shell-demo --shots=$PWD/shots_shell  # title, pause and settings screenshots
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```
 

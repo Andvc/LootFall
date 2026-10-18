@@ -150,6 +150,7 @@ public partial class Autoplay : Node
 
         // The slip, corrected from what it heard (how many of each, and which glowed), one row at a time.
         var read = counter.Hearing.Read(visit.Chest.Quality, State.Tier);
+        Strategy.OnFaith(visit, read, counter.Hearing);
         foreach (var kind in Categories.UpTo(State.Tier).Select(k => k.Category))
         {
             if (counter.Slip.Count(kind) == read.Count(kind) && counter.Slip.Magic(kind) == read.Magic(kind)) continue;
@@ -223,11 +224,15 @@ public partial class Autoplay : Node
     {
         await Wait(1.0);
         if (!IsInstanceValid(dayEnd)) return;
+        await ReadTips(dayEnd.Mentor);
+        if (!IsInstanceValid(dayEnd)) return;
         dayEnd.BuyInOrder(Simulation.BuyOrder, 10 + 15 * State.Tier);
         await Wait(1.2);
         if (!IsInstanceValid(dayEnd)) return;
+        await ReadTips(dayEnd.Mentor);
+        if (!IsInstanceValid(dayEnd)) return;
         // Keep the best synergies working; show the journal while doing it.
-        if (Synergies.All.Any(s => s.Level(State) > 0))
+        if (State.SynergiesOpen && Synergies.All.Any(s => s.Level(State) > 0))
         {
             dayEnd.OpenSynergies();
             await Wait(0.8);
@@ -246,6 +251,8 @@ public partial class Autoplay : Node
     /// <summary>Sets each pin when the pick is in the bright centre.</summary>
     async Task DriveLockpick(LockpickPhase lockpick)
     {
+        await ReadTips(lockpick.Mentor);
+        if (!IsInstanceValid(lockpick)) return;
         double cooldown = 0;
         while (IsInstanceValid(lockpick) && !lockpick.Done)
         {

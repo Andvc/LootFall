@@ -8,9 +8,8 @@ namespace LootFall.Core;
 /// A chest on the counter: a few things (from the town shop on, sometimes two or three of a kind), maybe one more
 /// sealed under a false bottom. What you hear depends only on how hard it's shaken, by the same rules for everyone,
 /// sellers included: a thing sounds once the shake is strong enough to stir it; while metal clanks, delicate things
-/// can't be heard; cloth in a chest settles around the hard things (metal, coins, jewelry) and muffles them, so they only
-/// sound at a shake one strength harder, unless you listen through an ear trumpet; a magnet holds iron still, so it
-/// makes no sound at all. Whatever is under a false bottom is padded and never rattles, but the hollow booms if the chest is dropped.
+/// can't be heard; a magnet holds iron still, so it makes no sound at all. Whatever is under a false bottom is wrapped
+/// tight and never rattles, but the hollow booms if the chest is dropped.
 /// </summary>
 public sealed class Chest
 {
@@ -21,7 +20,7 @@ public sealed class Chest
     /// <summary>The chest's colour: the quality to expect inside.</summary>
     public Rarity Quality { get; }
 
-    /// <summary>A padded thing under a false bottom, or null. It never rattles; nobody but you will ever know.</summary>
+    /// <summary>A thing sealed under a false bottom, or null. It never rattles; nobody but you will ever know.</summary>
     public Item Hidden { get; private set; }
 
     public LockTier Lock { get; }
@@ -54,29 +53,16 @@ public sealed class Chest
     /// <summary>Whether this thing moves at this shake.</summary>
     public static bool Stirs(Item item, Shake level, bool magnet = false) => level >= item.StirsAt && !(magnet && item.Iron);
 
-    /// <summary>There's cloth in it, and cloth always settles around the rest: it muffles the hard things.</summary>
-    public bool Padded => _items.Any(i => i.Def.Pads && !i.Fake);
-
-    /// <summary>
-    /// Cloth around it keeps it from rattling until the shake is one strength harder than usual. Through an ear trumpet
-    /// you hear it anyway.
-    /// </summary>
-    public bool Muffled(Item item, Shake level, bool trumpet = false) =>
-        !trumpet && Padded && item.Def.Muffled && level < item.StirsAt + 1;
-
     /// <summary>It moves and you'd hear it, if nothing louder drowned it out.</summary>
-    public bool Sounds(Item item, Shake level, bool magnet = false, bool trumpet = false) =>
-        Stirs(item, level, magnet) && !Muffled(item, level, trumpet);
+    public bool Sounds(Item item, Shake level, bool magnet = false) => Stirs(item, level, magnet);
 
     /// <summary>Something loud is clanking at this shake: it drowns out anything delicate.</summary>
-    public bool Clanks(Shake level, bool magnet = false, bool trumpet = false) =>
-        _items.Any(i => i.Def.Loud && Sounds(i, level, magnet, trumpet));
+    public bool Clanks(Shake level, bool magnet = false) => _items.Any(i => i.Def.Loud && Sounds(i, level, magnet));
 
-    public bool Audible(Item item, Shake level, bool magnet = false, bool trumpet = false) =>
-        Sounds(item, level, magnet, trumpet) && !(item.Def.Delicate && Clanks(level, magnet, trumpet));
+    public bool Audible(Item item, Shake level, bool magnet = false) =>
+        Sounds(item, level, magnet) && !(item.Def.Delicate && Clanks(level, magnet));
 
-    public IEnumerable<Item> HeardAt(Shake level, bool magnet = false, bool trumpet = false) =>
-        _items.Where(i => Audible(i, level, magnet, trumpet));
+    public IEnumerable<Item> HeardAt(Shake level, bool magnet = false) => _items.Where(i => Audible(i, level, magnet));
 
     /// <summary>Chance that glass breaks when the chest is dropped.</summary>
     public const float DropBreakChance = 0.5f;

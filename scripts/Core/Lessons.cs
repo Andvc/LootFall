@@ -53,8 +53,6 @@ public static class Lessons
         string pitch = null) =>
         Market.Price(rng, Sellers.Get(seller), chest, tier, ask, null, pitch, claim, floor);
 
-    static bool NoTrumpet(GameState s) => !s.Has("trumpet");
-
     static readonly Dictionary<string, Lesson> ByKey = new Lesson[]
     {
         // The stall. Tam, Hob and Mags were met on the first day; their lessons come on their first ordinary visit.
@@ -147,21 +145,15 @@ public static class Lessons
         new()
         {
             Seller = "wick",
-            Covers = new[] { "padded" },
             Make = (rng, tier) => Price(rng, "wick", new Chest(new[] { I(Category.Coins, Rarity.Uncommon), I(Category.Cloth, Rarity.Uncommon) },
                 Rarity.Uncommon), tier),
             Steps = new LessonStep[]
             {
-                new("Granny Wick won't have her chests shaken hard. Shake it gently.", c => c.Tried(Shake.Gentle), When: NoTrumpet),
-                new("Nothing? Now firmly.", c => c.Tried(Shake.Firm), When: NoTrumpet),
-                new("A jingle, but only at a firm shake. Cloth in a chest muffles hard things, so they sound one shake late. " +
-                    "There's cloth in there: tick it.", c => c.Slip.Count(Category.Cloth) > 0, When: NoTrumpet),
-                new("Padded metal only clanks at a hard shake, and she won't allow one. An Ear Trumpet hears through cloth.",
-                    When: NoTrumpet),
-                new("Granny Wick won't have her chests shaken hard, and there's usually cloth in them, which muffles things. Your " +
-                    "trumpet hears through it. Shake it gently.", c => c.Tried(Shake.Gentle), When: s => s.Has("trumpet")),
-                new("She only heard the jingle. Her chests are usually full of cloth, even when nobody can shake hard " +
-                    "enough to hear it.", When: s => s.Has("trumpet")),
+                new("Granny Wick listens firmly, and won't have her chests shaken hard: half again if you do. Shake it gently, " +
+                    "then firmly.", c => c.Tried(Shake.Gentle, Shake.Firm)),
+                new("She's a seamstress: there's usually sewing in her chests, and cloth only flumps at a hard shake, so she never " +
+                    "prices it. Tick Cloth on faith, or shake it hard and pay for certainty.",
+                    c => c.Slip.Count(Category.Cloth) > 0 || c.Tried(Shake.Hard)),
             },
         },
 
