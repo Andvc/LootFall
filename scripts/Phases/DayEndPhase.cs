@@ -85,7 +85,7 @@ public partial class DayEndPhase : Phase
         int score = State.Exhibition;
         string effect = score == 0 ? "Keep grand things when you open a chest, and they'll show here."
             : $"{score} points: +{State.ExhibitionCustomers} customer{(State.ExhibitionCustomers == 1 ? "" : "s")} a day, " +
-              $"better chests {State.BetterChests:P0} of the time.";
+              $"better chests {Synergies.Pct(State.BetterChests)} of the time.";
         _cards.AddChild(UiKit.MakeLabel($"EXHIBITION {State.Display.Count}/{State.DisplaySlots}", 16, Palette.Magic).Place(x0, y0, 300, 20));
         _cards.AddChild(UiKit.MakeLabel(effect, 16, Palette.Muted).Place(x0 + 210, y0, 640, 20));
         for (int i = 0; i < State.DisplaySlots; i++)
