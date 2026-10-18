@@ -182,7 +182,7 @@ public partial class DayEndPhase : Phase
         card.AddChild(UiKit.MakeLabel($"Once the stall has earned {GameState.UpgradesAt}g, all told, Uncle Bram will help you fix it up: " +
                                       "a Village Shop brings more customers, richer chests and a shelf for your best finds.", 16, Palette.Muted)
             .Wrapped().Place(84, 50, w - 110, 44));
-        int earned = Math.Clamp(State.TotalProfit, 0, GameState.UpgradesAt);
+        int earned = Math.Clamp(State.TotalEarned, 0, GameState.UpgradesAt);
         float fill = earned / (float)GameState.UpgradesAt;
         card.AddChild(new Painter(p =>
         {
@@ -191,7 +191,7 @@ public partial class DayEndPhase : Phase
             p.DrawRect(new Rect2(0, 0, (w - 104) * fill, 5), Palette.Gold.Lightened(0.2f));
             p.DrawRect(new Rect2(0, 0, w - 104, 24), Palette.PanelBorder, false, 3);
         }) { Position = new Vector2(84, 112) });
-        card.AddChild(UiKit.MakeLabel($"Earned so far: {State.TotalProfit}g of {GameState.UpgradesAt}g", 16, Palette.Text, HorizontalAlignment.Center,
+        card.AddChild(UiKit.MakeLabel($"The chests have brought in {State.TotalEarned}g of {GameState.UpgradesAt}g", 16, Palette.Text, HorizontalAlignment.Center,
             outline: 4).Place(84, 114, w - 104, 20));
         return card;
     }

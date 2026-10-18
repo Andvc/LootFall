@@ -207,8 +207,10 @@ Everything arrives when it's needed, each with a word from Bram, so the first da
 | The Town Shop | synergies: the journal has tallied everything from day one, so some are ready to switch on | what a synergy is and where to choose one |
 | The Emporium | the Royal Warrant | what the Crown wants |
 
-`GameState.UpgradesOpen`, `DisplayOpen` and `SynergiesOpen` hold the gates, so the sim and the bot follow them too. In
-the sim, a careful player reaches the Village Shop on day 5 (the 120g takes four days at the stall).
+`GameState.UpgradesOpen`, `DisplayOpen` and `SynergiesOpen` hold the gates, so the sim and the bot follow them too. "Earned" is what
+the chests you've bought brought in (the day end's "the chests held", added up): a careful player gets there at the
+end of day 3, after two days of practice at the stall. (Counting profit instead took five to eight days at the stall
+with nothing new, too long.)
 
 ## The shop's look
 
@@ -276,15 +278,15 @@ and the slip; a hard shake for cloth; listening past a clank; passing when they 
 
 | Style | Village | Town | Emporium | Royal Warrant | First synergy | Exhibition on day 20 | Good buys | Perfect reads |
 |---|---|---|---|---|---|---|---|---|
-| Pays their price, every chest | day 8 | day 18 | never | never | (none chosen) | 0 | 50% | 25% |
-| One hard shake, keeps the seller's marks | day 8 | day 15 | day 27 | never | (none chosen) | 0 | 87% | 61% |
-| Every strength, drops when safe | day 5 | day 9 | day 14 | never (no exhibition) | day 2 | 0 | 85% | 66% |
-| + Witchlight and Magnet | day 5 | day 9 | day 14 | never (no exhibition) | day 2 | 0 | 92% | 88% |
-| + keeps grand things from the town shop on, up to 40 | day 5 | day 10 | day 16 | day 25 | day 2 | 42 | 93% | 87% |
+| Pays their price, every chest | day 4 | day 18 | never | never | (none chosen) | 0 | 51% | 21% |
+| One hard shake, keeps the seller's marks | day 6 | day 13 | day 27 | never | (none chosen) | 0 | 86% | 60% |
+| Every strength, drops when safe | day 3 | day 8 | day 13 | never (no exhibition) | day 2 | 0 | 84% | 65% |
+| + Witchlight and Magnet | day 3 | day 8 | day 13 | never (no exhibition) | day 2 | 0 | 91% | 87% |
+| + keeps grand things from the town shop on, up to 40 | day 3 | day 9 | day 15 | day 24 | day 2 | 42 | 92% | 87% |
 
 The careful styles buy when the odds bar is on their side (`Appraisal.LikelyWorth`), so nine buys in ten turn a
-profit. The Village Shop waits for the stall to earn 120g (day 5 for a careful player). Profit per customer for the
-careful collector: 8g at the stall, 12g at the village, 58g in town, 99g at the Emporium. ("First synergy" is when the
+profit. The Village Shop waits for the stall to earn 120g (day 3 for a careful player). Profit per customer for the
+careful collector: 8g at the stall, 11g at the village, 58g in town, 98g at the Emporium. ("First synergy" is when the
 journal's tally first reaches one; you can switch it on from the town shop.) By day 30, most careful collectors have
 every synergy at level 3, and many at 4; level 5 (ten legendary of a kind, or 25 perfect reads in a row) is reached by
 up to 24%.

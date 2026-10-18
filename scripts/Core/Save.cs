@@ -20,7 +20,7 @@ public sealed class SaveData
     public int Day { get; set; }
     public int Tier { get; set; }
     public bool Guided { get; set; }
-    public int TotalProfit { get; set; }
+    public int TotalEarned { get; set; }
     public bool UpgradesOpen { get; set; }
     public int MagicFound { get; set; }
     public int PerfectStreak { get; set; }

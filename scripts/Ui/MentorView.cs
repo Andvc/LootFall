@@ -16,6 +16,10 @@ public partial class MentorView : Control
     readonly Queue<string> _queue = new();
     Label _text, _more;
     Button _skip;
+    Panel _panel;
+
+    /// <summary>Where the box's bottom edge sits: a long tip grows it upward from here.</summary>
+    float _bottom;
     bool _lesson, _waiting, _showingTip;
 
     /// <summary>A lesson step waiting for the tips in front of it to be read.</summary>
@@ -38,11 +42,12 @@ public partial class MentorView : Control
     public override void _Ready()
     {
         Size = new Vector2(W, H);
+        _bottom = Position.Y + H;
         MouseFilter = MouseFilterEnum.Stop;
         PivotOffset = new Vector2(0, H);
-        var panel = UiKit.MakePanel(Palette.Gold.Darkened(0.25f)).Place(0, 0, W, H);
-        panel.MouseFilter = MouseFilterEnum.Ignore;
-        AddChild(panel);
+        _panel = UiKit.MakePanel(Palette.Gold.Darkened(0.25f)).Place(0, 0, W, H);
+        _panel.MouseFilter = MouseFilterEnum.Ignore;
+        AddChild(_panel);
         AddChild(new Sprite2D
         {
             Texture = GD.Load<Texture2D>("res://assets/sprites/sellers/bram.png"),
@@ -143,10 +148,24 @@ public partial class MentorView : Control
         _showingTip = !_lesson;
         Visible = true;
         _text.Text = text;
+        Fit(text);
         UpdateMore();
         Scale = new Vector2(0.96f, 0.9f);
         CreateTween().TweenProperty(this, "scale", Vector2.One, 0.14f).SetTrans(Tween.TransitionType.Back);
         Main.Instance.Sfx.Play("blip", 0.8f, -10);
+    }
+
+    /// <summary>Grows the box upward (its bottom edge stays put) when the text needs more than four lines.</summary>
+    void Fit(string text)
+    {
+        float textHeight = UiKit.Font.GetMultilineStringSize(text, HorizontalAlignment.Left, W - 116, 16).Y;
+        float h = Mathf.Max(H, Mathf.Ceil(textHeight) + 40);
+        Size = new Vector2(W, h);
+        Position = new Vector2(Position.X, _bottom - h);
+        PivotOffset = new Vector2(0, h);
+        _panel.Size = new Vector2(W, h);
+        _text.Size = new Vector2(W - 116, h - 30);
+        _more.Position = new Vector2(104, h - 26);
     }
 
     void UpdateMore()

@@ -91,8 +91,8 @@ public sealed class GameState
     // The shop opens up a step at a time: renovations once the stall has earned its keep, a shelf to display things
     // with the village shop, synergies with the town shop, where people start to know you by what you collect.
 
-    /// <summary>What every chest you've bought and opened made you, all told.</summary>
-    public int TotalProfit { get; private set; }
+    /// <summary>What the chests you've bought and opened have brought in, all told.</summary>
+    public int TotalEarned { get; private set; }
 
     /// <summary>Renovations and tools are on offer: the stall has earned <see cref="UpgradesAt"/>.</summary>
     public bool UpgradesOpen { get; private set; }
@@ -223,7 +223,7 @@ public sealed class GameState
         var data = new SaveData
         {
             SavedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
-            Seed = Seed, Gold = Gold, Day = Day, Tier = Tier, Guided = Guided, TotalProfit = TotalProfit,
+            Seed = Seed, Gold = Gold, Day = Day, Tier = Tier, Guided = Guided, TotalEarned = TotalEarned,
             UpgradesOpen = UpgradesOpen, MagicFound = MagicFound, PerfectStreak = PerfectStreak, BestStreak = BestStreak,
             Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
             FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
@@ -239,7 +239,7 @@ public sealed class GameState
         var state = new GameState(data.Seed)
         {
             Gold = data.Gold, Day = data.Day, Tier = Math.Clamp(data.Tier, 1, ShopTiers.Max), Guided = data.Guided,
-            TotalProfit = data.TotalProfit, UpgradesOpen = data.UpgradesOpen, MagicFound = data.MagicFound,
+            TotalEarned = data.TotalEarned, UpgradesOpen = data.UpgradesOpen, MagicFound = data.MagicFound,
             PerfectStreak = data.PerfectStreak, BestStreak = data.BestStreak,
         };
         state._owned.UnionWith(data.Owned);
@@ -393,13 +393,13 @@ public sealed class GameState
     }
 
     /// <summary>
-    /// Closes the day: adds its profit to the total (renovations open once it's enough). Returns the allowance paid if
+    /// Closes the day: adds what its chests brought in to the total (renovations open once it's enough). Returns the allowance paid if
     /// the shop was nearly broke, else 0.
     /// </summary>
     public int EndDay()
     {
-        TotalProfit += Today.Profit;
-        if (TotalProfit >= UpgradesAt) UpgradesOpen = true;
+        TotalEarned += Today.Earned;
+        if (TotalEarned >= UpgradesAt) UpgradesOpen = true;
         if (Gold >= Allowance) return 0;
         int topUp = Allowance - Gold;
         Gold = Allowance;
