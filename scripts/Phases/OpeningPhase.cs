@@ -278,7 +278,7 @@ public partial class OpeningPhase : Phase
 
         var color = Palette.Of(item.Quality);
         Sfx.Play("deflate", 1f, -4);
-        FloatText("WORSE...", peak + new Vector2(0, -70), color, 24);
+        FloatText("WORSE...", peak + new Vector2(0, -70), Palette.Bad, 24);
         var sag = sprite.CreateTween().SetParallel();
         sag.TweenProperty(sprite, "modulate", color.Lightened(0.2f), 0.35f);
         sag.TweenProperty(sprite, "scale", new Vector2(scale * 1.2f, scale * 0.95f), 0.35f).SetTrans(Tween.TransitionType.Sine);

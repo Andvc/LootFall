@@ -442,6 +442,7 @@ public partial class CounterPhase : Phase
         button.Icon = GD.Load<Texture2D>($"res://assets/ui/icons/{icon}.png");
         button.ExpandIcon = false;
         button.AddThemeConstantOverride("icon_max_width", 32);
+        button.ClipText = true;
         return button;
     }
 
@@ -527,7 +528,8 @@ public partial class CounterPhase : Phase
         _ledgerButton.Disabled = Busy;
         if (_magnetButton != null)
         {
-            _magnetButton.Text = _magnet ? "Magnet on" : "Magnet";
+            // Short, so it fits beside the witchlight and trumpet signs; the hint under the chest says what it does.
+            _magnetButton.Text = _magnet ? "On" : "Magnet";
             _magnetButton.Disabled = !open;
         }
 
