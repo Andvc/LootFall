@@ -178,7 +178,8 @@ public static class Story
     public static List<Line> Foreclosed(GameState state) => new()
     {
         new(Vane, Guild.Foreclosed),
-        new(Bram, state.Week <= 2 ? "So soon? Well. We'll start again somewhere. A good eye is never broke for long."
+        new(Bram, state.DebtCleared ? $"{state.Week} weeks, and my debt paid in full. Let them have the building: they can't have what you know."
+            : state.Week <= 2 ? "So soon? Well. We'll start again somewhere. A good eye is never broke for long."
             : $"{state.Week} weeks. You did better than I ever did. We'll start again somewhere."),
     };
 }

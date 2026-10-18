@@ -52,7 +52,8 @@ public static class Hints
         ["synergy"] = "Town folk know a shop by what it collects. Your journal has tallied everything you've acquired: ten of a " +
                       "kind earns a synergy. Open Synergies and put one to work.",
         ["slots"] = "Another synergy slot: open Synergies and put one more to work.",
-        ["emporium"] = "The Emporium! As grand as shops get. Now every coin goes to the Guild's dues, your curios and your exhibition.",
+        ["emporium"] = "The Emporium! As grand as shops get. Bigger things to grow into now: a night market, a patrons' book, " +
+                       "a velvet case for curios. Just keep enough back for Vane.",
         ["ledger"] = "Forgotten a sound? Press L for your ledger: the sounds, the regulars you've met, and everything you've found.",
         ["lockpick"] = "The pick sweeps round the lock. Press Space, or click, while it's in the green to set a pin; outside it, " +
                        "it slips. Set every pin cleanly for a masterful pick: everything inside is worth more.",

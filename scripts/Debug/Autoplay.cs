@@ -79,7 +79,9 @@ public partial class Autoplay : Node
                 await Wait(3.0);
                 GD.Print($"Autoplay: run over on day {State.Day}, week {State.Week}: {(end.Cleared ? "debt cleared" : "foreclosed")}, " +
                          $"{State.WeeksPaid} dues paid, {State.Gold}g, {State.MapPieces} map pieces, vault {(State.VaultOpened ? "opened" : "not opened")}");
-                GetTree().Quit();
+                // With days still to play, keep trading against the Guild's interest.
+                if (end.Cleared && MaxDays > State.Day && IsInstanceValid(end)) end.KeepTrading();
+                else GetTree().Quit();
                 break;
         }
     }

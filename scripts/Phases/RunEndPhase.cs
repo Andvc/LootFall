@@ -35,6 +35,7 @@ public partial class RunEndPhase : Phase
             ? State.VaultOpened ? "Bram's debt is paid, and King Aldric's hoard sits on your counter."
             : State.MapGiven ? "Bram's debt is paid. The Guild has the map; let them dig."
             : "Bram's debt is paid. The vault will have to wait."
+            : State.DebtCleared ? $"Bram's debt was paid, but the Guild's interest caught up with you in week {State.Week}."
             : $"The Guild took the shop in week {State.Week}.";
         Add(UiKit.MakeLabel(sub, 24, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 168, 1280, 30));
 
