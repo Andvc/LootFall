@@ -9,34 +9,41 @@ using LootFall.Ui;
 namespace LootFall.Phases;
 
 /// <summary>
-/// The payoff, right after you buy. Hold to wrench the lid: the chest rumbles, glows toward the best thing inside and
-/// the camera leans in. Then it bursts: the lid flies off and everything comes flying out, landing on the table one by
-/// one with its sound, its true quality and price, and a tick or a cross against your slip; a false bottom gives up its
-/// secret last. Then the verdict slams down (profit or loss), the coins fly into your purse, and a perfect read gets
-/// its banner. Anything first found goes in the collection, and anything grand can be kept for display.
+/// The payoff, right after you buy. The chest opens by itself: it rumbles, glows in its own colour, and bursts. The lid
+/// flies off and everything comes out, worst first. Things as good as the chest promised (or worse) land quickly on the
+/// table; something better than its chest rises out glowing in the chest's colour and climbs, quality by quality, to
+/// what it really is before it slams down, with more fuss for every step (two or three steps up stops the clock). Each
+/// quality lands with its own effect: dust, sparkles, a pillar of light, crackling lightning, turning rays and a coin
+/// fountain. A false bottom gives up its secret last. Then the verdict slams down with your gut's opinion, the coins fly
+/// into your purse, and a perfect read gets its banner. Anything grand can be kept for display.
 /// </summary>
 public partial class OpeningPhase : Phase
 {
-    enum Step { Hold, Burst, Reveal, Done }
+    enum Step { Build, Burst, Reveal, Done }
 
-    const float HoldSeconds = 1.1f;
+    const float BuildSeconds = 0.9f;
     const int ChestPixel = 14;
     const float TableY = 476, LandY = 564;
 
     /// <summary>The chest's origin is its lid seam, where light and loot come out.</summary>
     static readonly Vector2 SeamPos = new(640, 400);
 
-    Step _step = Step.Hold;
+    /// <summary>Where a better-than-expected find hangs while it climbs.</summary>
+    static readonly Vector2 HoverPos = new(640, 236);
+
+    Step _step = Step.Build;
     Purchase _purchase;
     ReadReport _report;
     MentorView _mentor;
-    Rarity _top;
-    int _shownTier, _worth;
+    readonly Random _rng = new();
+    Rarity _colour;
+    int _worth;
     ChestView _chest;
     Painter _rays;
     float _raysAlpha, _raysAngle, _time;
-    Label _prompt, _worthLabel;
+    Label _worthLabel;
     CpuParticles2D _sparks;
+    ColorRect _dim;
     readonly List<(Item Item, Vector2 At, int Value)> _landed = new();
 
     public float Progress { get; private set; }
@@ -47,14 +54,18 @@ public partial class OpeningPhase : Phase
     {
         _purchase = State.Opening;
         _report = _purchase.Slip.Check(_purchase.Chest);
-        _top = _purchase.Chest.Everything.Select(i => i.Rarity).DefaultIfEmpty(Rarity.Common).Max();
+        _colour = _purchase.Chest.Quality;
 
         Add(UiKit.MakeBackdrop("cellar_night", 0.4f));
         _rays = Add(new Painter(DrawRays) { Position = SeamPos, Material = Fx.Additive() });
         Add(new Painter(DrawTable));
-        _chest = Add(new ChestView { Position = SeamPos, PixelSize = ChestPixel, Skin = _purchase.Chest.Skin, GlowColor = Palette.Of(Rarity.Common) });
-        _sparks = Add(Fx.Sparks(Palette.Of(_top), 140, 280, 820, spread: 70f, lifetime: 1.4f));
+        _chest = Add(new ChestView { Position = SeamPos, PixelSize = ChestPixel, Skin = _purchase.Chest.Skin, GlowColor = Palette.Of(_colour) });
+        // The burst is in the chest's own colour: what's better than that is for the things inside to show.
+        _sparks = Add(Fx.Sparks(Palette.Of(_colour), 140, 280, 820, spread: 70f, lifetime: 1.4f));
         _sparks.Position = SeamPos;
+        // Darkens the room while a surprise climbs.
+        _dim = Add(new ColorRect { Color = new Color(0, 0, 0, 0), MouseFilter = Control.MouseFilterEnum.Ignore }.Place(-100, -100, 1480, 920));
+        _dim.ZIndex = 6;
 
         // The tally stays put while the camera leans in.
         var tally = Add(new CanvasLayer { Layer = 1 });
@@ -63,9 +74,9 @@ public partial class OpeningPhase : Phase
         tally.AddChild(UiKit.MakeLabel("Worth", 16, Palette.Muted).Place(40, 114, 200, 20));
         _worthLabel = UiKit.MakeLabel("0g", 24, Palette.Gold, HorizontalAlignment.Right, outline: 4).Place(200, 108, 120, 30);
         tally.AddChild(_worthLabel);
-
-        _prompt = Add(UiKit.MakeLabel("Hold [Space] or the mouse to wrench it open", 24, Palette.Text, HorizontalAlignment.Center, outline: 4)
-            .Place(0, 560, 1280, 32));
+        int sale = State.Active("jewelry");
+        if (sale > 0)
+            tally.AddChild(UiKit.MakeLabel($"Jewelry Tycoon: +{Synergies.Pct(Synergies.SaleBonus(sale))}", 16, Palette.Magic).Place(40, 140, 280, 20));
     }
 
     public override void _Process(double delta)
@@ -74,10 +85,11 @@ public partial class OpeningPhase : Phase
         _time += dt;
         _raysAngle += dt * 0.25f;
         _rays.QueueRedraw();
-        if (_step != Step.Hold) return;
+        if (_step != Step.Build) return;
 
-        bool holding = Input.IsKeyPressed(Key.Space) || Input.IsMouseButtonPressed(MouseButton.Left) || Game.AutoHold;
-        Progress = holding ? Mathf.Min(1f, Progress + dt / HoldSeconds) : Mathf.Max(0f, Progress - dt / 0.8f);
+        // It opens by itself; a click or Space hurries it along.
+        bool hurry = Input.IsKeyPressed(Key.Space) || Input.IsMouseButtonPressed(MouseButton.Left);
+        Progress = Mathf.Min(1f, Progress + dt / BuildSeconds * (hurry ? 3f : 1f));
 
         // Everything builds together: rumble, a widening crack of light, the hum, and the camera leaning in.
         _chest.Rumble = Progress;
@@ -85,52 +97,25 @@ public partial class OpeningPhase : Phase
         _chest.Glow = Progress;
         Sfx.Hum(Progress);
         Game.Zoom(1f + 0.14f * Progress * Progress, SeamPos);
-        if (holding && Progress > 0.2f) Game.Shake(dt * 0.5f * Progress);
-        _prompt.Modulate = Colors.White with { A = 0.55f + 0.45f * MathF.Sin(_time * 5f) };
-
-        int tier = TierAt(Progress);
-        if (tier > _shownTier) Upgrade(tier);
-        if (Progress > 0.75f && Progress - dt / HoldSeconds <= 0.75f) Game.Moment("07_build");
+        if (Progress > 0.2f) Game.Shake(dt * 0.5f * Progress);
+        if (Progress > 0.75f && Progress - dt / BuildSeconds <= 0.75f) Game.Moment("07_build");
         if (Progress >= 1f) Burst();
-    }
-
-    /// <summary>The glow climbs through each rarity up to the best thing inside, spread across the hold.</summary>
-    int TierAt(float progress)
-    {
-        int top = (int)_top;
-        for (int k = top; k >= 1; k--)
-            if (progress >= 0.3f + 0.55f * k / top) return k;
-        return 0;
-    }
-
-    void Upgrade(int tier)
-    {
-        _shownTier = tier;
-        var color = Palette.Of((Rarity)tier);
-        _chest.GlowColor = color;
-        _chest.Wobble(0.5f);
-        Sfx.Play("sting", 1f + 0.12f * tier, -4);
-        Game.Shake(0.1f + 0.05f * tier);
-        Game.Flash(color, 0.18f);
     }
 
     async void Burst()
     {
         _step = Step.Burst;
         Sfx.Hum(0);
-        _prompt.Hide();
 
-        int tier = (int)_top;
-        var color = Palette.Of(_top);
+        int tier = (int)_colour;
+        var color = Palette.Of(_colour);
         Sfx.Play("burst", 1f, -2);
         Sfx.Play("whoosh", 1f, -4);
         Sfx.PlayGroup("land", 0.6f, 2);
-        if (tier >= (int)Rarity.Epic) Sfx.Play("fanfare", 1f, -4);
-        else if (tier >= (int)Rarity.Rare) Sfx.Play("reveal_big", 1f, -3);
 
-        Game.HitStop(0.09 + 0.03 * tier);
-        Game.Shake(0.5f + 0.1f * tier);
-        Game.Flash(color.Lightened(0.6f), 0.9f, 0.5f);
+        Game.HitStop(0.08 + 0.02 * tier);
+        Game.Shake(0.45f + 0.08f * tier);
+        Game.Flash(color.Lightened(0.6f), 0.85f, 0.45f);
         // The camera snaps back past where it started, then settles.
         CreateTween().TweenMethod(Callable.From<float>(z => Game.Zoom(z, SeamPos)), 1.14f, 1f, 0.45f)
             .SetTrans(Tween.TransitionType.Elastic).SetEase(Tween.EaseType.Out);
@@ -145,7 +130,7 @@ public partial class OpeningPhase : Phase
         Fx.Dust(this, SeamPos + new Vector2(-90, 70), 1.5f);
         Fx.Dust(this, SeamPos + new Vector2(90, 70), 1.5f);
         _sparks.Emitting = true;
-        CreateTween().TweenMethod(Callable.From<float>(v => _raysAlpha = v), 0f, 0.18f + 0.1f * tier, 0.4f);
+        CreateTween().TweenMethod(Callable.From<float>(v => _raysAlpha = v), 0f, 0.15f + 0.06f * tier, 0.4f);
         Game.Moment("07_burst", 0.3);
 
         await Wait(0.45);
@@ -163,16 +148,21 @@ public partial class OpeningPhase : Phase
         tween.TweenProperty(lid, "rotation", side * 7f, 0.9f);
     }
 
+    /// <summary>How many qualities better than its chest promised (0 if not, or if it's fake or broken).</summary>
+    int StepsUp(Item item) => item.Fake || item.Broken ? 0 : Math.Max(0, item.Quality - _colour);
+
     async Task FlyOut()
     {
         _step = Step.Reveal;
-        // Worst first, best last, so the reveal climbs; whatever was under a false bottom comes out after everything else.
-        var reads = _report.Items.OrderBy(r => r.Hidden).ThenBy(r => r.Item.Value).ToList();
+        // What the chest promised (or worse) first, worst to best; then the surprises, smallest first; whatever was under a
+        // false bottom comes out last of all.
+        var reads = _report.Items.OrderBy(r => r.Hidden).ThenBy(r => StepsUp(r.Item)).ThenBy(r => r.Item.Value).ToList();
         int n = reads.Count;
-        float spacing = n >= 5 ? 196 : 232;
+        float spacing = n == 0 ? 0 : Math.Min(232f, 1180f / n);
         for (int i = 0; i < n; i++)
         {
             bool last = i == n - 1;
+            float x = 640 + (i - (n - 1) / 2f) * spacing;
             if (reads[i].Hidden)
             {
                 _chest.Wobble(1f);
@@ -182,16 +172,17 @@ public partial class OpeningPhase : Phase
                 await Wait(0.9);
                 if (!Alive) return;
             }
-            else if (last && n > 1 && reads[i].Item.Rarity >= Rarity.Rare)
+            if (StepsUp(reads[i].Item) > 0)
             {
-                // A beat before the best thing.
-                _chest.Wobble(0.8f);
-                Sfx.Play("strain", 1.25f, -3);
-                await Wait(0.45);
+                await Climb(reads[i], x, i, spacing);
                 if (!Alive) return;
+                await Wait(last ? 0.6 : 0.3);
             }
-            Launch(reads[i], 640 + (i - (n - 1) / 2f) * spacing, i);
-            await Wait(last ? 0.95 : 0.38);
+            else
+            {
+                Launch(reads[i], x, i, spacing);
+                await Wait(last ? 0.95 : 0.38);
+            }
             if (!Alive) return;
         }
         if (n == 0)
@@ -205,7 +196,8 @@ public partial class OpeningPhase : Phase
             await Wait(1.0);
             if (!Alive) return;
         }
-        var ghosts = _report.Ghosts.Select(c => $"no {Categories.Get(c).Name.ToLowerInvariant()}?").ToList();
+        var ghosts = _report.Ghosts.GroupBy(c => c).Select(g => g.Count() == 1 ? $"no {Categories.Get(g.Key).Name.ToLowerInvariant()}?"
+            : $"{g.Count()} fewer {Categories.Get(g.Key).Name.ToLowerInvariant()}?").ToList();
         if (_report.GhostHidden) ghosts.Add("no false bottom?");
         for (int g = 0; g < ghosts.Count; g++)
         {
@@ -223,16 +215,25 @@ public partial class OpeningPhase : Phase
         Verdict();
     }
 
-    /// <summary>One thing flies out of the chest in an arc and lands on the table, then gets its price and its mark.</summary>
-    void Launch(ItemRead read, float x, int index)
+    /// <summary>Where a thing stands on the table, however tall it is.</summary>
+    static Vector2 TableSpot(float x, Texture2D texture, int scale) => new(x, LandY - texture.GetHeight() * scale / 2f);
+
+    static int ScaleFor(Texture2D texture) => Math.Max(1, (int)MathF.Min(64f / texture.GetHeight(), 72f / texture.GetWidth()));
+
+    Sprite2D MakeSprite(Item item, out int scale)
     {
-        var item = read.Item;
         var texture = GD.Load<Texture2D>($"res://assets/sprites/items/{item.Sprite}.png");
-        int scale = Math.Max(1, (int)MathF.Min(64f / texture.GetHeight(), 72f / texture.GetWidth()));
-        // Standing on the table, however tall it is.
-        var land = new Vector2(x, LandY - texture.GetHeight() * scale / 2f);
-        var sprite = Add(new Sprite2D { Texture = texture, Scale = Vector2.One * scale, ZIndex = 5 });
+        scale = ScaleFor(texture);
+        var sprite = Add(new Sprite2D { Texture = texture, Scale = Vector2.One * scale, ZIndex = 7 });
         if (item.Fake) sprite.Modulate = new Color(0.75f, 0.75f, 0.8f);
+        return sprite;
+    }
+
+    /// <summary>Something no better than its chest: flies out in an arc and lands on the table, quickly.</summary>
+    void Launch(ItemRead read, float x, int index, float spacing)
+    {
+        var sprite = MakeSprite(read.Item, out int scale);
+        var land = TableSpot(x, sprite.Texture, scale);
         var start = SeamPos + new Vector2(0, -ChestPixel * 3);
         float height = 240 + 40 * index;
         float spin = (index % 2 == 0 ? 1 : -1) * Mathf.Tau;
@@ -244,23 +245,94 @@ public partial class OpeningPhase : Phase
             sprite.Position = start.Lerp(land, t) + new Vector2(0, -height * 4 * t * (1 - t));
             sprite.Rotation = spin * (1 - t);
         }), 0f, 1f, 0.55f);
-        flight.TweenCallback(Callable.From(() => Landed(read, sprite, scale, land)));
+        flight.TweenCallback(Callable.From(() => Landed(read, sprite, scale, land, spacing, 0)));
     }
 
-    void Landed(ItemRead read, Sprite2D sprite, int scale, Vector2 at)
+    /// <summary>
+    /// Something better than its chest: it rises out glowing in the chest's colour while the room dims, then climbs a
+    /// quality at a time (each step bigger than the last) before it slams down onto the table.
+    /// </summary>
+    async Task Climb(ItemRead read, float x, int index, float spacing)
+    {
+        var item = read.Item;
+        int steps = StepsUp(item);
+        var sprite = MakeSprite(item, out int scale);
+        var start = SeamPos + new Vector2(0, -ChestPixel * 3);
+        sprite.Position = start;
+        sprite.Scale = Vector2.One * scale * 0.5f;
+        // It shows the colour it was expected to be until it proves otherwise.
+        sprite.Modulate = Palette.Of(_colour).Lightened(0.3f);
+        var aura = Fx.Aura(this, HoverPos, Palette.Of(_colour), 80f);
+        aura.ZIndex = 7;
+
+        _dim.CreateTween().TweenProperty(_dim, "color:a", 0.5f, 0.35f);
+        Sfx.Play("rise", 1f, -4);
+        Sfx.Play("strain", 1.2f, -6);
+        var up = sprite.CreateTween().SetParallel();
+        up.TweenProperty(sprite, "position", HoverPos, 0.55f).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
+        up.TweenProperty(sprite, "scale", Vector2.One * scale * 2, 0.55f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        await ToSignal(up, Tween.SignalName.Finished);
+        if (!Alive) return;
+        // Something's not right about it... it trembles.
+        var tremble = sprite.CreateTween().SetLoops();
+        tremble.TweenProperty(sprite, "position:x", HoverPos.X + 4, 0.04f);
+        tremble.TweenProperty(sprite, "position:x", HoverPos.X - 4, 0.04f);
+        await Wait(0.45);
+        if (!Alive) return;
+
+        string[] calls = { "BETTER!", "EVEN BETTER!!", "INCREDIBLE!!!" };
+        for (int s = 1; s <= steps; s++)
+        {
+            var quality = _colour + s;
+            var color = Palette.Of(quality);
+            if (s >= 2)
+            {
+                // Another step: the world holds its breath first.
+                Game.HitStop(0.12 + 0.06 * s);
+                Sfx.Play("rise", 1.2f + 0.2f * s, -2);
+                Game.Shake(0.2f);
+                await Wait(0.55);
+                if (!Alive) return;
+            }
+            sprite.Modulate = color.Lightened(0.5f);
+            sprite.CreateTween().TweenProperty(sprite, "modulate", Colors.White, 0.4f);
+            aura.Modulate = color;
+            Game.Flash(color.Lightened(0.4f), 0.45f + 0.15f * s, 0.3f);
+            Game.Shake(0.25f + 0.15f * s);
+            Fx.Ring(this, HoverPos, color, 140f + 60f * s);
+            Fx.Burst(this, HoverPos, color, 40 + 30 * s, 300f + 80f * s);
+            Sfx.Play("upgrade", 1f + 0.12f * (s - 1), -2);
+            Sfx.Play("sting", 1.2f + 0.15f * s, -4);
+            FloatText(calls[Math.Min(s, calls.Length) - 1], HoverPos + new Vector2(0, -90), color, 24 + 8 * s);
+            Game.Moment($"07_climb_{s}", 0.15);
+            await Wait(0.55);
+            if (!Alive) return;
+        }
+        tremble.Kill();
+        aura.QueueFree();
+        _dim.CreateTween().TweenProperty(_dim, "color:a", 0f, 0.3f);
+
+        // Down it comes.
+        var land = TableSpot(x, sprite.Texture, scale);
+        var down = sprite.CreateTween().SetParallel();
+        down.TweenProperty(sprite, "position", land, 0.28f).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.In);
+        down.TweenProperty(sprite, "scale", Vector2.One * scale, 0.28f);
+        await ToSignal(down, Tween.SignalName.Finished);
+        if (!Alive) return;
+        Landed(read, sprite, scale, land, spacing, steps);
+    }
+
+    void Landed(ItemRead read, Sprite2D sprite, int scale, Vector2 at, float spacing, int stepsUp)
     {
         if (!Alive) return;
         var item = read.Item;
-        int rarity = (int)item.Rarity;
 
         // Squash on impact, then spring back.
         sprite.Scale = new Vector2(scale * 1.35f, scale * 0.65f);
         sprite.CreateTween().TweenProperty(sprite, "scale", Vector2.One * scale, 0.35f).SetTrans(Tween.TransitionType.Elastic).SetEase(Tween.EaseType.Out);
-        Fx.Dust(this, new Vector2(at.X, LandY), 0.8f + 0.2f * rarity);
         Sfx.PlayGroup(item.Def.Sound, item.Def.Pitch, 4);
-        Sfx.PlayGroup("land", 1.2f - 0.1f * rarity, -4);
-        Game.Shake(0.08f + 0.06f * rarity);
-        if (item.Rarity >= Rarity.Rare) Fx.Burst(this, at, Palette.Of(item.Rarity), 24 + 12 * rarity);
+        QualityEffects(item, at, stepsUp);
+        if (stepsUp > 0) Surprise(at, stepsUp);
         if (item.Magic)
         {
             Fx.Burst(this, at, Palette.Magic, 60, 320f);
@@ -277,26 +349,22 @@ public partial class OpeningPhase : Phase
             Sfx.Play("shatter", 1.1f, -6);
             sprite.Modulate = new Color(0.5f, 0.45f, 0.5f);
         }
-        // Better or worse than the chest's colour promised: the surprise.
-        var chestColour = _purchase.Chest.Quality;
-        if (!item.Fake && !item.Broken && item.Quality > chestColour)
-        {
-            Sfx.Play("reveal_big", 1f + 0.1f * (item.Quality - chestColour), -4);
-            FloatText("BETTER THAN EXPECTED!", at + new Vector2(0, -96), Palette.Of(item.Quality), 16);
-        }
         bool isNew = State.Collect(item);
-        int worth = (int)MathF.Round(item.Value * Picks.Multiplier(_purchase.Grade));
+        int worth = State.SaleValue(item, _purchase.Grade);
         _landed.Add((item, at, worth));
 
+        float w = Math.Min(220f, spacing - 6f);
         var name = Add(UiKit.MakeLabel(item.Name, 16, Palette.Of(item.Rarity), HorizontalAlignment.Center, outline: 4)
-            .Place(at.X - 110, 568, 220, 20));
+            .Place(at.X - w / 2, 568, w, 20));
+        name.ZIndex = 8;
         if (isNew)
         {
             var badge = Add(UiKit.MakeLabel("NEW!", 16, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(at.X - 40, 548, 80, 20));
-            badge.ZIndex = 6;
+            badge.ZIndex = 8;
         }
         var value = Add(UiKit.MakeLabel($"{worth}g", 24, Palette.Of(item.Rarity), HorizontalAlignment.Center, outline: 4)
             .Place(at.X - 70, 588, 140, 30));
+        value.ZIndex = 8;
         value.PivotOffset = new Vector2(70, 15);
         value.Scale = Vector2.One * 1.8f;
         value.CreateTween().TweenProperty(value, "scale", Vector2.One, 0.25f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
@@ -304,7 +372,8 @@ public partial class OpeningPhase : Phase
         name.CreateTween().TweenProperty(name, "modulate", Colors.White, 0.2f);
 
         // The mark against the slip stamps down a moment later.
-        var mark = Add(UiKit.MakeCheck(read.Right, new Vector2(at.X + 64, 603), 1));
+        var mark = Add(UiKit.MakeCheck(read.Right, new Vector2(at.X + Math.Min(64f, w / 2 - 8), 603), 1));
+        mark.ZIndex = 8;
         mark.Scale = Vector2.One * 3;
         mark.Modulate = Colors.Transparent;
         var stamp = mark.CreateTween();
@@ -317,8 +386,9 @@ public partial class OpeningPhase : Phase
         stamp.TweenProperty(mark, "scale", Vector2.One, 0.14f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
         string quality = item.Fake || item.Broken ? "" : Categories.QualityName(item.Quality);
         string note = string.Join(", ", new[] { read.Note, quality }.Where(s => s.Length > 0));
-        Add(UiKit.MakeLabel(note, 16, read.Right ? Palette.Good : Palette.Warn, HorizontalAlignment.Center, outline: 4)
-            .Place(at.X - 110, 618, 220, 20));
+        var noteLabel = Add(UiKit.MakeLabel(note, 16, read.Right ? Palette.Good : Palette.Warn, HorizontalAlignment.Center, outline: 4)
+            .Place(at.X - w / 2, 618, w, 20));
+        noteLabel.ZIndex = 8;
 
         int from = _worth;
         _worth += worth;
@@ -330,14 +400,89 @@ public partial class OpeningPhase : Phase
         _worthLabel.CreateTween().TweenProperty(_worthLabel, "scale", Vector2.One, 0.2f);
     }
 
-    /// <summary>Profit or loss stamped across the screen, the coins flying into your purse, and the reason.</summary>
+    /// <summary>
+    /// What landing looks and sounds like at each quality, so you can tell them apart without reading the colour:
+    /// common, a puff of dust; uncommon, sparkles; rare, a pillar of light and a ring; epic, crackling lightning, a
+    /// boom and a lingering aura; legendary, all that plus turning rays and a fountain of coins. A surprise makes it bigger.
+    /// </summary>
+    void QualityEffects(Item item, Vector2 at, int stepsUp)
+    {
+        var rarity = item.Rarity;
+        var color = Palette.Of(rarity);
+        float big = 1f + 0.35f * stepsUp;
+        Fx.Dust(this, new Vector2(at.X, LandY), (0.8f + 0.2f * (int)rarity) * big);
+        Sfx.PlayGroup("land", 1.2f - 0.1f * (int)rarity, -4);
+        Game.Shake((0.06f + 0.05f * (int)rarity) * big);
+        if (item.Fake || item.Broken) return;
+        if (rarity >= Rarity.Uncommon)
+        {
+            var sparkles = Fx.Sparks(color, (int)(18 * big), 60, 160, spread: 40f, lifetime: 1.2f, gravity: -60f);
+            sparkles.Position = at;
+            AddChild(sparkles);
+            sparkles.Emitting = true;
+            GetTree().CreateTimer(1.6).Timeout += sparkles.QueueFree;
+            Sfx.Play("chime", 0.8f + 0.1f * (int)rarity, -12);
+        }
+        if (rarity >= Rarity.Rare)
+        {
+            Fx.Pillar(this, new Vector2(at.X, LandY), color, 50f * big, 560f, 0.9f + 0.2f * stepsUp);
+            Fx.Ring(this, at, color, 110f * big);
+            Sfx.Play("chime", 1.1f, -6);
+        }
+        if (rarity >= Rarity.Epic)
+        {
+            Fx.Lightning(this, at, color, 5 + 2 * stepsUp, 130f * big);
+            Fx.Aura(this, at, color, 64f);
+            Sfx.Play("zap", 1f, -6);
+            Sfx.Play("boom", 1f, -4);
+            Game.Shake(0.25f * big);
+        }
+        if (rarity >= Rarity.Legendary)
+        {
+            Fx.Rays(this, at, color, 150f);
+            var coins = Fx.Coins((int)(18 * big));
+            coins.Position = at;
+            AddChild(coins);
+            coins.Emitting = true;
+            GetTree().CreateTimer(2.2).Timeout += coins.QueueFree;
+            Game.Flash(color.Lightened(0.5f), 0.6f, 0.4f);
+            Game.HitStop(0.12);
+            Sfx.Play("fanfare", 1f, -4);
+        }
+    }
+
+    /// <summary>The payoff for a find better than its chest: a banner, and for two steps or more, the works.</summary>
+    void Surprise(Vector2 at, int stepsUp)
+    {
+        string banner = stepsUp switch { 1 => "BETTER THAN EXPECTED!", 2 => "TWO QUALITIES UP!!", _ => "THREE QUALITIES UP!!!" };
+        var color = stepsUp == 1 ? Palette.Gold : Palette.Of(Rarity.Legendary);
+        FloatText(banner, at + new Vector2(0, -110), color, stepsUp == 1 ? 24 : 32);
+        Sfx.Play("reveal_big", 1f + 0.1f * stepsUp, -3);
+        if (stepsUp < 2) return;
+        // Two or more: time slows, the room flashes white, confetti, a fanfare and a ring that fills the screen.
+        Game.HitStop(0.2 + 0.1 * stepsUp);
+        Game.Flash(Colors.White, 0.9f, 0.6f);
+        Fx.Confetti(this, at, 70 + 40 * stepsUp);
+        Fx.Ring(this, at, color, 700f, 0.8f, 10f);
+        Fx.Rays(this, at, color, 260f, 16, 0.25f);
+        Sfx.Play("fanfare", 0.9f + 0.1f * stepsUp, -2);
+        Sfx.Play("win", 1f, -4);
+        Game.Moment($"07_surprise_{stepsUp}", 0.3);
+    }
+
+    /// <summary>Profit or loss stamped across the screen with your gut's opinion, the coins flying into your purse, and the reason.</summary>
     async void Verdict()
     {
         _step = Step.Done;
         var visit = _purchase.Visit;
-        int profit = _worth - _purchase.Paid;
         bool perfect = _report.Perfect;
+        // A keen eye's fee for a perfect read.
+        int fee = perfect ? State.KeenFee(_worth) : 0;
+        int held = _worth;
+        _worth += fee;
+        int profit = _worth - _purchase.Paid;
         State.Earn(_worth);
+        State.RecordRead(perfect);
         if (perfect) State.Today.PerfectReads++;
 
         var color = profit > 0 ? Palette.Good : profit < 0 ? Palette.Bad : Palette.Text;
@@ -359,6 +504,9 @@ public partial class OpeningPhase : Phase
         Game.Shake(profit > 0 ? Mathf.Min(0.6f, 0.3f + profit / 600f) : 0.25f);
         Game.Flash(color, 0.25f);
         Fx.Dust(this, new Vector2(640, 180), 2f);
+        var gut = Add(UiKit.MakeLabel(Gut.Bought(held, _purchase.Paid, _rng), 16, Palette.Text, HorizontalAlignment.Center, outline: 4)
+            .Place(240, 190, 640, 20));
+        gut.ZIndex = 10;
         Game.Moment("08_results", 0.3);
 
         if (profit > 0) FlyCoins(new Vector2(640, 142), Math.Clamp(profit / 4, 4, 28));
@@ -368,7 +516,7 @@ public partial class OpeningPhase : Phase
         {
             await Wait(0.35);
             if (!Alive) return;
-            var banner = Add(UiKit.MakePanel(Palette.Gold).Place(-400, 188, 360, 44));
+            var banner = Add(UiKit.MakePanel(Palette.Gold).Place(-400, 56, 360, 44));
             banner.PivotOffset = Vector2.Zero;
             banner.ZIndex = 10;
             banner.AddChild(UiKit.MakeLabel("PERFECT READ", 24, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(0, 8, 360, 30));
@@ -383,6 +531,7 @@ public partial class OpeningPhase : Phase
             PickGrade.Forced => " Forced open: everything -10%.",
             _ => "",
         };
+        if (fee > 0) grade += $" Keen Eye: a valuer's fee of {fee}g.";
         Add(UiKit.MakeLabel(visit.Explain() + grade, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(160, 238, 800, 64));
         bool last = State.Queue.Count == 0;
         Add(UiKit.MakeButton(last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next).Place(1000, 300, 260, 52));
@@ -568,7 +717,7 @@ public partial class OpeningPhase : Phase
     void DrawRays(Painter p)
     {
         if (_raysAlpha <= 0.01f) return;
-        var c = Palette.Of(_top);
+        var c = Palette.Of(_colour);
         const int count = 14;
         for (int i = 0; i < count; i++)
         {

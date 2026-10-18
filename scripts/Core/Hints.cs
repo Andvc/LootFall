@@ -24,14 +24,14 @@ public static class Hints
                           "Shake gently to hear past it.",
         ["first_mags"] = "Mags counts the rattles at a firm shake and charges the same for each. If you hear nothing she " +
                          "didn't, pass: sellers always ask a bit more than it's worth.",
-        ["passed"] = "When you pass, they show you what was inside. Worth knowing either way.",
+        ["passed"] = "When you pass, they take it away unopened: you'll never know for sure. But your gut usually has an opinion.",
         ["opened"] = "A tick is a good read. A cross is something to listen for next time.",
         ["dayend"] = "Spend what you earn on the shop. A bigger shop brings richer customers, and new sounds.",
 
         // From the second day: chest colours and the ways people trade.
         ["colours"] = "Look at the chest's colour: wood, green, blue, purple. It tells you how good things inside tend to be. " +
                       "Only tends to: you'll get surprises both ways.",
-        ["quality"] = "See? Not everything matches its chest. Some come out better, some worse. On average, the slip's about right.",
+        ["quality"] = "See? Not everything matches its chest. Mostly it does; sometimes it's a little worse; now and then it's much better.",
         ["fixed"] = "This one names a price. Take it or leave it.",
         ["haggle"] = "This one haggles: they ask high. Use the slider to make one offer. They'll take it, name a final price, " +
                      "or storm off if you insult them.",
@@ -51,46 +51,23 @@ public static class Hints
         ["broke"] = "Glass breaks when you drop it. If you heard a slosh, think twice before dropping.",
         ["heard_Bottles"] = "Slosh: a bottle. Delicate, like coins: a clank drowns it out.",
         ["heard_Paper"] = "Rustle: paper. Soft, like cloth: it only sounds at a hard shake.",
-        ["tier3"] = "The town shop: jewelry, which tinkles at a gentle shake, and mages, whose things are often magic. " +
-                    "Magic sounds like anything else. A witchlight would show it.",
+        ["tier3"] = "The town shop: jewelry, which tinkles at a gentle shake; mages, whose things are often magic (a witchlight " +
+                    "would show it); and lots with two or three of a kind. Count the rattles: click a row again for each.",
         ["heard_Jewels"] = "Tinkle: jewelry. Delicate, and worth the most.",
-        ["lamp"] = "The witchlight's lit, and it stays lit: magic glows when it makes a sound. Click a tick again to mark it magic.",
-        ["glow"] = "It glowed! That one's enchanted: four times the value. Click its tick again to mark it magic.",
+        ["lamp"] = "The witchlight's lit, and it stays lit: magic glows when it makes a sound. Click the star on a row to mark it magic.",
+        ["trumpet"] = "Your ear trumpet hears through cloth: padded things sound at their usual shake now. Sellers don't have one.",
+        ["counted"] = "Two of a kind: each one adds its value. Sellers who don't count only price one.",
+        ["synergy"] = "The shop's getting a name for something: a synergy. Open Synergies and put it to work. One at a time, " +
+                      "until you buy a Guild Charter.",
+        ["glow"] = "It glowed! That one's enchanted: four times the value. Click the star on its row to mark it magic.",
         ["tier4"] = "The Emporium. Nobles, adventurers and a crook. Mind Silas: he sells gilded iron as gold and jewels, " +
                     "and it sounds just like the real thing. A magnet would catch it.",
         ["magnet"] = "Magnet's on: iron can't move. Metal goes quiet, so nothing drowns out the delicate things. " +
                      "And gilded fakes go quiet too.",
 
-        // Regulars, the first time they come in after the first day: one habit each, and what it's good for.
-        ["seller_tam"] = "Tam never shakes anything and has no idea what it's worth. Name a few coins. Shake it first, mind: " +
-                         "his chests are sometimes empty.",
+        // A regular with nothing new to teach gets a tip the first time they come in after the first day; the rest have
+        // a lesson (Lessons.cs).
         ["seller_penn"] = "Penn only shakes gently. Heavy things and soft things make no sound for her.",
-        ["seller_hob"] = "Hob shakes hard, and always asks about double. Offer him about half.",
-        ["seller_mags"] = "Mags counts the rattles and charges the same for each, whatever's rattling. A clank costs what a jingle " +
-                          "does: buy when the rattles are good ones.",
-        ["seller_brask"] = "Brask goes by weight: heavy means valuable to him. Metal's heavy and cheap; bottles and paper are light. " +
-                           "A light chest of good things is a bargain. And his lockboxes are nearly always locked.",
-        ["seller_tobias"] = "Tobias talks things up. He'll claim a sound that isn't there: check every tick on the slip.",
-        ["seller_marta"] = "Marta's chests are old family ones: false bottoms are common. But she hates you dropping them. " +
-                           "Drop one and it's half again.",
-        ["seller_wick"] = "Granny Wick sews. She shakes firmly, never hard, and won't have you do it either: half again if you do. " +
-                          "Her chests are full of cloth she never hears. Trust it, or pay to find out.",
-        ["seller_wren"] = "Wren can't tell what's in a chest, but she feels magic. Name a low price and she'll take it... " +
-                          "unless something's enchanted. Then she wants more, and that tells you something.",
-        ["seller_orrin"] = "Orrin's prices come from his dreams, not his chests. Listen, add it up, and buy when the dream's cheap.",
-        ["seller_grit"] = "Grit's a miner. He knows metal. Everything else he prices at half... except jewelry, which he " +
-                          "thinks is all diamonds. Haggle him down, but mind the tinkles.",
-        ["seller_zara"] = "Madame Zara prices by the chest's colour, and feels magic, so that's priced in. Her trick boxes often " +
-                          "hide a false bottom she doesn't price: drop it and listen. But don't shake it hard.",
-        ["seller_vex"] = "Baron Vex never looks inside: he prices by the colour, and gives you twelve seconds. His things are " +
-                         "often better than their colour. Shake gently, then hard, and decide.",
-        ["seller_gull"] = "Gull always swears there's a smuggler's false bottom, and prices it in. Drop it: no boom, no false " +
-                          "bottom. She haggles.",
-        ["seller_pip"] = "Pip listens gently, then hard: she hears everything. Only magic and false bottoms get past her, and " +
-                         "she has plenty of both.",
-        ["seller_ermine"] = "Lady Ermine knows only her jewelry, at what she paid for it. Whatever else the maid packed comes free. " +
-                            "Some of her jewels are paste, and a magnet would show it... but use one and it's half again.",
-        ["seller_silas"] = "Silas. If he says gold, it may be gilded iron. Too cheap to be true, usually.",
     };
 
     public static string Get(string key) => Text.TryGetValue(key, out var text) ? text : null;

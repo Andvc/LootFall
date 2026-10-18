@@ -52,7 +52,7 @@ public partial class LockpickPhase : Phase
             .Place(0, 592, 1280, 20));
 
         // Your own slip says whether there's glass in there.
-        bool glass = _purchase.Slip[Category.Bottles] != Mark.None;
+        bool glass = _purchase.Slip.Count(Category.Bottles) > 0;
         string warning = glass ? "Your slip says there's glass in there. Forcing it will break it." : "Forcing it is quick, but it scratches everything and breaks glass.";
         Add(UiKit.MakeLabel(warning, 16, glass ? Palette.Warn : Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(0, 688, 1280, 20));
         _crowbar = Add(UiKit.MakeButton("Force it with a crowbar  [F]", Palette.Bad, 16, Force).Place(480, 624, 320, 52));
@@ -141,7 +141,7 @@ public partial class LockpickPhase : Phase
         Done = true;
         _crowbar.Disabled = true;
         _purchase.Grade = grade;
-        if (grade == PickGrade.Forced && _purchase.Chest.Force().Count > 0)
+        if (grade == PickGrade.Forced && _purchase.Chest.Force(State.Rng, State.Sturdier).Count > 0)
         {
             Sfx.Play("shatter");
             FloatText("CRASH", Center + new Vector2(0, -60), Palette.Bad, 32);

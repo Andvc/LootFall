@@ -18,18 +18,20 @@ Design rationale: [docs/design.md](docs/design.md).
 2. **Shake it yourself.** How fast you drag is how hard you shake. Light things (coins jingle, bottles slosh,
    jewelry tinkles) rattle at a gentle shake; metal only clanks at a firm one, and its clanking drowns out anything
    delicate; soft things (cloth flumps, paper rustles) only sound at a hard shake. Lift it high and let go to drop it:
-   a hollow boom means a false bottom (but glass may break).
-3. **Correct the slip and trade.** Tick what's in there, untick what isn't; the slip adds up what such things are
-   worth on average in a chest of that colour. Then pay their price, haggle, or name your own, depending on who it is.
-   Pass, and they show you what was inside.
-4. **Pick the lock and open it:** hold to wrench the lid, and watch everything fly out with its true quality, a tick
-   or a cross against your slip, the profit stamped across the screen and why the seller missed it. Keep grand
-   things for your exhibition instead of selling them.
+   a hollow boom means a false bottom (but glass may break). As the shop grows, more to work out: cloth packing that
+   muffles things, two or three of a kind (count the rattles), sand that rustles like paper, gilded fakes.
+3. **Correct the slip and trade.** Mark how many of each kind are in there; the slip adds them up at what they'd be
+   worth if they're as good as the chest's colour promises. Then pay their price, haggle, or name your own, depending
+   on who it is. Pass, and they take it away unopened: your gut tells you whether that was wise.
+4. **Pick the lock and watch it burst open:** everything flies out with its true quality and a tick or a cross
+   against your slip; anything better than its chest climbs, quality by quality, with more fuss for every step. The
+   profit is stamped across the screen with why the seller missed it. Keep grand things for your exhibition.
 5. **End of day:** spend your earnings on renovations (each brings richer customers and something new), tools (the
-   Witchlight shows magic, the Magnet silences iron and fakes, Fine Lockpicks), and cabinets. The exhibition draws
-   more and better customers, and the Crown wants to see one before it grants the Royal Warrant.
+   Ear Trumpet hears through packing, the Witchlight shows magic, the Magnet silences iron and fakes, Fine Lockpicks),
+   and cabinets, and choose which of the shop's synergies to put to work (ten of a kind at a quality earns one).
 
-Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each.
+Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each. After
+that, each seller's first visit is a lesson in their habit.
 
 ## Controls
 
@@ -37,13 +39,16 @@ Day one is guided: Uncle Bram, who's handing you the stall, brings in four custo
 |---|---|
 | Shake a chest | Drag it with the left mouse button: slowly for gentle, fast for hard |
 | Drop it | Lift it high and let go |
-| Tick or untick a kind on the slip | Click its row (again to mark it magic, once you have the Witchlight, which stays lit) |
+| Count a kind on the slip | Click its row: one more each click (up to three from the town shop), then back to none |
+| Mark one of a kind magic | Click the star on its row (once you have the Witchlight, which stays lit) |
 | Make an offer | Set the slider, then Offer |
 | Magnet | Button on the right, once you own it |
-| Ledger (sounds, regulars, collection) | L, or the Ledger button |
+| Ledger (sounds, regulars, collection, synergies) | L, or the Ledger button |
+| Skip a seller's lesson | Skip lesson, over Bram's box |
 | Pick a lock | Space or left click when the pick is in the green; F for the crowbar |
-| Open the chest | Hold Space or the left mouse button |
+| Open the chest | It opens by itself (click or Space to hurry it) |
 | Keep something for display | Its Keep button after an opening (Swap when the display is full); sell it back from the exhibition at day end |
+| Choose synergies | Synergies, at the end of a day |
 | Next tip from Bram | Click his box |
 
 ## Development
@@ -52,11 +57,11 @@ The code is split so the game rules can be tested without the engine:
 
 | Folder | What's in it |
 |---|---|
-| `scripts/Core` | Pure C# rules: kinds, qualities and the shaking rules, chests, sellers and how they judge and trade, the appraisal slip, a careful player's read and strategy, upgrades, the shop's progress and exhibition, Bram's hints. No Godot types. |
+| `scripts/Core` | Pure C# rules: kinds, qualities and the shaking rules, chests, sellers and how they judge and trade, the appraisal slip, a careful player's read and strategy, sellers' lessons, synergies, upgrades, the shop's progress and exhibition, Bram's hints. No Godot types. |
 | `scripts/Phases` | The screens of the loop (counter, lockpicking, opening, end of day). |
 | `scripts/Ui` | Visuals: the shakeable chest, the ledger, Bram, the seller, HUD, particles and styling. |
 | `scripts/Audio` | Recorded sounds, the synthesized slosh, and placeholder effects. |
-| `scripts/Debug` | Balance simulation, the shake test and an autoplay bot for screenshots and recordings. |
+| `scripts/Debug` | Balance simulation (with the lesson test), the shake test and an autoplay bot for screenshots and recordings. |
 | `assets/` | Sprites, portraits, backgrounds, sounds, icons, UI frames and font, generated by `tools/import_art.py` from CC0 packs. |
 
 Useful commands (Linux; run `tools/setup-cloud.sh` first in a fresh container):

@@ -31,6 +31,12 @@ public static class Market
     /// <summary>Angry sellers put the price up by this much.</summary>
     public const float AngerMarkup = 1.5f;
 
+    /// <summary>Two or three of a kind turn up from this shop tier on.</summary>
+    public const int PairsTier = 3;
+
+    /// <summary>The most things in one chest, false bottom aside.</summary>
+    public const int MaxItems = 6;
+
     /// <summary>How many things a seller of each tier brings, with weights.</summary>
     static readonly (int Count, float Weight)[][] Counts =
     {
@@ -41,26 +47,35 @@ public static class Market
         new[] { (3, 0.6f), (4, 0.4f) },
     };
 
-    /// <param name="betterChance">From the shop's exhibition: the chance the chest is one colour better.</param>
-    public static Visit CreateVisit(Random rng, SellerDef seller, int shopTier, float betterChance = 0f)
+    /// <param name="boosts">What the shop's exhibition and synergies do to the chests people bring.</param>
+    public static Visit CreateVisit(Random rng, SellerDef seller, int shopTier, Boosts boosts = null)
     {
+        boosts ??= Boosts.None;
         var colour = (Rarity)rng.PickWeighted(Enumerable.Range(0, 4).ToArray(), i => seller.Colours[i]);
-        if (colour < Rarity.Epic && rng.NextFloat() < betterChance) colour++;
+        if (colour < Rarity.Epic && rng.NextFloat() < boosts.BetterChests) colour++;
 
         // For sellers who listen, whether this one holds something they can't hear is rolled first, so each one's
         // blind spot turns up about as often as their MissRate: often enough to pay for listening, not so often that
         // buying blind pays.
-        var chest = Roll(rng, seller, shopTier, colour);
+        var chest = Roll(rng, seller, shopTier, colour, boosts);
         if (seller.Listens)
         {
             bool missing = rng.NextFloat() < seller.MissRate;
-            for (int attempt = 0; attempt < 40 && seller.Notices(chest).Count() < chest.Items.Count != missing; attempt++)
-                chest = Roll(rng, seller, shopTier, colour);
+            for (int attempt = 0; attempt < 40 && Misses(seller, chest) != missing; attempt++)
+                chest = Roll(rng, seller, shopTier, colour, boosts);
         }
         return Price(rng, seller, chest, shopTier);
     }
 
-    static Chest Roll(Random rng, SellerDef seller, int shopTier, Rarity colour)
+    /// <summary>Whether the seller's own listening leaves something unpriced: unheard, or one of several they didn't count.</summary>
+    static bool Misses(SellerDef seller, Chest chest)
+    {
+        var noticed = seller.Notices(chest).ToList();
+        if (noticed.Count < chest.Items.Count) return true;
+        return !seller.Counts && noticed.GroupBy(i => i.Category).Any(g => g.Count() > 1);
+    }
+
+    static Chest Roll(Random rng, SellerDef seller, int shopTier, Rarity colour, Boosts boosts)
     {
         var lockTier = shopTier >= 2 && rng.NextFloat() < seller.LockChance ? LockTiers.For(colour) : null;
         if (rng.NextFloat() < seller.EmptyChance) return new Chest(Array.Empty<Item>(), colour, null, lockTier);
@@ -69,44 +84,66 @@ public static class Market
         int count = Math.Min(kinds.Count, rng.PickWeighted(Counts[seller.Tier], c => c.Weight).Count);
         var picked = new List<Category>();
         // A crook always has something to fake; a lady always has her jewels.
-        if (seller.Judge == Judgment.Crook) picked.Add(rng.PickWeighted(kinds.Where(Fakeable).ToArray(), c => seller.Kinds[(int)c]));
+        var fakeable = kinds.Where(seller.Fakes.Contains).ToArray();
+        if (seller.Judge == Judgment.Crook && fakeable.Length > 0) picked.Add(rng.PickWeighted(fakeable, c => seller.Kinds[(int)c]));
         if (seller.Judge == Judgment.Jeweller && kinds.Contains(Category.Jewels)) picked.Add(Category.Jewels);
         while (picked.Count < count)
             picked.Add(rng.PickWeighted(kinds.Except(picked).ToArray(), c => seller.Kinds[(int)c]));
 
-        float magicChance = shopTier >= 3 ? seller.MagicChance : 0f;
-        var items = picked.Select(c =>
+        // From the town shop on, a lot can hold two or three of a kind.
+        var all = new List<Category>();
+        foreach (var kind in picked)
         {
-            bool fake = Fakeable(c) && rng.NextFloat() < seller.FakeChance;
+            int copies = 1;
+            if (shopTier >= PairsTier && rng.NextFloat() < seller.PairChance)
+                copies = rng.NextFloat() < seller.PairChance * 0.5f ? 3 : 2;
+            all.AddRange(Enumerable.Repeat(kind, copies));
+        }
+        all = all.Take(MaxItems).ToList();
+
+        float magicChance = shopTier >= 3 ? seller.MagicChance + boosts.Magic : 0f;
+        var items = all.Select(c =>
+        {
+            bool fake = seller.Fakes.Contains(c) && rng.NextFloat() < seller.FakeChance;
             bool magic = !fake && rng.NextFloat() < magicChance;
             var quality = Categories.RollQuality(rng, colour);
-            if (quality < Rarity.Legendary && rng.NextFloat() < seller.QualityBoost) quality++;
+            if (quality < Rarity.Legendary && rng.NextFloat() < seller.QualityBoost + boosts.Better(c)) quality++;
             return new Item(c, quality, magic, fake);
         }).ToList();
 
         // People hide money, jewels and papers under a false bottom.
         Item hidden = null;
-        if (shopTier >= 2 && rng.NextFloat() < seller.HiddenChance)
+        if (shopTier >= 2 && rng.NextFloat() < seller.HiddenChance + boosts.Hidden)
         {
             var hideable = HiddenKinds.Where(k => Categories.Get(k.Kind).Tier <= shopTier).ToArray();
             hidden = new Item(rng.PickWeighted(hideable, k => k.Weight).Kind, Categories.RollQuality(rng, colour));
         }
-        return new Chest(items, colour, hidden, lockTier);
+        // Some people pack their things in the cloth to keep them from rattling about.
+        bool packed = shopTier >= 2 && items.Any(i => i.Def.Pads) && rng.NextFloat() < seller.PackChance;
+        return new Chest(items, colour, hidden, lockTier, packed);
     }
 
     static readonly (Category Kind, float Weight)[] HiddenKinds =
         { (Category.Coins, 3f), (Category.Jewels, 3f), (Category.Paper, 2f) };
 
-    /// <summary>What a false bottom is worth on average in a chest of this colour, at this shop. The slip shows this.</summary>
-    public static int ExpectedHidden(Rarity chest, int shopTier)
+    /// <summary>
+    /// What a false bottom is worth in a chest of this colour, at this shop: as good as the colour says (the slip
+    /// shows this), or on average.
+    /// </summary>
+    public static int HiddenValue(Rarity chest, int shopTier, bool expected = false)
     {
         var kinds = HiddenKinds.Where(k => Categories.Get(k.Kind).Tier <= shopTier).ToArray();
-        return (int)MathF.Round(kinds.Sum(k => k.Weight * Categories.Expected(k.Kind, chest)) / kinds.Sum(k => k.Weight));
+        return (int)MathF.Round(kinds.Sum(k => k.Weight * (expected ? Categories.Expected(k.Kind, chest) : Categories.Nominal(k.Kind, chest))) /
+                                kinds.Sum(k => k.Weight));
     }
 
-    static bool Fakeable(Category category) => Categories.Get(category).FakeName != null;
-
-    static float TypicalCount(int sellerTier) => Counts[sellerTier].Sum(c => c.Count * c.Weight);
+    /// <summary>How many things a seller of this tier usually brings to a shop of this tier, two-of-a-kinds included.</summary>
+    static float TypicalCount(SellerDef seller, int shopTier)
+    {
+        float kinds = Counts[seller.Tier].Sum(c => c.Count * c.Weight);
+        float p = shopTier >= PairsTier ? seller.PairChance : 0f;
+        return kinds * (1 + p + p * p * 0.5f);
+    }
 
     /// <summary>What one thing this seller brings is usually worth in a chest of this colour.</summary>
     static float TypicalItem(SellerDef seller, Rarity colour, int shopTier)
@@ -117,13 +154,13 @@ public static class Market
 
     /// <summary>What a chest of this colour from this seller usually holds: what someone who goes by colour asks for.</summary>
     public static float TypicalChest(SellerDef seller, Rarity colour, int shopTier) =>
-        TypicalCount(seller.Tier) * TypicalItem(seller, colour, shopTier);
+        TypicalCount(seller, shopTier) * TypicalItem(seller, colour, shopTier);
 
     /// <summary>The weight someone who goes by weight expects of a chest from them.</summary>
     static float TypicalHeft(SellerDef seller, int shopTier)
     {
         var kinds = Categories.UpTo(shopTier).Select(c => c.Category).ToArray();
-        return TypicalCount(seller.Tier) * kinds.Sum(k => seller.Kinds[(int)k] * Categories.Heft(k)) / kinds.Sum(k => seller.Kinds[(int)k]);
+        return TypicalCount(seller, shopTier) * kinds.Sum(k => seller.Kinds[(int)k] * Categories.Heft(k)) / kinds.Sum(k => seller.Kinds[(int)k]);
     }
 
     /// <summary>
@@ -138,7 +175,7 @@ public static class Market
         {
             Judgment.Counter => claim.Count * TypicalItem(seller, colour, shopTier),
             Judgment.Weight => chest.Items.Sum(i => Categories.Heft(i.Category)) * TypicalItem(seller, colour, shopTier) /
-                               (TypicalHeft(seller, shopTier) / TypicalCount(seller.Tier)),
+                               (TypicalHeft(seller, shopTier) / TypicalCount(seller, shopTier)),
             Judgment.Colour => TypicalChest(seller, colour, shopTier) + (seller.SensesMagic ? MagicExtra(chest) : 0),
             Judgment.Dreamer => TypicalChest(seller, colour, shopTier) * rng.Between(DreamMin, DreamMax),
             Judgment.Miner => claim.Sum(c => c switch
@@ -152,7 +189,7 @@ public static class Market
             Judgment.Clueless => 0,
             _ => claim.Sum(plain),
         };
-        if (seller.ClaimsHidden) estimate += ExpectedHidden(colour, shopTier);
+        if (seller.ClaimsHidden) estimate += HiddenValue(colour, shopTier, expected: true);
         return estimate;
     }
 
@@ -161,19 +198,39 @@ public static class Market
         chest.Items.Where(i => i.Magic).Sum(i => (Categories.MagicMultiplier - 1) * Categories.Expected(i.Category, chest.Quality));
 
     /// <summary>The seller judges the chest their way, says what they think is in it, and prices it.</summary>
-    /// <param name="ask">A scripted asking price (the first day).</param>
+    /// <param name="ask">A scripted asking price (the first day, lessons).</param>
     /// <param name="trade">A scripted way of trading (the first day).</param>
     /// <param name="pitch">A scripted line, with {price}.</param>
-    public static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, int? ask = null, Trade? trade = null, string pitch = null)
+    /// <param name="claim">A scripted claim (a lesson's made-up sound).</param>
+    /// <param name="floor">A scripted least they'll take (a lesson's).</param>
+    public static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, int? ask = null, Trade? trade = null, string pitch = null,
+        IEnumerable<Category> claim = null, int? floor = null)
     {
-        var claim = seller.Notices(chest).Select(i => i.Category).Distinct().ToList();
+        var said = claim?.ToList() ?? Claim(rng, seller, chest, shopTier);
+        said.Sort();
+        var visit = Price(rng, seller, chest, shopTier, said, ask, trade, pitch);
+        if (floor is int least) visit.SetFloor(least);
+        return visit;
+    }
+
+    /// <summary>
+    /// What they say is in it: what they noticed (once per kind, unless they count), and a talker sometimes adds a
+    /// sound that wasn't there.
+    /// </summary>
+    static List<Category> Claim(Random rng, SellerDef seller, Chest chest, int shopTier)
+    {
+        var noticed = seller.Notices(chest).Select(i => i.Category);
+        var claim = (seller.Counts ? noticed : noticed.Distinct()).ToList();
         if (seller.Talker && rng.NextFloat() < PhantomChance)
         {
             var absent = Categories.UpTo(shopTier).Select(c => c.Category).Where(c => !chest.Has(c) && !claim.Contains(c)).ToArray();
             if (absent.Length > 0) claim.Add(rng.PickWeighted(absent, c => seller.Kinds[(int)c]));
         }
-        claim.Sort();
+        return claim;
+    }
 
+    static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, List<Category> claim, int? ask, Trade? trade, string pitch)
+    {
         float estimate = Estimate(rng, seller, chest, claim, shopTier);
         var format = trade ?? seller.Trade;
         float price, floor;
@@ -215,4 +272,16 @@ public static class Market
             .Replace("{colour}", Categories.ChestSkin(chest.Quality))
             .Replace("{magic}", chest.Items.Any(i => i.Magic) ? "there's magic in it" : "there's no magic in it");
     }
+}
+
+/// <summary>What the shop's exhibition and synergies do to the chests people bring in.</summary>
+/// <param name="BetterChests">The chance a chest is one colour better.</param>
+/// <param name="Hidden">Added to the chance of a false bottom.</param>
+/// <param name="Magic">Added to the chance each thing is magic.</param>
+/// <param name="MetalBetter">The chance a metal thing is one quality better.</param>
+public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float MetalBetter = 0)
+{
+    public static readonly Boosts None = new();
+
+    public float Better(Category category) => category == Category.Metal ? MetalBetter : 0f;
 }

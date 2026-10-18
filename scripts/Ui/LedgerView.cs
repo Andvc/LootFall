@@ -6,17 +6,21 @@ using LootFall.Core;
 namespace LootFall.Ui;
 
 /// <summary>
-/// The shop's ledger. Sounds: the rules of shaking, and one row per kind of thing your shop sees (its sound, how hard
-/// you must shake to hear it, how heavy it is, and what one is worth in a chest of each colour); click a row to hear it.
-/// Regulars: how each seller you've met judges a chest, trades and behaves. Collection: everything you've found so far.
+/// The shop's ledger. Sounds: one row per kind of thing your shop sees (its sound, how hard you must shake to hear it,
+/// how heavy it is, and what one is worth if it's as good as each colour of chest promises; click a row to hear it),
+/// and the rules of listening. Regulars: how each seller you've met judges a chest, trades and behaves, shop by shop.
+/// Collection: everything you've found so far. Synergies: what the shop could be known for, how far along each is, and
+/// (at the end of a day) which are active.
 /// </summary>
 public partial class LedgerView : Node2D
 {
     // Ends above Uncle Bram's box, so his tips stay readable with the ledger open.
     const float PanelX = 40, PanelY = 66, PanelW = 1200, PanelH = 518;
-    const float TableX = 64, RowH = 44;
+    const float TableX = 64, RowH = 40;
 
     readonly GameState _state;
+    readonly int _firstPage;
+    readonly bool _choosing;
     Node2D _page;
     bool _closing;
 
@@ -24,9 +28,12 @@ public partial class LedgerView : Node2D
 
     public LedgerView() { }
 
-    public LedgerView(GameState state)
+    /// <param name="choosing">Synergies can be switched on and off (at the end of a day).</param>
+    public LedgerView(GameState state, int page = 0, bool choosing = false)
     {
         _state = state;
+        _firstPage = page;
+        _choosing = choosing;
     }
 
     static Audio.Sfx Sfx => Main.Instance.Sfx;
@@ -44,23 +51,84 @@ public partial class LedgerView : Node2D
         AddChild(UiKit.MakeButton("Sounds", Palette.Text, 16, () => ShowPage(0)).Place(PanelX + 220, PanelY + 14, 120, 36));
         AddChild(UiKit.MakeButton("Regulars", Palette.Text, 16, () => ShowPage(1)).Place(PanelX + 348, PanelY + 14, 140, 36));
         AddChild(UiKit.MakeButton("Collection", Palette.Text, 16, () => ShowPage(2)).Place(PanelX + 496, PanelY + 14, 160, 36));
+        AddChild(UiKit.MakeButton("Synergies", Palette.Text, 16, () => ShowPage(3)).Place(PanelX + 664, PanelY + 14, 152, 36));
         AddChild(UiKit.MakeButton("Close  [L]", Palette.Text, 16, Close).Place(PanelX + PanelW - 168, PanelY + 12, 144, 40));
         _page = new Node2D();
         AddChild(_page);
-        ShowPage(0);
+        ShowPage(_firstPage);
 
         Sfx.PlayGroup("book", 1f, -4);
         Modulate = Colors.Transparent;
         CreateTween().TweenProperty(this, "modulate", Colors.White, 0.15f);
     }
 
-    /// <summary>0: sounds, 1: regulars, 2: collection.</summary>
+    /// <summary>0: sounds, 1: regulars, 2: collection, 3: synergies.</summary>
     public void ShowPage(int page)
     {
         foreach (var child in _page.GetChildren()) child.QueueFree();
-        if (page == 1) BuildRegulars(_state.Tier >= 3 ? 1 : 0);
+        if (page == 1) BuildRegulars(Spread(_state.Tier));
         else if (page == 2) BuildCollection();
+        else if (page == 3) BuildSynergies();
         else BuildSounds();
+    }
+
+    /// <summary>
+    /// Each kind of synergy on a row: what it's about, its level (five pips), what its level does (or would do), what
+    /// the next level needs, and whether it's active. At the end of a day, a button switches it on or off.
+    /// </summary>
+    void BuildSynergies()
+    {
+        int slots = _state.SynergySlots, active = _state.ActiveSynergies.Count;
+        string intro = _choosing
+            ? $"Active: {active} of {slots}. Switch one on to put it to work; more slots come with a Guild Charter and a Royal Seal."
+            : $"Active: {active} of {slots}. You choose at the end of a day.";
+        _page.AddChild(UiKit.MakeLabel(intro, 16, Palette.Muted).Place(TableX, PanelY + 60, PanelW - 48, 20));
+        const float rowH = 58;
+        for (int i = 0; i < Synergies.All.Length; i++)
+        {
+            var synergy = Synergies.All[i];
+            float y = PanelY + 88 + i * rowH;
+            int level = synergy.Level(_state);
+            bool on = _state.ActiveSynergies.Contains(synergy.Key);
+            bool later = synergy.Tier > _state.Tier && level == 0;
+            var row = new Panel { MouseFilter = Control.MouseFilterEnum.Ignore }.Place(TableX - 8, y, PanelW - 32, rowH - 4);
+            row.AddThemeStyleboxOverride("panel", UiKit.PanelBox(4));
+            if (on) row.AddChild(UiKit.MakeFrame(Palette.Magic));
+            _page.AddChild(row);
+            var nameColor = later ? Palette.Muted.Darkened(0.2f) : on ? Palette.Magic : level > 0 ? Palette.Gold : Palette.Text;
+            row.AddChild(UiKit.MakeLabel(synergy.Name, 16, nameColor).Place(12, 6, 220, 20));
+            row.AddChild(UiKit.MakeLabel(later ? $"{synergy.Blurb} (later)" : synergy.Blurb, 16, Palette.Muted).Place(12, 28, 220, 20));
+            var pips = new Painter(p =>
+            {
+                for (int l = 0; l < SynergyDef.MaxLevel; l++)
+                {
+                    var c = l < level ? Palette.Of((Rarity)l) : Palette.Muted.Darkened(0.4f);
+                    p.DrawRect(new Rect2(l * 22, 0, 16, 16), new Color(0, 0, 0, 0.5f));
+                    if (l < level) p.DrawRect(new Rect2(l * 22 + 3, 3, 10, 10), c);
+                    p.DrawRect(new Rect2(l * 22, 0, 16, 16), c, false, 2);
+                }
+            }) { Position = new Vector2(240, 18) };
+            row.AddChild(pips);
+            string effect = level > 0 ? synergy.Effect(level) : $"Level 1: {synergy.Effect(1)}";
+            row.AddChild(UiKit.MakeLabel(effect, 16, level > 0 ? Palette.Text : Palette.Muted).Wrapped().Place(360, 6, 480, 46));
+            var progress = synergy.Progress(_state).ToList();
+            string next = progress.Count == 0 ? "Highest level!" : $"Next: {string.Join("\n", progress)}";
+            row.AddChild(UiKit.MakeLabel(next, 16, Palette.Muted).Wrapped().Place(852, 6, 196, 46));
+            if (_choosing && level > 0)
+            {
+                bool canTurnOn = on || active < slots;
+                var toggle = UiKit.MakeButton(on ? "Active" : "Use", on ? Palette.Magic : Palette.Good, 16, () =>
+                {
+                    bool now = _state.ToggleSynergy(synergy.Key);
+                    Sfx.Play(now ? "sting" : "tick", now ? 1.3f : 1f, -4);
+                    ShowPage(3);
+                }).Place(1060, 10, 100, 34);
+                toggle.Disabled = !canTurnOn;
+                if (!canTurnOn) toggle.TooltipText = "No free slot: switch another one off first.";
+                row.AddChild(toggle);
+            }
+            else if (on) row.AddChild(UiKit.MakeLabel("Active", 16, Palette.Magic, HorizontalAlignment.Center).Place(1060, 18, 100, 20));
+        }
     }
 
     /// <summary>A grid: one row per kind, one column per quality, then magic and fake. Found things show; the rest are "?".</summary>
@@ -111,29 +179,30 @@ public partial class LedgerView : Node2D
     void BuildSounds()
     {
         int tier = _state.Tier;
-        var rules = new[]
-        {
-            "Light things rattle at a gentle shake. Metal needs a firm one. Soft things only sound at a hard shake.",
-            "While metal clanks, you can't hear anything delicate. Shake gently to hear past it.",
-            tier >= 2 ? "Dropped, a chest with a false bottom booms hollow. Glass may break." : null,
-            tier >= 3 ? "Magic sounds like anything else, and nobody prices it. Under a witchlight, it glows. Worth x" + Categories.MagicMultiplier + "." : null,
-            tier >= 4 ? "Gilded fakes are iron: they sound just like the real thing, but go quiet under a magnet." : null,
-        }.Where(r => r != null).ToArray();
-        _page.AddChild(UiKit.MakeLabel(string.Join("\n", rules.Select(r => "- " + r)), 16, Palette.Text).Place(TableX, PanelY + 64, PanelW - 48, 90));
-
-        // Below the rules (five lines at the Emporium).
-        float y = PanelY + 180;
+        float y = PanelY + 60;
         Header("Kind", TableX + 48, y);
         Header("Sound", TableX + 220, y);
         Header("Shake", TableX + 330, y);
         Header("Weight", TableX + 420, y);
         Header("Note", TableX + 520, y);
+        Header("If it's as good as the chest:", TableX + 760, y - 20);
         for (int c = 0; c < 4; c++) Header(Categories.ChestSkin((Rarity)c), TableX + 760 + c * 104, y);
 
         var kinds = Categories.UpTo(tier).ToList();
-        for (int i = 0; i < kinds.Count; i++) _page.AddChild(MakeRow(kinds[i], y + 26 + i * RowH, tier));
-        _page.AddChild(UiKit.MakeLabel("Worth: what one is worth on average in a chest of each colour. Click a row to hear it.", 16, Palette.Muted)
-            .Place(TableX, PanelY + PanelH - 34, PanelW - 48, 20));
+        for (int i = 0; i < kinds.Count; i++) _page.AddChild(MakeRow(kinds[i], y + 24 + i * RowH, tier));
+
+        var rules = new[]
+        {
+            "Light things rattle at a gentle shake, metal at a firm one, soft things only at a hard one. Click a row to hear it.",
+            "While metal clanks, delicate things go unheard: shake gently to hear past it.",
+            tier >= 2 ? "Cloth packed in a chest muffles metal, coins and jewelry: they sound one shake harder. An ear trumpet hears through it." : null,
+            tier >= 2 ? "Dropped, a chest with a false bottom booms hollow. Glass may break." : null,
+            tier >= 3 ? "Two or three of a kind each sound from their own spot: count them. Sand rustles like paper, but pours at a gentle shake." : null,
+            tier >= 3 ? $"Magic sounds like anything else; under a witchlight it glows (worth x{Categories.MagicMultiplier})." +
+                        (tier >= 4 ? " Gilded fakes are iron: a magnet silences them." : "") : null,
+        }.Where(r => r != null).ToArray();
+        _page.AddChild(UiKit.MakeLabel(string.Join("\n", rules.Select(r => "- " + r)), 16, Palette.Text)
+            .Place(TableX, y + 34 + kinds.Count * RowH, PanelW - 48, 140));
     }
 
     void Header(string text, float x, float y) => _page.AddChild(UiKit.MakeLabel(text, 16, Palette.Gold.Darkened(0.2f)).Place(x, y, 200, 20));
@@ -143,15 +212,16 @@ public partial class LedgerView : Node2D
         var row = new Panel { MouseFilter = Control.MouseFilterEnum.Stop }.Place(TableX - 8, y, PanelW - 32, RowH - 4);
         row.AddThemeStyleboxOverride("panel", UiKit.PanelBox(4));
         row.AddChild(UiKit.MakeKindIcon(kind.Category, new Vector2(28, (RowH - 4) / 2)));
-        row.AddChild(UiKit.MakeLabel(kind.Name, 16, Palette.Text).Place(56, 10, 160, 20));
-        row.AddChild(UiKit.MakeLabel(kind.Word, 16, Palette.Word).Place(228, 10, 100, 20));
-        row.AddChild(UiKit.MakeLabel(Categories.LevelName(kind.StirsAt), 16, Palette.Level(kind.StirsAt)).Place(338, 10, 100, 20));
-        row.AddChild(UiKit.MakeLabel(Categories.HeftWord(kind.Category), 16, Palette.Text).Place(428, 10, 100, 20));
+        row.AddChild(UiKit.MakeLabel(kind.Name, 16, Palette.Text).Place(56, 8, 160, 20));
+        row.AddChild(UiKit.MakeLabel(kind.Word, 16, Palette.Word).Place(228, 8, 100, 20));
+        row.AddChild(UiKit.MakeLabel(Categories.LevelName(kind.StirsAt), 16, Palette.Level(kind.StirsAt)).Place(338, 8, 100, 20));
+        row.AddChild(UiKit.MakeLabel(Categories.HeftWord(kind.Category), 16, Palette.Text).Place(428, 8, 100, 20));
         string note = kind.Loud ? "loud: drowns delicate" : kind.Delicate ? "delicate: clanks drown it" : "soft: hard shake only";
-        if (kind.FakeName != null && tier >= 4) note = "delicate; Silas fakes it";
-        row.AddChild(UiKit.MakeLabel(note, 16, Palette.Muted).Place(528, 10, 236, 20));
+        if (kind.FakeName != null && kind.FakeIron && tier >= 4) note = "delicate; Silas fakes it";
+        else if (kind.FakeName != null && !kind.FakeIron && tier >= 3) note = "soft; sand sounds alike";
+        row.AddChild(UiKit.MakeLabel(note, 16, Palette.Muted).Place(528, 8, 236, 20));
         for (int c = 0; c < 4; c++)
-            row.AddChild(UiKit.MakeLabel($"~{Categories.Expected(kind.Category, (Rarity)c)}g", 16, Palette.Of((Rarity)c)).Place(768 + c * 104, 10, 96, 20));
+            row.AddChild(UiKit.MakeLabel($"{Categories.Nominal(kind.Category, (Rarity)c)}g", 16, Palette.Of((Rarity)c)).Place(768 + c * 104, 8, 96, 20));
         row.GuiInput += e =>
         {
             if (e is not InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left }) return;
@@ -164,22 +234,26 @@ public partial class LedgerView : Node2D
         return row;
     }
 
-    /// <summary>The regulars, a spread per two shops (the stall and village, then the town and the Emporium).</summary>
+    /// <summary>Which spread of the regulars a shop tier's sellers are on: the stall and village share one.</summary>
+    static int Spread(int tier) => Math.Max(0, tier - 2);
+
+    static readonly string[] SpreadNames = { "Stall and village", "Town", "Emporium" };
+
+    /// <summary>The regulars, a spread per shop (the stall and village share one), with buttons along the bottom.</summary>
     void BuildRegulars(int spread)
     {
         int total = Sellers.All.Count(s => s.Tier <= _state.Tier);
         int metCount = Sellers.All.Count(s => s.Tier <= _state.Tier && _state.Met.Contains(s.Key));
         _page.AddChild(UiKit.MakeLabel($"{metCount} of {total} met", 16, Palette.Muted, HorizontalAlignment.Right)
             .Place(PanelX + PanelW - 224, PanelY + PanelH - 32, 200, 20));
-        if (_state.Tier >= 3)
+        for (int i = 0; i <= Spread(_state.Tier) && _state.Tier >= 3; i++)
         {
-            _page.AddChild(UiKit.MakeButton("Stall, village", spread == 0 ? Palette.Gold : Palette.Text, 16, () => ShowRegulars(0))
-                .Place(PanelX + 676, PanelY + 14, 172, 36));
-            _page.AddChild(UiKit.MakeButton("Town, Emporium", spread == 1 ? Palette.Gold : Palette.Text, 16, () => ShowRegulars(1))
-                .Place(PanelX + 856, PanelY + 14, 172, 36));
+            int which = i;
+            _page.AddChild(UiKit.MakeButton(SpreadNames[i], spread == i ? Palette.Gold : Palette.Text, 16, () => ShowRegulars(which))
+                .Place(TableX + i * 200, PanelY + PanelH - 44, 192, 34));
         }
 
-        var met = Sellers.All.Where(s => s.Tier <= _state.Tier && (s.Tier + 1) / 2 - 1 == spread && _state.Met.Contains(s.Key)).ToList();
+        var met = Sellers.All.Where(s => s.Tier <= _state.Tier && Spread(s.Tier) == spread && _state.Met.Contains(s.Key)).ToList();
         if (met.Count == 0)
         {
             _page.AddChild(UiKit.MakeLabel("You haven't met anyone yet.", 24, Palette.Muted, HorizontalAlignment.Center).Place(PanelX, 300, PanelW, 30));
@@ -187,7 +261,7 @@ public partial class LedgerView : Node2D
         }
         for (int i = 0; i < met.Count; i++)
         {
-            float x = TableX + i % 2 * 580, y = PanelY + 66 + i / 2 * 88;
+            float x = TableX + i % 2 * 580, y = PanelY + 62 + i / 2 * 86;
             _page.AddChild(UiKit.MakeSprite($"res://assets/sprites/sellers/{met[i].Key}.png", new Vector2(x + 20, y + 24), 1));
             string trade = met[i].Trade switch { Trade.Haggle => "haggles", Trade.Offer => "you name the price", _ => "fixed price" };
             _page.AddChild(UiKit.MakeLabel($"{met[i].Name}: {met[i].JudgeWord}, {trade}", 16, Palette.Gold).Place(x + 52, y + 2, 520, 20));

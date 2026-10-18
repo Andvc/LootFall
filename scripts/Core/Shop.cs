@@ -79,11 +79,82 @@ public sealed class GameState
     /// <summary>What you kept to show off in the shop instead of selling.</summary>
     public List<Item> Display { get; } = new();
 
+    /// <summary>Sellers whose first-visit lesson has been given.</summary>
+    public HashSet<string> Tutored { get; } = new();
+
     public int DisplaySlots => ShelfSlots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Slots);
     public bool DisplayFull => Display.Count >= DisplaySlots;
 
     /// <summary>The exhibition: what your displayed things are worth to visitors' eyes, not their purses.</summary>
-    public int Exhibition => Display.Sum(i => i.Prestige);
+    public int Exhibition => (int)MathF.Round(Display.Sum(i => i.Prestige) * (1 + Synergies.ShowBonus(Active("tailor"))));
+
+    // The collection journal: everything acquired, by kind and quality, and the feats synergies ask for.
+    readonly int[,] _acquired = new int[Categories.All.Length, 5];
+
+    /// <summary>How many things of this kind you've acquired at this quality or better (fakes and broken glass don't count).</summary>
+    public int Acquired(Category kind, Rarity atLeast)
+    {
+        int n = 0;
+        for (int q = (int)atLeast; q < 5; q++) n += _acquired[(int)kind, q];
+        return n;
+    }
+
+    public int MagicFound { get; private set; }
+    public int PerfectStreak { get; private set; }
+    public int BestStreak { get; private set; }
+
+    /// <summary>The synergies in effect, no more than there are slots for.</summary>
+    public HashSet<string> ActiveSynergies { get; } = new();
+
+    /// <summary>One synergy at a time, more with a guild charter and a royal seal.</summary>
+    public int SynergySlots => 1 + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.SynergySlots);
+
+    public int SynergyLevel(string key) => Synergies.Get(key).Level(this);
+
+    /// <summary>A synergy's level if it's active, else 0.</summary>
+    public int Active(string key) => ActiveSynergies.Contains(key) ? SynergyLevel(key) : 0;
+
+    /// <summary>Turns a reached synergy on (if there's a free slot) or off. Returns whether it's active now.</summary>
+    public bool ToggleSynergy(string key)
+    {
+        if (ActiveSynergies.Remove(key)) return false;
+        if (ActiveSynergies.Count >= SynergySlots || SynergyLevel(key) == 0) return false;
+        ActiveSynergies.Add(key);
+        return true;
+    }
+
+    /// <summary>What the exhibition and synergies do to the chests people bring.</summary>
+    public Boosts Boosts => new(BetterChests, Synergies.HiddenBonus(Active("archivist")), Synergies.MagicBonus(Active("arcane")),
+        Synergies.MetalBetter(Active("smith")));
+
+    /// <summary>How much less likely glass is to break (a vintner's packing).</summary>
+    public float Sturdier => Synergies.Sturdier(Active("vintner"));
+
+    /// <summary>What a thing fetches when you sell it: its value, how cleanly the lock came open, and your synergies.</summary>
+    public int SaleValue(Item item, PickGrade grade = PickGrade.Clean)
+    {
+        float bonus = 1 + Synergies.SaleBonus(Active("jewelry")) +
+                      (item.Category == Category.Bottles ? Synergies.BottleBonus(Active("vintner")) : 0);
+        return (int)MathF.Round(item.Value * Picks.Multiplier(grade) * bonus);
+    }
+
+    /// <summary>A keen eye's fee for a perfect read of a chest that held this much.</summary>
+    public int KeenFee(int held) => (int)MathF.Round(held * Synergies.KeenFee(Active("keen")));
+
+    /// <summary>Notes something you opened in the journal.</summary>
+    public void Acquire(Item item)
+    {
+        if (item.Fake || item.Broken) return;
+        _acquired[(int)item.Category, (int)item.Quality]++;
+        if (item.Magic) MagicFound++;
+    }
+
+    /// <summary>Notes whether a bought chest's slip was perfect, for the streak.</summary>
+    public void RecordRead(bool perfect)
+    {
+        PerfectStreak = perfect ? PerfectStreak + 1 : 0;
+        BestStreak = Math.Max(BestStreak, PerfectStreak);
+    }
 
     /// <summary>People come to see the exhibition: one more customer a day per so many points, up to two.</summary>
     public int ExhibitionCustomers => Math.Min(2, Exhibition / ExhibitionPerCustomer);
@@ -149,15 +220,29 @@ public sealed class GameState
         }
 
         // Each renovation brings its own crowd; the old regulars still drop by now and then. Nobody comes twice in a
-        // day unless everyone else already has.
+        // day unless everyone else already has. A smithing name draws smiths and soldiers.
         var sellers = Sellers.All.Where(s => s.Tier <= Tier).ToArray();
+        float smiths = Synergies.SmithVisits(Active("smith"));
         while (Queue.Count < CustomersPerDay)
         {
             var fresh = sellers.Where(s => Queue.All(v => v.Seller != s)).ToArray();
             var pool = fresh.Length > 0 ? fresh : sellers.Where(s => Queue[^1].Seller != s).ToArray();
-            var seller = Rng.PickWeighted(pool, s => s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 0.6f : 0.15f);
-            Queue.Add(Market.CreateVisit(Rng, seller, Tier, BetterChests));
+            var seller = Rng.PickWeighted(pool, s => (s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 0.6f : 0.15f) * (s.Metalworker ? smiths : 1f));
+            Queue.Add(NewVisit(seller));
         }
+    }
+
+    /// <summary>A seller's visit: the first time (with tips on), the lesson that introduces their habit.</summary>
+    Visit NewVisit(SellerDef seller)
+    {
+        var lesson = Lessons.For(seller.Key);
+        if (Guided && lesson != null && Tutored.Add(seller.Key))
+        {
+            var visit = lesson.Make(Rng, Tier);
+            visit.Lesson = lesson;
+            return visit;
+        }
+        return Market.CreateVisit(Rng, seller, Tier, Boosts);
     }
 
     /// <summary>
@@ -199,9 +284,10 @@ public sealed class GameState
         return new Purchase(visit, slip);
     }
 
-    /// <summary>Notes a find in the collection. True the first time this thing turns up.</summary>
+    /// <summary>Notes a find in the collection and the journal. True the first time this thing turns up.</summary>
     public bool Collect(Item item)
     {
+        Acquire(item);
         if (item.Broken || !Found.Add(item.Entry)) return false;
         Today.NewFinds++;
         return true;
@@ -221,7 +307,7 @@ public sealed class GameState
     public void SellFromDisplay(Item item)
     {
         if (!Display.Remove(item)) return;
-        Gold += item.Value;
+        Gold += SaleValue(item);
     }
 
     public void Pass() => Today.Passed++;

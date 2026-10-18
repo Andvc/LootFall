@@ -55,6 +55,7 @@ WORN_ITEMS = {"gilded_slugs": (19, 0.55), "paste_diamond": (57, 0.6), "moth_eate
 TINTED_ITEMS = {
     "silk_cloak": (81, 180, 0.8), "vintage_brandy": (61, -25, 1.3), "fairy_gold": (19, 110, 1.1),
     "elven_wine": (63, 200, 1.1), "royal_charter": (24, 15, 1.4),
+    "sand_bag": (21, 22, 0.45),  # a sack of sand, the beachcomber's "letters"
 }
 
 # Sprites made of a few copies of another, for "a lot of it": key -> (sprite number, [(x, y) offsets]).
@@ -69,7 +70,8 @@ BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 PORTRAITS = {
     "hob": 22, "penn": 19, "mags": 5, "tam": 25,           # tier 1: the village
     "brask": 18, "tobias": 10, "marta": 4,                 # tier 2: soldiers and merchants
-    "wren": 6, "orrin": 9, "grit": 8, "zara": 24,          # tier 3: mages, a miner and a fortune-teller
+    "wren": 6, "orrin": 9, "grit": 8, "zara": 24,          # tier 3: mages, a miner and a fortune-teller,
+    "pell": 2, "shelly": 12,                               #         a pawnbroker and a beachcomber
     "vex": 3, "gull": 14, "silas": 13, "pip": 17, "ermine": 21,  # tier 4: nobles, adventurers, crooks
     "bram": 16,                                            # Uncle Bram, who hands you the shop
 }
@@ -321,6 +323,60 @@ ICONS = {
         ".ksssk....ksssk.",
         ".kkkkk....kkkkk.",
         "................",
+        "................",
+        "................",
+    ],
+    "trumpet": [
+        "................",
+        "................",
+        "...........kkk..",
+        "..........kgggk.",
+        ".........kggGgk.",
+        "........kgggGgk.",
+        ".kkkkkkkgggggGk.",
+        "kGggggggggggggk.",
+        ".kkkkkkkgggggGk.",
+        "........kgggGgk.",
+        ".........kggGgk.",
+        "..........kgggk.",
+        "...........kkk..",
+        "................",
+        "................",
+        "................",
+    ],
+    "charter": [
+        "................",
+        "..kkkkkkkkkkkk..",
+        ".kwwwwwwwwwwwwk.",
+        "..kwsssssssswk..",
+        "..kwwwwwwwwwwk..",
+        "..kwssssssswwk..",
+        "..kwwwwwwwwwwk..",
+        "..kwsssssswwwk..",
+        "..kwwwwwwwrrwk..",
+        "..kwwwwwwrrrrk..",
+        "..kwwwwwwwrrwk..",
+        ".kwwwwwwwwrwwwk.",
+        "..kkkkkkkkkkkk..",
+        "................",
+        "................",
+        "................",
+    ],
+    "seal": [
+        "................",
+        "................",
+        ".....kkkkkk.....",
+        "....krrrrrrk....",
+        "...krrgrrgrrk...",
+        "..krrrgggggrrk..",
+        "..krrrgGGGgrrk..",
+        "..krrrrrrrrrrk..",
+        "..krrrrrrrrrrk..",
+        "...krrrrrrrrk...",
+        "....krrrrrrk....",
+        ".....kkkkkk.....",
+        "....kr....rk....",
+        "...kr......rk...",
         "................",
         "................",
     ],

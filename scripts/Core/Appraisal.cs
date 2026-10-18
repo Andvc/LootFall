@@ -1,10 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace LootFall.Core;
-
-/// <summary>How a kind of thing is marked on the appraisal slip.</summary>
-public enum Mark { None, Plain, Magic }
 
 /// <summary>How one thing in an opened chest compares with what the slip said.</summary>
 public enum ReadKind { Right, RightMagic, SpottedFake, SpottedBroken, FoundHidden, Missed, MissedMagic, NotMagic, Fooled, Broken, MissedHidden }
@@ -30,7 +28,7 @@ public sealed record ItemRead(Item Item, ReadKind Kind, bool Hidden = false)
 }
 
 /// <summary>The slip checked against what was really inside.</summary>
-/// <param name="Ghosts">Kinds marked on the slip that weren't in the chest.</param>
+/// <param name="Ghosts">One entry for each thing the slip counted that wasn't in the chest.</param>
 /// <param name="GhostHidden">A false bottom marked on the slip that wasn't there.</param>
 public sealed record ReadReport(IReadOnlyList<ItemRead> Items, IReadOnlyList<Category> Ghosts, bool GhostHidden)
 {
@@ -38,29 +36,34 @@ public sealed record ReadReport(IReadOnlyList<ItemRead> Items, IReadOnlyList<Cat
 }
 
 /// <summary>
-/// The player's appraisal slip: which kinds of things they think are in the chest, which are magic, and whether there's
-/// a false bottom. It starts with what the seller says they heard; the player corrects it from what they hear
-/// themselves. It only adds up what the player marked, at what a thing of that kind is worth on average in a chest of
-/// that colour: the chest itself still has to be opened to see how good each thing really is.
+/// The player's appraisal slip: how many of each kind of thing they think are in the chest, whether one of them is
+/// magic, and whether there's a false bottom. It starts with what the seller says is in it; the player corrects it from
+/// what they hear themselves. It only adds up what the player marked, at what such a thing is worth if it's as good as
+/// the chest's colour says: the chest itself still has to be opened to see how good each thing really is.
 /// </summary>
 public sealed class Appraisal
 {
-    readonly Mark[] _marks = new Mark[Categories.All.Length];
+    readonly int[] _count = new int[Categories.All.Length];
+    readonly bool[] _magic = new bool[Categories.All.Length];
 
-    /// <summary>The chest's colour: what each thing is worth on average.</summary>
+    /// <summary>The chest's colour: what each thing is probably worth.</summary>
     public Rarity Chest { get; }
 
-    /// <summary>The shop tier, which decides what a false bottom might hold.</summary>
+    /// <summary>The shop tier, which decides what a false bottom might hold and whether to count.</summary>
     public int Tier { get; }
 
     /// <summary>The player thinks there's a false bottom.</summary>
     public bool Hidden { get; set; }
 
+    /// <summary>The most of one kind the slip counts: two or three of a kind turn up from the town shop on.</summary>
+    public int MaxCount => Tier >= Market.PairsTier ? 3 : 1;
+
     public Appraisal(Rarity chest, int tier, IEnumerable<Category> marked = null)
     {
         Chest = chest;
         Tier = tier;
-        foreach (var category in marked ?? Enumerable.Empty<Category>()) _marks[(int)category] = Mark.Plain;
+        foreach (var category in marked ?? Enumerable.Empty<Category>())
+            _count[(int)category] = Math.Min(MaxCount, _count[(int)category] + 1);
     }
 
     public Appraisal(Visit visit, int tier) : this(visit.Chest.Quality, tier, visit.Claim)
@@ -68,45 +71,90 @@ public sealed class Appraisal
         Hidden = visit.ClaimsHidden;
     }
 
-    public Mark this[Category category]
+    public int Count(Category category) => _count[(int)category];
+
+    /// <summary>One of them glowed: it's magic.</summary>
+    public bool Magic(Category category) => _magic[(int)category] && _count[(int)category] > 0;
+
+    public void Set(Category category, int count, bool magic = false)
     {
-        get => _marks[(int)category];
-        set => _marks[(int)category] = value;
+        _count[(int)category] = Math.Clamp(count, 0, MaxCount);
+        _magic[(int)category] = magic && count > 0;
     }
 
-    /// <summary>None, then there, then (with a witchlight) magic, then back to none.</summary>
-    public void Cycle(Category category, bool magicAllowed) => this[category] = this[category] switch
+    /// <summary>One more of this kind, or back to none after the most there can be.</summary>
+    public void CycleCount(Category category)
     {
-        Mark.None => Mark.Plain,
-        Mark.Plain when magicAllowed => Mark.Magic,
-        _ => Mark.None,
-    };
+        int count = Count(category) >= MaxCount ? 0 : Count(category) + 1;
+        Set(category, count, Magic(category));
+    }
 
-    public IEnumerable<Category> Marked => Categories.All.Select(c => c.Category).Where(c => this[c] != Mark.None);
+    /// <summary>Marks one of them magic, or not. Marking a kind you hadn't ticked ticks one.</summary>
+    public void ToggleMagic(Category category) => Set(category, Math.Max(1, Count(category)), !Magic(category));
 
-    public int ValueOf(Category category, Mark mark) =>
-        mark == Mark.None ? 0 : Categories.Expected(category, Chest) * (mark == Mark.Magic ? Categories.MagicMultiplier : 1);
+    public IEnumerable<Category> Marked => Categories.All.Select(c => c.Category).Where(c => Count(c) > 0);
 
-    public int HiddenValue => Market.ExpectedHidden(Chest, Tier);
+    /// <summary>What one of this kind is worth if it's as good as the chest's colour.</summary>
+    public int OneValue(Category category, bool magic = false) =>
+        Categories.Nominal(category, Chest) * (magic ? Categories.MagicMultiplier : 1);
 
-    /// <summary>What the chest is worth on average if the slip is right.</summary>
-    public int Worth => Marked.Sum(c => ValueOf(c, this[c])) + (Hidden ? HiddenValue : 0);
+    /// <summary>What the slip says this kind adds up to.</summary>
+    public int ValueOf(Category category)
+    {
+        int count = Count(category);
+        if (count == 0) return 0;
+        return Magic(category) ? (count - 1) * OneValue(category) + OneValue(category, true) : count * OneValue(category);
+    }
 
+    public int HiddenValue => Market.HiddenValue(Chest, Tier);
+
+    /// <summary>What the chest is worth if the slip is right and everything is as good as its colour.</summary>
+    public int Worth => Marked.Sum(ValueOf) + (Hidden ? HiddenValue : 0);
+
+    /// <summary>
+    /// What it's worth on average if the slip is right, allowing for things coming out better or worse than the colour.
+    /// The careful player's model knows this; the screen doesn't show it.
+    /// </summary>
+    public int ExpectedWorth => Marked.Sum(c => Categories.Expected(c, Chest) * (Count(c) + (Magic(c) ? Categories.MagicMultiplier - 1 : 0))) +
+                                (Hidden ? Market.HiddenValue(Chest, Tier, expected: true) : 0);
+
+    /// <summary>
+    /// Checks the slip against the chest. Of each kind, the slip's count goes to the real, whole things first (magic
+    /// first if it marked one magic), then broken glass, then fakes; whatever's left over is a ghost.
+    /// </summary>
     public ReadReport Check(Chest chest)
     {
-        var reads = chest.Items.Select(item => new ItemRead(item, Read(item, this[item.Category]))).ToList();
+        var reads = new List<ItemRead>();
+        var ghosts = new List<Category>();
+        foreach (var kind in Categories.All.Select(c => c.Category))
+        {
+            var items = chest.Items.Where(i => i.Category == kind)
+                .OrderBy(i => i.Fake ? 2 : i.Broken ? 1 : 0).ThenBy(i => Magic(kind) && i.Magic ? 0 : 1).ToList();
+            int marked = Count(kind);
+            bool magicLeft = Magic(kind);
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                bool counted = i < marked;
+                ReadKind read;
+                if (item.Fake) read = counted ? ReadKind.Fooled : ReadKind.SpottedFake;
+                else if (item.Broken) read = counted ? ReadKind.Broken : ReadKind.SpottedBroken;
+                else if (!counted) read = item.Magic ? ReadKind.MissedMagic : ReadKind.Missed;
+                else if (item.Magic) read = magicLeft ? ReadKind.RightMagic : ReadKind.MissedMagic;
+                else read = ReadKind.Right;
+                if (read == ReadKind.RightMagic) magicLeft = false;
+                reads.Add(new ItemRead(item, read));
+            }
+            // Marked magic but nothing magic was there: the first one counted wasn't.
+            if (magicLeft && !items.Any(i => i.Magic && !i.Fake))
+            {
+                int first = reads.FindIndex(r => r.Item.Category == kind && r.Kind == ReadKind.Right);
+                if (first >= 0) reads[first] = reads[first] with { Kind = ReadKind.NotMagic };
+            }
+            for (int extra = items.Count; extra < marked; extra++) ghosts.Add(kind);
+        }
         if (chest.Hidden != null)
             reads.Add(new ItemRead(chest.Hidden, Hidden ? ReadKind.FoundHidden : ReadKind.MissedHidden, true));
-        var ghosts = Marked.Where(c => !chest.Has(c)).ToList();
         return new ReadReport(reads, ghosts, Hidden && chest.Hidden == null);
-    }
-
-    static ReadKind Read(Item item, Mark mark)
-    {
-        if (item.Fake) return mark == Mark.None ? ReadKind.SpottedFake : ReadKind.Fooled;
-        if (item.Broken) return mark == Mark.None ? ReadKind.SpottedBroken : ReadKind.Broken;
-        if (mark == Mark.None) return ReadKind.Missed;
-        if (item.Magic) return mark == Mark.Magic ? ReadKind.RightMagic : ReadKind.MissedMagic;
-        return mark == Mark.Magic ? ReadKind.NotMagic : ReadKind.Right;
     }
 }

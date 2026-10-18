@@ -134,6 +134,134 @@ public static class Fx
         return _burst;
     }
 
+    /// <summary>A beam of light standing on a spot (a rare find), fading out.</summary>
+    public static void Pillar(Node parent, Vector2 at, Color color, float width = 56f, float height = 560f, float duration = 1.1f)
+    {
+        var beam = new Painter(p =>
+        {
+            // Three nested bands, brightest in the middle, each fading to nothing at the top.
+            for (int band = 3; band >= 1; band--)
+            {
+                float w = width * band / 3f;
+                var bottom = color with { A = 0.22f * (4 - band) };
+                p.DrawPolygon(new[] { new Vector2(-w / 2, 0), new Vector2(w / 2, 0), new Vector2(w / 2, -height), new Vector2(-w / 2, -height) },
+                    new[] { bottom, bottom, color with { A = 0 }, color with { A = 0 } });
+            }
+        }) { Position = at, Material = Additive(), Scale = new Vector2(0.2f, 1f) };
+        parent.AddChild(beam);
+        var tween = beam.CreateTween();
+        tween.TweenProperty(beam, "scale:x", 1f, 0.12f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        tween.TweenProperty(beam, "modulate:a", 0f, duration).SetEase(Tween.EaseType.In);
+        tween.TweenCallback(Callable.From(beam.QueueFree));
+    }
+
+    /// <summary>A shockwave ring expanding from a spot.</summary>
+    public static void Ring(Node parent, Vector2 at, Color color, float radius = 160f, float duration = 0.45f, float width = 6f)
+    {
+        float r = 8f;
+        var ring = new Painter(p => p.DrawArc(Vector2.Zero, r, 0, Mathf.Tau, 48, color, width)) { Position = at, Material = Additive() };
+        parent.AddChild(ring);
+        var tween = ring.CreateTween().SetParallel();
+        tween.TweenMethod(Callable.From<float>(v =>
+        {
+            r = v;
+            ring.QueueRedraw();
+        }), 8f, radius, duration).SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.TweenProperty(ring, "modulate:a", 0f, duration).SetEase(Tween.EaseType.In);
+        tween.Chain().TweenCallback(Callable.From(ring.QueueFree));
+    }
+
+    /// <summary>Jagged bolts crackling out of a spot (an epic find), redrawn every frame for a moment.</summary>
+    public static void Lightning(Node parent, Vector2 at, Color color, int bolts = 5, float reach = 150f, float duration = 0.5f)
+    {
+        var rng = new System.Random();
+        var bolt = new Painter(p =>
+        {
+            for (int b = 0; b < bolts; b++)
+            {
+                float angle = Mathf.Tau * b / bolts + (float)rng.NextDouble() * 0.8f;
+                var dir = Vector2.FromAngle(angle);
+                var points = new Vector2[7];
+                for (int i = 0; i < points.Length; i++)
+                {
+                    float t = i / (float)(points.Length - 1);
+                    points[i] = dir * reach * t + dir.Orthogonal() * ((float)rng.NextDouble() * 2 - 1) * 18f * t;
+                }
+                p.DrawPolyline(points, color.Lightened(0.5f), 4f);
+                p.DrawPolyline(points, Colors.White, 2f);
+            }
+        }) { Position = at, Material = Additive() };
+        parent.AddChild(bolt);
+        var tween = bolt.CreateTween();
+        tween.TweenMethod(Callable.From<float>(_ => bolt.QueueRedraw()), 0f, 1f, duration);
+        tween.Parallel().TweenProperty(bolt, "modulate:a", 0f, duration).SetEase(Tween.EaseType.In);
+        tween.TweenCallback(Callable.From(bolt.QueueFree));
+    }
+
+    /// <summary>A soft glow that stays behind something and breathes. Returns it, so it can be removed.</summary>
+    public static Node2D Aura(Node parent, Vector2 at, Color color, float radius = 70f)
+    {
+        var aura = new Painter(p =>
+        {
+            for (int i = 4; i >= 1; i--) p.DrawCircle(Vector2.Zero, radius * i / 4f, color with { A = 0.09f });
+        }) { Position = at, Material = Additive(), ZIndex = 4 };
+        parent.AddChild(aura);
+        var pulse = aura.CreateTween().SetLoops();
+        pulse.TweenProperty(aura, "scale", Vector2.One * 1.15f, 0.7f).SetTrans(Tween.TransitionType.Sine);
+        pulse.TweenProperty(aura, "scale", Vector2.One * 0.9f, 0.7f).SetTrans(Tween.TransitionType.Sine);
+        return aura;
+    }
+
+    /// <summary>Slowly turning rays of light behind something (a legendary find). Returns them.</summary>
+    public static Node2D Rays(Node parent, Vector2 at, Color color, float radius = 150f, int count = 12, float alpha = 0.35f)
+    {
+        var rays = new Painter(p =>
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float a = i * Mathf.Tau / count;
+                p.DrawPolygon(new[] { Vector2.Zero, Vector2.FromAngle(a - 0.09f) * radius, Vector2.FromAngle(a + 0.09f) * radius },
+                    new[] { color with { A = alpha }, color with { A = 0 }, color with { A = 0 } });
+            }
+        }) { Position = at, Material = Additive(), ZIndex = 3 };
+        parent.AddChild(rays);
+        rays.CreateTween().SetLoops().TweenProperty(rays, "rotation", Mathf.Tau, 9f).AsRelative();
+        return rays;
+    }
+
+    /// <summary>A shower of many-coloured confetti (a find two or more qualities better than its chest).</summary>
+    public static void Confetti(Node parent, Vector2 at, int amount = 90)
+    {
+        var colours = new Gradient();
+        colours.Offsets = new[] { 0f, 0.25f, 0.5f, 0.75f, 1f };
+        colours.Colors = new[] { new Color("#ff6b6b"), new Color("#ffb52e"), new Color("#6fdc8c"), new Color("#4ea3ff"), new Color("#c792ff") };
+        var confetti = new CpuParticles2D
+        {
+            Emitting = false,
+            OneShot = true,
+            Amount = amount,
+            Lifetime = 2.2f,
+            Explosiveness = 0.9f,
+            Texture = Pixel,
+            Direction = Vector2.Up,
+            Spread = 75,
+            InitialVelocityMin = 380,
+            InitialVelocityMax = 820,
+            Gravity = new Vector2(0, 700),
+            DampingMin = 60,
+            DampingMax = 140,
+            AngularVelocityMin = -360,
+            AngularVelocityMax = 360,
+            ScaleAmountMin = 2.5f,
+            ScaleAmountMax = 4.5f,
+            ColorInitialRamp = colours,
+            Position = at,
+        };
+        parent.AddChild(confetti);
+        confetti.Emitting = true;
+        parent.GetTree().CreateTimer(2.6).Timeout += confetti.QueueFree;
+    }
+
     static Texture2D MakeSquare(int size)
     {
         var image = Image.CreateEmpty(size, size, false, Image.Format.Rgba8);

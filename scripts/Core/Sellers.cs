@@ -110,8 +110,17 @@ public sealed class SellerDef
     /// <summary>How often their chest is locked (from the village shop on).</summary>
     public float LockChance { get; init; } = 0.3f;
 
-    /// <summary>How likely each thing that could be faked is gilded iron.</summary>
+    /// <summary>The kinds they pass off fakes of: gilded iron for coins and jewelry, sand for paper.</summary>
+    public Category[] Fakes { get; init; } = Array.Empty<Category>();
+
+    /// <summary>How likely each thing of a kind they fake is the fake.</summary>
     public float FakeChance { get; init; }
+
+    /// <summary>From the town shop on: how often each kind they bring comes two (or three) of a kind.</summary>
+    public float PairChance { get; init; } = 0.08f;
+
+    /// <summary>From the village shop on: how often, when there's cloth in it, they pack it around the rest.</summary>
+    public float PackChance { get; init; } = 0.3f;
 
     /// <summary>How often their chest has nothing in it at all.</summary>
     public float EmptyChance { get; init; }
@@ -130,6 +139,12 @@ public sealed class SellerDef
 
     /// <summary>Whether they shake it at all (and so what you can learn from what they say they heard).</summary>
     public bool Listens => Judge is Judgment.Ear or Judgment.Thorough or Judgment.Counter or Judgment.Miner;
+
+    /// <summary>Smiths and soldiers: they bring a lot of metal.</summary>
+    public bool Metalworker => Kinds[(int)Category.Metal] >= 4;
+
+    /// <summary>Whether they say how many of a kind (and price each), or just which kinds they heard.</summary>
+    public bool Counts => Judge is Judgment.Counter or Judgment.Thorough or Judgment.Crook or Judgment.Jeweller;
 
     /// <summary>What this seller says is in the chest: what they heard, or (crooks, jewellers) what they packed.</summary>
     public IEnumerable<Item> Notices(Chest chest) => Judge switch
@@ -237,18 +252,18 @@ public static class Sellers
         },
         new()
         {
-            Key = "marta", Name = "Old Marta", Tier = 2, Shakes = Shake.Gentle, HatesDrop = true, HiddenChance = 0.5f,
+            Key = "marta", Name = "Old Marta", Tier = 2, Shakes = Shake.Gentle, HiddenChance = 0.45f, Markup = (1.6f, 2f),
             Kinds = new[] { 2f, 2, 2, 2, 3, 1 }, Colours = Village,
-            Habit = "Listens gently. Old family chests, often with false bottoms. Drop one and it's half again.",
+            Habit = "Listens gently. Old family chests, often with false bottoms she's forgotten about. Drop one and listen.",
             Pitches = new[] { "My mother's chest. A gentle shake: {heard}. {price}, dear.", "Gently does it. {heard}. {price}." },
             Accepts = new[] { "Fair's fair.", "Take good care of it." },
-            Angry = new[] { "That was my mother's chest! For that, it's half again." },
         },
         new()
         {
             Key = "wick", Name = "Granny Wick", Tier = 2, Shakes = Shake.Firm, HatesHardShake = true, MissRate = 0.45f, Markup = (1.8f, 2.1f),
+            PackChance = 0.9f,
             Kinds = new[] { 1f, 2, 5, 1, 3, 0.5f }, Colours = Village,
-            Habit = "A seamstress: listens with a firm shake, never hard. Her chests are full of cloth she never heard. " +
+            Habit = "A seamstress: listens firmly, never hard. Her chests are packed with cloth, which muffles what's in it. " +
                     "Shake one hard and it's half again.",
             Pitches = new[] { "A firm shake is all it needs, dearie. {heard}. {price}. And don't you shake it hard!",
                               "Mind my sewing. Firm, never hard. {heard}. Just {price}." },
@@ -288,14 +303,34 @@ public static class Sellers
         },
         new()
         {
-            Key = "zara", Name = "Madame Zara", Tier = 3, Judge = Judgment.Colour, SensesMagic = true, HatesHardShake = true, MagicChance = 0.15f,
+            Key = "zara", Name = "Madame Zara", Tier = 3, Judge = Judgment.Colour, SensesMagic = true, HatesDrop = true, MagicChance = 0.15f,
             HiddenChance = 0.5f, Markup = (1.15f, 1.4f),
             Kinds = new[] { 2f, 2, 2, 3, 3, 3 }, Colours = Town,
-            Habit = "Prices by the chest's colour and feels magic. Her trick boxes often have false bottoms. Shake one hard: half again.",
-            Pitches = new[] { "A {colour} chest. The spirits say {magic}. {price}. And no rough handling.",
-                              "I see a {colour} chest... and {magic}. {price}. Gently, please." },
+            Habit = "Prices by the chest's colour and feels magic. Half her trick boxes hide a false bottom she never prices. " +
+                    "Drop one: half again.",
+            Pitches = new[] { "A {colour} chest. The spirits say {magic}. {price}. And don't you drop it.",
+                              "I see a {colour} chest... and {magic}. {price}. Handle it with respect." },
             Accepts = new[] { "The spirits approve.", "It was meant to be." },
-            Angry = new[] { "You've upset the spirits! Half again, to calm them." },
+            Angry = new[] { "You dropped my trick box! The spirits demand half again." },
+        },
+        new()
+        {
+            Key = "pell", Name = "Pell the Pawnbroker", Tier = 3, Shakes = Shake.Firm, PairChance = 0.6f, MissRate = 0.45f, Markup = (2f, 2.5f),
+            Kinds = new[] { 4f, 3, 2, 2, 1, 3 }, Colours = Town,
+            Habit = "Sells unredeemed pawn by the lot: two or three of a kind. Says which kinds he heard, never how many. Count them.",
+            Pitches = new[] { "Unredeemed lot. Shook it firm: {heard}. {price}, and I don't count.",
+                              "Pawned and forgotten. {heard}, in there somewhere. {price}." },
+            Accepts = new[] { "Done. No refunds.", "Sold, as seen. Well, as heard." },
+        },
+        new()
+        {
+            Key = "shelly", Name = "Shelly the Beachcomber", Tier = 3, Shakes = Shake.Hard, Fakes = new[] { Category.Paper }, FakeChance = 0.5f,
+            Kinds = new[] { 2f, 1, 1, 4, 5, 2 }, Colours = new[] { 0.1f, 0.5f, 0.35f, 0.05f },
+            Habit = "Combs the beach and swears every rustle is a treasure map. Her chests are often full of sand, which pours " +
+                    "at the gentlest shake. Paper never does.",
+            Pitches = new[] { "Washed up at low tide! Shook it hard: {heard}. A treasure map, I'd bet my boots. {price}.",
+                              "Straight off the beach. {heard}. Maps, letters, who knows! {price}." },
+            Accepts = new[] { "Yo ho!", "The sea provides." },
         },
 
         // The Emporium: a hurried baron, a smuggler, a sharp dealer, a lady with jewels and a crook.
@@ -331,7 +366,7 @@ public static class Sellers
         },
         new()
         {
-            Key = "ermine", Name = "Lady Ermine", Tier = 4, Judge = Judgment.Jeweller, HatesMagnet = true, FakeChance = 0.25f, Markup = (1.4f, 1.6f),
+            Key = "ermine", Name = "Lady Ermine", Tier = 4, Judge = Judgment.Jeweller, HatesMagnet = true, Fakes = new[] { Category.Jewels }, FakeChance = 0.25f, Markup = (1.4f, 1.6f),
             Kinds = new[] { 2f, 1, 3, 2, 2, 6 }, Colours = Emporium,
             Habit = "Knows only her jewelry, at what she paid; whatever else the maid packed comes free. Some jewels are paste. " +
                     "Use a magnet and it's half again.",
@@ -341,7 +376,7 @@ public static class Sellers
         },
         new()
         {
-            Key = "silas", Name = "Silas", Tier = 4, Judge = Judgment.Crook, MissRate = 0f, FakeChance = 0.6f, HiddenChance = 0f,
+            Key = "silas", Name = "Silas", Tier = 4, Judge = Judgment.Crook, MissRate = 0f, Fakes = new[] { Category.Coins, Category.Jewels }, FakeChance = 0.6f, HiddenChance = 0f,
             Kinds = new[] { 5f, 1, 1, 1, 1, 5 }, Colours = Emporium,
             Habit = "Sells gilded iron as gold and jewels, for half. Real goods come cheap; fakes are worth nothing.",
             Pitches = new[] { "{heard}, friend. Genuine. I'm leaving town tonight, so {price}.", "{heard}. Very rare. For you, just {price}." },
@@ -353,13 +388,20 @@ public static class Sellers
 
     public static string PassLine(Random rng) => rng.PickOne(Shrug);
 
-    /// <summary>"Heard a jingle and a clank", or "Not a sound".</summary>
+    /// <summary>"Heard a jingle and a clank", "Heard two jingles", or "Not a sound".</summary>
     public static string Heard(IReadOnlyList<Category> claim)
     {
         if (claim.Count == 0) return "Not a sound";
-        var words = claim.Select(c => $"a {Categories.Get(c).Word}").ToList();
+        var words = claim.GroupBy(c => c).Select(g => g.Count() switch
+        {
+            1 => $"a {Categories.Get(g.Key).Word}",
+            2 => $"two {Categories.Get(g.Key).Word}s",
+            _ => $"{Number(g.Count())} {Categories.Get(g.Key).Word}s",
+        }).ToList();
         return $"Heard {Join(words)}";
     }
+
+    public static string Number(int n) => n switch { 1 => "one", 2 => "two", 3 => "three", 4 => "four", 5 => "five", 6 => "six", _ => n.ToString() };
 
     public static string Join(IReadOnlyList<string> words) =>
         words.Count <= 1 ? words.FirstOrDefault() ?? "" : string.Join(", ", words.Take(words.Count - 1)) + " and " + words[^1];

@@ -25,10 +25,20 @@ public static class Strategy
         tier >= 2 && !visit.Seller.HatesDrop && visit.Seller.Patience == 0 && !hearing.Dropped &&
         !Categories.All.Any(c => c.Fragile && hearing.HeardAny(c.Category));
 
-    /// <summary>Check a jingle or tinkle with the magnet, unless the seller would mind or there's no time.</summary>
-    public static bool ShouldUseMagnet(Visit visit, Hearing hearing, GameState state) =>
-        state.Has("magnet") && !visit.Seller.HatesMagnet && visit.Seller.Patience == 0 &&
-        Categories.All.Any(c => c.FakeName != null && hearing.HeardAt(c.Category, Shake.Gentle, false));
+    /// <summary>
+    /// Where to check with the magnet: each strength at which a jingle or tinkle was heard (a gilded fake goes quiet
+    /// there), unless the seller would mind or there's no time.
+    /// </summary>
+    public static Shake[] MagnetLevels(Visit visit, Hearing hearing, GameState state)
+    {
+        if (!state.Has("magnet") || visit.Seller.HatesMagnet || visit.Seller.Patience > 0) return Array.Empty<Shake>();
+        var gilded = Categories.All.Where(c => c.FakeName != null && c.FakeIron).Select(c => c.Category).ToArray();
+        // The gentlest strength each one sounded at: where a fake would go quiet.
+        return gilded.Select(c => Every.FirstOrDefault(l => hearing.HeardAt(c, l, false))).Where(l => l != Shake.Still)
+            .Distinct().OrderBy(l => l).ToArray();
+    }
+
+    public static bool ShouldUseMagnet(Visit visit, Hearing hearing, GameState state) => MagnetLevels(visit, hearing, state).Length > 0;
 
     /// <summary>
     /// A haggler's first answer: about half their asking price, never more than the chest is worth to you. When they ask
@@ -44,24 +54,27 @@ public static class Strategy
     };
 
     /// <summary>
-    /// What the chest is worth to a careful player who knows the seller: the slip, plus a fair guess at what couldn't
-    /// be heard (a granny who forbids a hard shake has cloth she never mentions), and a bit more from a seller whose
+    /// What the chest is worth to a careful player who knows the seller: the slip at what things are worth on average
+    /// (better than the colour now and then), plus a fair guess at what couldn't be checked (soft things in a chest
+    /// they couldn't shake hard, a false bottom in a chest they couldn't drop), and a bit more from a seller whose
     /// things run better than their colour.
     /// </summary>
     public static int Worth(Visit visit, Appraisal slip, Hearing hearing)
     {
-        float worth = slip.Worth;
+        var seller = visit.Seller;
+        float worth = slip.ExpectedWorth;
         if (!hearing.HasTried(Shake.Hard, false))
         {
-            var seller = visit.Seller;
             float total = seller.Kinds.Sum();
-            foreach (var kind in Categories.UpTo(slip.Tier).Where(k => k.StirsAt == Shake.Hard && slip[k.Category] == Mark.None))
+            foreach (var kind in Categories.UpTo(slip.Tier).Where(k => k.StirsAt == Shake.Hard && slip.Count(k.Category) == 0))
             {
                 float share = seller.Kinds[(int)kind.Category] / total;
                 worth += share * 2.5f * Categories.Expected(kind.Category, slip.Chest) * 0.8f;
             }
         }
-        return (int)(worth * (1 + visit.Seller.QualityBoost * 1.2f));
+        if (!hearing.Dropped && !slip.Hidden && slip.Tier >= 2)
+            worth += seller.HiddenChance * Market.HiddenValue(slip.Chest, slip.Tier, expected: true);
+        return (int)(worth * (1 + seller.QualityBoost * 1.2f));
     }
 
     /// <summary>When they want more than your first offer: most of what it's worth to you.</summary>

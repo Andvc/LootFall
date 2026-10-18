@@ -46,6 +46,14 @@ public partial class Autoplay : Node
         {
             case CounterPhase counter:
                 await DriveCounter(counter);
+                // A seller who stormed off (or ran out of patience) leaves your gut's opinion on screen: read it, move on.
+                if (IsInstanceValid(counter) && counter.Visit.Outcome == VisitOutcome.Left)
+                {
+                    await Wait(3.2);
+                    if (!IsInstanceValid(counter)) break;
+                    await ReadTips(counter.Mentor);
+                    if (IsInstanceValid(counter)) counter.Continue();
+                }
                 break;
             case DayEndPhase dayEnd:
                 await DriveDayEnd(dayEnd);
@@ -59,10 +67,10 @@ public partial class Autoplay : Node
         }
     }
 
-    /// <summary>Gives each of Bram's tips a moment on screen, then clicks on.</summary>
+    /// <summary>Gives each of Bram's tips a moment on screen, then clicks on (a lesson step to do waits for doing).</summary>
     async Task ReadTips(Ui.MentorView mentor)
     {
-        while (IsInstanceValid(mentor) && mentor.Showing)
+        while (IsInstanceValid(mentor) && mentor.Showing && !mentor.WaitingForAction)
         {
             await Wait(1.8);
             if (!IsInstanceValid(mentor)) return;
@@ -89,12 +97,14 @@ public partial class Autoplay : Node
         bool hurried = visit.Seller.Patience > 0;
         foreach (var level in Strategy.Levels(visit))
             if (!await Shake(counter, level, hurried ? 1.2 : ShakeSeconds)) return;
-        // A jingle or tinkle that goes quiet under the magnet is gilded iron.
-        if (Strategy.ShouldUseMagnet(visit, counter.Hearing, State))
+        // A jingle or tinkle that goes quiet under the magnet is gilded iron: check at the strength it sounded at.
+        var magnetLevels = Strategy.MagnetLevels(visit, counter.Hearing, State);
+        if (magnetLevels.Length > 0)
         {
             counter.ToggleMagnet();
             await Wait(0.6);
-            if (!await Shake(counter, Core.Shake.Gentle, ShakeSeconds)) return;
+            foreach (var level in magnetLevels)
+                if (!await Shake(counter, level, ShakeSeconds)) return;
         }
         // Drop it to listen for a false bottom, unless there's glass in there or the seller would mind.
         if (Strategy.ShouldDrop(visit, counter.Hearing, State.Tier))
@@ -113,7 +123,7 @@ public partial class Autoplay : Node
             _ledgerShown = true;
             counter.OpenLedger();
             await Wait(2.0);
-            for (int page = 1; page <= 2 && IsInstanceValid(counter); page++)
+            for (int page = 1; page <= 3 && IsInstanceValid(counter); page++)
             {
                 counter.LedgerPage(page);
                 Main.Instance.Moment($"02_ledger_{page}", 0.3);
@@ -124,18 +134,29 @@ public partial class Autoplay : Node
             await Wait(0.5);
         }
 
-        // The slip, corrected from what it heard, one row at a time.
+        // The slip, corrected from what it heard (how many of each, and which glowed), one row at a time.
         var read = counter.Hearing.Read(visit.Chest.Quality, State.Tier);
-        foreach (var kind in Categories.UpTo(State.Tier))
+        foreach (var kind in Categories.UpTo(State.Tier).Select(k => k.Category))
         {
-            if (counter.Slip[kind.Category] == read[kind.Category]) continue;
-            counter.SetMark(kind.Category, read[kind.Category]);
+            if (counter.Slip.Count(kind) == read.Count(kind) && counter.Slip.Magic(kind) == read.Magic(kind)) continue;
+            counter.SetMark(kind, read.Count(kind), read.Magic(kind));
             await Wait(hurried ? 0.1 : 0.35);
             if (!IsInstanceValid(counter)) return;
         }
         if (read.Hidden != counter.Slip.Hidden) counter.SetHidden(read.Hidden);
         await ReadTips(counter.Mentor);
         if (!IsInstanceValid(counter) || counter.Concluded) return;
+        // A lesson the careful routine didn't finish would leave the buttons shut: say where it stuck, and skip it.
+        // (Steps are checked once a frame, so give it a moment to catch up first.)
+        if (counter.InLesson) await Wait(0.5);
+        if (!IsInstanceValid(counter) || counter.Concluded) return;
+        await ReadTips(counter.Mentor);
+        if (!IsInstanceValid(counter) || counter.Concluded) return;
+        if (counter.InLesson && !counter.LessonTrades)
+        {
+            GD.Print($"Autoplay: {visit.Seller.Name}'s lesson stuck at: {counter.LessonStep}");
+            counter.SkipLesson();
+        }
         await Wait(hurried ? 0.2 : 0.6);
         if (!IsInstanceValid(counter) || counter.Concluded) return;
 
@@ -189,8 +210,22 @@ public partial class Autoplay : Node
         await Wait(1.0);
         if (!IsInstanceValid(dayEnd)) return;
         dayEnd.BuyInOrder(Simulation.BuyOrder, 10 + 15 * State.Tier);
-        await Wait(2.0);
+        await Wait(1.2);
         if (!IsInstanceValid(dayEnd)) return;
+        // Keep the best synergies working; show the journal while doing it.
+        if (Synergies.All.Any(s => s.Level(State) > 0))
+        {
+            dayEnd.OpenSynergies();
+            await Wait(0.8);
+            if (!IsInstanceValid(dayEnd)) return;
+            dayEnd.ChooseSynergies();
+            Main.Instance.Moment($"09_synergies_d{State.Day}", 0.4);
+            await Wait(1.2);
+            if (!IsInstanceValid(dayEnd)) return;
+            dayEnd.CloseSynergies();
+            await Wait(0.4);
+            if (!IsInstanceValid(dayEnd)) return;
+        }
         dayEnd.NextDay();
     }
 
@@ -212,11 +247,9 @@ public partial class Autoplay : Node
 
     async Task DriveOpening(OpeningPhase opening)
     {
-        await Wait(0.4);
-        Main.Instance.AutoHold = true;
+        // It opens by itself.
         while (IsInstanceValid(opening) && !opening.Finished)
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Main.Instance.AutoHold = false;
 
         await Wait(3.0);
         if (!IsInstanceValid(opening)) return;

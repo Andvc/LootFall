@@ -11,10 +11,13 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 ## Verify every change
 
 1. `dotnet build` must report 0 warnings and 0 errors.
-2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after.
+2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after. Its last
+   section is the lesson test: every seller's lesson must complete when played the careful way.
 3. Visual changes: run the autoplay bot under Xvfb with `--shots=<dir>` and look at the PNGs.
    Bot flags: `--seed=N --quit-at-end --days=N --no-tutorial --start-tier=N --gold=N`. `--start-tier`
-   jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens).
+   jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens). With tips
+   on, every seller's first visit is a lesson, so a guided run at a tier shows those lessons; the bot logs any lesson
+   it couldn't finish. `--opening-demo` opens a crafted chest with every quality and two surprises (record it).
    Keep screenshot folders named `shots*` (git- and export-ignored).
 4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear everything the rules say is
    audible at each strength (and with the magnet), with no leaks.
@@ -29,10 +32,18 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   each item's real quality is rolled around that colour (`Categories.Odds`) so openings still surprise. Clues are
   perceptual (which sounds come at which strength, what glows, what the magnet silences, a hollow drop) or stated
   (what the seller says they heard). Any new way to judge a chest must follow a rule people know from real life.
+  The slip values things as good as the chest's colour promises (`Categories.Nominal`); sellers price by the average
+  (`Categories.Expected`). Layers of deduction (packing, counting, sound-alikes like sand and gilded iron) arrive one
+  shop at a time, each taught by the seller it belongs to.
 - One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`); kinds differ in how
   hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
   Introduce new things one at a time: by shop tier (`CategoryDef.Tier`, `SellerDef.Tier`) and with a Bram hint
   (`Hints.cs`).
+- A seller's first visit (with tips on) is a lesson (`Lessons.cs`): a chest that guarantees what it teaches, and
+  steps whose `Done` checks run every frame on the hearing, the slip and the visit. Keep checks to things the player
+  does, so they can't miss; the sim's lesson test plays each one.
+- Synergies (`Synergies.cs`) come from what's been acquired (ten of a kind at a quality per level) or achieved; only
+  active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
 - Every seller has one way of judging a chest (`Judgment`: listening, counting rattles, weight, colour, a dream, a
   trade they know, a sense for magic, no idea) with a blind spot a careful player can see through, one way to trade,
   and maybe one thing they won't stand for, with a reward for putting up with it (`SellerDef` traits like `Patience`,

@@ -10,9 +10,11 @@ namespace LootFall.Ui;
 /// <summary>
 /// A closed chest you can pick up and shake. How hard you shake it (how fast you drag) sets the shake level; whatever
 /// is inside is simulated as invisible physics bodies in a box that follows the chest, and a hit makes its kind's
-/// sound only if the shake is strong enough to stir it (<see cref="Chest.Stirs"/>). Metal clanking drowns out delicate
-/// things; with the magnet on, iron makes no sound at all. Every sound pops its word out of the chest; with the
-/// witchlight on, magic words glow.
+/// sound only if the shake is strong enough to stir it and nothing muffles it (<see cref="Chest.Sounds"/>): cloth
+/// packed in the chest muffles hard things until the shake is one strength harder, unless you listen through the ear
+/// trumpet. Metal clanking drowns out delicate things; with the magnet on, iron makes no sound at all. Every sound pops
+/// its word out of the chest, each thing from its own spot so two of a kind are two words; with the witchlight lit,
+/// magic words glow.
 /// </summary>
 public partial class ShakeBox : Node2D
 {
@@ -54,8 +56,11 @@ public partial class ShakeBox : Node2D
     /// <summary>The magnet is on: iron can't move, so it makes no sound.</summary>
     public bool Magnet;
 
-    /// <summary>The witchlight is on: magic glows when it makes a sound.</summary>
+    /// <summary>The witchlight is lit: magic glows when it makes a sound.</summary>
     public bool Witchlight;
+
+    /// <summary>Listening through the ear trumpet: cloth doesn't muffle anything.</summary>
+    public bool Trumpet;
 
     /// <summary>How hard the chest is being shaken right now.</summary>
     public Shake Level { get; private set; }
@@ -289,8 +294,9 @@ public partial class ShakeBox : Node2D
         View.Position = _pos;
         View.Rotation = tilt;
 
-        foreach (var (body, item) in _items)
+        for (int index = 0; index < _items.Count; index++)
         {
+            var (body, item) = _items[index];
             // A very fast drag can push an item through a wall; put it back rather than lose it.
             if (body.Position.DistanceTo(_pos) > 180)
             {
@@ -307,7 +313,7 @@ public partial class ShakeBox : Node2D
             if (_settling <= 0 && cooldown <= 0 && Dragging && (knocked || rolling))
             {
                 cooldown = 0.12;
-                if (Impact(item, knocked ? hit : ImpactThreshold + 150f)) _sinceSound[item] = 0;
+                if (Impact(index, item, knocked ? hit : ImpactThreshold + 150f)) _sinceSound[item] = 0;
             }
             _last[body] = (body.LinearVelocity, cooldown);
         }
@@ -332,23 +338,22 @@ public partial class ShakeBox : Node2D
     }
 
     /// <summary>A knock inside. Returns whether it made a sound you could hear.</summary>
-    bool Impact(Item item, float strength)
+    bool Impact(int index, Item item, float strength)
     {
         var level = Level;
         // Glass that broke in a drop doesn't slosh any more.
-        if (_chest.Get(item.Category)?.Broken == true) return false;
-        // Not shaken hard enough to stir it, or held still by the magnet: it doesn't move, so it makes no sound.
-        if (!Chest.Stirs(item, level, Magnet)) return false;
+        if (_chest.Now(item).Broken) return false;
+        // Not shaken hard enough to stir it, held still by the magnet, or muffled by cloth: it makes no sound.
+        if (!_chest.Sounds(item, level, Magnet, Trumpet)) return false;
         if (item.Def.Loud) _lastClank = _time;
         // While metal clanks, delicate things can't be heard over it.
-        if (item.Def.Delicate && (_chest.Clanks(level, Magnet) || _time - _lastClank < MaskSeconds)) return false;
+        if (item.Def.Delicate && (_chest.Clanks(level, Magnet, Trumpet) || _time - _lastClank < MaskSeconds)) return false;
 
         HeardAnything = true;
         float loud = Mathf.Clamp((strength - ImpactThreshold) / 600f, 0f, 1f);
         // Always the kind's own sound, give or take a hair: things of a kind sound alike.
         Sfx.PlayGroup(item.Def.Sound, item.Def.Pitch * (1f + 0.04f * Rand()), Mathf.LinearToDb(0.4f + 0.6f * loud) + 3f);
 
-        int index = _chest.Items.ToList().IndexOf(item);
         if (_wordCooldown.GetValueOrDefault(index) <= 0)
         {
             _wordCooldown[index] = 0.3;

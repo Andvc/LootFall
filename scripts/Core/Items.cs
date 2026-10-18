@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace LootFall.Core;
 
@@ -16,7 +17,8 @@ public enum Rarity { Common, Uncommon, Rare, Epic, Legendary }
 /// <summary>
 /// A kind of thing and its rules, which match everyday experience: light, hard things (coins, bottles, jewelry)
 /// rattle at the gentlest shake; heavy metal only moves when you shake firmly, and its clanking drowns out anything
-/// delicate; soft things (cloth, paper) only make a sound when you shake hard.
+/// delicate; soft things (cloth, paper) only make a sound when you shake hard. Cloth packed around hard things
+/// (metal, coins, jewelry) muffles them: they only sound at a shake one strength harder than usual. Loose cloth doesn't.
 /// </summary>
 /// <param name="StirsAt">The gentlest shake that makes it move and sound.</param>
 /// <param name="Delicate">Quiet enough that clanking drowns it out.</param>
@@ -27,7 +29,11 @@ public enum Rarity { Common, Uncommon, Rare, Epic, Legendary }
 /// <param name="Tier">The shop tier at which this kind starts turning up.</param>
 /// <param name="Names">Name at each quality, common to legendary.</param>
 /// <param name="Sprites">Sprite at each quality, under res://assets/sprites/items/.</param>
-/// <param name="FakeName">What a crook passes off as this kind of thing: gilded iron that sounds just like it.</param>
+/// <param name="Muffled">Hard enough to rattle, so cloth packed around it muffles it.</param>
+/// <param name="Pads">Packed in a chest, it pads (muffles) the hard things.</param>
+/// <param name="FakeName">What sounds just like this kind of thing but is worth nothing.</param>
+/// <param name="FakeIron">The fake is gilded iron, so a magnet holds it still.</param>
+/// <param name="FakeStirsAt">The fake moves at a gentler shake than the real thing (sand pours), or Still if it doesn't.</param>
 public sealed record CategoryDef(
     Category Category,
     string Name,
@@ -39,6 +45,8 @@ public sealed record CategoryDef(
     bool Loud,
     bool Iron,
     bool Fragile,
+    bool Muffled,
+    bool Pads,
     int BaseValue,
     int Tier,
     string[] Names,
@@ -46,14 +54,24 @@ public sealed record CategoryDef(
     string MagicName,
     string MagicSprite,
     string FakeName = null,
-    string FakeSprite = null);
+    string FakeSprite = null,
+    bool FakeIron = true,
+    Shake FakeStirsAt = Shake.Still);
 
 /// <summary>One thing in a chest.</summary>
 /// <param name="Magic">Enchanted: worth four times as much. It sounds like any other; under a witchlight it glows.</param>
-/// <param name="Fake">A crook's gilded iron: sounds just like the real thing, worth nothing. A magnet holds it.</param>
+/// <param name="Fake">
+/// Sounds just like the real thing, worth nothing: gilded iron (a magnet holds it) or a bag of sand (which pours at the
+/// gentlest shake, where paper never rustles).
+/// </param>
 /// <param name="Broken">Glass that broke when the chest was dropped or forced: worth nothing now.</param>
 public sealed record Item(Category Category, Rarity Quality, bool Magic = false, bool Fake = false, bool Broken = false)
 {
+    static int _lastId;
+
+    /// <summary>Which one this is: two purses alike are still two things. Kept when it breaks.</summary>
+    public int Id { get; init; } = Interlocked.Increment(ref _lastId);
+
     public CategoryDef Def => Categories.Get(Category);
     public string Name => Broken ? $"Broken {Def.Names[(int)Quality]}" : Fake ? Def.FakeName : Magic ? Def.MagicName : Def.Names[(int)Quality];
 
@@ -62,7 +80,10 @@ public sealed record Item(Category Category, Rarity Quality, bool Magic = false,
 
     public string Sprite => Fake ? Def.FakeSprite : Magic ? Def.MagicSprite : Def.Sprites[(int)Quality];
     public int Value => Broken ? 0 : Fake ? 1 : Categories.Value(Category, Quality, Magic);
-    public bool Iron => Def.Iron || Fake;
+    public bool Iron => Def.Iron || (Fake && Def.FakeIron);
+
+    /// <summary>The gentlest shake that moves it: sand pours sooner than paper rustles.</summary>
+    public Shake StirsAt => Fake && Def.FakeStirsAt != Shake.Still ? Def.FakeStirsAt : Def.StirsAt;
     public string Word => Def.Word;
 
     /// <summary>Its colour when revealed: its quality, one better if it's magic.</summary>
@@ -83,27 +104,27 @@ public static class Categories
 
     public static readonly CategoryDef[] All =
     {
-        new(Category.Coins, "Coins", "jingle", "jingle", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, 12, 1,
+        new(Category.Coins, "Coins", "jingle", "jingle", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, Muffled: true, Pads: false, 12, 1,
             new[] { "Pouch of Copper", "Silver Crowns", "Gold Doubloons", "Royal Gold", "Dragon's Hoard" },
             new[] { "copper_pouch", "silver_crowns", "gold_doubloons", "royal_gold", "dragon_hoard" },
             "Fairy Gold", "fairy_gold", "Gilded Slugs", "gilded_slugs"),
-        new(Category.Metal, "Metal", "clank", "clank", 1f, Shake.Firm, Delicate: false, Loud: true, Iron: true, Fragile: false, 5, 1,
+        new(Category.Metal, "Metal", "clank", "clank", 1f, Shake.Firm, Delicate: false, Loud: true, Iron: true, Fragile: false, Muffled: true, Pads: false, 5, 1,
             new[] { "Rusty Knife", "Soldier's Helm", "Steel Sword", "Knight's Gauntlet", "Royal Rapier" },
             new[] { "rusty_knife", "soldiers_helm", "steel_sword", "knights_gauntlet", "royal_rapier" },
             "Rune Blade", "rune_blade"),
-        new(Category.Cloth, "Cloth", "flump", "flump", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, 6, 1,
+        new(Category.Cloth, "Cloth", "flump", "flump", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, Muffled: false, Pads: true, 6, 1,
             new[] { "Moth-Eaten Cloak", "Wool Coat", "Silk Cloak", "Golden Mantle", "Royal Robe" },
             new[] { "moth_eaten_cloak", "wool_coat", "silk_cloak", "golden_mantle", "royal_robe" },
             "Wizard's Hat", "wizard_hat"),
-        new(Category.Bottles, "Bottles", "slosh", "slosh", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: true, 8, 2,
+        new(Category.Bottles, "Bottles", "slosh", "slosh", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: true, Muffled: false, Pads: false, 8, 2,
             new[] { "Bottle of Ale", "Jar of Honey", "Vintage Brandy", "Elven Wine", "Ambrosia" },
             new[] { "ale_bottle", "honey_jar", "vintage_brandy", "elven_wine", "ambrosia" },
             "Mana Potion", "mana_potion"),
-        new(Category.Paper, "Paper", "rustle", "rustle", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, 5, 2,
+        new(Category.Paper, "Paper", "rustle", "rustle", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, Muffled: false, Pads: false, 5, 2,
             new[] { "Bundle of Letters", "Merchant's Ledger", "Treasure Map", "Illuminated Codex", "Royal Charter" },
             new[] { "love_letters", "merchants_ledger", "treasure_map", "illuminated_codex", "royal_charter" },
-            "Spell Scroll", "spell_scroll"),
-        new(Category.Jewels, "Jewelry", "tinkle", "tinkle", 1.1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, 20, 3,
+            "Spell Scroll", "spell_scroll", "Bag of Sand", "sand_bag", FakeIron: false, FakeStirsAt: Shake.Gentle),
+        new(Category.Jewels, "Jewelry", "tinkle", "tinkle", 1.1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, Muffled: true, Pads: false, 20, 3,
             new[] { "Brass Ring", "Silver Locket", "Gold Ring", "Sunfire Diamond", "Jeweled Chalice" },
             new[] { "brass_ring", "silver_locket", "gold_ring", "sunfire_diamond", "jeweled_chalice" },
             "Moonstone Pendant", "moonstone_pendant", "Paste Diamond", "paste_diamond"),
@@ -114,28 +135,26 @@ public static class Categories
     public static int Value(Category category, Rarity quality, bool magic) =>
         Get(category).BaseValue * QualityMultiplier[(int)quality] * (magic ? MagicMultiplier : 1);
 
+    /// <summary>How far a thing's quality lands from its chest's colour, and how often.</summary>
+    static readonly (int Steps, float Chance)[] Spread = { (-1, 0.15f), (0, 0.7f), (1, 0.13f), (2, 0.016f), (3, 0.004f) };
+
     /// <summary>
-    /// What's inside a chest of a given colour: mostly that quality, often one worse, now and then better. A wooden
-    /// chest can't hold worse than common, so it's a little more generous upward.
+    /// What's inside a chest of a given colour: mostly that quality, sometimes one worse, now and then better, and once
+    /// in a long while two or three steps better. Nothing is worse than common or better than legendary: those chances
+    /// stay at the end they'd fall off.
     /// </summary>
-    public static (Rarity Quality, float Chance)[] Odds(Rarity chest)
-    {
-        int c = (int)chest;
-        if (c == 0) return new[] { (Rarity.Common, 0.85f), (Rarity.Uncommon, 0.12f), (Rarity.Rare, 0.03f) };
-        return new[]
-        {
-            ((Rarity)(c - 1), 0.4f),
-            (chest, 0.5f),
-            ((Rarity)Math.Min(4, c + 1), 0.08f),
-            ((Rarity)Math.Min(4, c + 2), 0.02f),
-        };
-    }
+    public static (Rarity Quality, float Chance)[] Odds(Rarity chest) =>
+        Spread.GroupBy(s => (Rarity)Math.Clamp((int)chest + s.Steps, 0, 4))
+            .Select(g => (g.Key, g.Sum(s => s.Chance))).OrderBy(o => o.Key).ToArray();
 
     public static Rarity RollQuality(Random rng, Rarity chest) => rng.PickWeighted(Odds(chest), o => o.Chance).Quality;
 
-    /// <summary>What one plain thing of this kind is worth on average in a chest of this colour. The slip shows this.</summary>
+    /// <summary>What one plain thing of this kind is worth on average in a chest of this colour. Sellers price by this.</summary>
     public static int Expected(Category category, Rarity chest) =>
         (int)MathF.Round(Odds(chest).Sum(o => o.Chance * Value(category, o.Quality, false)));
+
+    /// <summary>What one plain thing of this kind is worth if it's as good as its chest's colour. The slip shows this.</summary>
+    public static int Nominal(Category category, Rarity chest) => Value(category, chest, false);
 
     /// <summary>Kinds of things that turn up at a shop (or seller) tier.</summary>
     public static IEnumerable<CategoryDef> UpTo(int tier) => All.Where(c => c.Tier <= tier);
@@ -193,7 +212,7 @@ public static class Categories
 /// <summary>Every kind of thing there is to find, for the ledger's collection page.</summary>
 public static class Collection
 {
-    /// <summary>Kind by kind: each quality, then the magic one, then (for coins and jewelry) the crook's fake.</summary>
+    /// <summary>Kind by kind: each quality, then the magic one, then (for coins, paper and jewelry) the fake.</summary>
     public static IEnumerable<Item> Entries => Categories.All.SelectMany(c =>
         Enumerable.Range(0, 5).Select(q => new Item(c.Category, (Rarity)q))
             .Append(new Item(c.Category, Rarity.Rare, Magic: true))

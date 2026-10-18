@@ -13,8 +13,9 @@ namespace LootFall;
 /// Root of the game: owns the game state, audio, HUD and screen effects, and swaps between phases.
 /// Command-line flags (after `--`): --seed=N, --sim [--n=N], --shake-test, --export-sounds=DIR, --autoplay,
 /// --shots=DIR, --quit-at-end, --days=N, --no-tutorial (no tips, no scripted first day),
-/// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then).
-/// Autoplay sets --days=N to stop after that many days.
+/// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then), --opening-demo (opens a blue chest
+/// holding one thing of each quality, two of them better than the chest, to preview the opening's effects; quits
+/// after with --quit-at-end). Autoplay sets --days=N to stop after that many days.
 /// </summary>
 public partial class Main : Node2D
 {
@@ -23,9 +24,6 @@ public partial class Main : Node2D
     public GameState State { get; private set; }
     public Sfx Sfx { get; private set; }
     public Hud Hud { get; private set; }
-
-    /// <summary>Set by the autoplay bot to hold the chest open without input.</summary>
-    public bool AutoHold { get; set; }
 
     readonly Random _rng = new();
     Camera2D _camera;
@@ -97,7 +95,30 @@ public partial class Main : Node2D
         if (_shotsDir != null) DirAccess.MakeDirRecursiveAbsolute(_shotsDir);
 
         Hud.SetGold(State.Gold, animate: false);
-        StartDay();
+        if (args.Contains("--opening-demo")) OpeningDemo(args.Contains("--quit-at-end"));
+        else StartDay();
+    }
+
+    /// <summary>
+    /// Opens a blue chest with one thing of each quality (the epic one a step better than the chest, the legendary
+    /// one two steps) and a false bottom, so the opening's effects can be seen and recorded together.
+    /// </summary>
+    async void OpeningDemo(bool quit)
+    {
+        State.SkipTo(ShopTiers.Max, 1000);
+        var chest = new Chest(new[]
+        {
+            new Item(Category.Metal, Rarity.Common), new Item(Category.Cloth, Rarity.Uncommon), new Item(Category.Bottles, Rarity.Rare),
+            new Item(Category.Coins, Rarity.Epic), new Item(Category.Jewels, Rarity.Legendary),
+        }, Rarity.Rare, new Item(Category.Paper, Rarity.Rare, Magic: true));
+        var visit = Market.Price(State.Rng, Sellers.Get("vex"), chest, ShopTiers.Max, ask: 300);
+        visit.Buy(State.Rng);
+        State.Opening = State.Buy(visit, new Appraisal(chest.Quality, ShopTiers.Max, chest.Items.Select(i => i.Category)));
+        var opening = new Phases.OpeningPhase();
+        SwitchTo(opening);
+        while (IsInstanceValid(opening) && !opening.Finished) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree().CreateTimer(3.0), SceneTreeTimer.SignalName.Timeout);
+        if (quit) GetTree().Quit();
     }
 
     /// <summary>Opens the shop for a new day and calls in the first customer.</summary>

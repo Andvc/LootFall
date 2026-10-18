@@ -40,6 +40,15 @@ public sealed class Visit
     /// <summary>Hidden: the least they'll take.</summary>
     internal int Floor { get; private set; }
 
+    /// <summary>The lesson this visit teaches, if it's a seller's first visit.</summary>
+    public Lesson Lesson { get; set; }
+
+    /// <summary>A lesson's scripted least they'll take.</summary>
+    internal void SetFloor(int floor) => Floor = Math.Max(1, floor);
+
+    /// <summary>What they'd have sold it for: the price on the table, or the least they'd have taken.</summary>
+    public int Price => Ask > 0 ? Ask : Floor;
+
     public Visit(SellerDef seller, Chest chest, IReadOnlyList<Category> claim, Trade trade, int ask, int floor, string pitch)
     {
         Seller = seller;
@@ -121,11 +130,14 @@ public sealed class Visit
         if (Chest.Items.Count == 0 && Chest.Hidden == null)
             return "Empty! Nothing rattled because there was nothing there.";
 
-        var fakes = Chest.Items.Where(i => i.Fake).ToList();
-        if (fakes.Count > 0)
-            lines.Add($"{Join(fakes.Select(i => i.Name))}: gilded iron. A magnet would have silenced {(fakes.Count == 1 ? "it" : "them")}.");
+        var gilded = Chest.Items.Where(i => i.Fake && i.Def.FakeIron).ToList();
+        var sand = Chest.Items.Where(i => i.Fake && !i.Def.FakeIron).ToList();
+        if (gilded.Count > 0)
+            lines.Add($"{Join(gilded.Select(i => i.Name))}: gilded iron. A magnet would have silenced {(gilded.Count == 1 ? "it" : "them")}.");
         else if (Seller.Judge == Judgment.Crook)
             lines.Add($"All genuine this time, and {name} sold it for half.");
+        if (sand.Count > 0)
+            lines.Add($"The {(sand.Count == 1 ? "rustle was" : "rustles were")} sand: it pours at a gentle shake, where paper never rustles.");
 
         switch (Seller.Judge)
         {
@@ -176,18 +188,23 @@ public sealed class Visit
             lines.Add($"{name} made up the {Categories.Get(phantoms[0]).Word}: there {(kind.EndsWith('s') ? "were" : "was")} no {kind}.");
         }
 
-        // What a listener couldn't hear, and why.
+        // What a listener couldn't hear, and why; and what they heard but never counted.
         if (Seller.Judge is Judgment.Ear or Judgment.Counter or Judgment.Miner)
         {
             var noticed = Seller.Notices(Chest).ToHashSet();
             var unheard = Chest.Items.Where(i => !noticed.Contains(i) && !i.Fake).ToList();
             if (unheard.Count > 0)
             {
-                string why = unheard.All(i => i.Def.Delicate && Chest.Clanks(Seller.Shakes)) ? $"The clank drowned out the {Join(unheard.Select(i => i.Word))} for {name}"
-                    : unheard.All(i => i.Def.StirsAt > Seller.Shakes) ? $"{name} didn't shake hard enough to stir the {Join(unheard.Select(i => i.Word))}"
-                    : $"{name} shook {Categories.Adverb(Seller.Shakes)} and missed the {Join(unheard.Select(i => i.Word))}";
+                string words = Join(unheard.Select(i => i.Word).Distinct());
+                string why = unheard.All(i => Chest.Muffled(i, Seller.Shakes)) ? $"Cloth muffled the {words} for {name}"
+                    : unheard.All(i => i.Def.Delicate && Chest.Clanks(Seller.Shakes)) ? $"The clank drowned out the {words} for {name}"
+                    : unheard.All(i => i.StirsAt > Seller.Shakes) ? $"{name} didn't shake hard enough to stir the {words}"
+                    : $"{name} shook {Categories.Adverb(Seller.Shakes)} and missed the {words}";
                 lines.Add($"{why}: {Join(unheard.Select(i => i.Name))}, unpriced.");
             }
+            if (!Seller.Counts)
+                foreach (var group in noticed.Where(i => !i.Fake).GroupBy(i => i.Category).Where(g => g.Count() > 1))
+                    lines.Add($"{name} heard the {group.First().Word} but never counted: {Sellers.Number(group.Count())} for the price of one.");
         }
 
         if (Seller.ClaimsHidden)
@@ -205,4 +222,44 @@ public sealed class Visit
     }
 
     static string Join(IEnumerable<string> parts) => Sellers.Join(parts.ToList());
+}
+
+/// <summary>
+/// How a deal sits in your stomach. After a pass you never see inside, but your gut has an opinion, from what the
+/// chest really held against what they wanted for it; after an opening, against what you paid.
+/// </summary>
+public static class Gut
+{
+    // From "you were right to walk away" to "you walked away from a fortune": what it held against their price.
+    static readonly (float Below, string[] Lines)[] AfterPass =
+    {
+        (0.35f, new[] { "You have a feeling you dodged a cart.", "Somewhere, your purse sighs with relief.", "You have a feeling you made the right call." }),
+        (0.8f, new[] { "Nothing to lose sleep over.", "Your gut shrugs. Fair enough.", "It felt overpriced. It probably was." }),
+        (1.25f, new[] { "Could have gone either way.", "Your gut says nothing. It's sulking a little.", "Meh. A wash, probably." }),
+        (2f, new[] { "Maybe that wasn't the best idea.", "A small voice whispers: you should've bought that.", "Your gut grumbles." }),
+        (4f, new[] { "You have a nasty feeling a bargain just walked out the door.", "Your gut is writing you a strongly worded letter.",
+                     "Somewhere, a better shopkeeper is laughing." }),
+        (float.MaxValue, new[] { "Even the heavens pity you.", "Uncle Bram, somewhere, is weeping softly.", "Your gut has stopped speaking to you." }),
+    };
+
+    // From "fleeced" to "a steal": what it held against what you paid.
+    static readonly (float Below, string[] Lines)[] AfterBuy =
+    {
+        (0.3f, new[] { "Even the heavens pity you.", "You feel like you just paid for the privilege of being robbed." }),
+        (0.7f, new[] { "You feel like you just got fleeced.", "Your purse feels lighter. Your heart, heavier." }),
+        (1f, new[] { "Maybe that wasn't the best idea.", "Close, but the house won. You are the house." }),
+        (1.5f, new[] { "Nothing to lose sleep over.", "A fair day's trade." }),
+        (3f, new[] { "You have a feeling you made the right call.", "Your gut does a little dance." }),
+        (float.MaxValue, new[] { "Highway robbery. The legal kind.", "The heavens smile on you. Don't let it go to your head." }),
+    };
+
+    public static string Pass(int held, int price, Random rng) => Pick(AfterPass, held / (float)Math.Max(1, price), rng);
+
+    public static string Bought(int held, int paid, Random rng) => Pick(AfterBuy, held / (float)Math.Max(1, paid), rng);
+
+    /// <summary>0 for the best feeling after a pass, up to 5 for the worst.</summary>
+    public static int PassMood(int held, int price) => Array.FindIndex(AfterPass, b => held / (float)Math.Max(1, price) < b.Below);
+
+    static string Pick((float Below, string[] Lines)[] bands, float ratio, Random rng) =>
+        rng.PickOne(bands.First(b => ratio < b.Below).Lines);
 }

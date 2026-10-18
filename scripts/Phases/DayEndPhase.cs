@@ -9,7 +9,8 @@ namespace LootFall.Phases;
 /// <summary>
 /// After the last customer: how the day went, then what to spend it on. Renovations bring new customers, new things
 /// and new sounds to learn; tools tell you more about each chest; cabinets show off what you keep. The exhibition
-/// along the bottom draws more and better customers; click something in it to sell it.
+/// along the bottom draws more and better customers; click something in it to sell it. The Synergies button opens the
+/// journal, where you choose which of the shop's synergies are active.
 /// </summary>
 public partial class DayEndPhase : Phase
 {
@@ -18,6 +19,8 @@ public partial class DayEndPhase : Phase
     Node2D _cards;
     Label _goldLabel;
     MentorView _mentor;
+    Button _synergies;
+    LedgerView _ledger;
     int _topUp;
 
     public override void _Ready()
@@ -47,9 +50,12 @@ public partial class DayEndPhase : Phase
         BuildCards();
 
         Add(UiKit.MakeButton($"Open the shop: Day {State.Day + 1}", Palette.Gold, 24, NextDay).Place(900, 626, 340, 64));
+        _synergies = Add(UiKit.MakeButton("", Palette.Magic.Darkened(0.2f), 16, OpenSynergies).Place(900, 584, 340, 36));
+        RefreshSynergyButton();
         _mentor = Add(new MentorView { Position = new Vector2(40, 440), ZIndex = 20 });
         if (State.FirstTime("dayend")) _mentor.Say(Hints.Get("dayend"));
         if (State.Display.Count > 0 && State.FirstTime("exhibition")) _mentor.Say(Hints.Get("exhibition"));
+        if (Synergies.All.Any(x => x.Level(State) > 0) && State.FirstTime("synergy")) _mentor.Say(Hints.Get("synergy"));
         Sfx.Play(today.Profit >= 0 ? "win" : "lose", 1f, -6);
         Game.Moment("09_dayend", 0.5);
     }
@@ -177,6 +183,41 @@ public partial class DayEndPhase : Phase
         panel.AddChild(UiKit.MakeButton("Carry on", Palette.Gold, 24, () => panel.QueueFree()).Place(230, 214, 240, 56));
         Sfx.Play("fanfare");
         Game.Moment("99_win", 0.5);
+    }
+
+    /// <summary>The button says how many synergies are active, and stands out when a reached one is waiting for a slot.</summary>
+    void RefreshSynergyButton()
+    {
+        int reached = Synergies.All.Count(x => x.Level(State) > 0), active = State.ActiveSynergies.Count;
+        _synergies.Text = $"Synergies: {active} of {State.SynergySlots} active";
+        _synergies.Visible = reached > 0;
+        bool waiting = active < State.SynergySlots && reached > active;
+        _synergies.Modulate = waiting ? new Color(1.3f, 1.3f, 1.3f) : Colors.White;
+        if (waiting) _synergies.Text += " (choose!)";
+    }
+
+    /// <summary>Opens the journal on the synergies page, where they can be switched on and off.</summary>
+    public void OpenSynergies()
+    {
+        if (_ledger != null) return;
+        _ledger = Add(new LedgerView(State, page: 3, choosing: true) { ZIndex = 30 });
+        _ledger.Closed += () =>
+        {
+            _ledger = null;
+            RefreshSynergyButton();
+            BuildCards();
+        };
+        Game.Moment("09_synergies", 0.4);
+    }
+
+    public void CloseSynergies() => _ledger?.Close();
+
+    /// <summary>Keeps the highest synergies active, the way the balance simulation's careful player does (the bot uses this).</summary>
+    public void ChooseSynergies()
+    {
+        Debug.Simulation.ChooseSynergies(State);
+        _ledger?.ShowPage(3);
+        RefreshSynergyButton();
     }
 
     public void NextDay()
