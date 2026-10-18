@@ -375,28 +375,42 @@ Book curio).
 | Town Shop | 200g | 6 | mostly blue | jewelry; two or three of a kind (Pell); sand (Shelly); enchantment and the Witchlight; synergies and the Guild Charter; Wren, Orrin's dreams, Grit, Zara |
 | The Emporium | 1200g | 7 | blue and purple | Vex's clock, Gull's false bottoms, Pip, Silas's fakes, Ermine's paste, the Magnet, the Royal Seal |
 
-The Painted Sign (40g) adds a customer a day; the Curio Case (250g, town) room for a fourth curio. Day one is scripted: four customers, one lesson each (a gentle shake
+The Painted Sign (40g) adds a customer a day; the Curio Case (250g, town) room for a fourth curio. The Emporium has
+three big sums to grow into while the dues climb: the Night Market (2,500g, two more customers a day), the Patrons'
+Book (4,000g, a fourth commission a week) and the Velvet Case (6,000g, a fifth curio). Day one is scripted: four customers, one lesson each (a gentle shake
 and the slip; a hard shake for cloth; listening past a clank; passing when they heard everything).
 
-## Evidence (`godot --headless --path . -- --sim`, 200 campaigns of 30 days)
+## Evidence (`godot --headless --path . -- --sim`, 200 runs per style, up to 12 weeks)
 
-| Style | Village | Town | Emporium | Royal Warrant | First synergy | Exhibition on day 20 | Good buys | Perfect reads |
-|---|---|---|---|---|---|---|---|---|
-| Pays their price, every chest | day 4 | day 18 | never | never | (none chosen) | 0 | 51% | 21% |
-| One hard shake, keeps the seller's marks | day 6 | day 13 | day 27 | never | (none chosen) | 0 | 86% | 60% |
-| Every strength, drops when safe | day 3 | day 8 | day 13 | never (no exhibition) | day 2 | 0 | 84% | 65% |
-| + Witchlight and Magnet | day 3 | day 8 | day 13 | never (no exhibition) | day 2 | 0 | 91% | 87% |
-| + keeps grand things from the town shop on, up to 40 | day 3 | day 9 | day 15 | day 24 | day 2 | 42 | 92% | 87% |
+Each style plays whole runs: buying chests, curios (a careful player's taste, keeping enough back for the Guild) and
+upgrades, delivering commissions, paying the Guild (pawning, or Bram's word, when short).
 
-The careful styles buy when the odds bar is on their side (`Appraisal.LikelyWorth`), so nine buys in ten turn a
-profit. The Village Shop waits for the stall to earn 120g (day 3 for a careful player). Profit per customer for the
-careful collector: 8g at the stall, 11g at the village, 58g in town, 98g at the Emporium. ("First synergy" is when the
-journal's tally first reaches one; you can switch it on from the town shop.) By day 30, most careful collectors have
-every synergy at level 3, and many at 4; level 5 (ten legendary of a kind, or 25 perfect reads in a row) is reached by
-up to 24%.
+| Style | Still trading after each due, weeks 1-8 | Debt cleared | Vault | Foreclosed (median week) | Village | Town | Emporium |
+|---|---|---|---|---|---|---|---|
+| Pays their price, every chest | 100 83 60 23 10 6 5 0% | 0% | 0% | all (week 4) | day 5 | never | never |
+| One hard shake, keeps the seller's marks | 100 100 91 57 29 15 11 1% | 1% | 0% | all (week 5) | day 6 | never | never |
+| Every strength, drops when safe | 100 100 98 94 87 81 80 59% | 59% | 58% | 99% (week 9) | day 3 | day 10 | day 14 |
+| + Witchlight and Magnet | 100 100 98 94 87 82 80 65% | 65% | 64% | 97% (week 10) | day 3 | day 10 | day 15 |
+| + keeps grand things | 100 100 97 93 83 80 79 71% | 71% | 70% | 90% (week 11) | day 3 | day 10 | day 16 |
+
+Week by week for the careful player with both tools (gold on the Guild's night, before paying):
+
+| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Due | 40 | 100 | 250 | 700 | 2,000 | 6,000 | 13,000 | 22,000 | 33,000 | 49,500 | 74,250 |
+| Gold, 10th percentile | 78 | 161 | 368 | 563 | 498 | 6,324 | 11,594 | 4,144 | 28,394 | 23,880 | 25,959 |
+| Gold, median | 134 | 421 | 1,491 | 4,998 | 12,872 | 25,363 | 40,217 | 48,684 | 69,494 | 65,251 | 54,863 |
+| Paid | 100% | 100% | 98% | 96% | 92% | 94% | 99% | 82% | 90% | 75% | 44% |
+| At the Emporium | 0% | 8% | 50% | 81% | 88% | 95% | 98% | 98% | 100% | | |
+
+(Dues shown before curios: the Forged Receipt takes a fifth off, which is why the report's medians read 17,600 in week
+8.) The early weeks are gentle and the renovations' payback is quick; the weeks that end runs are week 5 (shops still
+in the village when the due reaches 2,000) and week 8, the 22,000 wall. A careful player fills about 26 commissions a
+run (some 14,000g), Bram vouches in 30% of runs (usually week 4 or 5), and endless lasts two or three more weeks.
+Careless play loses the shop in week 4 or 5.
 
 Per seller, at their own shop, profit per visit for a careful player with every tool, against paying their price
-blind. Every habit pays for putting up with it; only Tam (a few coins for anything), Wick (her unpriced sewing), Wren
+blind (unchanged by the run). Every habit pays for putting up with it; only Tam (a few coins for anything), Wick (her unpriced sewing), Wren
 and Mags pay a little blind:
 
 | | Tam | Penn | Hob | Mags | Brask | Tobias | Marta | Wick | Wren | Orrin | Grit | Zara | Pell | Shelly | Vex | Gull | Pip | Ermine | Silas |
@@ -424,7 +438,9 @@ Every seller's lesson completes, played the careful way, with and without the to
    shows a worse-than-expected find as a letdown, and stops lessons and tips talking over each other. **v9** drops
    padding, opens the shop up a step at a time (renovations once the stall earns 120g, the display shelf with the
    village shop, synergies with the town shop, each introduced by Bram), gives every shop its own look, and adds the
-   title screen, daily saves, pause menu and settings.
+   title screen, daily saves, pause menu and settings. **v10** turns the shop into a run: the Grey Guild's weekly dues
+   (eight weeks, then endless), curios from Nim, commissions, an event each week, the Stranger's sealed chests and the
+   gilded ones, and the story of King Aldric's vault.
 5. **Opening a passed chest (v5 to v6).** Immediate feedback, but it made no sense: they're taking it home. The gut
    feeling keeps the feedback and keeps the chest closed.
 6. **Cloth padding (v7 to v8).** Cloth packed around hard things made them sound one shake harder (with an Ear Trumpet
@@ -433,6 +449,9 @@ Every seller's lesson completes, played the careful way, with and without the to
 7. **Magic as its own kind of thing (v5 to v7).** A magic thing had its own name and sprite and showed one colour
    better than its quality, so a purple chest's "gold" find could arrive without the upgrade fanfare, and its picture
    didn't match anything in the journal. Enchantment is now something any thing can be.
+8. **The Royal Warrant as the goal (v5 to v9).** A 5,000g upgrade and an exhibition of 40, with nothing pressing until
+   then: the days felt the same from the town shop on, and nothing ever went wrong. v10 replaces it with the Guild's
+   weekly dues (pressure that climbs), curios, commissions, events and a story with a vault at the end.
 
 ## Open questions
 
@@ -448,3 +467,9 @@ Every seller's lesson completes, played the careful way, with and without the to
 - Enchantment is now x2 instead of x4: still exciting enough to hunt with the witchlight?
 - The shop saves at the start of each day only, and sellers don't remember you.
 - Four days at the stall before the first renovation: long enough to learn the three rules, or too long?
+- The sim's careful player is a perfect listener: real players will clear the debt less often. Is 22,000g in week 8
+  a wall people want to climb again, or a cliff? Bram's word (once a run) is the safety net; is once enough?
+- Curios are chosen by a fixed taste in the sim: which ones do players actually pick, and do any feel useless (the
+  knife, the hook)?
+- The vault usually comes with clearing the debt for a careful player (the Hooded Woman's asks are met by volume at
+  the Emporium). Should her asks be harder, or limited to their own week?

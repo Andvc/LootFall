@@ -24,6 +24,7 @@ public static class Simulation
     public static readonly string[] BuyOrder =
     {
         "shop2", "sign", "cabinet1", "picks", "shop3", "lamp", "charter", "case", "cabinet2", "shop4", "magnet", "cabinet3", "seal",
+        "night", "patrons", "velvet",
     };
 
 

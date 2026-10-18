@@ -218,8 +218,8 @@ public sealed partial class GameState
 
     public bool Has(string upgrade) => _owned.Contains(upgrade);
 
-    public int CustomersPerDay => Math.Max(2, 3 + Tier + (Has("sign") ? 1 : 0) + ExhibitionCustomers + (HasCurio("lantern") ? 1 : 0) +
-                                            EventCustomers);
+    public int CustomersPerDay => Math.Max(2, 3 + Tier + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Customers) + ExhibitionCustomers +
+                                            (HasCurio("lantern") ? 1 : 0) + EventCustomers);
 
     public bool CanBuy(Upgrade upgrade) => UpgradesOpen && Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade);
 

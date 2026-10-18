@@ -295,6 +295,7 @@ public partial class Main : Node2D
         }
         State.StartDay();
         Hud.SetDay(State.Day, State.Tier);
+        Hud.SetDue(State);
         if (_bot != null && !_bot.OnDayStarted(State.Day)) return;
         // The first morning of a week (from the second): who comes by, and what they want.
         if (State.DayOfWeek == 1 && State.Week >= 2)

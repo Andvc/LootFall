@@ -142,9 +142,16 @@ public static class Strategy
         return Capital[tier] + Math.Max(0, state.NextDue - Math.Max(0, state.DaysToNextDue - 1) * BadDay[tier]);
     }
 
-    /// <summary>Whether to buy an upgrade now: a renovation is judged by what the bigger shop will make before the Guild comes.</summary>
-    public static bool Affordable(GameState state, Upgrade upgrade) =>
-        state.CanBuy(upgrade) && state.Gold - upgrade.Cost >= Reserve(state, upgrade.SetsTier);
+    /// <summary>
+    /// Whether to buy an upgrade now: a renovation is judged by what the bigger shop will make before the Guild comes;
+    /// anything big has to leave the due after next as well (it pays back over weeks, not days).
+    /// </summary>
+    public static bool Affordable(GameState state, Upgrade upgrade)
+    {
+        int reserve = Reserve(state, upgrade.SetsTier);
+        if (!upgrade.IsRenovation && upgrade.Cost >= 1000) reserve += state.DueFor(state.Week + (state.PaidThisWeek ? 2 : 1));
+        return state.CanBuy(upgrade) && state.Gold - upgrade.Cost >= reserve;
+    }
 
     /// <summary>A careful player's taste in curios, best first.</summary>
     public static readonly string[] CurioOrder =

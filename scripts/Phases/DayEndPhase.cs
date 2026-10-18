@@ -316,6 +316,12 @@ public partial class DayEndPhase : Phase
             Unlocked();
         }
         else if (upgrade.SynergySlots > 0) Teach("slots");
+        else if (upgrade.Customers > 1 || upgrade.Commissions > 0 || upgrade.CurioSlots > 0)
+        {
+            Sfx.Play("upgrade", 1f, -4);
+            Game.Flash(Palette.Gold, 0.2f);
+            FloatText($"{upgrade.Name}!", new Vector2(640, 150), Palette.Gold, 32);
+        }
         else
         {
             Sfx.Play("sting", 1.2f, -4);
