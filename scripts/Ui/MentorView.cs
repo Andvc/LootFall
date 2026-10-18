@@ -159,7 +159,7 @@ public partial class MentorView : Control
     void Fit(string text)
     {
         float textHeight = UiKit.Font.GetMultilineStringSize(text, HorizontalAlignment.Left, W - 116, 16).Y;
-        float h = Mathf.Max(H, Mathf.Ceil(textHeight) + 40);
+        float h = Mathf.Max(H, Mathf.Ceil(textHeight) + 48);
         Size = new Vector2(W, h);
         Position = new Vector2(Position.X, _bottom - h);
         PivotOffset = new Vector2(0, h);
