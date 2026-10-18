@@ -95,6 +95,7 @@ xvfb-run -a godot --path . --rendering-driver opengl3 -- \
 # add --start-tier=3 --gold=600 to jump ahead with the tools you'd have by then,
 # or --start-week=6 for a shop as a careful player would have it by then (--gold=N sets its purse)
 xvfb-run -a godot --path . -- --shell-demo --shots=$PWD/shots_shell  # title, pause and settings screenshots
+xvfb-run -a godot --path . -- --vault-demo --quit-at-end --shots=$PWD/shots_vault  # the finale's opening
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```
 

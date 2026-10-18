@@ -176,6 +176,7 @@ public partial class OpeningPhase : Phase
         var reads = _report.Items.OrderBy(r => r.Hidden).ThenBy(r => StepsUp(r.Item)).ThenBy(r => r.Item.Value).ToList();
         int n = reads.Count;
         float spacing = n == 0 ? 0 : Math.Min(232f, 1180f / n);
+        _spacing = spacing;
         for (int i = 0; i < n; i++)
         {
             bool last = i == n - 1;
@@ -420,7 +421,9 @@ public partial class OpeningPhase : Phase
         _landed.Add((item, at, worth));
 
         float w = Math.Min(220f, spacing - 6f);
-        var name = Add(UiKit.MakeLabel(item.Name, 16, Palette.Of(item.Rarity), HorizontalAlignment.Center, outline: 4)
+        // Tight for room (a big lot, the vault): an enchanted thing's aura and note say it's enchanted, so its name needn't.
+        string title = spacing < 170 && item.Magic && !item.Broken && !item.Fake ? item.Entry : item.Name;
+        var name = Add(UiKit.MakeLabel(title, 16, Palette.Of(item.Rarity), HorizontalAlignment.Center, outline: 4)
             .Place(at.X - w / 2, 568, w, 20));
         name.ZIndex = 8;
         if (isNew)
@@ -451,7 +454,8 @@ public partial class OpeningPhase : Phase
         }));
         stamp.TweenProperty(mark, "scale", Vector2.One, 0.14f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
         string quality = item.Fake || item.Broken ? "" : Categories.QualityName(item.Quality);
-        string note = string.Join(", ", new[] { read.Note, quality }.Where(s => s.Length > 0));
+        // With many things on the table, just the read (the colour already says the quality).
+        string note = Narrow && read.Note.Length > 0 ? read.Note : string.Join(", ", new[] { read.Note, quality }.Where(s => s.Length > 0));
         var noteLabel = Add(UiKit.MakeLabel(note, 16, read.Right ? Palette.Good : Palette.Warn, HorizontalAlignment.Center, outline: 4)
             .Place(at.X - w / 2, 618, w, 20));
         noteLabel.ZIndex = 8;
@@ -631,7 +635,7 @@ public partial class OpeningPhase : Phase
     void AddKeepButton(Item item, Vector2 at, int worth)
     {
         if (!item.Displayable) return;
-        var button = UiKit.MakeButton("", Palette.Magic.Darkened(0.3f), 16).Place(at.X - 92, 644, 184, 34);
+        var button = UiKit.MakeButton("", Palette.Magic.Darkened(0.3f), 16).Place(at.X - ButtonW / 2, 644, ButtonW, 34);
         button.Pressed += () =>
         {
             if (State.DisplayFull) ShowSwap(item, worth, at);
@@ -644,6 +648,12 @@ public partial class OpeningPhase : Phase
 
     readonly List<(Button Button, Item Item, int Worth)> _keepButtons = new();
     readonly List<(Button Button, Item Item, int Worth)> _deliverButtons = new();
+
+    /// <summary>Room for each thing along the table; with many, the buttons under them are narrower and say less.</summary>
+    float _spacing = 232f;
+
+    float ButtonW => Math.Min(184f, _spacing - 8f);
+    bool Narrow => ButtonW < 150f;
     readonly HashSet<Item> _delivered = new();
 
     /// <summary>
@@ -653,7 +663,7 @@ public partial class OpeningPhase : Phase
     void AddDeliverButton(Item item, Vector2 at, int worth)
     {
         if (State.WantedBy(item) == null) return;
-        var button = UiKit.MakeButton("", Palette.Good.Darkened(0.35f), 16).Place(at.X - 92, 682, 184, 32);
+        var button = UiKit.MakeButton("", Palette.Good.Darkened(0.35f), 16).Place(at.X - ButtonW / 2, 682, ButtonW, 32);
         button.Pressed += () => Deliver(item);
         _deliverButtons.Add((button, item, worth));
         Add(button);
@@ -679,7 +689,7 @@ public partial class OpeningPhase : Phase
                 continue;
             }
             int reward = State.CommissionReward(c);
-            button.Text = c.Needed > 1 ? $"Deliver {c.Delivered + 1}/{c.Needed}" : c.Story ? "Deliver: map!" : $"Deliver +{reward}g";
+            button.Text = Narrow ? $"+{reward}g" : c.Needed > 1 ? $"Deliver {c.Delivered + 1}/{c.Needed}" : c.Story ? "Deliver: map!" : $"Deliver +{reward}g";
             button.TooltipText = $"{c.PatronName} wants {c.Phrase}: {reward}g{(c.Story ? " and a map piece" : "")}, instead of {worth}g for selling it.";
         }
     }
@@ -755,8 +765,8 @@ public partial class OpeningPhase : Phase
             // The points it would add, so an enchanted thing's double shows before you choose.
             string points = item.Magic ? $"+{item.Prestige}*" : $"+{item.Prestige}";
             button.Disabled = _swap != null || State.Gold + (State.DisplayFull ? State.Display.Max(i => i.Value) : 0) < worth;
-            button.Text = State.DisplayFull ? $"Swap {points} (-{worth}g)" : $"Keep {points} (-{worth}g)";
-            button.TooltipText = $"{item.Prestige} exhibition points" + (item.Magic ? " (double: it's enchanted)" : "") +
+            button.Text = Narrow ? $"{(State.DisplayFull ? "Swap" : "Keep")} {points}" : State.DisplayFull ? $"Swap {points} (-{worth}g)" : $"Keep {points} (-{worth}g)";
+            button.TooltipText = $"{item.Prestige} exhibition points for {worth}g" + (item.Magic ? " (double: it's enchanted)" : "") +
                                  (State.DisplayFull ? ". Your display is full: sell something on it to make room." : ".");
         }
     }

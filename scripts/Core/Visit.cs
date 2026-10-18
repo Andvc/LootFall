@@ -125,6 +125,7 @@ public sealed class Visit
     /// </summary>
     public string Explain()
     {
+        if (Seller == Story.VaultSeller) return "King Aldric's own hoard, sealed since the war. Every bit of it is yours.";
         string name = Seller.Short;
         var lines = new List<string>();
         if (Chest.Items.Count == 0 && Chest.Hidden == null)

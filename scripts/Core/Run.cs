@@ -157,7 +157,19 @@ public sealed partial class GameState
     /// King Aldric's vault: the best of everything, much of it enchanted, behind a dwarven lock. Mara and Bram bring it
     /// to the counter; nobody's asking a price.
     /// </summary>
-    public Visit VaultVisit()
+    public Purchase VaultPurchase()
+    {
+        var visit = VaultVisit();
+        visit.Buy(Rng);
+        var chest = visit.Chest;
+        // Mara knows what's in it: the slip lists it all, magic and the false bottom included.
+        var slip = new Appraisal(chest.Quality, Tier, chest.Items.Select(i => i.Category)) { Hidden = true };
+        foreach (var kind in chest.Items.Where(i => i.Magic).Select(i => i.Category).Distinct())
+            slip.Set(kind, slip.Count(kind), magic: true);
+        return new Purchase(visit, slip);
+    }
+
+    Visit VaultVisit()
     {
         var items = new[]
         {

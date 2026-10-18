@@ -419,7 +419,7 @@ public static class Simulation
         if (state.DebtCleared && log.ClearedDay == 0) log.ClearedDay = state.Day;
         if (state.VaultDue)
         {
-            var vault = state.VaultVisit();
+            var vault = state.VaultPurchase();
             state.VaultOpened = true;
             state.Earn(vault.Chest.Everything.Sum(i => state.SaleValue(i)));
             log.VaultDay = state.Day;

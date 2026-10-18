@@ -20,7 +20,8 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
    then sets the purse, e.g. 0 to see a short night and foreclosure). The bot plays scenes, Nim, the Guild's night and
    deliveries, and quits when a run ends. With tips
    on, every seller's first visit is a lesson, so a guided run at a tier shows those lessons; the bot logs any lesson
-   it couldn't finish. `--opening-demo` opens a crafted chest with every quality and two surprises (record it).
+   it couldn't finish. `--opening-demo` opens a crafted chest with every quality and two surprises (record it);
+   `--vault-demo` opens King Aldric's vault, the finale's nine-thing opening.
    `--shell-demo` walks the title screen, a new game, the pause menu and the settings.
    Keep screenshot folders named `shots*` (git- and export-ignored).
 4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear everything the rules say is

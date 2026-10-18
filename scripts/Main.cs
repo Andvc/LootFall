@@ -19,7 +19,8 @@ namespace LootFall;
 /// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then), --opening-demo (opens a blue chest
 /// holding one thing of each quality, two of them better than the chest, to preview the opening's effects; quits
 /// after with --quit-at-end), --shell-demo (with --shots: the title screen, a new game, the pause menu and the
-/// settings, one screenshot each, then quits), --start-week=N (a shop as a careful player would have it by then, played
+/// settings, one screenshot each, then quits), --vault-demo (opens King Aldric's vault; quits after with --quit-at-end),
+/// --start-week=N (a shop as a careful player would have it by then, played
 /// through by the balance simulation; --gold=N then sets its purse). Autoplay sets --days=N to stop after that many days.
 /// </summary>
 public partial class Main : Node2D
@@ -71,8 +72,8 @@ public partial class Main : Node2D
         GetTree().Root.Theme = MakeTheme();
         _seed = int.TryParse(Arg(args, "--seed"), out var s) ? s : (int)(Time.GetUnixTimeFromSystem() % 1_000_000);
         // Straight into a day for the bot and the debugging shortcuts; everyone else gets the title screen.
-        bool direct = args.Contains("--autoplay") || args.Contains("--opening-demo") || Arg(args, "--start-tier") != null ||
-                      Arg(args, "--start-week") != null;
+        bool direct = args.Contains("--autoplay") || args.Contains("--opening-demo") || args.Contains("--vault-demo") ||
+                      Arg(args, "--start-tier") != null || Arg(args, "--start-week") != null;
         if (direct)
         {
             State = new GameState(_seed) { Guided = !args.Contains("--no-tutorial") };
@@ -134,6 +135,7 @@ public partial class Main : Node2D
         if (args.Contains("--shell-demo")) ShellDemo();
         else if (!direct) ToTitle();
         else if (args.Contains("--opening-demo")) OpeningDemo(args.Contains("--quit-at-end"));
+        else if (args.Contains("--vault-demo")) VaultDemo(args.Contains("--quit-at-end"));
         else BeginPlaying();
     }
 
@@ -285,6 +287,19 @@ public partial class Main : Node2D
         if (quit) GetTree().Quit();
     }
 
+    /// <summary>Opens King Aldric's vault straight away (no lock), to see the finale's opening.</summary>
+    async void VaultDemo(bool quit)
+    {
+        State.SkipTo(ShopTiers.Max, 1000);
+        Hud.SetGold(State.Gold, animate: false);
+        State.Opening = State.VaultPurchase();
+        var opening = new OpeningPhase();
+        SwitchTo(opening);
+        while (IsInstanceValid(opening) && !opening.Finished) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree().CreateTimer(3.0), SceneTreeTimer.SignalName.Timeout);
+        if (quit) GetTree().Quit();
+    }
+
     /// <summary>Saves the shop (a real game only), starts a new day, and plays its morning.</summary>
     public void StartDay()
     {
@@ -359,12 +374,7 @@ public partial class Main : Node2D
         }
         State.VaultOpened = true;
         WriteProfile(p => p.Vaults++);
-        var visit = State.VaultVisit();
-        visit.Buy(State.Rng);
-        var chest = visit.Chest;
-        var slip = new Appraisal(chest.Quality, State.Tier, chest.Items.Select(i => i.Category)) { Hidden = true };
-        foreach (var kind in chest.Items.Where(i => i.Magic).Select(i => i.Category)) slip.ToggleMagic(kind);
-        State.Opening = new Purchase(visit, slip);
+        State.Opening = State.VaultPurchase();
         SwitchTo(new LockpickPhase());
         Moment("24_vault_lock", 1.5);
     }
