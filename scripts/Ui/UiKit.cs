@@ -145,6 +145,9 @@ public static class UiKit
         return icon;
     }
 
+    /// <summary>A curio's picture (56px, already at its integer scale), centered on <paramref name="center"/>.</summary>
+    public static Sprite2D MakeCurioIcon(Core.CurioDef curio, Vector2 center) => MakeSprite($"res://assets/ui/curios/{curio.Icon}.png", center, 1);
+
     /// <summary>
     /// How your gut rates a call: a strip running from red (a bad call) to green (a great one), with a marker that slides
     /// out from the middle to <paramref name="score"/> (0 to 1). The words at either end say what each end means.

@@ -189,13 +189,17 @@ public static class Categories
         _ => "not at all",
     };
 
-    /// <summary>A chest's colour: wood, green, blue, purple. It tells you what to expect, not what you'll get.</summary>
+    /// <summary>
+    /// A chest's colour: wood, green, blue, purple (and, for the old royal chests, gold). It tells you what to expect,
+    /// not what you'll get.
+    /// </summary>
     public static string ChestSkin(Rarity chest) => chest switch
     {
         Rarity.Common => "wood",
         Rarity.Uncommon => "green",
         Rarity.Rare => "blue",
-        _ => "purple",
+        Rarity.Epic => "purple",
+        _ => "gold",
     };
 
     public static string QualityName(Rarity quality) => quality.ToString().ToLowerInvariant();

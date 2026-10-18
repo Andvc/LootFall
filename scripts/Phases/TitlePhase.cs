@@ -42,7 +42,7 @@ public partial class TitlePhase : Phase
 
         var logo = Add(UiKit.MakeLabel("LOOTFALL", 80, Palette.Gold, HorizontalAlignment.Center, outline: 10).Place(0, 64, 1280, 96));
         logo.PivotOffset = new Vector2(640, 48);
-        Add(UiKit.MakeLabel("Shake it. Read the signs. Strike a deal. Crack it open.", 16, Palette.Text, HorizontalAlignment.Center, outline: 4)
+        Add(UiKit.MakeLabel("Shake it. Read the signs. Strike a deal. Pay the Guild.", 16, Palette.Text, HorizontalAlignment.Center, outline: 4)
             .Place(0, 164, 1280, 24));
 
         _chest = Add(new ChestView { Position = new Vector2(640, 300), PixelSize = 8, Skin = "purple", GlowColor = Palette.Of(Rarity.Legendary) });
@@ -62,6 +62,8 @@ public partial class TitlePhase : Phase
         Add(UiKit.MakeButton("Quit", Palette.Text, 16, () => GetTree().Quit()).Place(ButtonsX, y, ButtonW, 44));
 
         Add(UiKit.MakeLabel(Main.Version, 16, Palette.Muted, outline: 4).Place(24, 684, 400, 20));
+        if (Game.Profile?.Summary is string record)
+            Add(UiKit.MakeLabel(record, 16, Palette.Gold.Darkened(0.15f), HorizontalAlignment.Center, outline: 4).Place(0, 196, 1280, 20));
         Add(UiKit.MakeLabel("Art: Pixel-boy.  Sounds and font: Kenney.  All CC0.", 16, Palette.Muted, HorizontalAlignment.Right, outline: 4)
             .Place(656, 684, 600, 20));
         Game.Moment("00_title", 1.0);

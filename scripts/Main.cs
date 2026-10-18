@@ -11,22 +11,28 @@ namespace LootFall;
 
 /// <summary>
 /// Root of the game: owns the game state, audio, HUD and screen effects, and swaps between phases. It opens on the title
-/// screen; the shop is saved to user://save.json at the start of each day, and Esc pauses.
+/// screen; the shop is saved to user://save.json at the start of each day, and Esc pauses. A day runs: the week's scene
+/// (from the second week), Nim's curios on his day, the counter, the day's end, and on the fifth day the Guild's due.
+/// What you've done across runs is kept in user://profile.json.
 /// Command-line flags (after `--`): --seed=N, --sim [--n=N], --shake-test, --export-sounds=DIR, --autoplay,
 /// --shots=DIR, --quit-at-end, --days=N, --no-tutorial (no tips, no scripted first day),
 /// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then), --opening-demo (opens a blue chest
 /// holding one thing of each quality, two of them better than the chest, to preview the opening's effects; quits
 /// after with --quit-at-end), --shell-demo (with --shots: the title screen, a new game, the pause menu and the
-/// settings, one screenshot each, then quits). Autoplay sets --days=N to stop after that many days.
+/// settings, one screenshot each, then quits), --start-week=N (a shop as a careful player would have it by then, played
+/// through by the balance simulation). Autoplay sets --days=N to stop after that many days.
 /// </summary>
 public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Early Access 0.9";
-    const string SavePath = "user://save.json";
+    public const string Version = "Early Access 0.10";
+    const string SavePath = "user://save.json", ProfilePath = "user://profile.json";
 
     public GameState State { get; private set; }
+
+    /// <summary>Every run so far: for the title screen and the end of a run.</summary>
+    public Profile Profile { get; private set; }
     public Sfx Sfx { get; private set; }
     public Hud Hud { get; private set; }
 
@@ -61,15 +67,27 @@ public partial class Main : Node2D
         }
 
         Settings.Load();
+        Profile = ReadProfile();
         GetTree().Root.Theme = MakeTheme();
         _seed = int.TryParse(Arg(args, "--seed"), out var s) ? s : (int)(Time.GetUnixTimeFromSystem() % 1_000_000);
         // Straight into a day for the bot and the debugging shortcuts; everyone else gets the title screen.
-        bool direct = args.Contains("--autoplay") || args.Contains("--opening-demo") || Arg(args, "--start-tier") != null;
+        bool direct = args.Contains("--autoplay") || args.Contains("--opening-demo") || Arg(args, "--start-tier") != null ||
+                      Arg(args, "--start-week") != null;
         if (direct)
         {
             State = new GameState(_seed) { Guided = !args.Contains("--no-tutorial") };
             if (int.TryParse(Arg(args, "--start-tier"), out var startTier))
                 State.SkipTo(Math.Clamp(startTier, 1, ShopTiers.Max), int.TryParse(Arg(args, "--gold"), out var g) ? g : 500);
+            // A shop as a careful player would have it by the start of that week (tips are taken as read).
+            if (int.TryParse(Arg(args, "--start-week"), out var startWeek) && startWeek > 1)
+            {
+                State.Guided = false;
+                if (!Simulation.FastForward(State, (startWeek - 1) * Guild.DaysPerWeek))
+                    GD.Print($"--start-week: this seed's shop was foreclosed in week {State.Week}; starting from there anyway");
+                State.Guided = !args.Contains("--no-tutorial");
+                foreach (var key in new[] { "intro", "dayend", "colours", "slip", "ledger", "upgrades", "display", "synergy", "tier2", "tier3", "tier4" })
+                    State.HintsSeen.Add(key);
+            }
         }
         GD.Print($"LootFall seed {_seed}");
 
@@ -101,6 +119,7 @@ public partial class Main : Node2D
         if (args.Contains("--autoplay"))
         {
             MentorView.Trace = text => GD.Print($"[Bram d{State?.Day} {State?.Current?.Seller.Key ?? "-"}] {text}");
+            ScenePhase.Trace = text => GD.Print($"[Scene d{State?.Day}] {text}");
             _bot = new Autoplay
             {
                 QuitAtEnd = args.Contains("--quit-at-end"),
@@ -155,6 +174,37 @@ public partial class Main : Node2D
         file?.StoreString(State.Save().ToJson());
     }
 
+    static Profile ReadProfile()
+    {
+        if (!FileAccess.FileExists(ProfilePath)) return new Profile();
+        using var file = FileAccess.Open(ProfilePath, FileAccess.ModeFlags.Read);
+        return file == null ? new Profile() : Profile.FromJson(file.GetAsText());
+    }
+
+    /// <summary>Notes the run's progress in the profile (a real game only) and writes it.</summary>
+    void WriteProfile(System.Action<Profile> change = null)
+    {
+        if (!_saving) return;
+        change?.Invoke(Profile);
+        Profile.Note(State);
+        using var file = FileAccess.Open(ProfilePath, FileAccess.ModeFlags.Write);
+        file?.StoreString(Profile.ToJson());
+    }
+
+    /// <summary>The run is over (foreclosed, or retired): the saved shop goes, and it's back to the title.</summary>
+    public void EndRun()
+    {
+        WriteProfile();
+        if (_saving && FileAccess.FileExists(SavePath)) DirAccess.RemoveAbsolute(ProjectSettings.GlobalizePath(SavePath));
+        _saving = false;
+        if (_bot != null)
+        {
+            GetTree().Quit();
+            return;
+        }
+        ToTitle();
+    }
+
     /// <summary>Back to the title screen (from the pause menu).</summary>
     public void ToTitle()
     {
@@ -168,6 +218,7 @@ public partial class Main : Node2D
         State = new GameState(_seed) { Guided = Settings.Tips };
         _seed++;
         _saving = true;
+        WriteProfile(p => p.Runs++);
         BeginPlaying();
     }
 
@@ -233,41 +284,143 @@ public partial class Main : Node2D
         if (quit) GetTree().Quit();
     }
 
-    /// <summary>Saves the shop (a real game only), opens it for a new day and calls in the first customer.</summary>
+    /// <summary>Saves the shop (a real game only), starts a new day, and plays its morning.</summary>
     public void StartDay()
     {
-        if (_saving) WriteSave();
+        if (_saving)
+        {
+            WriteSave();
+            WriteProfile();
+        }
         State.StartDay();
+        Hud.SetDay(State.Day, State.Tier);
         if (_bot != null && !_bot.OnDayStarted(State.Day)) return;
+        // The first morning of a week (from the second): who comes by, and what they want.
+        if (State.DayOfWeek == 1 && State.Week >= 2)
+        {
+            var lines = Story.WeekStart(State);
+            if (lines.Count > 0)
+            {
+                SwitchTo(new ScenePhase(lines, Peddler, $"WEEK {State.Week}"));
+                return;
+            }
+        }
+        Peddler();
+    }
+
+    /// <summary>Nim comes by before opening, on his day.</summary>
+    void Peddler()
+    {
+        if (State.PeddlerToday && State.PeddlerStock.Count > 0) SwitchTo(new PeddlerPhase());
+        else OpenShop();
+    }
+
+    /// <summary>Opens the shop: the day's card, and the first customer.</summary>
+    public void OpenShop()
+    {
         DayCard();
         NextCustomer();
     }
 
-    /// <summary>The day's title card, over the first customer: "Day 5", and the shop's name.</summary>
+    /// <summary>After the day's end: the Guild's introduction (the first evening), its due (the fifth), or the next morning.</summary>
+    public void CloseDay()
+    {
+        if (State.Day == 1 && State.WeeksPaid == 0) SwitchTo(new ScenePhase(Story.Intro(), StartDay, "THE GREY GUILD"));
+        else if (State.DuesTonight && !State.PaidThisWeek) SwitchTo(new DuesPhase());
+        else StartDay();
+    }
+
+    /// <summary>After the Guild's visit: the shop lost, Bram's debt cleared (and maybe the vault), or the next morning.</summary>
+    public void AfterDues()
+    {
+        if (State.Foreclosed)
+        {
+            SwitchTo(new ScenePhase(Story.Foreclosed(State), () => SwitchTo(new RunEndPhase(cleared: false))));
+            return;
+        }
+        if (State.WeeksPaid == Guild.Weeks && State.DebtCleared && State.Week == Guild.Weeks)
+        {
+            WriteProfile(p => p.Cleared++);
+            SwitchTo(new ScenePhase(Story.Cleared(State), Vault, "FREE AND CLEAR"));
+            return;
+        }
+        StartDay();
+    }
+
+    /// <summary>With the whole map, Mara and Bram bring King Aldric's vault to the counter: pick its lock and open it.</summary>
+    void Vault()
+    {
+        if (!State.VaultDue)
+        {
+            SwitchTo(new RunEndPhase(cleared: true));
+            return;
+        }
+        State.VaultOpened = true;
+        WriteProfile(p => p.Vaults++);
+        var visit = State.VaultVisit();
+        visit.Buy(State.Rng);
+        var chest = visit.Chest;
+        var slip = new Appraisal(chest.Quality, State.Tier, chest.Items.Select(i => i.Category)) { Hidden = true };
+        foreach (var kind in chest.Items.Where(i => i.Magic).Select(i => i.Category)) slip.ToggleMagic(kind);
+        State.Opening = new Purchase(visit, slip);
+        SwitchTo(new LockpickPhase());
+    }
+
+    /// <summary>After a chest's been opened: the next customer, or (after the vault) the epilogue and the end of the debt.</summary>
+    public void AfterOpening()
+    {
+        if (State.Opening?.Visit.Seller == Story.VaultSeller)
+        {
+            SwitchTo(new ScenePhase(Story.VaultEpilogue(), () => SwitchTo(new RunEndPhase(cleared: true)), "KING ALDRIC'S VAULT"));
+            return;
+        }
+        NextCustomer();
+    }
+
+    /// <summary>
+    /// The day's title card, over the first customer: "Day 5", the week and the shop's name, the Guild's due, and today's
+    /// event if there is one.
+    /// </summary>
     void DayCard()
     {
         var layer = new CanvasLayer { Layer = 40 };
         AddChild(layer);
-        var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(440, 150, 400, 120);
+        var e = State.TodayEvent;
+        float h = e == null ? 136 : 216;
+        var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(390, 130, 500, h);
         card.MouseFilter = Control.MouseFilterEnum.Ignore;
-        card.AddChild(UiKit.MakeLabel($"DAY {State.Day}", 48, Palette.Gold, HorizontalAlignment.Center, outline: 6).Place(0, 12, 400, 56));
-        card.AddChild(UiKit.MakeLabel(ShopTiers.Name(State.Tier), 16, Palette.Text, HorizontalAlignment.Center).Place(0, 76, 400, 24));
+        card.AddChild(UiKit.MakeLabel($"DAY {State.Day}", 48, Palette.Gold, HorizontalAlignment.Center, outline: 6).Place(0, 12, 500, 56));
+        card.AddChild(UiKit.MakeLabel($"Week {State.Week}, day {State.DayOfWeek} of {Guild.DaysPerWeek}  -  {ShopTiers.Name(State.Tier)}", 16,
+            Palette.Text, HorizontalAlignment.Center).Place(0, 72, 500, 20));
+        string due = State.DuesTonight ? $"The Guild comes tonight for {State.DueNow}g."
+            : $"The Guild comes for {State.DueNow}g at the end of day {State.Day + State.DaysToDue}.";
+        card.AddChild(UiKit.MakeLabel(due, 16, State.Gold >= State.DueNow ? Palette.Muted : Palette.Warn, HorizontalAlignment.Center)
+            .Place(0, 100, 500, 20));
+        if (e != null)
+        {
+            card.AddChild(UiKit.MakeLabel(e.Name.ToUpperInvariant(), 24, Palette.Magic, HorizontalAlignment.Center, outline: 4).Place(0, 132, 500, 30));
+            card.AddChild(UiKit.MakeLabel(Events.Describe(e, State.BuyerKind), 16, Palette.Text, HorizontalAlignment.Center).Wrapped()
+                .Place(20, 164, 460, 44));
+            Sfx.Play("chime", 1f, -6);
+        }
         layer.AddChild(card);
-        card.PivotOffset = new Vector2(200, 60);
+        card.PivotOffset = new Vector2(250, h / 2);
         card.Scale = new Vector2(0.9f, 0.9f);
         card.Modulate = Colors.Transparent;
         var tween = card.CreateTween();
         tween.TweenProperty(card, "modulate", Colors.White, 0.25f).SetDelay(0.2f);
         tween.Parallel().TweenProperty(card, "scale", Vector2.One, 0.25f).SetDelay(0.2f).SetTrans(Tween.TransitionType.Back);
-        tween.TweenInterval(1.0);
+        tween.TweenInterval(e == null ? 1.0 : 2.6);
         tween.TweenProperty(card, "modulate", Colors.Transparent, 0.35f);
         tween.TweenCallback(Callable.From(layer.QueueFree));
+        Moment(e == null ? "00_daycard" : $"00_event_{e.Key}", 0.6);
     }
 
     /// <summary>Calls the next customer to the counter, or closes up for the day.</summary>
     public void NextCustomer()
     {
         Hud.SetDay(State.Day, State.Tier);
+        Hud.SetDue(State);
         if (State.NextCustomer()) SwitchTo(new CounterPhase());
         else SwitchTo(new DayEndPhase());
     }

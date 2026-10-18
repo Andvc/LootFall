@@ -23,7 +23,8 @@ ASSETS = os.path.join(ROOT, "assets")
 
 SUPERPOWERS = ("https://github.com/sparklinlabs/superpowers-asset-packs", [
     "rpg-battle-system/item", "rpg-battle-system/backgrounds", "rpg-battle-system/fx",
-    "ninja-adventure/items", "ninja-adventure/characters/faceset", "western-fps-2d/background-elements", "LICENSE.txt",
+    "ninja-adventure/items", "ninja-adventure/characters/faceset", "western-fps-2d/background-elements", "medieval-fantasy/items/emblem",
+    "LICENSE.txt",
 ])
 KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
     "kenney_fontpackage", "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds",
@@ -73,13 +74,29 @@ PORTRAITS = {
     "pell": 2, "shelly": 12,                               #         a pawnbroker and a beachcomber
     "vex": 3, "gull": 14, "silas": 13, "pip": 17, "ermine": 21,  # tier 4: nobles, adventurers, crooks
     "bram": 16,                                            # Uncle Bram, who hands you the shop
+    "nim": 20, "stranger": 7,                              # the peddler; the stranger with the sealed chest
 }
 
 # Portraits made from another with some colours changed: key -> (faceset number, rules). Each rule takes the pixels
 # whose hue is in [low, high] degrees (and that aren't grey), turns the hue, and scales saturation and brightness.
 RECOLOURED_PORTRAITS = {
     "wick": (4, [(250, 320, 0, 0.12, 1.12), (180, 249, -60, 0.9, 0.9)]),  # Marta's face, white hair and a green shawl
+    "hood": (1, [(40, 170, 195, 0.75, 0.8)]),                             # a green hood turned plum: the Hooded Woman
+    "vane": (11, [(40, 200, 0, 0.12, 0.95)]),                             # a pale, sly face over a grey collar: the Guild's man
 }
+
+# Curios (Curios.All in scripts/Core/Curios.cs) -> (pack, sprite). Shown in 56px slots: small sprites at 2x, big ones
+# halved, centred.
+CURIOS = {
+    "coin": ("item", 30), "shell": ("item", 58), "loupe": ("item", 79), "gauntlet": ("item", 18), "cap": ("item", 60),
+    "lantern": ("item", 17), "catalogue": ("item", 41), "signet": ("item", 37), "jar": ("ninja", "jar.png", (0, 0, 16, 16)),
+    "letter": ("item", 23), "knife": ("item", 32), "hook": ("item", 55), "draught": ("item", 11), "clover": ("item", 65),
+    "receipt": ("ninja", "scroll-empty.png", None), "book": ("item", 40), "crescent": ("item", 49),
+}
+CURIO_SLOT = 56
+
+# The Grey Guild's sign: a medieval-fantasy emblem, greyed, at 2x.
+GUILD_EMBLEM = 4
 
 # Group -> Kenney source files (pack folder, file stem).
 def _variants(pack, stem, indices, digits=3, sep="_"):
@@ -114,6 +131,8 @@ CHEST_SKINS = {
     "purple": ["#3d1f5c", "#8a4fd1", "#b88cff", "#6a3aa8"],
     "wood": ["#4a2a14", "#8a5a2b", "#b07a40", "#6e4520"],
     "green": ["#23402a", "#4f8a3a", "#7fc25a", "#3b6e2e"],
+    "gold": ["#6b4a12", "#e0a82e", "#ffe27a", "#b7841f"],    # the old royal chests (and the vault)
+    "black": ["#0e0b12", "#2a2433", "#4a4058", "#1c1724"],   # the Stranger's, packed in straw
 }
 LID_ROWS = (2, 9)        # rows 2..8 of the closed frame
 BODY_ROWS = (9, 14)      # rows 9..13 of the closed frame (gold band, lock, body)
@@ -363,6 +382,24 @@ ICONS = {
         ".....kkkkkk.....",
         "....kr....rk....",
         "...kr......rk...",
+        "................",
+        "................",
+    ],
+    "case": [
+        "................",
+        "..kkkkkkkkkkkk..",
+        "..kBBBBBBBBBBk..",
+        "..kBkkkkkkkkBk..",
+        "..kBkcccccckBk..",
+        "..kBkcpccgckBk..",
+        "..kBkcccccckBk..",
+        "..kBkkkkkkkkBk..",
+        "..kBkcccccckBk..",
+        "..kBkcgccrckBk..",
+        "..kBkcccccckBk..",
+        "..kBkkkkkkkkBk..",
+        "..kBBBBBgBBBBk..",
+        "..kkkkkkkkkkkk..",
         "................",
         "................",
     ],
@@ -759,6 +796,28 @@ def halve(img):
     return out
 
 
+def build_curios(sp):
+    for key, source in CURIOS.items():
+        if source[0] == "item":
+            img = Image.open(os.path.join(sp, f"rpg-battle-system/item/{source[1]}.png")).convert("RGBA")
+        else:
+            img = Image.open(os.path.join(sp, f"ninja-adventure/items/{source[1]}")).convert("RGBA")
+            if source[2]:
+                img = img.crop(source[2])
+        img = img.crop(img.getbbox())
+        if max(img.size) <= CURIO_SLOT // 2:
+            img = img.resize((img.width * 2, img.height * 2), Image.NEAREST)
+        elif max(img.size) > CURIO_SLOT:
+            img = halve(img)
+        slot = Image.new("RGBA", (CURIO_SLOT, CURIO_SLOT), (0, 0, 0, 0))
+        slot.alpha_composite(img, ((CURIO_SLOT - img.width) // 2, (CURIO_SLOT - img.height) // 2))
+        save(slot, "ui", "curios", f"{key}.png")
+
+    emblem = Image.open(os.path.join(sp, f"medieval-fantasy/items/emblem/{GUILD_EMBLEM}.png")).convert("RGBA")
+    emblem = recolour(emblem, [(0, 360, 0, 0.1, 0.95)])
+    save(emblem.resize((emblem.width * 2, emblem.height * 2), Image.NEAREST), "ui", "guild.png")
+
+
 def build_icons():
     for name, rows in ICONS.items():
         save(pixel_icon(rows, name).resize((16 * UI_SCALE, 16 * UI_SCALE), Image.NEAREST), "ui", "icons", f"{name}.png")
@@ -792,7 +851,7 @@ def main():
 
     # Rebuilt from scratch so renamed or dropped items and sounds don't linger.
     for folder in (os.path.join(ASSETS, "sprites", "items"), os.path.join(ASSETS, "audio"), os.path.join(ASSETS, "ui", "icons"),
-                   os.path.join(ASSETS, "ui", "kinds")):
+                   os.path.join(ASSETS, "ui", "kinds"), os.path.join(ASSETS, "ui", "curios")):
         shutil.rmtree(folder, ignore_errors=True)
 
     for key, number in ITEMS.items():
@@ -844,6 +903,7 @@ def main():
             shutil.copy(os.path.join(kenney, pack, "Audio", f"{stem}.ogg"), os.path.join(out, f"{i}.ogg"))
 
     build_chests(sp)
+    build_curios(sp)
     build_shops(sp)
     build_ui()
     build_icons()

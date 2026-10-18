@@ -13,7 +13,9 @@ namespace LootFall.Debug;
 /// It reads Bram's tips, shakes every chest at the strengths <see cref="Strategy.Levels"/> allows (again gently with
 /// the magnet once it has one), drops it when that's safe, fills in the slip from what it heard the way a careful player
 /// would, and trades the way <see cref="Strategy"/> says: buys, haggles or names a price. It picks locks, keeps grand
-/// things for display, and between days spends on upgrades in a sensible order.
+/// things for display, delivers commissions, and between days spends on upgrades in a sensible order. It reads the
+/// story's scenes through, buys from Nim what a careful player would, and pays the Guild (pawning, or asking Bram, when
+/// short). At the end of a run it quits.
 /// </summary>
 public partial class Autoplay : Node
 {
@@ -64,7 +66,90 @@ public partial class Autoplay : Node
             case OpeningPhase opening:
                 await DriveOpening(opening);
                 break;
+            case ScenePhase scene:
+                await DriveScene(scene);
+                break;
+            case PeddlerPhase peddler:
+                await DrivePeddler(peddler);
+                break;
+            case DuesPhase dues:
+                await DriveDues(dues);
+                break;
+            case RunEndPhase end:
+                await Wait(3.0);
+                GD.Print($"Autoplay: run over on day {State.Day}, week {State.Week}: {(end.Cleared ? "debt cleared" : "foreclosed")}, " +
+                         $"{State.WeeksPaid} dues paid, {State.Gold}g, {State.MapPieces} map pieces, vault {(State.VaultOpened ? "opened" : "not opened")}");
+                GetTree().Quit();
+                break;
         }
+    }
+
+    /// <summary>Reads each line for a moment.</summary>
+    async Task DriveScene(ScenePhase scene)
+    {
+        while (IsInstanceValid(scene) && !scene.Done)
+        {
+            await Wait(1.6);
+            if (IsInstanceValid(scene)) scene.Advance();
+        }
+    }
+
+    /// <summary>Buys what a careful player would from Nim (selling back a weaker curio to make room), then opens the shop.</summary>
+    async Task DrivePeddler(PeddlerPhase peddler)
+    {
+        await ReadTips(peddler.Mentor);
+        for (int i = 0; i < 2 && IsInstanceValid(peddler); i++)
+        {
+            var (curio, sell) = Strategy.ChooseCurio(State, peddler.Stock.ToList());
+            if (curio == null) break;
+            if (sell != null)
+            {
+                peddler.SellBack(sell);
+                await Wait(0.8);
+                if (!IsInstanceValid(peddler)) return;
+            }
+            GD.Print($"Autoplay: bought the {curio.Name} for {Curios.Price(curio, State.Week)}g{(sell != null ? $", selling the {Curios.Get(sell).Name}" : "")}");
+            peddler.Buy(curio);
+            await Wait(1.2);
+        }
+        if (!IsInstanceValid(peddler)) return;
+        await ReadTips(peddler.Mentor);
+        if (IsInstanceValid(peddler)) peddler.Leave();
+    }
+
+    /// <summary>The Guild's night: the map offer, then pay, pawning or asking Bram if short.</summary>
+    async Task DriveDues(DuesPhase dues)
+    {
+        await Wait(1.5);
+        if (!IsInstanceValid(dues)) return;
+        if (dues.OfferOpen)
+        {
+            dues.AnswerOffer(Strategy.TakeOffer(State));
+            await Wait(1.5);
+            if (!IsInstanceValid(dues)) return;
+        }
+        if (State.Gold < State.DueNow)
+        {
+            var order = Strategy.PawnOrder(State);
+            if (order == null && State.CanAskGrace) dues.AskGrace();
+            else if (order != null)
+                foreach (var thing in order)
+                {
+                    if (thing is Item item) dues.Pawn(item);
+                    else dues.SellCurio((string)thing);
+                    await Wait(0.6);
+                    if (!IsInstanceValid(dues)) return;
+                }
+        }
+        if (!dues.Settled && State.Gold >= State.DueNow) dues.Pay();
+        await Wait(1.5);
+        if (!IsInstanceValid(dues)) return;
+        await ReadTips(dues.Mentor);
+        if (!IsInstanceValid(dues)) return;
+        GD.Print($"Autoplay: week {State.Week} due {(dues.Settled ? "settled" : "not paid")}, {State.Gold}g left");
+        if (!dues.Settled) dues.Foreclose();
+        await Wait(1.0);
+        if (IsInstanceValid(dues)) dues.Next();
     }
 
     /// <summary>Gives each of Bram's tips a moment on screen, then clicks on (a lesson step to do waits for doing).</summary>
@@ -176,7 +261,7 @@ public partial class Autoplay : Node
         if (!IsInstanceValid(counter) || counter.Concluded) return;
 
         Main.Instance.Moment($"06_decide_d{State.Day}_{visit.Seller.Key}");
-        int worth = Strategy.Worth(visit, counter.Slip, counter.Hearing);
+        int worth = Strategy.Worth(visit, counter.Slip, counter.Hearing, State);
         switch (visit.Trade)
         {
             case Trade.Fixed:
@@ -226,7 +311,7 @@ public partial class Autoplay : Node
         if (!IsInstanceValid(dayEnd)) return;
         await ReadTips(dayEnd.Mentor);
         if (!IsInstanceValid(dayEnd)) return;
-        dayEnd.BuyInOrder(Simulation.BuyOrder, 10 + 15 * State.Tier);
+        dayEnd.BuyInOrder(Simulation.BuyOrder);
         await Wait(1.2);
         if (!IsInstanceValid(dayEnd)) return;
         await ReadTips(dayEnd.Mentor);
@@ -275,8 +360,20 @@ public partial class Autoplay : Node
         await Wait(3.0);
         if (!IsInstanceValid(opening)) return;
         await ReadTips(opening.Mentor);
+        // Hand over what the commissions want (if it pays better than selling it).
+        foreach (var item in opening.Deliverable.ToList())
+        {
+            int sale = opening.Revealed.First(r => r.Item == item).Worth;
+            if (Strategy.ShouldDeliver(State, item, sale) == null || !IsInstanceValid(opening)) continue;
+            GD.Print($"Autoplay: delivered the {item.Name} for +{opening.Deliver(item)}g");
+            await Wait(1.0);
+        }
+        if (!IsInstanceValid(opening)) return;
+        await ReadTips(opening.Mentor);
         foreach (var (item, worth) in opening.Revealed.ToList())
         {
+            if (!IsInstanceValid(opening)) return;
+            if (opening.Delivered(item)) continue;
             var (keep, replace) = Strategy.ShouldKeep(State, item, worth);
             if (!keep || !IsInstanceValid(opening)) continue;
             opening.Keep(item);

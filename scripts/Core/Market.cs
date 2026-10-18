@@ -95,8 +95,9 @@ public static class Market
         foreach (var kind in picked)
         {
             int copies = 1;
-            if (shopTier >= PairsTier && rng.NextFloat() < seller.PairChance)
-                copies = rng.NextFloat() < seller.PairChance * 0.5f ? 3 : 2;
+            float pairs = seller.PairChance + boosts.Pairs;
+            if (shopTier >= PairsTier && rng.NextFloat() < pairs)
+                copies = rng.NextFloat() < pairs * 0.5f ? 3 : 2;
             all.AddRange(Enumerable.Repeat(kind, copies));
         }
         all = all.Take(MaxItems).ToList();
@@ -285,7 +286,8 @@ public static class Market
 /// <param name="Hidden">Added to the chance of a false bottom.</param>
 /// <param name="Magic">Added to the chance each thing is magic.</param>
 /// <param name="MetalBetter">The chance a metal thing is one quality better.</param>
-public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float MetalBetter = 0)
+/// <param name="Pairs">Added to the chance (from the town shop on) of two or three of a kind.</param>
+public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float MetalBetter = 0, float Pairs = 0)
 {
     public static readonly Boosts None = new();
 

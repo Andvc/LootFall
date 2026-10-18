@@ -15,7 +15,8 @@ namespace LootFall.Phases;
 /// what it really is before it slams down, with more fuss for every step (two or three steps up stops the clock). Each
 /// quality lands with its own effect: dust, sparkles, a pillar of light, crackling lightning, turning rays and a coin
 /// fountain. A false bottom gives up its secret last. Then the verdict slams down with your gut's opinion, the coins fly
-/// into your purse, and a perfect read gets its banner. Anything grand can be kept for display.
+/// into your purse, and a perfect read gets its banner. Anything grand can be kept for display, and anything a
+/// commission wants can be delivered instead of sold.
 /// </summary>
 public partial class OpeningPhase : Phase
 {
@@ -68,14 +69,28 @@ public partial class OpeningPhase : Phase
 
         // The tally stays put while the camera leans in.
         var tally = Add(new CanvasLayer { Layer = 1 });
-        tally.AddChild(UiKit.MakeLabel($"Paid {_purchase.Visit.Seller.Short}", 16, Palette.Muted).Place(40, 80, 200, 20));
+        bool vault = _purchase.Visit.Seller == Story.VaultSeller;
+        tally.AddChild(UiKit.MakeLabel(vault ? "King Aldric's vault" : $"Paid {_purchase.Visit.Seller.Short}", 16, Palette.Muted).Place(40, 80, 200, 20));
         tally.AddChild(UiKit.MakeLabel($"{_purchase.Paid}g", 24, Palette.Text, HorizontalAlignment.Right, outline: 4).Place(200, 74, 120, 30));
         tally.AddChild(UiKit.MakeLabel("Worth", 16, Palette.Muted).Place(40, 114, 200, 20));
         _worthLabel = UiKit.MakeLabel("0g", 24, Palette.Gold, HorizontalAlignment.Right, outline: 4).Place(200, 108, 120, 30);
         tally.AddChild(_worthLabel);
+        // What's making things sell for more today, and a curio's luck with what's inside.
+        var bonuses = new List<string>();
         int sale = State.Active("jewelry");
-        if (sale > 0)
-            tally.AddChild(UiKit.MakeLabel($"Jewelry Tycoon: +{Synergies.Pct(Synergies.SaleBonus(sale))}", 16, Palette.Magic).Place(40, 140, 280, 20));
+        if (sale > 0) bonuses.Add($"Jewelry Tycoon +{Synergies.Pct(Synergies.SaleBonus(sale))}");
+        if (State.EventIs("festival")) bonuses.Add("Festival +25%");
+        if (State.EventIs("buyer")) bonuses.Add($"Royal Buyer: {Categories.Get(State.BuyerKind).Name.ToLowerInvariant()} x2");
+        if (State.HasCurio("crescent")) bonuses.Add("Crescent +50%");
+        float y = 140;
+        foreach (var bonus in bonuses)
+        {
+            tally.AddChild(UiKit.MakeLabel(bonus, 16, Palette.Magic).Place(40, y, 320, 20));
+            y += 22;
+        }
+        if (_purchase.Luck != null)
+            tally.AddChild(UiKit.MakeLabel($"{Curios.Get(_purchase.Luck).Name}: {_purchase.Improved} thing{(_purchase.Improved == 1 ? "" : "s")} came out better!",
+                16, Palette.Good, outline: 4).Place(40, y, 420, 20));
     }
 
     public override void _Process(double delta)
@@ -588,14 +603,22 @@ public partial class OpeningPhase : Phase
         if (fee > 0) grade += $" Keen Eye: a valuer's fee of {fee}g.";
         Add(UiKit.MakeLabel(visit.Explain() + grade, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(160, 246, 800, 64));
         bool last = State.Queue.Count == 0;
-        Add(UiKit.MakeButton(last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next).Place(1000, 300, 260, 52));
+        Add(UiKit.MakeButton(visit.Seller == Story.VaultSeller ? "Go on" : last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next)
+            .Place(1000, 300, 260, 52));
         if (State.DisplayOpen)
             foreach (var (item, at, worth) in _landed) AddKeepButton(item, at, worth);
+        foreach (var (item, at, worth) in _landed) AddDeliverButton(item, at, worth);
+        if (_purchase.Luck != null)
+        {
+            Sfx.Play("chime", 1.2f, -4);
+            Game.Moment("08_luck", 0.3);
+        }
 
         _mentor = Add(new MentorView { Position = new Vector2(812, 72), ZIndex = 20 });
         Teach("opened");
         if (_landed.Any(l => l.Item.Quality != _purchase.Chest.Quality && l.Item.Displayable)) Teach("quality");
         if (State.DisplayOpen && _landed.Any(l => l.Item.Displayable && l.Item.Prestige >= 4)) Teach("keep");
+        if (_deliverButtons.Count > 0) Teach("deliver");
         Game.Moment("08_verdict", 1.2);
     }
 
@@ -619,10 +642,92 @@ public partial class OpeningPhase : Phase
     }
 
     readonly List<(Button Button, Item Item, int Worth)> _keepButtons = new();
+    readonly List<(Button Button, Item Item, int Worth)> _deliverButtons = new();
+    readonly HashSet<Item> _delivered = new();
+
+    /// <summary>
+    /// A button under something a commission wants: hand it over instead of selling it. A piece pays at once; a lot pays
+    /// when the last of it comes in. The Hooded Woman's pays a map piece too.
+    /// </summary>
+    void AddDeliverButton(Item item, Vector2 at, int worth)
+    {
+        if (State.WantedBy(item) == null) return;
+        var button = UiKit.MakeButton("", Palette.Good.Darkened(0.35f), 16).Place(at.X - 92, 682, 184, 32);
+        button.Pressed += () => Deliver(item);
+        _deliverButtons.Add((button, item, worth));
+        Add(button);
+        RefreshDeliver();
+        Game.Moment("08_deliver", 0.6);
+    }
+
+    void RefreshDeliver()
+    {
+        foreach (var (button, item, worth) in _deliverButtons)
+        {
+            if (_delivered.Contains(item))
+            {
+                button.Text = "Delivered";
+                button.Disabled = true;
+                continue;
+            }
+            var c = State.WantedBy(item);
+            button.Disabled = c == null || State.Display.Contains(item);
+            if (c == null)
+            {
+                button.Text = "Filled";
+                continue;
+            }
+            int reward = State.CommissionReward(c);
+            button.Text = c.Needed > 1 ? $"Deliver {c.Delivered + 1}/{c.Needed}" : c.Story ? "Deliver: map!" : $"Deliver +{reward}g";
+            button.TooltipText = $"{c.PatronName} wants {c.Phrase}: {reward}g{(c.Story ? " and a map piece" : "")}, instead of {worth}g for selling it.";
+        }
+    }
+
+    /// <summary>Hands this thing over for the commission that wants it (the bot uses this too). Returns what it paid.</summary>
+    public int Deliver(Item item)
+    {
+        var c = State.WantedBy(item);
+        var entry = _deliverButtons.FirstOrDefault(d => d.Item == item);
+        if (c == null || entry.Button == null || _delivered.Contains(item) || State.Display.Contains(item)) return 0;
+        int pieces = State.MapPieces;
+        int reward = State.Deliver(item, c, entry.Worth);
+        _delivered.Add(item);
+        var at = _landed.FirstOrDefault(l => l.Item == item).At;
+        Game.Hud.SetGold(State.Gold);
+        if (c.Done)
+        {
+            Sfx.Play("fanfare", 1.1f, -4);
+            Sfx.PlayGroup("pay");
+            Fx.Burst(this, at, Palette.Good, 60, 320f);
+            FloatText($"Commission! +{reward}g", at + new Vector2(0, -100), Palette.Good, 24);
+            if (State.MapPieces > pieces)
+            {
+                Fx.Confetti(this, new Vector2(640, 200), 100);
+                FloatText($"MAP PIECE {State.MapPieces} OF {Story.Pieces}!", new Vector2(640, 200), Palette.Magic, 40);
+                _mentor?.Say(Story.HoodThanks(State.HoodPieces));
+                Game.Moment("08_map", 0.4);
+            }
+        }
+        else
+        {
+            Sfx.Play("sting", 1.3f, -6);
+            FloatText($"{c.Delivered}/{c.Needed}", at + new Vector2(0, -100), Palette.Good, 24);
+        }
+        foreach (var (button, kept, _) in _keepButtons)
+            if (kept == item) button.Disabled = true;
+        RefreshDeliver();
+        RefreshKeep();
+        return reward;
+    }
+
+    public bool Delivered(Item item) => _delivered.Contains(item);
+
+    public IEnumerable<Item> Deliverable => _deliverButtons.Where(d => !_delivered.Contains(d.Item) && State.WantedBy(d.Item) != null).Select(d => d.Item);
     Control _swap;
 
     void Kept(Item item, Vector2 at)
     {
+        RefreshDeliver();
         Sfx.Play("sting", 1.4f, -4);
         Game.Hud.SetGold(State.Gold);
         FloatText(item.Magic ? $"+{item.Prestige} exhibition (x2: enchanted!)" : $"+{item.Prestige} exhibition", at + new Vector2(0, -80),
@@ -638,6 +743,11 @@ public partial class OpeningPhase : Phase
             if (State.Display.Contains(item))
             {
                 button.Text = "On display";
+                button.Disabled = true;
+                continue;
+            }
+            if (_delivered.Contains(item))
+            {
                 button.Disabled = true;
                 continue;
             }
@@ -757,7 +867,7 @@ public partial class OpeningPhase : Phase
     {
         if (_step != Step.Done) return;
         Sfx.Play("bid");
-        Game.NextCustomer();
+        Game.AfterOpening();
     }
 
     void DrawRays(Painter p)

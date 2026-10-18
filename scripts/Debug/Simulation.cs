@@ -7,19 +7,23 @@ using LootFall.Core;
 namespace LootFall.Debug;
 
 /// <summary>
-/// Headless balance report: `godot --headless --path . -- --sim [--n=200]`. Plays whole campaigns with simple player
-/// styles, buying upgrades between days. The design works if careful listening climbs the shop tiers at a steady pace,
-/// each tool and the exhibition pay for themselves, careless play stalls, and every seller's quirk is worth putting up with.
+/// Headless balance report: `godot --headless --path . -- --sim [--n=200]`. Plays whole runs with simple player styles:
+/// buying chests, curios and upgrades, filling commissions, paying the Guild each week (pawning when short) until the
+/// shop is foreclosed or <see cref="MaxWeeks"/> weeks have gone. The design works if careful listening usually clears
+/// the debt (with the map, now and then the vault), careless play is foreclosed within a few weeks, and every seller's
+/// quirk is worth putting up with.
 /// </summary>
 public static class Simulation
 {
-    const int Days = 30;
+    /// <summary>The debt's eight weeks, then a few of the Guild's endless ones.</summary>
+    const int MaxWeeks = Guild.Weeks + 4;
+
+    const int Days = MaxWeeks * Guild.DaysPerWeek;
 
     /// <summary>The order a sensible player buys things in.</summary>
     public static readonly string[] BuyOrder =
     {
-        "shop2", "sign", "cabinet1", "picks", "shop3", "lamp", "charter", "cabinet2", "shop4", "magnet", "cabinet3", "seal",
-        "warrant",
+        "shop2", "sign", "cabinet1", "picks", "shop3", "lamp", "charter", "case", "cabinet2", "shop4", "magnet", "cabinet3", "seal",
     };
 
 
@@ -38,34 +42,73 @@ public static class Simulation
 
     sealed class Log
     {
-        public int Bought, GoodBuys, Perfect, Gold20, Exhibition20, SynergyLevels30, FirstSynergy;
+        public int Bought, GoodBuys, Perfect, FirstSynergy;
         public readonly int[] ReachedTier = { 1, 1, 0, 0, 0 };
-        public int WonDay;
+
+        /// <summary>Dues paid; the week the shop was lost (0 if never); the day the debt was cleared and the vault opened.</summary>
+        public int WeeksPaid, LostWeek, ClearedDay, VaultDay, Pieces, MapGiven;
+
+        /// <summary>Per week: gold on the Guild's night before paying, the due, the shop tier, whether it was paid.</summary>
+        public readonly int[] GoldAtDues = new int[MaxWeeks + 1], Due = new int[MaxWeeks + 1], TierAtDues = new int[MaxWeeks + 1];
+        public readonly bool[] Paid = new bool[MaxWeeks + 1];
+
+        public int Commissions, CommissionGold, CurioGold, CurioSpent, Pawned, Short, Grace;
+        public readonly HashSet<string> Curios = new();
         public readonly float[] ProfitByTier = new float[5];
         public readonly int[] CustomersByTier = new int[5];
     }
 
     public static void Run(int campaigns)
     {
-        GD.Print($"=== LootFall balance report ({campaigns} campaigns x {Days} days) ===");
-        GD.Print("\nStyle                   tier 2  tier 3  tier 4  warrant  gold d20  show d20  good buys  perfect  synergy  levels d30   profit/customer at tier 1 2 3 4");
+        GD.Print($"=== LootFall balance report ({campaigns} runs per style, up to {MaxWeeks} weeks of {Guild.DaysPerWeek} days) ===");
+        var all = Styles.ToDictionary(s => s, s => Enumerable.Range(0, campaigns).Select(i => Play(s, 1000 + i).Log).ToList());
+
+        GD.Print("\nStyle                   % still trading at each due (week 1..8)        cleared  vault  lost (median wk)  " +
+                 "tier 2  tier 3  tier 4   good buys  perfect");
         foreach (var style in Styles)
         {
-            var logs = Enumerable.Range(0, campaigns).Select(i => Campaign(style, 1000 + i)).ToList();
+            var logs = all[style];
+            var alive = Enumerable.Range(1, Guild.Weeks).Select(w => $"{100f * logs.Count(l => l.WeeksPaid >= w) / logs.Count,4:0}");
+            var lost = logs.Where(l => l.LostWeek > 0).Select(l => l.LostWeek).OrderBy(w => w).ToList();
             string Reach(int tier) => Median(logs.Select(l => l.ReachedTier[tier]).ToList());
-            var perTier = Enumerable.Range(1, 4).Select(t =>
-            {
-                int n = logs.Sum(l => l.CustomersByTier[t]);
-                return n == 0 ? "   -" : $"{logs.Sum(l => l.ProfitByTier[t]) / n,4:0}";
-            });
             int bought = Math.Max(1, logs.Sum(l => l.Bought));
-            GD.Print($"{style.Name,-22} {Reach(2),6}  {Reach(3),6}  {Reach(4),6}  {Median(logs.Select(l => l.WonDay).ToList()),7}  " +
-                     $"{logs.Average(l => l.Gold20),8:0}  {logs.Average(l => l.Exhibition20),8:0}  {100f * logs.Sum(l => l.GoodBuys) / bought,8:0}%  " +
-                     $"{100f * logs.Sum(l => l.Perfect) / bought,6:0}%  {Median(logs.Select(l => l.FirstSynergy).ToList()),7}  " +
-                     $"{logs.Average(l => l.SynergyLevels30),10:0.0}   " + string.Join(" ", perTier));
+            GD.Print($"{style.Name,-22} {string.Join(" ", alive)}   {100f * logs.Count(l => l.ClearedDay > 0) / logs.Count,6:0}% " +
+                     $"{100f * logs.Count(l => l.VaultDay > 0) / logs.Count,5:0}%  {(lost.Count == 0 ? "-" : $"{lost.Count * 100 / logs.Count}%, wk {lost[lost.Count / 2]}"),16}  " +
+                     $"{Reach(2),6}  {Reach(3),6}  {Reach(4),6}   {100f * logs.Sum(l => l.GoodBuys) / bought,8:0}%  {100f * logs.Sum(l => l.Perfect) / bought,6:0}%");
         }
-        GD.Print("\n(tier columns: median day the renovation was bought; '-' = fewer than half the campaigns got there in " + Days + " days;");
-        GD.Print(" synergy: median day the first one reached level 1; levels d30: total levels of active synergies on day 30)");
+        GD.Print("(cleared: all eight dues paid; vault: opened King Aldric's vault; lost: share of runs foreclosed, and the median week;");
+        GD.Print(" tier columns: median day the renovation was bought, '-' if fewer than half got there)");
+
+        foreach (var style in Styles.Skip(2))
+        {
+            var logs = all[style];
+            GD.Print($"\nWeek by week, {style.Name}: over the runs still trading");
+            GD.Print("week    due   gold on the night (10th / 25th / median pct)   paid   at tier 1 2 3 4 (%)");
+            for (int w = 1; w <= MaxWeeks; w++)
+            {
+                var night = logs.Where(l => l.Due[w] > 0).ToList();
+                if (night.Count == 0) break;
+                int Pct(Func<Log, int> f, float p) => night.Select(f).OrderBy(x => x).ElementAt((int)(night.Count * p));
+                var tiers = Enumerable.Range(1, 4).Select(t => $"{100f * night.Count(l => l.TierAtDues[w] == t) / night.Count,3:0}");
+                GD.Print($"{w,4} {Pct(l => l.Due[w], 0.5f),6} {Pct(l => l.GoldAtDues[w], 0.1f),15} {Pct(l => l.GoldAtDues[w], 0.25f),8} " +
+                         $"{Pct(l => l.GoldAtDues[w], 0.5f),8}   {100f * night.Count(l => l.Paid[w]) / night.Count,15:0}%   {string.Join(" ", tiers)}");
+            }
+            GD.Print($"per run: {logs.Average(l => l.Commissions):0.0} commissions ({logs.Average(l => l.CommissionGold):0}g), curios earned " +
+                     $"{logs.Average(l => l.CurioGold):0}g for {logs.Average(l => l.CurioSpent):0}g, pawned on {logs.Average(l => l.Short):0.0} nights, " +
+                     $"map pieces {logs.Average(l => l.Pieces):0.0}, map given {100f * logs.Count(l => l.MapGiven > 0) / logs.Count:0}%, " +
+                     $"Bram vouched in {100f * logs.Count(l => l.Grace > 0) / logs.Count:0}% (median week " +
+                     $"{logs.Where(l => l.Grace > 0).Select(l => l.Grace).DefaultIfEmpty(0).OrderBy(w => w).ElementAt(logs.Count(l => l.Grace > 0) / 2)})");
+        }
+
+        var careful = all[Styles[^2]];
+        GD.Print($"\nCurios ({Styles[^2].Name}): share of runs that bought each, and how often those runs cleared the debt");
+        foreach (var curio in Curios.All)
+        {
+            var with = careful.Where(l => l.Curios.Contains(curio.Key)).ToList();
+            string rate = with.Count == 0 ? "   -" : $"{100f * with.Count(l => l.ClearedDay > 0) / with.Count,4:0}%";
+            GD.Print($"  {curio.Name,-24} {100f * with.Count / careful.Count,4:0}%   cleared {rate}");
+        }
+
         PrintSynergies(campaigns);
         PrintSellers();
         LessonTest();
@@ -151,7 +194,7 @@ public static class Simulation
             Strategy.OnFaith(visit, slip, hearing);
         }
 
-        int worth = Strategy.Worth(visit, slip, hearing);
+        int worth = Strategy.Worth(visit, slip, hearing, state);
         switch (visit.Trade)
         {
             case Trade.Fixed:
@@ -201,76 +244,186 @@ public static class Simulation
     /// <summary>Picks the lock (careful players are better at it) and adds up what came out, at what it sells for.</summary>
     static int Open(Visit visit, GameState state, Random rng, Care care)
     {
+        var grade = Pick(visit, state, rng, care);
+        return visit.Chest.Everything.Sum(i => state.SaleValue(i, grade));
+    }
+
+    /// <summary>How the lock comes open: careful players are better at picking; with a burglar's knife, anyone just forces it.</summary>
+    static PickGrade Pick(Visit visit, GameState state, Random rng, Care care)
+    {
         var grade = PickGrade.Clean;
         if (visit.Chest.Lock.Locked)
         {
             float roll = rng.NextFloat();
-            grade = care >= Care.Listens ? (roll < 0.3f ? PickGrade.Masterful : roll < 0.85f ? PickGrade.Clean : PickGrade.Forced)
+            grade = state.HasCurio("knife") ? PickGrade.Forced
+                : care >= Care.Listens ? (roll < 0.3f ? PickGrade.Masterful : roll < 0.85f ? PickGrade.Clean : PickGrade.Forced)
                 : roll < 0.6f ? PickGrade.Clean : PickGrade.Forced;
         }
-        if (grade == PickGrade.Forced) visit.Chest.Force(rng, state.Sturdier);
-        return visit.Chest.Everything.Sum(i => state.SaleValue(i, grade));
+        if (grade == PickGrade.Forced) visit.Chest.Force(rng, state.ForceSturdier);
+        return grade;
     }
 
-    static Log Campaign(Style style, int seed) => Play(style, seed).Log;
+    static GameState CampaignState(Style style, int seed) => Play(style, seed, 30).State;
 
-    static GameState CampaignState(Style style, int seed) => Play(style, seed).State;
-
-    static (Log Log, GameState State) Play(Style style, int seed)
+    /// <summary>One run in this style, until the Guild takes the shop or the days run out.</summary>
+    static (Log Log, GameState State) Play(Style style, int seed, int days = Days)
     {
         var state = new GameState(seed) { Guided = false };
         var log = new Log();
         var rng = new Random(seed);
-        for (int day = 1; day <= Days; day++)
+        for (int day = 1; day <= days; day++)
         {
-            state.StartDay();
-            while (state.NextCustomer())
+            if (!PlayDay(state, style, rng, log))
             {
-                var visit = state.Current;
-                int tier = state.Tier;
-                log.CustomersByTier[tier]++;
-                int? paid = Deal(visit, state, rng, style.Care, out var slip);
-                if (paid is not int price)
-                {
-                    if (visit.Deciding) visit.Pass(rng);
-                    state.Pass();
-                    continue;
-                }
-                state.Buy(visit, slip);
-                bool perfect = slip.Check(visit.Chest).Perfect;
-                int value = Open(visit, state, rng, style.Care);
-                if (perfect) value += state.KeenFee(value);
-                state.RecordRead(perfect);
-                state.Earn(value);
-                log.Bought++;
-                if (value > price) log.GoodBuys++;
-                if (perfect) log.Perfect++;
-                log.ProfitByTier[tier] += value - price;
-                foreach (var item in visit.Chest.Everything)
-                {
-                    state.Collect(item);
-                    if (!style.Collects) continue;
-                    var (keep, replace) = Strategy.ShouldKeep(state, item, item.Value);
-                    if (!keep) continue;
-                    if (replace != null) state.SellFromDisplay(replace);
-                    state.Keep(item, item.Value);
-                }
+                log.LostWeek = state.Week;
+                break;
             }
-            state.EndDay();
-            BuyUpgrades(state, style.Care == Care.Tools, style.Collects);
-            if (style.Care >= Care.Listens) ChooseSynergies(state);
-            if (log.FirstSynergy == 0 && Synergies.All.Any(s => s.Level(state) > 0)) log.FirstSynergy = day;
             for (int t = 2; t <= 4; t++)
                 if (log.ReachedTier[t] == 0 && state.Tier >= t) log.ReachedTier[t] = day;
-            if (log.WonDay == 0 && state.Won) log.WonDay = day;
-            if (day == 20)
+        }
+        log.WeeksPaid = state.WeeksPaid;
+        log.Pieces = state.MapPieces;
+        log.MapGiven = state.MapGiven ? 1 : 0;
+        log.Curios.UnionWith(state.CurioKeys);
+        return (log, state);
+    }
+
+    /// <summary>
+    /// For debugging the later screens (--start-week): plays a shop through these days the way the careful collector
+    /// would, as fast as the simulation does. Returns false if the Guild took it on the way.
+    /// </summary>
+    public static bool FastForward(GameState state, int days)
+    {
+        var rng = new Random(state.Seed);
+        var log = new Log();
+        for (int day = 0; day < days; day++)
+            if (!PlayDay(state, Styles[^1], rng, log)) return false;
+        return true;
+    }
+
+    /// <summary>One day in this style: Nim, the customers, the evening's upgrades, the Guild. False if foreclosed.</summary>
+    static bool PlayDay(GameState state, Style style, Random rng, Log log)
+    {
+        state.StartDay();
+        if (state.PeddlerToday) VisitPeddler(state, log);
+        while (state.NextCustomer())
+        {
+            var visit = state.Current;
+            int tier = state.Tier;
+            log.CustomersByTier[tier]++;
+            int? paid = Deal(visit, state, rng, style.Care, out var slip);
+            if (paid is not int price)
             {
-                log.Gold20 = state.Gold;
-                log.Exhibition20 = state.Exhibition;
+                if (visit.Deciding) visit.Pass(rng);
+                state.Pass();
+                continue;
+            }
+            state.Buy(visit, slip);
+            bool perfect = slip.Check(visit.Chest).Perfect;
+            var grade = Pick(visit, state, rng, style.Care);
+            int value = 0, earned = 0;
+            foreach (var item in visit.Chest.Everything)
+            {
+                int sale = state.SaleValue(item, grade);
+                value += sale;
+                state.Collect(item);
+                var commission = Strategy.ShouldDeliver(state, item, sale);
+                if (commission != null)
+                {
+                    int reward = state.Deliver(item, commission);
+                    if (commission.Done)
+                    {
+                        log.Commissions++;
+                        log.CommissionGold += reward;
+                    }
+                    continue;
+                }
+                if (style.Collects)
+                {
+                    var (keep, replace) = Strategy.ShouldKeep(state, item, sale);
+                    if (keep)
+                    {
+                        if (replace != null) state.SellFromDisplay(replace);
+                        state.Earn(sale);
+                        state.Keep(item, sale);
+                        continue;
+                    }
+                }
+                earned += sale;
+            }
+            if (perfect) earned += state.KeenFee(value);
+            state.RecordRead(perfect);
+            state.Earn(earned);
+            log.Bought++;
+            if (value > price) log.GoodBuys++;
+            if (perfect) log.Perfect++;
+            log.ProfitByTier[tier] += value - price;
+        }
+        state.EndDay();
+        log.CurioGold += state.Today.Curios;
+        log.CurioSpent += state.Today.CurioSpent;
+        if (state.DuesTonight && !Dues(state, log)) return false;
+        BuyUpgrades(state, style.Care == Care.Tools, style.Collects);
+        if (style.Care >= Care.Listens) ChooseSynergies(state);
+        if (log.FirstSynergy == 0 && Synergies.All.Any(s => s.Level(state) > 0)) log.FirstSynergy = state.Day;
+        return true;
+    }
+
+    /// <summary>Nim's morning: buy what a careful player would, keeping enough back for the Guild.</summary>
+    static void VisitPeddler(GameState state, Log log)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            var (curio, sell) = Strategy.ChooseCurio(state, state.PeddlerStock);
+            if (curio == null) return;
+            if (sell != null) state.SellCurio(sell);
+            state.BuyCurio(curio, Curios.Price(curio, state.Week));
+            log.Curios.Add(curio.Key);
+        }
+    }
+
+    /// <summary>The Guild's night: the map offer, paying (pawning if short), and the vault once it's due. False if foreclosed.</summary>
+    static bool Dues(GameState state, Log log)
+    {
+        int week = state.Week;
+        if (state.OfferTonight && Strategy.TakeOffer(state)) state.GiveMap();
+        if (week <= MaxWeeks)
+        {
+            log.GoldAtDues[week] = state.Gold;
+            log.Due[week] = state.DueNow;
+            log.TierAtDues[week] = state.Tier;
+        }
+        if (state.Gold < state.DueNow)
+        {
+            var order = Strategy.PawnOrder(state);
+            if (order == null && state.CanAskGrace)
+            {
+                log.Grace = week;
+                state.AskGrace();
+            }
+            else if (order == null)
+            {
+                state.Foreclose();
+                return false;
+            }
+            else
+            {
+                log.Short++;
+                foreach (var thing in order)
+                    log.Pawned += thing is Item item ? state.Pawn(item) : state.SellCurio((string)thing);
             }
         }
-        log.SynergyLevels30 = state.ActiveSynergies.Sum(state.SynergyLevel);
-        return (log, state);
+        if (!state.PaidThisWeek) state.PayDues();
+        if (week <= MaxWeeks) log.Paid[week] = true;
+        if (state.DebtCleared && log.ClearedDay == 0) log.ClearedDay = state.Day;
+        if (state.VaultDue)
+        {
+            var vault = state.VaultVisit();
+            state.VaultOpened = true;
+            state.Earn(vault.Chest.Everything.Sum(i => state.SaleValue(i)));
+            log.VaultDay = state.Day;
+        }
+        return true;
     }
 
     /// <summary>A careful player keeps the highest synergies active (money first, when it's a tie).</summary>
@@ -354,7 +507,7 @@ public static class Simulation
         GD.Print(failed == 0 ? "  Every lesson completes." : $"  {failed} lessons get stuck.");
     }
 
-    /// <summary>Buys upgrades in order while keeping some cash for tomorrow's chests.</summary>
+    /// <summary>Buys upgrades in order while keeping enough back for the Guild and tomorrow's chests.</summary>
     public static void BuyUpgrades(GameState state, bool tools = true, bool cabinets = true)
     {
         foreach (var key in BuyOrder)
@@ -362,8 +515,7 @@ public static class Simulation
             if (!tools && key is "lamp" or "magnet") continue;
             if (!cabinets && key.StartsWith("cabinet")) continue;
             var upgrade = Upgrades.Get(key);
-            int reserve = key == "warrant" ? 0 : 10 + 15 * state.Tier;
-            if (state.Gold - upgrade.Cost >= reserve && state.CanBuy(upgrade)) state.BuyUpgrade(upgrade);
+            if (Strategy.Affordable(state, upgrade)) state.BuyUpgrade(upgrade);
         }
     }
 

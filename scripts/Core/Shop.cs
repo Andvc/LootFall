@@ -29,10 +29,16 @@ public sealed class Purchase
     /// <summary>How the lock came open (Clean if there was none).</summary>
     public PickGrade Grade { get; set; } = PickGrade.Clean;
 
-    public Purchase(Visit visit, Appraisal slip)
+    /// <summary>A curio whose luck improved things inside when you bought it, and how many.</summary>
+    public string Luck { get; init; }
+    public int Improved { get; init; }
+
+    public Purchase(Visit visit, Appraisal slip, string luck = null, int improved = 0)
     {
         Visit = visit;
         Slip = slip;
+        Luck = luck;
+        Improved = improved;
     }
 }
 
@@ -40,10 +46,17 @@ public sealed class Purchase
 public sealed class DayStats
 {
     public int Bought, Passed, Spent, Earned, PerfectReads, NewFinds;
+
+    /// <summary>Things handed over for commissions, and what completed commissions paid.</summary>
+    public int Delivered, Commissions;
+
+    /// <summary>What curios brought in (a catalogue's fees, interest, visitors' coins) and what curios cost.</summary>
+    public int Curios, CurioSpent;
+
     public int Profit => Earned - Spent;
 }
 
-public sealed class GameState
+public sealed partial class GameState
 {
     public const int StartingGold = 40;
 
@@ -53,8 +66,8 @@ public sealed class GameState
     /// <summary>Exhibition points per extra customer a day (up to two).</summary>
     public const int ExhibitionPerCustomer = 10;
 
-    /// <summary>The Crown wants to see a collection before it grants the warrant.</summary>
-    public const int WarrantExhibition = 40;
+    /// <summary>Past this, an exhibition draws no more customers and no better chests.</summary>
+    public const int ExhibitionCap = 40;
 
     /// <summary>If you end a day with less than this, Bram tops you up to it.</summary>
     public const int Allowance = 20;
@@ -145,19 +158,25 @@ public sealed class GameState
     }
 
     /// <summary>What the exhibition and synergies do to the chests people bring.</summary>
-    public Boosts Boosts => new(BetterChests, Synergies.HiddenBonus(Active("archivist")), Synergies.MagicBonus(Active("arcane")),
-        Synergies.MetalBetter(Active("smith")));
+    public Boosts Boosts => new(BetterChests + (HasCurio("clover") ? Curios.CloverChance : 0) + (EventIs("storm") ? 1 : 0),
+        Synergies.HiddenBonus(Active("archivist")) + (HasCurio("hook") ? Curios.HookHidden : 0),
+        Synergies.MagicBonus(Active("arcane")) + (HasCurio("draught") ? Curios.DraughtMagic : 0),
+        Synergies.MetalBetter(Active("smith")), EventIs("wreck") ? Events.WreckPairs : 0);
 
     /// <summary>How much less likely glass is to break (a vintner's packing).</summary>
     public float Sturdier => Synergies.Sturdier(Active("vintner"));
 
-    /// <summary>What a thing fetches when you sell it: its value, how cleanly the lock came open, and your synergies.</summary>
+    /// <summary>
+    /// What a thing fetches when you sell it: its value, how cleanly the lock came open, your synergies and curios, and
+    /// today's event.
+    /// </summary>
     public int SaleValue(Item item, PickGrade grade = PickGrade.Clean) =>
-        (int)MathF.Round(item.Value * Picks.Multiplier(grade) * SaleMultiplier(item.Category));
+        (int)MathF.Round(item.Value * GradeMultiplier(grade) * SaleMultiplier(item.Category));
 
-    /// <summary>What your synergies add to the price of a thing of this kind (1 with none).</summary>
+    /// <summary>What your synergies, curios and today's event do to the price of a thing of this kind (1 with none).</summary>
     public float SaleMultiplier(Category kind) =>
-        1 + Synergies.SaleBonus(Active("jewelry")) + (kind == Category.Bottles ? Synergies.BottleBonus(Active("vintner")) : 0);
+        (1 + Synergies.SaleBonus(Active("jewelry")) + (kind == Category.Bottles ? Synergies.BottleBonus(Active("vintner")) : 0) +
+         CurioSales(kind)) * EventSales(kind);
 
     /// <summary>A keen eye's fee for a perfect read of a chest that held this much.</summary>
     public int KeenFee(int held) => (int)MathF.Round(held * Synergies.KeenFee(Active("keen")));
@@ -181,7 +200,7 @@ public sealed class GameState
     public int ExhibitionCustomers => Math.Min(2, Exhibition / ExhibitionPerCustomer);
 
     /// <summary>And a fine exhibition draws a better class of customer: the chance a chest is one colour better.</summary>
-    public float BetterChests => MathF.Min(0.4f, Exhibition * 0.01f);
+    public float BetterChests => MathF.Min(ExhibitionCap, Exhibition) * 0.01f;
 
     readonly HashSet<string> _owned = new();
 
@@ -199,12 +218,10 @@ public sealed class GameState
 
     public bool Has(string upgrade) => _owned.Contains(upgrade);
 
-    public int CustomersPerDay => 3 + Tier + (Has("sign") ? 1 : 0) + ExhibitionCustomers;
+    public int CustomersPerDay => Math.Max(2, 3 + Tier + (Has("sign") ? 1 : 0) + ExhibitionCustomers + (HasCurio("lantern") ? 1 : 0) +
+                                            EventCustomers);
 
-    public bool Won => Has("warrant");
-
-    public bool CanBuy(Upgrade upgrade) => UpgradesOpen && Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade) &&
-                                           (upgrade.Key != "warrant" || Exhibition >= WarrantExhibition);
+    public bool CanBuy(Upgrade upgrade) => UpgradesOpen && Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade);
 
     public void BuyUpgrade(Upgrade upgrade)
     {
@@ -228,6 +245,14 @@ public sealed class GameState
             Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
             FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
             Display = Display.Select(i => new SavedItem { Category = i.Category, Quality = i.Quality, Magic = i.Magic }).ToList(),
+            WeeksPaid = WeeksPaid, Arrears = Arrears, GraceUsed = !GraceLeft, BramPiece = BramPiece, HoodPieces = HoodPieces, MapGiven = MapGiven, VaultOpened = VaultOpened,
+            Curios = _curios.ToList(), EventsSeen = _eventsSeen.ToList(), WeekEvent = WeekEvent, EventDay = EventDay,
+            BuyerKind = BuyerKind, PeddlerDay = PeddlerDay,
+            Commissions = Commissions.Select(c => new SavedCommission
+            {
+                Patron = c.Patron, Kind = c.Kind, Category = c.Category, Quality = c.Quality, Needed = c.Needed, Delivered = c.Delivered,
+                Reward = c.Reward, Story = c.Story,
+            }).ToList(),
         };
         foreach (int count in _acquired) data.Acquired.Add(count);
         return data;
@@ -241,7 +266,17 @@ public sealed class GameState
             Gold = data.Gold, Day = data.Day, Tier = Math.Clamp(data.Tier, 1, ShopTiers.Max), Guided = data.Guided,
             TotalEarned = data.TotalEarned, UpgradesOpen = data.UpgradesOpen, MagicFound = data.MagicFound,
             PerfectStreak = data.PerfectStreak, BestStreak = data.BestStreak,
+            WeeksPaid = data.WeeksPaid, Arrears = data.Arrears, GraceLeft = !data.GraceUsed, BramPiece = data.BramPiece, HoodPieces = data.HoodPieces, MapGiven = data.MapGiven,
+            VaultOpened = data.VaultOpened, WeekEvent = data.WeekEvent, EventDay = data.EventDay, BuyerKind = data.BuyerKind,
+            PeddlerDay = data.PeddlerDay,
         };
+        state._curios.AddRange(data.Curios.Where(key => Curios.All.Any(c => c.Key == key)));
+        state._eventsSeen.AddRange(data.EventsSeen);
+        state.Commissions.AddRange(data.Commissions.Select(c => new Commission
+        {
+            Patron = c.Patron, Kind = c.Kind, Category = c.Category, Quality = c.Quality, Needed = c.Needed, Delivered = c.Delivered,
+            Reward = c.Reward, Story = c.Story,
+        }));
         state._owned.UnionWith(data.Owned);
         state.HintsSeen.UnionWith(data.HintsSeen);
         state.Met.UnionWith(data.Met);
@@ -259,7 +294,7 @@ public sealed class GameState
     /// <summary>For debugging and screenshots: jump ahead with the tools a player would have by then.</summary>
     public void SkipTo(int tier, int gold)
     {
-        foreach (var upgrade in Upgrades.All.Where(u => u.Key != "warrant" && (u.IsRenovation ? u.SetsTier <= tier : u.MinTier < tier)))
+        foreach (var upgrade in Upgrades.All.Where(u => u.IsRenovation ? u.SetsTier <= tier : u.MinTier < tier))
             _owned.Add(upgrade.Key);
         Tier = tier;
         Gold = gold;
@@ -273,6 +308,9 @@ public sealed class GameState
         Queue.Clear();
         Current = null;
         Today = new DayStats();
+        if (DayOfWeek == 1) StartWeek();
+        PeddlerStock.Clear();
+        if (PeddlerToday) PeddlerStock.AddRange(Curios.Stock(new Random(unchecked(Seed * 6151 + Day)), this));
 
         if (Day == 1 && Guided && Tier == 1)
         {
@@ -297,6 +335,7 @@ public sealed class GameState
             var seller = Rng.PickWeighted(pool, s => (s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 0.6f : 0.15f) * (s.Metalworker ? smiths : 1f));
             Queue.Add(NewVisit(seller));
         }
+        StageEvent();
     }
 
     /// <summary>With tips on, at most this many sellers' lessons in one day.</summary>
@@ -315,7 +354,10 @@ public sealed class GameState
             visit.Lesson = lesson;
             return visit;
         }
-        return Market.CreateVisit(Rng, seller, Tier, Boosts);
+        var fresh = Market.CreateVisit(Rng, seller, Tier, Boosts);
+        // A merchant's signet: those who bargain settle for less.
+        if (HasCurio("signet") && fresh.Trade != Trade.Fixed) fresh.SetFloor(Money.Round(fresh.Floor * Curios.SignetFloor));
+        return fresh;
     }
 
     /// <summary>
@@ -354,7 +396,8 @@ public sealed class GameState
         Gold -= visit.PricePaid;
         Today.Bought++;
         Today.Spent += visit.PricePaid;
-        return new Purchase(visit, slip);
+        var (luck, improved) = Luck(visit.Chest);
+        return new Purchase(visit, slip, luck, improved);
     }
 
     /// <summary>Notes a find in the collection and the journal. True the first time this thing turns up.</summary>
@@ -364,6 +407,7 @@ public sealed class GameState
         if (item.Magic && !item.Broken && !item.Fake) FoundEnchanted.Add(item.Entry);
         if (item.Broken || !Found.Add(item.Entry)) return false;
         Today.NewFinds++;
+        Catalogue();
         return true;
     }
 
@@ -393,13 +437,21 @@ public sealed class GameState
     }
 
     /// <summary>
-    /// Closes the day: adds what its chests brought in to the total (renovations open once it's enough). Returns the allowance paid if
-    /// the shop was nearly broke, else 0.
+    /// Closes the day: adds what its chests brought in to the total (renovations open once it's enough) and what curios
+    /// bring in overnight. Returns the allowance paid if the shop was nearly broke, else 0 (on the Guild's night, Bram
+    /// waits until the due is paid).
     /// </summary>
     public int EndDay()
     {
         TotalEarned += Today.Earned;
         if (TotalEarned >= UpgradesAt) UpgradesOpen = true;
+        Overnight();
+        return DuesTonight ? 0 : TopUp();
+    }
+
+    /// <summary>If the shop is nearly broke, Bram tops it up to the allowance. Returns how much.</summary>
+    int TopUp()
+    {
         if (Gold >= Allowance) return 0;
         int topUp = Allowance - Gold;
         Gold = Allowance;

@@ -108,6 +108,7 @@ public partial class CounterPhase : Phase
         _timer.ZIndex = 10;
 
         BuildQueue();
+        BuildBoard();
         BuildPanel();
         _mentor = Add(new MentorView { Position = new Vector2(322, 588), ZIndex = 40 });
         _mentor.LessonRead += NextStep;
@@ -187,7 +188,10 @@ public partial class CounterPhase : Phase
     string ChestNote()
     {
         var chest = _visit.Chest;
-        string colour = $"A {Categories.ChestSkin(chest.Quality)} chest: expect {Categories.QualityName(chest.Quality)} things.";
+        if (chest.Sealed) return "A black chest, packed tight with straw: nothing inside can move. Drop it to feel how heavy it is.";
+        string colour = chest.Gilded
+            ? $"Gilded! An old royal chest, a colour better than its seller thinks: expect {Categories.QualityName(chest.Quality)} things."
+            : $"A {Categories.ChestSkin(chest.Quality)} chest: expect {Categories.QualityName(chest.Quality)} things.";
         return chest.Lock.Locked ? $"{colour} Locked: {chest.Lock.Name}, {chest.Lock.Pins} pins." : colour;
     }
 
@@ -209,6 +213,11 @@ public partial class CounterPhase : Phase
         Teach(_visit.Trade switch { Trade.Haggle => "haggle", Trade.Offer => "offer", _ => "fixed" });
         if (_visit.Chest.Lock.Locked) Teach("locked");
         if (_lamp) Teach("lamp");
+        if (firstOfDay && State.TodayEvent != null) Teach("event");
+        if (State.Commissions.Any(c => !c.Done)) Teach("commissions");
+        if (State.Commissions.Any(c => c.Story && !c.Done)) Teach("hood");
+        if (_visit.Chest.Sealed) Teach("stranger");
+        if (_visit.Chest.Gilded) Teach("gilded");
     }
 
     void Teach(string key)
@@ -284,6 +293,36 @@ public partial class CounterPhase : Phase
         }
     }
 
+    /// <summary>
+    /// This week's open commissions, under the seller: what's wanted and what it pays (the slip marks the kinds), and
+    /// today's event above them.
+    /// </summary>
+    void BuildBoard()
+    {
+        if (State.TodayEvent is EventDef e)
+            Add(UiKit.MakeLabel(Events.Tag(e, State.BuyerKind), 16, Palette.Magic, outline: 4).Place(16, 66, 420, 20));
+        var open = State.Commissions.Where(c => !c.Done).Take(3).ToList();
+        if (open.Count == 0) return;
+        var board = Add(UiKit.MakePanel(Palette.Gold.Darkened(0.4f)).Place(12, 492, 292, 30 + open.Count * 24));
+        board.AddChild(UiKit.MakeLabel("WANTED THIS WEEK", 16, Palette.Gold.Darkened(0.1f)).Place(12, 6, 268, 20));
+        for (int i = 0; i < open.Count; i++)
+        {
+            var c = open[i];
+            string what = c.Kind == CommissionKind.Enchanted ? "Anything enchanted"
+                : $"{Categories.Get(c.Category).Name} {Categories.QualityName(c.Quality)}+{(c.Needed > 1 ? $" {c.Delivered}/{c.Needed}" : "")}";
+            var color = c.Story ? Palette.Magic : Palette.Text;
+            var line = UiKit.MakeLabel(what, 16, color).Place(12, 28 + i * 24, 180, 20);
+            line.MouseFilter = Control.MouseFilterEnum.Pass;
+            line.TooltipText = $"{c.PatronName} wants {c.Phrase}: {State.CommissionReward(c)}g{(c.Story ? " and a map piece" : "")}.";
+            board.AddChild(line);
+            board.AddChild(UiKit.MakeLabel(c.Story ? "map" : $"{State.CommissionReward(c)}g", 16, c.Story ? Palette.Magic : Palette.Gold,
+                HorizontalAlignment.Right).Place(180, 28 + i * 24, 100, 20));
+        }
+    }
+
+    /// <summary>Whether an open commission wants things of this kind (the slip marks the row).</summary>
+    bool Wanted(Category kind) => State.Commissions.Any(c => !c.Done && c.Kind != CommissionKind.Enchanted && c.Category == kind);
+
     void BuildPanel()
     {
         var panel = Add(new Node2D { ZIndex = 10 });
@@ -295,8 +334,9 @@ public partial class CounterPhase : Phase
         string who = _visit.Claim.Count == 0
             ? seller.Listens ? $"{seller.Short} heard nothing, so nothing's ticked." : $"{seller.Short} didn't listen, so nothing's ticked."
             : seller.Listens ? $"Ticked: what {seller.Short} heard." : $"Ticked: what {seller.Short} says is inside.";
-        panel.AddChild(UiKit.MakeLabel($"{who} Values: as good as a {Categories.ChestSkin(_visit.Chest.Quality)} chest promises.", 16, Palette.Muted)
-            .Wrapped().Place(PanelX, 106, PanelW, 40));
+        string values = _visit.Chest.Sealed ? "Sealed: nothing to hear. Go by its weight."
+            : $"Values: as good as a {(_visit.Chest.Gilded ? "gilded" : Categories.ChestSkin(_visit.Chest.Quality))} chest promises.";
+        panel.AddChild(UiKit.MakeLabel($"{who} {values}", 16, Palette.Muted).Wrapped().Place(PanelX, 106, PanelW, 40));
 
         var kinds = Categories.UpTo(State.Tier).ToList();
         float y = RowsY;
@@ -385,6 +425,16 @@ public partial class CounterPhase : Phase
         row.Count = UiKit.MakeLabel("", 16, Palette.Bg, HorizontalAlignment.Center).Place(10, 8, 24, 20);
         button.AddChild(row.Count);
         button.AddChild(category is Category kind ? UiKit.MakeKindIcon(kind, new Vector2(56, RowH / 2)) : UiKit.MakeKindIcon("hidden", new Vector2(56, RowH / 2)));
+        // A commission wants this kind: a gold pennant on its icon.
+        if (category is Category wanted && Wanted(wanted))
+        {
+            button.AddChild(new Painter(p =>
+            {
+                p.DrawColoredPolygon(new[] { new Vector2(64, 0), new Vector2(76, 0), new Vector2(76, 12) }, Palette.Gold);
+                p.DrawPolyline(new[] { new Vector2(64, 0), new Vector2(76, 0), new Vector2(76, 12), new Vector2(64, 0) }, Palette.Bg, 2);
+            }));
+            button.TooltipText = "A commission wants this kind of thing (see the board on the left).";
+        }
         button.AddChild(UiKit.MakeLabel(name, 16, Palette.Text).Place(80, 8, 120, 20));
         // Just a reminder of each kind's sound: the slip doesn't keep track of what you've heard.
         button.AddChild(UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(192, 8, 60, 20));
@@ -552,6 +602,21 @@ public partial class CounterPhase : Phase
     void OnLanded(float height)
     {
         if (height < ShakeBox.DropHeight || Concluded || Busy) return;
+        if (_visit.Chest.Sealed)
+        {
+            // Packed in straw: no boom, nothing breaks. All it tells you is how heavy it is.
+            _hearing.HeardDrop(false, new List<Item>());
+            Game.Shake(0.3f);
+            Sfx.Play("thud", 0.8f, 2);
+            string weight = _visit.Chest.Weight;
+            _shake.Say(weight.ToUpperInvariant(), Palette.Word, 32);
+            Note($"Dropped it: it lands {(weight == "heavy" ? "with a heavy thump" : weight == "light" ? "light as a feather" : "with a middling thud")}. " +
+                 "Heavy ones hold more.");
+            _seller.Say("Careful.");
+            Refresh();
+            Game.Moment("05_drop_sealed", 0.3);
+            return;
+        }
         var (hollow, broke) = _visit.Chest.Drop(_rng, State.Sturdier);
         _hearing.HeardDrop(hollow, broke);
         Game.Shake(0.35f);

@@ -12,13 +12,14 @@ namespace LootFall.Phases;
 /// learn; tools tell you more about each chest. From the village shop, cabinets show off what you keep, and the
 /// exhibition along the bottom draws more and better customers (click something in it to sell it). From the town
 /// shop, the Synergies button opens the journal, where you choose which of the shop's synergies are active. Bram
-/// introduces each as it opens up.
+/// introduces each as it opens up. Down the right: the Guild's next due, this week's commissions and your curios; on
+/// the fifth evening the button closes up for Mister Vane.
 /// </summary>
 public partial class DayEndPhase : Phase
 {
-    const float CardW = 380, CardH = 168, CardGap = 16, CardsX = 50, CardsY = 222;
+    const float CardW = 400, CardH = 106, CardGapX = 16, CardGapY = 10, CardsX = 40, CardsY = 206, SideX = 872, SideW = 368;
 
-    Node2D _cards;
+    Node2D _cards, _side;
     Label _goldLabel, _header;
     MentorView _mentor;
     Button _synergies;
@@ -36,19 +37,24 @@ public partial class DayEndPhase : Phase
         Game.Hud.SetGold(State.Gold);
 
         var today = State.Today;
-        Add(UiKit.MakeLabel($"END OF DAY {State.Day}", 32, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 70, 1280, 40));
+        Game.Hud.SetDue(State);
+        Add(UiKit.MakeLabel($"END OF DAY {State.Day}", 32, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 64, 1280, 40));
         BuildSummary(today);
         if (_topUp > 0)
             Add(UiKit.MakeLabel($"Uncle Bram slipped you {_topUp}g to keep the shop going.", 16, Palette.Warn, HorizontalAlignment.Center, outline: 4)
-                .Place(0, 166, 1280, 20));
+                .Place(0, 158, 1280, 20));
 
-        _header = Add(Header("", CardsX, 192));
-        _goldLabel = Add(UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(830, 192, 400, 20));
+        _header = Add(Header("", CardsX, 182));
+        _goldLabel = Add(UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(456, 182, 400, 20));
         _cards = Add(new Node2D());
+        _side = Add(new Node2D());
         BuildCards();
 
-        Add(UiKit.MakeButton($"Open the shop: Day {State.Day + 1}", Palette.Gold, 24, NextDay).Place(900, 626, 340, 64));
-        _synergies = Add(UiKit.MakeButton("", Palette.Magic.Darkened(0.2f), 16, OpenSynergies).Place(900, 584, 340, 36));
+        bool dues = State.DuesTonight && !State.PaidThisWeek;
+        bool intro = State.Day == 1 && State.WeeksPaid == 0;
+        Add(UiKit.MakeButton(dues ? "Close up: Vane is waiting" : intro ? "Close up for the night" : $"Open the shop: Day {State.Day + 1}",
+            dues ? Palette.Warn : Palette.Gold, dues ? 16 : 24, NextDay).Place(SideX, 626, SideW, 64));
+        _synergies = Add(UiKit.MakeButton("", Palette.Magic.Darkened(0.2f), 16, OpenSynergies).Place(SideX, 586, SideW, 34));
         RefreshSynergyButton();
         _mentor = Add(new MentorView { Position = new Vector2(40, 440), ZIndex = 20 });
         Teach(State.UpgradesOpen ? null : "dayend");
@@ -71,14 +77,16 @@ public partial class DayEndPhase : Phase
             ("The chests held", $"{today.Earned}g", Palette.Gold),
             ("Profit", $"{(today.Profit > 0 ? "+" : "")}{today.Profit}g", today.Profit > 0 ? Palette.Good : today.Profit < 0 ? Palette.Bad : Palette.Text),
         };
+        if (today.Commissions > 0) figures.Add(("Commissions", $"+{today.Commissions}g", Palette.Good));
+        if (today.Curios > 0) figures.Add(("Curios", $"+{today.Curios}g", Palette.Magic));
         if (today.PerfectReads > 0) figures.Add(("Perfect reads", today.PerfectReads.ToString(), Palette.Gold));
         if (today.NewFinds > 0) figures.Add(("New finds", today.NewFinds.ToString(), Palette.Magic));
-        const float w = 150, gap = 10;
+        const float w = 140, gap = 8;
         float x0 = 640 - (figures.Count * w + (figures.Count - 1) * gap) / 2;
         for (int i = 0; i < figures.Count; i++)
         {
             var (label, value, color) = figures[i];
-            var chip = Add(UiKit.MakePanel(label == "Profit" ? color.Darkened(0.2f) : null).Place(x0 + i * (w + gap), 110, w, 52));
+            var chip = Add(UiKit.MakePanel(label == "Profit" ? color.Darkened(0.2f) : null).Place(x0 + i * (w + gap), 102, w, 52));
             chip.AddChild(UiKit.MakeLabel(label, 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 4, w, 20));
             chip.AddChild(UiKit.MakeLabel(value, 24, color, HorizontalAlignment.Center, outline: 4).Place(0, 20, w, 30));
         }
@@ -89,12 +97,12 @@ public partial class DayEndPhase : Phase
         if (key != null && State.FirstTime(key)) _mentor.Say(Hints.Get(key));
     }
 
-    /// <summary>What the shop's grown into brings, said once: a shelf to display things on, synergies, the warrant.</summary>
+    /// <summary>What the shop's grown into brings, said once: a shelf to display things on, synergies, the Emporium.</summary>
     void Unlocked()
     {
         if (State.DisplayOpen) Teach("display");
         if (State.SynergiesOpen) Teach("synergy");
-        if (State.Tier >= ShopTiers.Max) Teach("warrant");
+        if (State.Tier >= ShopTiers.Max) Teach("emporium");
     }
 
     /// <summary>A banner across the top for something that just opened up.</summary>
@@ -111,6 +119,7 @@ public partial class DayEndPhase : Phase
     void BuildCards()
     {
         foreach (var child in _cards.GetChildren()) child.QueueFree();
+        BuildSide();
         _goldLabel.Text = $"You have {State.Gold}g";
         _header.Text = State.UpgradesOpen ? "SPEND IT ON THE SHOP" : "FIX UP THE STALL";
         if (!State.UpgradesOpen)
@@ -121,31 +130,97 @@ public partial class DayEndPhase : Phase
         var offers = Upgrades.Available(State).OrderByDescending(u => u.IsRenovation).ThenBy(u => u.Cost).Take(6).ToList();
         if (offers.Count == 0)
             _cards.AddChild(UiKit.MakeLabel("Nothing left to buy. The shop is complete.", 24, Palette.Muted, HorizontalAlignment.Center)
-                .Place(0, CardsY + 80, 1280, 30));
+                .Place(CardsX, CardsY + 80, 2 * CardW + CardGapX, 30));
         for (int i = 0; i < offers.Count; i++)
         {
-            float x = CardsX + i % 3 * (CardW + CardGap), y = CardsY + i / 3 * (CardH + CardGap);
+            float x = CardsX + i % 2 * (CardW + CardGapX), y = CardsY + i / 2 * (CardH + CardGapY);
             _cards.AddChild(MakeCard(offers[i], x, y));
         }
 
         BuildExhibition();
     }
 
+    /// <summary>Down the right: the Guild's next due, this week's commissions, and your curios.</summary>
+    void BuildSide()
+    {
+        foreach (var child in _side.GetChildren()) child.QueueFree();
+
+        // The Guild.
+        int due = State.NextDue;
+        bool tonight = State.DuesTonight && !State.PaidThisWeek;
+        bool enough = State.Gold >= due;
+        var guild = UiKit.MakePanel(tonight ? Palette.Warn.Darkened(0.2f) : Palette.PanelBorder).Place(SideX, 182, SideW, 112);
+        _side.AddChild(guild);
+        guild.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/guild.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
+            .Place(14, 14, 44, 48));
+        guild.AddChild(UiKit.MakeLabel(tonight ? "VANE COMES TONIGHT" : "THE GUILD'S DUE", 16, tonight ? Palette.Warn : Palette.Muted).Place(70, 10, 290, 20));
+        guild.AddChild(UiKit.MakeLabel($"{due}g", 32, enough ? Palette.Gold : Palette.Bad, outline: 4).Place(70, 28, 200, 40));
+        string when = tonight ? "tonight" : State.PaidThisWeek ? $"end of day {State.Day + Guild.DaysPerWeek}" : $"end of day {State.Day + State.DaysToDue}";
+        guild.AddChild(UiKit.MakeLabel(when, 16, Palette.Muted, HorizontalAlignment.Right).Place(180, 40, 176, 20));
+        float fill = Math.Clamp(State.Gold / (float)Math.Max(1, due), 0, 1);
+        guild.AddChild(new Painter(p =>
+        {
+            p.DrawRect(new Rect2(0, 0, SideW - 28, 14), new Color("#120e1a"));
+            p.DrawRect(new Rect2(0, 0, (SideW - 28) * fill, 14), (enough ? Palette.Gold : Palette.Bad).Darkened(0.25f));
+            p.DrawRect(new Rect2(0, 0, SideW - 28, 14), Palette.PanelBorder, false, 2);
+        }) { Position = new Vector2(14, 72) });
+        string week = State.Week <= Guild.Weeks ? $"Week {State.Week} of {Guild.Weeks}" : $"Week {State.Week}: the Guild's interest";
+        guild.AddChild(UiKit.MakeLabel(enough ? $"{week}. You have it." : $"{week}. {due - State.Gold}g short.", 16,
+            enough ? Palette.Muted : Palette.Warn).Place(14, 88, SideW - 28, 20));
+
+        // This week's commissions.
+        var board = UiKit.MakePanel(Palette.PanelBorder).Place(SideX, 302, SideW, 196);
+        _side.AddChild(board);
+        board.AddChild(UiKit.MakeLabel("COMMISSIONS", 16, Palette.Gold.Darkened(0.2f)).Place(14, 10, 200, 20));
+        board.AddChild(UiKit.MakeLabel("until the Guild comes", 16, Palette.Muted, HorizontalAlignment.Right).Place(150, 10, 204, 20));
+        if (State.Commissions.Count == 0)
+            board.AddChild(UiKit.MakeLabel(State.Week < Patrons.FromWeek ? "Regulars start asking for things once the Guild has been."
+                : "Nobody's asking for anything this week.", 16, Palette.Muted).Wrapped().Place(14, 40, SideW - 28, 60));
+        for (int i = 0; i < Math.Min(4, State.Commissions.Count); i++)
+        {
+            var c = State.Commissions[i];
+            float y = 36 + i * 39;
+            var color = c.Done ? Palette.Good : c.Story ? Palette.Magic : Palette.Text;
+            string patron = c.Story ? "The Hooded Woman" : Sellers.All.FirstOrDefault(s => s.Key == c.Patron)?.Short ?? c.Patron;
+            string reward = c.Done ? "DONE" : c.Story ? $"{State.CommissionReward(c)}g + map" : $"{State.CommissionReward(c)}g";
+            board.AddChild(UiKit.MakeLabel(patron, 16, color).Place(14, y, 220, 20));
+            board.AddChild(UiKit.MakeLabel(reward, 16, c.Done ? Palette.Good : Palette.Gold, HorizontalAlignment.Right).Place(180, y, 174, 20));
+            board.AddChild(UiKit.MakeLabel($"{c.What} {c.Progress}", 16, Palette.Muted).Place(14, y + 18, SideW - 28, 20));
+        }
+
+        // Curios.
+        var curios = UiKit.MakePanel(Palette.PanelBorder).Place(SideX, 506, SideW, 74);
+        _side.AddChild(curios);
+        curios.AddChild(UiKit.MakeLabel($"CURIOS {State.CurioKeys.Count}/{State.CurioSlots}", 16, Palette.Magic).Place(14, 8, 120, 20));
+        if (State.CurioKeys.Count == 0)
+            curios.AddChild(UiKit.MakeLabel(State.Week < 2 ? "Nim the peddler comes by from week 2." : "Nim comes by once a week.", 16, Palette.Muted)
+                .Wrapped().Place(14, 30, SideW - 28, 40));
+        for (int i = 0; i < State.CurioKeys.Count; i++)
+        {
+            var curio = Curios.Get(State.CurioKeys[i]);
+            var spot = new Control { TooltipText = $"{curio.Name}: {curio.Blurb}", MouseFilter = Control.MouseFilterEnum.Pass }
+                .Place(120 + i * 60, 6, 56, 62);
+            spot.AddChild(UiKit.MakeCurioIcon(curio, new Vector2(28, 31)));
+            curios.AddChild(spot);
+        }
+    }
+
     /// <summary>What's on display, what it does for the shop, and a click to sell any of it.</summary>
     void BuildExhibition()
     {
         if (!State.DisplayOpen) return;
-        const float x0 = 40, y0 = 584;
+        const float x0 = CardsX, y0 = 562;
         int score = State.Exhibition;
         string effect = score == 0 ? "Keep grand things when you open a chest, and they'll show here."
             : $"{score} points: +{State.ExhibitionCustomers} customer{(State.ExhibitionCustomers == 1 ? "" : "s")} a day, " +
               $"better chests {Synergies.Pct(State.BetterChests)} of the time.";
         _cards.AddChild(UiKit.MakeLabel($"EXHIBITION {State.Display.Count}/{State.DisplaySlots}", 16, Palette.Magic).Place(x0, y0, 300, 20));
-        _cards.AddChild(UiKit.MakeLabel(effect, 16, Palette.Muted).Place(x0 + 210, y0, 640, 20));
+        _cards.AddChild(UiKit.MakeLabel(effect, 16, Palette.Muted).Place(x0 + 200, y0, 616, 20));
         for (int i = 0; i < State.DisplaySlots; i++)
         {
             bool filled = i < State.Display.Count;
             var slot = UiKit.MakePanel(filled ? Palette.Of(State.Display[i].Rarity) : Palette.PanelBorder).Place(x0 + i * 56, y0 + 26, 50, 50);
+            slot.MouseFilter = Control.MouseFilterEnum.Pass;
             _cards.AddChild(slot);
             if (!filled) continue;
             var item = State.Display[i];
@@ -155,11 +230,8 @@ public partial class DayEndPhase : Phase
             slot.AddChild(sell.Place(0, 0, 50, 50));
         }
         string found = $"Collection: {State.Found.Count} of {Collection.Size} found.";
-        string warrant = State.Has("warrant") || State.Tier < 4 ? ""
-            : score >= GameState.WarrantExhibition ? " The Crown is impressed by your exhibition."
-            : $" The Crown wants an exhibition of {GameState.WarrantExhibition} before the warrant.";
-        _cards.AddChild(UiKit.MakeLabel(found + warrant, 16, score >= GameState.WarrantExhibition ? Palette.Good : Palette.Muted)
-            .Place(x0, y0 + 84, 840, 20));
+        string book = State.HasCurio("book") && score > 0 ? $" Visitors leave {Curios.BookPerPoint * score}g a night." : "";
+        _cards.AddChild(UiKit.MakeLabel(found + book, 16, Palette.Muted).Place(x0, y0 + 84, 816, 20));
     }
 
     public void SellFromDisplay(Item item)
@@ -174,7 +246,7 @@ public partial class DayEndPhase : Phase
     /// <summary>Before renovations: what the stall has earned so far, against what it needs, and what's coming.</summary>
     Control MakeGoal()
     {
-        const float w = 3 * CardW + 2 * CardGap, h = CardH;
+        const float w = 2 * CardW + CardGapX, h = 168;
         var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(CardsX, CardsY, w, h);
         card.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/icons/shop.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
             .Place(20, 20, 48, 48));
@@ -196,24 +268,34 @@ public partial class DayEndPhase : Phase
         return card;
     }
 
+    /// <summary>
+    /// An upgrade: icon, name, what it does, and its price (a Buy button once you can afford it, orange if it would
+    /// leave you short for the Guild tonight).
+    /// </summary>
     Control MakeCard(Upgrade upgrade, float x, float y)
     {
         bool affordable = State.Gold >= upgrade.Cost;
+        bool risky = State.DuesTonight && !State.PaidThisWeek && State.Gold - upgrade.Cost < State.DueNow;
         var card = UiKit.MakePanel(upgrade.IsRenovation ? Palette.Gold : Palette.PanelBorder).Place(x, y, CardW, CardH);
         card.AddChild(new TextureRect
         {
             Texture = GD.Load<Texture2D>($"res://assets/ui/icons/{upgrade.Icon}.png"),
             MouseFilter = Control.MouseFilterEnum.Ignore,
-        }.Place(16, 16, 48, 48));
-        card.AddChild(UiKit.MakeLabel(upgrade.Name, 24, upgrade.IsRenovation ? Palette.Gold : Palette.Text).Place(78, 12, 220, 30));
-        card.AddChild(UiKit.MakeLabel($"{upgrade.Cost}g", 24, affordable ? Palette.Gold : Palette.Muted, HorizontalAlignment.Right)
-            .Place(240, 12, 124, 30));
-        card.AddChild(UiKit.MakeLabel(upgrade.Blurb, 16, Palette.Muted).Wrapped().Place(78, 44, 288, 80));
+        }.Place(12, 12, 48, 48));
+        card.AddChild(UiKit.MakeLabel(upgrade.Name, 24, upgrade.IsRenovation ? Palette.Gold : Palette.Text).Place(70, 8, 216, 30));
+        card.AddChild(UiKit.MakeLabel(upgrade.Blurb, 16, Palette.Muted).Wrapped().Place(70, 40, CardW - 82, 60));
         if (affordable)
-            card.AddChild(UiKit.MakeButton("Buy", Palette.Good, 16, () => Buy(upgrade)).Place(CardW - 128, CardH - 44, 112, 34));
+        {
+            var buy = UiKit.MakeButton($"{upgrade.Cost}g", risky ? Palette.Warn : Palette.Good, 16, () => Buy(upgrade)).Place(CardW - 112, 8, 100, 30);
+            buy.TooltipText = risky ? "You'd be short for the Guild tonight!" : $"Buy the {upgrade.Name}";
+            card.AddChild(buy);
+        }
         else
-            card.AddChild(UiKit.MakeLabel($"{upgrade.Cost - State.Gold}g more", 16, Palette.Muted, HorizontalAlignment.Right)
-                .Place(CardW - 200, CardH - 34, 184, 20));
+        {
+            card.AddChild(UiKit.MakeLabel($"{upgrade.Cost}g", 24, Palette.Muted, HorizontalAlignment.Right).Place(CardW - 132, 6, 120, 30));
+            card.AddChild(UiKit.MakeLabel($"{upgrade.Cost - State.Gold}g more", 16, Palette.Muted.Darkened(0.2f), HorizontalAlignment.Right)
+                .Place(CardW - 172, CardH - 26, 160, 20));
+        }
         return card;
     }
 
@@ -239,31 +321,16 @@ public partial class DayEndPhase : Phase
             FloatText($"-{upgrade.Cost}g", new Vector2(640, 150), Palette.Gold, 32);
         }
         BuildCards();
-        if (State.Won) ShowWin();
     }
 
-    /// <summary>All the upgrades this player would buy in order, while the money lasts (the bot uses this).</summary>
-    public void BuyInOrder(string[] order, int reserve)
+    /// <summary>All the upgrades this player would buy in order, keeping enough back for the Guild (the bot uses this).</summary>
+    public void BuyInOrder(string[] order)
     {
         foreach (var key in order)
         {
             var upgrade = Upgrades.Get(key);
-            if ((State.Gold - upgrade.Cost >= reserve || key == "warrant") && State.CanBuy(upgrade)) Buy(upgrade);
+            if (Strategy.Affordable(State, upgrade)) Buy(upgrade);
         }
-    }
-
-    void ShowWin()
-    {
-        var panel = Add(UiKit.MakePanel(Palette.Gold).Place(290, 200, 700, 300));
-        panel.ZIndex = 10;
-        panel.AddChild(UiKit.MakeLabel("APPRAISER TO THE CROWN", 32, Palette.Gold, HorizontalAlignment.Center, outline: 4).Place(0, 30, 700, 40));
-        panel.AddChild(UiKit.MakeLabel($"From a roadside stall to the finest shop in the kingdom in {State.Day} days, " +
-                                       $"and {State.Met.Count} regulars who'll never shake a chest as well as you.",
-            16, Palette.Text, HorizontalAlignment.Center).Wrapped().Place(40, 96, 620, 60));
-        panel.AddChild(UiKit.MakeLabel("Keep trading as long as you like.", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 170, 700, 20));
-        panel.AddChild(UiKit.MakeButton("Carry on", Palette.Gold, 24, () => panel.QueueFree()).Place(230, 214, 240, 56));
-        Sfx.Play("fanfare");
-        Game.Moment("99_win", 0.5);
     }
 
     /// <summary>The button says how many synergies are active, and stands out when a reached one is waiting for a slot.</summary>
@@ -304,6 +371,6 @@ public partial class DayEndPhase : Phase
     public void NextDay()
     {
         Sfx.Play("bid");
-        Game.StartDay();
+        Game.CloseDay();
     }
 }

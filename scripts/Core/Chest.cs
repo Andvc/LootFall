@@ -25,19 +25,28 @@ public sealed class Chest
 
     public LockTier Lock { get; }
 
-    public string Skin => Categories.ChestSkin(Quality);
+    /// <summary>Packed tight in straw (the Stranger's): nothing inside can move, so nothing makes a sound.</summary>
+    public bool Sealed { get; }
+
+    /// <summary>One of the old royal chests, gilded: a colour better than its seller thinks.</summary>
+    public bool Gilded { get; }
+
+    public string Skin => Sealed ? "black" : Gilded ? "gold" : Categories.ChestSkin(Quality);
 
     /// <summary>Everything, including what's under the false bottom.</summary>
     public IEnumerable<Item> Everything => Hidden == null ? _items : _items.Append(Hidden);
 
     public int Value => Everything.Sum(i => i.Value);
 
-    public Chest(IEnumerable<Item> items, Rarity quality = Rarity.Common, Item hidden = null, LockTier lockTier = null)
+    public Chest(IEnumerable<Item> items, Rarity quality = Rarity.Common, Item hidden = null, LockTier lockTier = null, bool isSealed = false,
+        bool gilded = false)
     {
+        Gilded = gilded;
         _items = items.OrderBy(i => i.Category).ToList();
         Quality = quality;
         Hidden = hidden;
         Lock = lockTier ?? LockTiers.All[0];
+        Sealed = isSealed;
     }
 
     public Item Get(Category category) => _items.FirstOrDefault(i => i.Category == category);
@@ -53,8 +62,8 @@ public sealed class Chest
     /// <summary>Whether this thing moves at this shake.</summary>
     public static bool Stirs(Item item, Shake level, bool magnet = false) => level >= item.StirsAt && !(magnet && item.Iron);
 
-    /// <summary>It moves and you'd hear it, if nothing louder drowned it out.</summary>
-    public bool Sounds(Item item, Shake level, bool magnet = false) => Stirs(item, level, magnet);
+    /// <summary>It moves and you'd hear it, if nothing louder drowned it out. Nothing moves in a sealed chest.</summary>
+    public bool Sounds(Item item, Shake level, bool magnet = false) => !Sealed && Stirs(item, level, magnet);
 
     /// <summary>Something loud is clanking at this shake: it drowns out anything delicate.</summary>
     public bool Clanks(Shake level, bool magnet = false) => _items.Any(i => i.Def.Loud && Sounds(i, level, magnet));
@@ -85,6 +94,21 @@ public sealed class Chest
         var broke = Everything.Where(i => i.Def.Fragile && !i.Broken && (rng == null || rng.NextFloat() >= sturdier)).ToList();
         foreach (var item in broke) Break(item);
         return broke;
+    }
+
+    /// <summary>How heavy it feels when you lift it: what a sealed chest tells you.</summary>
+    public string Weight => Everything.Sum(i => Categories.Heft(i.Category)) switch
+    {
+        >= 6 => "heavy",
+        >= 3 => "middling",
+        _ => "light",
+    };
+
+    /// <summary>Changes things inside without them becoming different things (a curio's luck with their quality).</summary>
+    public void Improve(Func<Item, Item> change)
+    {
+        for (int i = 0; i < _items.Count; i++) _items[i] = change(_items[i]) with { Id = _items[i].Id };
+        if (Hidden != null) Hidden = change(Hidden) with { Id = Hidden.Id };
     }
 
     void Break(Item item)

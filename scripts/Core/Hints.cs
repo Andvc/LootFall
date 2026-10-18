@@ -52,11 +52,25 @@ public static class Hints
         ["synergy"] = "Town folk know a shop by what it collects. Your journal has tallied everything you've acquired: ten of a " +
                       "kind earns a synergy. Open Synergies and put one to work.",
         ["slots"] = "Another synergy slot: open Synergies and put one more to work.",
-        ["warrant"] = $"The Emporium! Now for the Royal Warrant: {Upgrades.Get("warrant").Cost}g, and an exhibition of " +
-                      $"{GameState.WarrantExhibition} to impress the Crown.",
+        ["emporium"] = "The Emporium! As grand as shops get. Now every coin goes to the Guild's dues, your curios and your exhibition.",
         ["ledger"] = "Forgotten a sound? Press L for your ledger: the sounds, the regulars you've met, and everything you've found.",
         ["lockpick"] = "The pick sweeps round the lock. Press Space, or click, while it's in the green to set a pin; outside it, " +
                        "it slips. Set every pin cleanly for a masterful pick: everything inside is worth more.",
+
+        // The run: the Guild's dues, curios, commissions, events.
+        ["dues"] = "Paid. Next week the Guild wants more, and more the week after. Whatever you spend on the shop has to " +
+                   "earn its keep before Vane comes back.",
+        ["peddler"] = "Nim sells curios: trinkets that each bend one rule of the trade. You've room for three. Pick the ones " +
+                      "that suit how you like to deal.",
+        ["commissions"] = "Regulars want things now: see the board on the left. When something they want comes out of a chest, " +
+                          "hand it over instead of selling it. A commission pays far more than a sale.",
+        ["deliver"] = "Someone wants this! Deliver it for the commission, or sell it as usual.",
+        ["event"] = "Something's happening in town today: one day a week is different. Read the day card.",
+        ["stranger"] = "The Stranger. Packed tight in straw: nothing inside can move, so there's nothing to hear. Drop it to feel " +
+                       "how heavy it is. Heavy ones hold more.",
+        ["gilded"] = "Gold! One of the old royal chests. Its seller thinks the gold is paint, and priced it as the colour underneath.",
+        ["pawn"] = "Short? Pawn what's on display, or your curios, at the Guild's price. If even that isn't enough, the shop is theirs.",
+        ["hood"] = "The Hooded Woman's commission pays in map pieces. If you miss it, she'll ask again next week.",
 
         // Each renovation brings one new thing.
         ["tier2"] = "Village folk bring two new sounds. Bottles slosh at a gentle shake, like coins. " +

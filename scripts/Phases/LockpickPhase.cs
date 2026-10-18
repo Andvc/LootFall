@@ -149,7 +149,7 @@ public partial class LockpickPhase : Phase
         Done = true;
         _crowbar.Disabled = true;
         _purchase.Grade = grade;
-        if (grade == PickGrade.Forced && _purchase.Chest.Force(State.Rng, State.Sturdier).Count > 0)
+        if (grade == PickGrade.Forced && _purchase.Chest.Force(State.Rng, State.ForceSturdier).Count > 0)
         {
             Sfx.Play("shatter");
             FloatText("CRASH", Center + new Vector2(0, -60), Palette.Bad, 32);

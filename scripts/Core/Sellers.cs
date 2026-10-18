@@ -172,7 +172,7 @@ public sealed class SellerDef
         _ => "knows exactly",
     };
 
-    static readonly string[] Titles = { "Little", "Widow", "Old", "Sergeant", "Magister", "Baron", "Captain", "Lady", "Granny", "Madame" };
+    static readonly string[] Titles = { "Little", "Widow", "Old", "Sergeant", "Magister", "Baron", "Captain", "Lady", "Granny", "Madame", "The" };
 
     /// <summary>What Bram calls them: "Penn", "Hob", "Brask".</summary>
     public string Short => Name.Split(' ').First(w => !Titles.Contains(w));
