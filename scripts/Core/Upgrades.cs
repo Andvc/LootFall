@@ -28,9 +28,9 @@ public static class Upgrades
         new("trumpet", "Ear Trumpet", "Hear through cloth: padded metal, coins and jewelry sound at their usual shake.", 100, 2, "trumpet"),
         new("cabinet1", "Oak Cabinet", "Room to display three more things. Displays draw customers.", 60, 2, "cabinet", Slots: 3),
         new("picks", "Fine Lockpicks", "A wider sweet spot when you pick a lock.", 50, 2, "picks"),
-        new("shop3", "Town Shop", "6 customers a day: mages with magic things, a miner, and jewelry.", 200, 2, "shop", SetsTier: 3),
+        new("shop3", "Town Shop", "6 customers a day: mages with enchanted things, a miner, and jewelry.", 200, 2, "shop", SetsTier: 3),
 
-        new("lamp", "Witchlight", "Always lit: magic glows when it makes a sound. Nobody else can see it.", 200, 3, "lamp"),
+        new("lamp", "Witchlight", "Always lit: anything enchanted glows when it makes a sound. Nobody else can see it.", 200, 3, "lamp"),
         new("cabinet2", "Glass Cabinet", "Room to display three more things.", 250, 3, "cabinet", Slots: 3),
         new("charter", "Guild Charter", "Two synergies at once.", 300, 3, "charter", SynergySlots: 1),
         new("shop4", "The Emporium", "7 customers a day: nobles, adventurers and a crook.", 1200, 3, "shop", SetsTier: 4),

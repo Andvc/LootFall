@@ -30,21 +30,20 @@ KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
 ])
 
 # Item sprite -> rpg-battle-system/item sprite number. Names match the sprites in scripts/Core/Items.cs: one per kind of
-# thing per seller tier, a magic one and (for coins and jewelry) a crook's fake.
+# thing per quality, and (for coins, paper and jewelry) a fake. Enchanted things use their plain sprite with a glow.
 ITEMS = {
     # Coins
     "copper_pouch": 21, "silver_crowns": 20, "gold_doubloons": 19,
     # Metal
-    "rusty_knife": 31, "soldiers_helm": 1, "steel_sword": 78, "knights_gauntlet": 59, "royal_rapier": 53, "rune_blade": 67,
+    "rusty_knife": 31, "soldiers_helm": 1, "steel_sword": 78, "knights_gauntlet": 59, "royal_rapier": 53,
     # Cloth
-    "wool_coat": 43, "golden_mantle": 76, "royal_robe": 50, "wizard_hat": 44,
+    "wool_coat": 43, "golden_mantle": 76, "royal_robe": 50,
     # Bottles
-    "ale_bottle": 61, "honey_jar": 63, "ambrosia": 47, "mana_potion": 12,
+    "ale_bottle": 61, "honey_jar": 63, "ambrosia": 47,
     # Paper
-    "love_letters": 25, "merchants_ledger": 62, "treasure_map": 22, "illuminated_codex": 42, "spell_scroll": 23,
+    "love_letters": 25, "merchants_ledger": 62, "treasure_map": 22, "illuminated_codex": 42,
     # Jewelry
     "brass_ring": 38, "silver_locket": 36, "gold_ring": 68, "sunfire_diamond": 57, "jeweled_chalice": 26,
-    "moonstone_pendant": 39,
 }
 
 # Sprites greyed toward iron or dust: key -> (sprite number, how much grey, 0..1).
@@ -53,7 +52,7 @@ WORN_ITEMS = {"gilded_slugs": (19, 0.55), "paste_diamond": (57, 0.6), "moth_eate
 
 # Sprites with their hue turned: key -> (sprite number, hue shift in degrees, saturation multiplier).
 TINTED_ITEMS = {
-    "silk_cloak": (81, 180, 0.8), "vintage_brandy": (61, -25, 1.3), "fairy_gold": (19, 110, 1.1),
+    "silk_cloak": (81, 180, 0.8), "vintage_brandy": (61, -25, 1.3),
     "elven_wine": (63, 200, 1.1), "royal_charter": (24, 15, 1.4),
     "sand_bag": (21, 22, 0.45),  # a sack of sand, the beachcomber's "letters"
 }
@@ -533,6 +532,38 @@ KIND_ICONS = {
 }
 
 
+# Small slots (the collection, the exhibition, the keep chooser) show each item's own sprite at 1x; one that's too big
+# is halved, each 2x2 block becoming its most common colour so the result stays crisp pixel art.
+ICON_MAX = 48
+
+
+def build_item_icons():
+    items = os.path.join(ASSETS, "sprites", "items")
+    for name in sorted(os.listdir(items)):
+        if not name.endswith(".png"):
+            continue
+        img = Image.open(os.path.join(items, name)).convert("RGBA")
+        if max(img.size) > ICON_MAX:
+            img = halve(img)
+        save(img, "sprites", "items", "icons", name)
+
+
+def halve(img):
+    w, h = (img.width + 1) // 2, (img.height + 1) // 2
+    src = img.load()
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    px = out.load()
+    for y in range(h):
+        for x in range(w):
+            block = [src[x * 2 + dx, y * 2 + dy] for dy in (0, 1) for dx in (0, 1)
+                     if x * 2 + dx < img.width and y * 2 + dy < img.height]
+            solid = [c for c in block if c[3] >= 128]
+            if len(solid) * 2 >= len(block):
+                # The darkest colour wins a tie, so outlines survive.
+                px[x, y] = max(solid, key=lambda c: (solid.count(c), -sum(c[:3])))
+    return out
+
+
 def build_icons():
     for name, rows in ICONS.items():
         save(pixel_icon(rows, name).resize((16 * UI_SCALE, 16 * UI_SCALE), Image.NEAREST), "ui", "icons", f"{name}.png")
@@ -597,6 +628,8 @@ def main():
         for x, y in offsets:
             pile.alpha_composite(img, (x, y))
         save(pile, "sprites", "items", f"{key}.png")
+
+    build_item_icons()
 
     for name, number in BACKGROUNDS.items():
         save(Image.open(os.path.join(sp, f"rpg-battle-system/backgrounds/{number}.png")).convert("RGBA"), "backgrounds", f"{name}.png")

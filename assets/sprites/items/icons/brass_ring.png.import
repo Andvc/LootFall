@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cdvjbjwsqfomw"
-path="res://.godot/imported/mana_potion.png-e4f575eb0f097a0a3260797050df32a8.ctex"
+uid="uid://xo7fwe1u83nd"
+path="res://.godot/imported/brass_ring.png-f6927b8acb96c2696c0a69c7ea29eb54.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/items/mana_potion.png"
-dest_files=["res://.godot/imported/mana_potion.png-e4f575eb0f097a0a3260797050df32a8.ctex"]
+source_file="res://assets/sprites/items/icons/brass_ring.png"
+dest_files=["res://.godot/imported/brass_ring.png-f6927b8acb96c2696c0a69c7ea29eb54.ctex"]
 
 [params]
 

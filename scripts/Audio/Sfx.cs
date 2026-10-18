@@ -156,8 +156,8 @@ public partial class Sfx : Node
         for (int i = 0; i < 12; i++) shatter.Tone(R(0, 0.3f), 0.2f, R(2800, 5600), R(0.08f, 0.18f), R(25, 45));
         Add("shatter", shatter);
 
-        // Openings: a bell for good finds, a rising sweep while a surprise builds, a crack of lightning, a deep boom, and
-        // a quick climbing arpeggio when a find turns out better than its chest.
+        // Openings: a bell for good finds, a rising sweep while a surprise builds, a crack of lightning, a deep boom, a
+        // sagging slide when a find turns out worse than its chest and a quick climbing arpeggio when it's better.
         Add("chime", new Synth(1.6f).Tone(0, 1.6f, 1047, 0.3f, 2.2f).Tone(0, 1.2f, 2890, 0.12f, 3.5f).Tone(0, 0.8f, 5650, 0.06f, 6f));
         var rise = new Synth(1.3f).Tone(0, 1.25f, 180, 0.35f, 0, freqEnd: 760, attack: 0.9f).Tone(0, 1.25f, 270, 0.2f, 0, freqEnd: 1140, attack: 0.9f)
             .Noise(0, 1.25f, 0.25f, 0, 0.08f, attack: 1.1f);
@@ -167,6 +167,8 @@ public partial class Sfx : Node
         zap.Tone(0, 0.35f, 2200, 0.15f, 12, freqEnd: 900);
         Add("zap", zap);
         Add("boom", new Synth(1.2f).Tone(0, 1.2f, 55, 1f, 3.2f, freqEnd: 38).Noise(0, 0.4f, 0.6f, 9, 0.12f));
+        // A letdown: a slide whistle sagging downwards.
+        Add("deflate", new Synth(0.7f).Tone(0, 0.65f, 620, 0.3f, 3.5f, freqEnd: 210).Tone(0, 0.6f, 930, 0.12f, 4.5f, freqEnd: 300));
         Add("upgrade", new Synth(0.7f).Tone(0, 0.25f, 784, 0.3f, 8).Tone(0.07f, 0.25f, 988, 0.3f, 8).Tone(0.14f, 0.25f, 1175, 0.3f, 8)
             .Tone(0.21f, 0.45f, 1568, 0.35f, 5));
 

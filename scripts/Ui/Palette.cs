@@ -44,6 +44,13 @@ public static class Palette
         _ => new Color("#d08a3c"),
     };
 
+    /// <summary>From red (0: a bad call) through gold to green (1: a great one), for odds and gut feelings.</summary>
+    public static Color Gradient(float t)
+    {
+        t = Mathf.Clamp(t, 0f, 1f);
+        return t < 0.5f ? Bad.Lerp(Gold, t * 2) : Gold.Lerp(Good, t * 2 - 1);
+    }
+
     public static Color Of(Rarity rarity) => rarity switch
     {
         Rarity.Common => new Color("#c9c4d4"),

@@ -38,6 +38,9 @@ public sealed class Lesson
 
     public LessonStep[] Steps { get; init; }
 
+    /// <summary>Bram's tips (<see cref="Hints"/>) this lesson already teaches, so they never come up as well.</summary>
+    public string[] Covers { get; init; } = Array.Empty<string>();
+
     /// <summary>The steps that apply at this shop.</summary>
     public IReadOnlyList<LessonStep> For(GameState state) => Steps.Where(s => s.When == null || s.When(state)).ToList();
 }
@@ -58,18 +61,20 @@ public static class Lessons
         new()
         {
             Seller = "tam",
-            Make = (rng, tier) => Price(rng, "tam", new Chest(new[] { I(Category.Coins, 0), I(Category.Cloth, 0) }), tier, floor: 2),
+            Covers = new[] { "offer" },
+            Make = (rng, tier) => Price(rng, "tam", new Chest(new[] { I(Category.Coins, 0), I(Category.Metal, 0) }), tier, floor: 2),
             Steps = new LessonStep[]
             {
                 new("Tam never shakes anything and has no idea what it's worth: he'll ask you to name a price. First, shake it " +
                     "at every strength.", c => c.Tried(Shake.Gentle, Shake.Firm, Shake.Hard)),
-                new("Tick what you heard. Then set the slider to a few coins and make your offer: he'll take almost anything.",
-                    c => c.Visit.OffersMade > 0, Trades: true),
+                new("Tick what you heard. Then set the slider to a few coins and make your offer: he'll take almost anything. " +
+                    "You get two tries.", c => c.Visit.OffersMade > 0, Trades: true),
             },
         },
         new()
         {
             Seller = "hob",
+            Covers = new[] { "haggle" },
             Make = (rng, tier) =>
             {
                 var visit = Price(rng, "hob", new Chest(new[] { I(Category.Coins, 0), I(Category.Metal, 0) }), tier);
@@ -80,8 +85,8 @@ public static class Lessons
             {
                 new("Hob shook it hard and heard a clank. He haggles: he always asks about double. Shake it yourself, gently " +
                     "too.", c => c.Tried(Shake.Gentle, Shake.Firm, Shake.Hard)),
-                new("Tick what you heard. Then use the slider to offer him about half his price. You get one offer.",
-                    c => c.Visit.OffersMade > 0, Trades: true),
+                new("Tick what you heard. Then use the slider to offer him about half his price. You get one offer: much " +
+                    "lower and he storms off.", c => c.Visit.OffersMade > 0, Trades: true),
             },
         },
         new()
@@ -129,6 +134,7 @@ public static class Lessons
         new()
         {
             Seller = "marta",
+            Covers = new[] { "dropped", "hollow" },
             Make = (rng, tier) => Price(rng, "marta", new Chest(new[] { I(Category.Coins, Rarity.Uncommon), I(Category.Paper, Rarity.Uncommon) },
                 Rarity.Uncommon, I(Category.Coins, Rarity.Uncommon)), tier),
             Steps = new LessonStep[]
@@ -141,19 +147,20 @@ public static class Lessons
         new()
         {
             Seller = "wick",
+            Covers = new[] { "padded" },
             Make = (rng, tier) => Price(rng, "wick", new Chest(new[] { I(Category.Coins, Rarity.Uncommon), I(Category.Cloth, Rarity.Uncommon) },
-                Rarity.Uncommon, packed: true), tier),
+                Rarity.Uncommon), tier),
             Steps = new LessonStep[]
             {
                 new("Granny Wick won't have her chests shaken hard. Shake it gently.", c => c.Tried(Shake.Gentle), When: NoTrumpet),
                 new("Nothing? Now firmly.", c => c.Tried(Shake.Firm), When: NoTrumpet),
-                new("A jingle, but only at a firm shake. Cloth packed around things muffles them, so they sound one shake late. " +
+                new("A jingle, but only at a firm shake. Cloth in a chest muffles hard things, so they sound one shake late. " +
                     "There's cloth in there: tick it.", c => c.Slip.Count(Category.Cloth) > 0, When: NoTrumpet),
                 new("Padded metal only clanks at a hard shake, and she won't allow one. An Ear Trumpet hears through cloth.",
                     When: NoTrumpet),
-                new("Granny Wick won't have her chests shaken hard, and they're packed with cloth that muffles things. Your " +
+                new("Granny Wick won't have her chests shaken hard, and there's usually cloth in them, which muffles things. Your " +
                     "trumpet hears through it. Shake it gently.", c => c.Tried(Shake.Gentle), When: s => s.Has("trumpet")),
-                new("She only heard the jingle. Her chests are always packed with cloth, even when nobody can shake hard " +
+                new("She only heard the jingle. Her chests are usually full of cloth, even when nobody can shake hard " +
                     "enough to hear it.", When: s => s.Has("trumpet")),
             },
         },
@@ -162,13 +169,14 @@ public static class Lessons
         new()
         {
             Seller = "wren",
+            Covers = new[] { "offer", "try_again" },
             Make = (rng, tier) => Price(rng, "wren", new Chest(new[] { I(Category.Bottles, Rarity.Uncommon, magic: true), I(Category.Coins, Rarity.Uncommon) },
                 Rarity.Uncommon), tier),
             Steps = new LessonStep[]
             {
                 new("Wren can't tell what's in a chest, but she feels magic. Name a low price: a few coins.", c => c.Visit.OffersMade > 0,
                     Trades: true),
-                new("She wants more: she can feel something special. Something in there is magic, worth four times as much. " +
+                new("She wants more: she can feel something special. Something in there is enchanted, worth twice as much. " +
                     "Offer again, if it's worth it to you.", c => c.Visit.OffersMade > 1, Trades: true),
             },
         },
@@ -193,7 +201,7 @@ public static class Lessons
             Make = (rng, tier) => Price(rng, "grit", new Chest(new[] { I(Category.Jewels, Rarity.Uncommon), I(Category.Paper, Rarity.Rare) }, Rarity.Rare), tier),
             Steps = new LessonStep[]
             {
-                new("Hear that tinkle? Jewelry. Grit's a miner: he knows metal, and thinks every tinkle is a diamond. Shake it " +
+                new("Grit heard a tinkle: jewelry. He's a miner: he knows metal, and thinks every tinkle is a diamond. Shake it " +
                     "gently yourself.", c => c.Tried(Shake.Gentle)),
                 new("Jewelry, priced like the crown jewels. Offer what it's really worth, or let him keep it."),
             },
@@ -214,6 +222,7 @@ public static class Lessons
         new()
         {
             Seller = "pell",
+            Covers = new[] { "counted" },
             Make = (rng, tier) => Price(rng, "pell", new Chest(new[]
             {
                 I(Category.Coins, Rarity.Rare), I(Category.Coins, Rarity.Rare), I(Category.Coins, Rarity.Rare), I(Category.Paper, Rarity.Rare),
@@ -255,6 +264,7 @@ public static class Lessons
         new()
         {
             Seller = "gull",
+            Covers = new[] { "dropped" },
             Make = (rng, tier) => Price(rng, "gull", new Chest(new[] { I(Category.Metal, Rarity.Epic), I(Category.Coins, Rarity.Rare) }, Rarity.Epic), tier),
             Steps = new LessonStep[]
             {
@@ -265,14 +275,16 @@ public static class Lessons
         new()
         {
             Seller = "pip",
+            Covers = new[] { "glow" },
             Make = (rng, tier) => Price(rng, "pip", new Chest(new[] { I(Category.Metal, Rarity.Rare), I(Category.Paper, Rarity.Rare, magic: true) },
                 Rarity.Rare, I(Category.Jewels, Rarity.Rare)), tier),
             Steps = new LessonStep[]
             {
-                new("Pip hears everything. But she can't see magic, and she never drops a chest. Shake it at every strength under " +
+                new("Pip hears everything. But she can't see enchantment, and she never drops a chest. Shake it at every strength under " +
                     "the witchlight.", c => c.Tried(Shake.Gentle, Shake.Firm, Shake.Hard), When: s => s.Has("lamp")),
-                new("Something glowed: click the star on its row to mark it magic.", c => c.Slip.Magic(Category.Paper), When: s => s.Has("lamp")),
-                new("Pip hears everything. But she never checks for magic, and never drops a chest.", When: s => !s.Has("lamp")),
+                new("Something glowed: it's enchanted, worth twice as much. Click the star on its row to mark it.",
+                    c => c.Slip.Magic(Category.Paper), When: s => s.Has("lamp")),
+                new("Pip hears everything. But she never checks for enchantment, and never drops a chest.", When: s => !s.Has("lamp")),
                 new("Now drop it.", c => c.Hearing.Dropped),
                 new("A boom! Tick False bottom: she never priced it.", c => c.Slip.Hidden),
             },

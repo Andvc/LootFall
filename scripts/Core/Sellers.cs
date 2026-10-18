@@ -119,8 +119,8 @@ public sealed class SellerDef
     /// <summary>From the town shop on: how often each kind they bring comes two (or three) of a kind.</summary>
     public float PairChance { get; init; } = 0.08f;
 
-    /// <summary>From the village shop on: how often, when there's cloth in it, they pack it around the rest.</summary>
-    public float PackChance { get; init; } = 0.3f;
+    /// <summary>A kind they always bring: a lady her jewels.</summary>
+    public Category? Always { get; init; }
 
     /// <summary>How often their chest has nothing in it at all.</summary>
     public float EmptyChance { get; init; }
@@ -261,9 +261,8 @@ public static class Sellers
         new()
         {
             Key = "wick", Name = "Granny Wick", Tier = 2, Shakes = Shake.Firm, HatesHardShake = true, MissRate = 0.45f, Markup = (1.8f, 2.1f),
-            PackChance = 0.9f,
             Kinds = new[] { 1f, 2, 5, 1, 3, 0.5f }, Colours = Village,
-            Habit = "A seamstress: listens firmly, never hard. Her chests are packed with cloth, which muffles what's in it. " +
+            Habit = "A seamstress: listens firmly, never hard. There's usually cloth in her chests, which muffles the rest. " +
                     "Shake one hard and it's half again.",
             Pitches = new[] { "A firm shake is all it needs, dearie. {heard}. {price}. And don't you shake it hard!",
                               "Mind my sewing. Firm, never hard. {heard}. Just {price}." },
@@ -358,15 +357,15 @@ public static class Sellers
         new()
         {
             Key = "pip", Name = "Pip the Sharp", Tier = 4, Judge = Judgment.Thorough, MissRate = 0f, MagicChance = 0.2f, HiddenChance = 0.3f,
-            Markup = (1.5f, 1.9f),
+            Markup = (1.2f, 1.45f),
             Kinds = new[] { 3f, 3, 2, 2, 2, 3 }, Colours = Emporium,
-            Habit = "Listens gently, then hard: hears everything. But magic and false bottoms get past her, and she has plenty of both.",
+            Habit = "Listens gently, then hard: hears everything. But enchanted things and false bottoms get past her, and she has plenty of both.",
             Pitches = new[] { "Shook it gently, then hard. {heard}. {price}, and it's fair.", "I listened properly. {heard}. {price}." },
             Accepts = new[] { "Pleasure.", "You won't regret it. Probably." },
         },
         new()
         {
-            Key = "ermine", Name = "Lady Ermine", Tier = 4, Judge = Judgment.Jeweller, HatesMagnet = true, Fakes = new[] { Category.Jewels }, FakeChance = 0.25f, Markup = (1.4f, 1.6f),
+            Key = "ermine", Name = "Lady Ermine", Tier = 4, Judge = Judgment.Jeweller, Always = Category.Jewels, HatesMagnet = true, Fakes = new[] { Category.Jewels }, FakeChance = 0.25f, Markup = (1.4f, 1.6f),
             Kinds = new[] { 2f, 1, 3, 2, 2, 6 }, Colours = Emporium,
             Habit = "Knows only her jewelry, at what she paid; whatever else the maid packed comes free. Some jewels are paste. " +
                     "Use a magnet and it's half again.",

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://chi32y1y388u3"
-path="res://.godot/imported/moonstone_pendant.png-a1c725f94b2fbffc47559082227c6dc6.ctex"
+uid="uid://7wf4780224md"
+path="res://.godot/imported/illuminated_codex.png-651fb9c6e20ad19e0c5e0cc4e817c194.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/items/moonstone_pendant.png"
-dest_files=["res://.godot/imported/moonstone_pendant.png-a1c725f94b2fbffc47559082227c6dc6.ctex"]
+source_file="res://assets/sprites/items/icons/illuminated_codex.png"
+dest_files=["res://.godot/imported/illuminated_codex.png-651fb9c6e20ad19e0c5e0cc4e817c194.ctex"]
 
 [params]
 

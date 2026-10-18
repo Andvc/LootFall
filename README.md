@@ -18,16 +18,19 @@ Design rationale: [docs/design.md](docs/design.md).
 2. **Shake it yourself.** How fast you drag is how hard you shake. Light things (coins jingle, bottles slosh,
    jewelry tinkles) rattle at a gentle shake; metal only clanks at a firm one, and its clanking drowns out anything
    delicate; soft things (cloth flumps, paper rustles) only sound at a hard shake. Lift it high and let go to drop it:
-   a hollow boom means a false bottom (but glass may break). As the shop grows, more to work out: cloth packing that
-   muffles things, two or three of a kind (count the rattles), sand that rustles like paper, gilded fakes.
+   a hollow boom means a false bottom (but glass may break). As the shop grows, more to work out: cloth that muffles
+   the hard things packed with it, two or three of a kind (count the rattles), sand that rustles like paper, enchanted
+   things that only a witchlight shows, gilded fakes.
 3. **Correct the slip and trade.** Mark how many of each kind are in there; the slip adds them up at what they'd be
-   worth if they're as good as the chest's colour promises. Then pay their price, haggle, or name your own, depending
-   on who it is. Pass, and they take it away unopened: your gut tells you whether that was wise.
+   worth if they're as good as the chest's colour promises, and an odds bar (red to green) says how likely it is to be
+   worth more than the price, or your offer. Then pay their price, haggle, or name your own, depending on who it is.
+   Pass, and they take it away unopened: your gut tells you, on a red-to-green scale, whether that was wise.
 4. **Pick the lock and watch it burst open:** everything flies out with its true quality and a tick or a cross
-   against your slip; anything better than its chest climbs, quality by quality, with more fuss for every step. The
-   profit is stamped across the screen with why the seller missed it. Keep grand things for your exhibition.
+   against your slip; anything better than its chest climbs, quality by quality, with more fuss for every step, and
+   anything worse sags as its colour drains. The profit is stamped across the screen with your gut's verdict and why
+   the seller missed it. Keep grand things for your exhibition (enchanted ones count double).
 5. **End of day:** spend your earnings on renovations (each brings richer customers and something new), tools (the
-   Ear Trumpet hears through packing, the Witchlight shows magic, the Magnet silences iron and fakes, Fine Lockpicks),
+   Ear Trumpet hears through cloth, the Witchlight shows what's enchanted, the Magnet silences iron and fakes, Fine Lockpicks),
    and cabinets, and choose which of the shop's synergies to put to work (ten of a kind at a quality earns one).
 
 Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each. After
@@ -40,7 +43,7 @@ that, each seller's first visit is a lesson in their habit.
 | Shake a chest | Drag it with the left mouse button: slowly for gentle, fast for hard |
 | Drop it | Lift it high and let go |
 | Count a kind on the slip | Click its row: one more each click (up to three from the town shop), then back to none |
-| Mark one of a kind magic | Click the star on its row (once you have the Witchlight, which stays lit) |
+| Mark one of a kind enchanted | Click the star on its row (once you have the Witchlight, which stays lit) |
 | Make an offer | Set the slider, then Offer |
 | Magnet | Button on the right, once you own it |
 | Ledger (sounds, regulars, collection, synergies) | L, or the Ledger button |

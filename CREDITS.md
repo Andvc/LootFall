@@ -19,7 +19,8 @@ By [Kenney](https://kenney.nl), released under [CC0 1.0](https://creativecommons
   chest (coins, tin, cloth, cards, glass), the chest landing, coins, doors and latches.
 
 The tool and kind icons are drawn as 16x16 pixel art in `tools/import_art.py`; a few item sprites there are recolored
-or combined from the pack's own (the silk cloak, brandy, fairy gold, royal gold and the crook's fakes).
+or combined from the pack's own (the silk cloak, brandy, royal gold and the crook's fakes), and the small icons in
+`assets/sprites/items/icons/` are the big sprites halved.
 
 Neither license requires attribution; it's given here because these artists made the game look and sound good.
 `tools/import_art.py` records exactly which source file each asset in `assets/` came from.

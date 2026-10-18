@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2licsilh5xs1"
-path="res://.godot/imported/spell_scroll.png-83ed041aa48328f3f31fcfdc0443edb3.ctex"
+uid="uid://dlwsyve7iwun6"
+path="res://.godot/imported/silver_crowns.png-411b8c1f02ac3a2a6e5694f27ed8994e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/items/spell_scroll.png"
-dest_files=["res://.godot/imported/spell_scroll.png-83ed041aa48328f3f31fcfdc0443edb3.ctex"]
+source_file="res://assets/sprites/items/icons/silver_crowns.png"
+dest_files=["res://.godot/imported/silver_crowns.png-411b8c1f02ac3a2a6e5694f27ed8994e.ctex"]
 
 [params]
 

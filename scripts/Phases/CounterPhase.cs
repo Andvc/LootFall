@@ -10,7 +10,7 @@ namespace LootFall.Phases;
 /// <summary>
 /// One seller, one chest, one puzzle. The seller judges the chest their way, says what they think is in it, and prices
 /// it: a fixed price, a haggle, or "what'll you give me?". Shake it yourself (gently, firmly, hard), drop it to listen
-/// for a false bottom, use your tools, and correct the appraisal slip: how many of each kind, which is magic. It adds
+/// for a false bottom, use your tools, and correct the appraisal slip: how many of each kind, which is enchanted. It adds
 /// that up at what such things are worth if they're as good as the chest's colour. Pass, and they take it away: you
 /// never see inside, but your gut has a feeling about it. Nothing on this screen knows what the chest is worth. A
 /// seller's first visit is a lesson: Bram's steps, each checked as you do it, before the trade buttons open.
@@ -20,7 +20,7 @@ public partial class CounterPhase : Phase
     static readonly Vector2 ChestRest = new(556, 416);
     // Tall, so a chest can be lifted high and dropped.
     static readonly Rect2 DragBounds = new(452, 130, 232, 286);
-    const float PanelX = 844, PanelW = 384, RowH = 38, RowStep = 42, RowsY = 150;
+    const float PanelX = 844, PanelW = 384, RowH = 36, RowStep = 40, RowsY = 150;
 
     /// <summary>Shaking at a strength this long counts as having tried it.</summary>
     const double TryTime = 0.5;
@@ -46,7 +46,9 @@ public partial class CounterPhase : Phase
     ShakeBox _shake;
     MentorView _mentor;
     LedgerView _ledger;
-    Label _hint, _notes, _worth, _askLabel, _ask, _profit, _footer, _timer;
+    Label _hint, _notes, _worth, _askLabel, _ask, _chanceText, _footer, _timer;
+    Painter _chance;
+    float _chanceShown;
     Button _buy, _pass, _offer, _magnetButton, _ledgerButton;
     HSlider _slider;
     Control _reveal;
@@ -118,6 +120,8 @@ public partial class CounterPhase : Phase
         _seller.Say(_visit.Pitch);
         Game.Hud.SetDay(State.Day, State.Tier);
         Game.Hud.SetGold(State.Gold, animate: false);
+        // What a lesson teaches, Bram needn't also tip about.
+        foreach (var key in _visit.Lesson?.Covers ?? Array.Empty<string>()) State.HintsSeen.Add(key);
         GreetingHints();
         if (_visit.Lesson != null) StartLesson();
         Note(ChestNote());
@@ -211,7 +215,8 @@ public partial class CounterPhase : Phase
 
     void Teach(string key)
     {
-        if (!State.FirstTime(key)) return;
+        // A lesson has Bram's attention. Anything else waits until its moment comes round again.
+        if (InLesson || !State.FirstTime(key)) return;
         _mentor.Say(Hints.Get(key));
         Game.Moment($"1_hint_{key}", 0.4);
     }
@@ -280,10 +285,9 @@ public partial class CounterPhase : Phase
         var shown = State.Display;
         for (int i = 0; i < shown.Count; i++)
         {
-            var sprite = Add(UiKit.MakeSprite($"res://assets/sprites/items/{shown[i].Sprite}.png", Vector2.Zero, 1));
             float slot = w / Math.Max(6, shown.Count);
-            sprite.Position = new Vector2(x0 + slot * (i + 0.5f), y - sprite.Texture.GetHeight() / 2f);
-            sprite.Modulate = new Color(0.85f, 0.85f, 0.9f);
+            var icon = Add(UiKit.MakeItemIcon(shown[i], new Vector2(x0 + slot * (i + 0.5f), y), 48, standing: true));
+            icon.Modulate = new Color(0.85f, 0.85f, 0.9f);
         }
     }
 
@@ -327,7 +331,7 @@ public partial class CounterPhase : Phase
 
         // The tools: the witchlight and the trumpet are always on (signs), the magnet is a switch.
         var signs = new List<(string Icon, string Short, string Long)>();
-        if (State.Has("lamp")) signs.Add(("lamp", "Witchlight", "Witchlight lit: magic glows"));
+        if (State.Has("lamp")) signs.Add(("lamp", "Witchlight", "Witchlight lit: enchanted things glow"));
         if (State.Has("trumpet")) signs.Add(("trumpet", "Trumpet", "Ear trumpet: hears through cloth"));
         bool magnet = State.Has("magnet");
         int tools = signs.Count + (magnet ? 1 : 0);
@@ -338,7 +342,10 @@ public partial class CounterPhase : Phase
             foreach (var (icon, shortName, longName) in signs)
             {
                 var lit = UiKit.MakePanel(Palette.Magic.Darkened(0.3f)).Place(x, y + 2, w, 36);
-                lit.AddChild(UiKit.MakeSprite($"res://assets/ui/icons/{icon}.png", new Vector2(22, 18), 1));
+                // Tool icons are 16px art at 3x; two thirds of that is exactly 2x, which fits the sign.
+                var sign = UiKit.MakeSprite($"res://assets/ui/icons/{icon}.png", new Vector2(22, 18), 1);
+                sign.Scale = Vector2.One * (2f / 3f);
+                lit.AddChild(sign);
                 lit.AddChild(UiKit.MakeLabel(tools == 1 ? longName : shortName, 16, Palette.Magic).Place(40, 8, w - 46, 20));
                 panel.AddChild(lit);
                 x += w + 8;
@@ -350,20 +357,24 @@ public partial class CounterPhase : Phase
             }
         }
 
-        panel.AddChild(UiKit.MakeLabel("If you're right, it's worth about", 16, Palette.Muted).Place(PanelX, 500, 280, 20));
-        _worth = UiKit.MakeLabel("", 24, Palette.Text, HorizontalAlignment.Right, outline: 4).Place(PanelX + 260, 494, 124, 30);
+        panel.AddChild(UiKit.MakeLabel("As good as promised, it's worth", 16, Palette.Muted).Place(PanelX, 482, 280, 20));
+        _worth = UiKit.MakeLabel("", 24, Palette.Text, HorizontalAlignment.Right, outline: 4).Place(PanelX + 260, 476, 124, 30);
         panel.AddChild(_worth);
-        _askLabel = UiKit.MakeLabel("", 16, Palette.Muted).Place(PanelX, 530, 280, 20);
+        _askLabel = UiKit.MakeLabel("", 16, Palette.Muted).Place(PanelX, 510, 280, 20);
         panel.AddChild(_askLabel);
-        _ask = UiKit.MakeLabel("", 24, Palette.Gold, HorizontalAlignment.Right, outline: 4).Place(PanelX + 260, 524, 124, 30);
+        _ask = UiKit.MakeLabel("", 24, Palette.Gold, HorizontalAlignment.Right, outline: 4).Place(PanelX + 260, 504, 124, 30);
         panel.AddChild(_ask);
+
+        // The odds the deal pays off, if the slip is right: no sums to do, and it's only as good as your listening.
+        _chance = new Painter(DrawChance) { Position = new Vector2(PanelX, 534) };
+        panel.AddChild(_chance);
+        _chanceText = UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(PanelX, 535, PanelW, 20);
+        panel.AddChild(_chanceText);
 
         _slider = new HSlider { Step = 1, MinValue = 1, FocusMode = Control.FocusModeEnum.None };
         StyleSlider(_slider);
         _slider.ValueChanged += _ => Refresh();
-        panel.AddChild(_slider.Place(PanelX, 558, PanelW, 24));
-        _profit = UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Right).Place(PanelX, 554, PanelW, 20);
-        panel.AddChild(_profit);
+        panel.AddChild(_slider.Place(PanelX, 560, PanelW, 24));
 
         _offer = UiKit.MakeButton("", Palette.Good, 16, () => MakeOffer((int)_slider.Value)).Place(PanelX, 590, 188, 50);
         _buy = UiKit.MakeButton("", Palette.Gold, 16, Buy).Place(PanelX, 590, 188, 50);
@@ -381,35 +392,35 @@ public partial class CounterPhase : Phase
 
     /// <summary>
     /// A row of the slip: click it to count one more of that kind (up to three from the town shop on, then back to
-    /// none); click its star, once you have the witchlight, to mark one of them magic.
+    /// none); click its star, once you have the witchlight, to mark one of them enchanted.
     /// </summary>
     Button MakeRow(Category? category, string name, string word, float y)
     {
         var row = new Row { Category = category };
         var button = UiKit.MakeButton("", Palette.PanelBorder, 16, () => Cycle(category)).Place(PanelX, y, PanelW, RowH);
         row.Button = button;
-        row.Box = new Painter(p => DrawBox(p, CountOf(category), category is Category k && _slip.Magic(k))) { Position = new Vector2(10, 7) };
+        row.Box = new Painter(p => DrawBox(p, CountOf(category), category is Category k && _slip.Magic(k))) { Position = new Vector2(10, 6) };
         button.AddChild(row.Box);
-        row.Count = UiKit.MakeLabel("", 16, Palette.Bg, HorizontalAlignment.Center).Place(10, 9, 24, 20);
+        row.Count = UiKit.MakeLabel("", 16, Palette.Bg, HorizontalAlignment.Center).Place(10, 8, 24, 20);
         button.AddChild(row.Count);
         button.AddChild(category is Category kind ? UiKit.MakeKindIcon(kind, new Vector2(56, RowH / 2)) : UiKit.MakeKindIcon("hidden", new Vector2(56, RowH / 2)));
-        button.AddChild(UiKit.MakeLabel(name, 16, Palette.Text).Place(80, 9, 120, 20));
+        button.AddChild(UiKit.MakeLabel(name, 16, Palette.Text).Place(80, 8, 120, 20));
         // Just a reminder of each kind's sound: the slip doesn't keep track of what you've heard.
-        button.AddChild(UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(192, 9, 60, 20));
+        button.AddChild(UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(192, 8, 60, 20));
         if (category is Category claimed ? _visit.Claim.Contains(claimed) : _visit.ClaimsHidden)
-            button.AddChild(UiKit.MakeLabel("said", 16, Palette.Muted).Place(250, 9, 40, 20));
+            button.AddChild(UiKit.MakeLabel("said", 16, Palette.Muted).Place(250, 8, 40, 20));
         if (category is Category magicKind && _lamp)
         {
-            row.Star = UiKit.MakeLabel("*", 32, Palette.Muted.Darkened(0.2f), HorizontalAlignment.Center).Place(288, -2, 28, 40);
+            row.Star = UiKit.MakeLabel("*", 32, Palette.Muted.Darkened(0.2f), HorizontalAlignment.Center).Place(288, -3, 28, 40);
             row.Star.MouseFilter = Control.MouseFilterEnum.Stop;
-            row.Star.TooltipText = "Mark one of them magic";
+            row.Star.TooltipText = "Mark one of them enchanted";
             row.Star.GuiInput += e =>
             {
                 if (e is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left }) ToggleMagic(magicKind);
             };
             button.AddChild(row.Star);
         }
-        row.Value = UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(PanelW - 70, 9, 60, 20);
+        row.Value = UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(PanelW - 70, 8, 60, 20);
         button.AddChild(row.Value);
         _rows.Add(row);
         return button;
@@ -430,7 +441,7 @@ public partial class CounterPhase : Phase
         var button = UiKit.MakeButton("", Palette.Magic.Darkened(0.45f), 16, use);
         button.Icon = GD.Load<Texture2D>($"res://assets/ui/icons/{icon}.png");
         button.ExpandIcon = false;
-        button.AddThemeConstantOverride("icon_max_width", 24);
+        button.AddThemeConstantOverride("icon_max_width", 32);
         return button;
     }
 
@@ -456,8 +467,8 @@ public partial class CounterPhase : Phase
         {
             int count = CountOf(row.Category);
             bool magic = row.Category is Category k && _slip.Magic(k);
-            // Marked: what the slip adds up for this kind. Unmarked: what one would be worth.
-            row.Value.Text = row.Category is Category kind ? $"~{(count > 0 ? _slip.ValueOf(kind) : _slip.OneValue(kind))}g" : $"~{_slip.HiddenValue}g";
+            // Marked: what the slip adds up for this kind. Unmarked: what one would be worth. Both as good as promised.
+            row.Value.Text = row.Category is Category kind ? $"{(count > 0 ? _slip.ValueOf(kind) : _slip.OneValue(kind))}g" : $"{_slip.HiddenValue}g";
             row.Value.AddThemeColorOverride("font_color", count == 0 ? Palette.Muted.Darkened(0.2f) : magic ? Palette.Magic : Palette.Gold);
             row.Count.Text = count >= 2 ? count.ToString() : "";
             if (row.Star != null) row.Star.AddThemeColorOverride("font_color", magic ? Palette.Magic : Palette.Muted.Darkened(0.2f));
@@ -467,7 +478,7 @@ public partial class CounterPhase : Phase
         }
 
         int worth = _slip.Worth;
-        _worth.Text = $"~{worth}g";
+        _worth.Text = $"{worth}g";
         string who = _visit.Seller.Short;
         bool offering = _visit.CanOffer;
         bool bought = _visit.Outcome == VisitOutcome.Bought;
@@ -507,10 +518,12 @@ public partial class CounterPhase : Phase
         if (bought) _pass.Visible = false;
 
         int price = bought ? _visit.PricePaid : offering ? offer : _visit.Ask;
-        int margin = worth - price;
-        _profit.Visible = !_slider.Visible;
-        _profit.Text = worth == 0 ? "Tick what you think is inside." : $"{(margin > 0 ? "+" : "")}{margin}g on average, if you're right";
-        _profit.AddThemeColorOverride("font_color", worth == 0 ? Palette.Muted : margin > 0 ? Palette.Good : Palette.Bad);
+        bool priced = price > 0 && worth > 0;
+        _chanceShown = priced ? _slip.ChanceAbove(price, State.SaleMultiplier) : -1;
+        _chanceText.Text = worth == 0 ? "Tick what you think is inside."
+            : !priced ? "Name a price: the bar shows your odds."
+            : $"Worth more than {price}g? {ChanceWords(_chanceShown)}";
+        _chance.QueueRedraw();
         _ledgerButton.Disabled = Busy;
         if (_magnetButton != null)
         {
@@ -519,8 +532,24 @@ public partial class CounterPhase : Phase
         }
 
         int left = State.Queue.Count;
-        _footer.Text = (offering ? $"Offer: {offer}g, about {(margin > 0 ? "+" : "")}{margin}g if you're right. " : "") +
-                       (left == 0 ? "Last customer today." : $"{left} more waiting today.");
+        _footer.Text = left == 0 ? "Last customer today." : $"{left} more waiting today.";
+    }
+
+    /// <summary>A chance as the bar says it: "62%", with "under 1%" and "over 99%" rather than a promise.</summary>
+    static string ChanceWords(float chance) =>
+        chance < 0.01f ? "under 1%" : chance > 0.99f ? "over 99%" : $"{MathF.Round(chance * 100)}%";
+
+    /// <summary>The odds bar: filled as far as the chance, from red (a long shot) through gold to green (a safe bet).</summary>
+    void DrawChance(Painter p)
+    {
+        p.DrawRect(new Rect2(0, 0, PanelW, 22), new Color("#120e1a"));
+        if (_chanceShown >= 0)
+        {
+            float fill = Math.Max(4, PanelW * _chanceShown);
+            p.DrawRect(new Rect2(0, 0, fill, 22), Palette.Gradient(_chanceShown).Darkened(0.25f));
+            p.DrawRect(new Rect2(0, 0, fill, 4), Palette.Gradient(_chanceShown).Lightened(0.15f));
+        }
+        p.DrawRect(new Rect2(0, 0, PanelW, 22), Palette.PanelBorder, false, 3);
     }
 
     void Note(string line)
@@ -534,6 +563,7 @@ public partial class CounterPhase : Phase
         bool glowed = _lamp && item.Magic;
         _hearing.Heard(item, level, _magnet, glowed);
         Teach($"heard_{item.Category}");
+        if (_hearing.HeardPadded) Teach("padded");
         if (glowed)
         {
             Teach("glow");
@@ -599,7 +629,7 @@ public partial class CounterPhase : Phase
         Game.Moment("02_slip", 0.2);
     }
 
-    /// <summary>Clicking a row's star: one of them is magic, or not.</summary>
+    /// <summary>Clicking a row's star: one of them is enchanted, or not.</summary>
     public void ToggleMagic(Category kind)
     {
         if (Busy || Concluded || !_lamp) return;
@@ -609,13 +639,15 @@ public partial class CounterPhase : Phase
         Game.Moment("02_magic", 0.2);
     }
 
-    /// <summary>Sets a row directly (the bot uses this).</summary>
+    /// <summary>Sets a row directly (the bot uses this), with the tips clicking it would bring.</summary>
     public void SetMark(Category category, int count, bool magic)
     {
         if (Busy || Concluded) return;
         _slip.Set(category, count, magic);
         Sfx.Play("tick", 1f + 0.2f * count, -4);
         Refresh();
+        Teach("slip");
+        if (count >= 2) Teach("counted");
     }
 
     public void SetHidden(bool hidden)
@@ -763,15 +795,17 @@ public partial class CounterPhase : Phase
         int held = _visit.Chest.Value, price = _visit.Price;
         int mood = Gut.PassMood(held, price);
         string line = Gut.Pass(held, price, _rng);
-        var color = mood <= 1 ? Palette.Good : mood == 2 ? Palette.Text : mood == 3 ? Palette.Warn : Palette.Bad;
-        _reveal = Add(UiKit.MakePanel(color.Darkened(0.2f)).Place(312, 96, 492, 150));
+        // Green for a pass that dodged a bad deal, red for one that let a bargain walk out the door.
+        var color = Palette.Gradient(Gut.PassScore(held, price));
+        _reveal = Add(UiKit.MakePanel(color.Darkened(0.2f)).Place(312, 96, 492, 180));
         _reveal.ZIndex = 20;
         _reveal.AddChild(UiKit.MakeLabel("YOUR GUT SAYS", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 14, 492, 20));
-        var words = UiKit.MakeLabel(line, 24, color, HorizontalAlignment.Center, outline: 4).Wrapped().Place(20, 44, 452, 70);
+        var words = UiKit.MakeLabel(line, 24, color, HorizontalAlignment.Center, outline: 4).Wrapped().Place(20, 40, 452, 70);
         words.VerticalAlignment = VerticalAlignment.Center;
         _reveal.AddChild(words);
-        _reveal.AddChild(UiKit.MakeLabel("You'll never know for sure.", 16, Palette.Muted.Darkened(0.2f), HorizontalAlignment.Center).Place(0, 118, 492, 20));
-        _reveal.PivotOffset = new Vector2(246, 75);
+        _reveal.AddChild(UiKit.MakeGutMeter(Gut.PassScore(held, price), 212, "missed out", "right call").Place(20, 116, 452, 30));
+        _reveal.AddChild(UiKit.MakeLabel("You'll never know for sure.", 16, Palette.Muted.Darkened(0.2f), HorizontalAlignment.Center).Place(0, 148, 492, 20));
+        _reveal.PivotOffset = new Vector2(246, 90);
         _reveal.Scale = Vector2.One * 0.6f;
         _reveal.CreateTween().TweenProperty(_reveal, "scale", Vector2.One, 0.25f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
         // A good call gets a pleased little chime; a bad one, a groan.

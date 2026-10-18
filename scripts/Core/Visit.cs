@@ -213,7 +213,7 @@ public sealed class Visit
             lines.Add($"A false bottom nobody knew about: {Chest.Hidden.Name}.");
         var magic = Chest.Everything.Where(i => i.Magic).ToList();
         if (magic.Count > 0 && !Seller.SensesMagic)
-            lines.Add($"Nobody can hear magic: the {Join(magic.Select(i => i.Name))} went for the price of plain goods.");
+            lines.Add($"Nobody can hear enchantment: the {Join(magic.Select(i => i.Name))} went for the price of plain goods.");
         if (lines.Count == 0)
             lines.Add(Trade == Trade.Fixed
                 ? $"{name} heard everything, and always asks a bit more than it's worth."
@@ -259,6 +259,22 @@ public static class Gut
 
     /// <summary>0 for the best feeling after a pass, up to 5 for the worst.</summary>
     public static int PassMood(int held, int price) => Array.FindIndex(AfterPass, b => held / (float)Math.Max(1, price) < b.Below);
+
+    /// <summary>
+    /// How good a call passing was, from 0 (a fortune walked out the door: it held four times their price or more) to 1
+    /// (you dodged a cart: it held a third of it or less), with an even trade at one half.
+    /// </summary>
+    public static float PassScore(int held, int price) => 1 - Score(held / (float)Math.Max(1, price), 0.35f, 4f);
+
+    /// <summary>How good a buy it was, from 0 (fleeced: it held under a third of what you paid) to 1 (a steal: three times).</summary>
+    public static float BuyScore(int held, int paid) => Score(held / (float)Math.Max(1, paid), 0.3f, 3f);
+
+    /// <summary>Where a ratio sits between its worst and best on a log scale: 0.5 at even.</summary>
+    static float Score(float ratio, float low, float high)
+    {
+        float r = MathF.Log(Math.Max(ratio, 0.001f));
+        return 0.5f + 0.5f * (r >= 0 ? Math.Min(1, r / MathF.Log(high)) : -Math.Min(1, r / MathF.Log(low)));
+    }
 
     static string Pick((float Below, string[] Lines)[] bands, float ratio, Random rng) =>
         rng.PickOne(bands.First(b => ratio < b.Below).Lines);

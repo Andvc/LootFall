@@ -16,7 +16,8 @@ public static class Hints
         ["intro"] = "Morning! The stall's yours now. Tam never shakes anything, so he can't know what's inside. " +
                     "Drag the chest slowly: a gentle shake.",
         ["heard_Coins"] = "A jingle: coins. Light things rattle at the gentlest shake. Tick Coins on your slip, on the right.",
-        ["slip"] = "The slip adds up what you've ticked. If it's worth more than they ask, buy it.",
+        ["slip"] = "The slip adds up what you've ticked, as good as the chest promises. The bar under it is your odds it's " +
+                   "worth more than the price: the greener, the safer.",
         ["first_penn"] = "Penn only shook it gently and heard nothing. Try every strength yourself: gentle, firm, hard.",
         ["heard_Cloth"] = "Flump: cloth. Soft things only make a sound when you shake hard.",
         ["first_hob"] = "Hob shook it hard and heard a clank. Shake it yourself, at every strength.",
@@ -38,7 +39,7 @@ public static class Hints
         ["offer"] = "This one wants you to name a price. Offer what it's worth to you, less a little. You get two tries.",
         ["try_again"] = "Too low. One more try, then they'll go.",
         ["keep"] = "Something grand? You can keep it for display instead of selling it. A good exhibition brings more customers, " +
-                   "and better ones. Magic things count double.",
+                   "and better ones. Enchanted things count double.",
         ["kept"] = "On display. You'll see it on the shelf behind the counter.",
         ["exhibition"] = "Your exhibition. Click anything in it to sell it if you need the money.",
 
@@ -46,20 +47,23 @@ public static class Hints
         ["tier2"] = "Village folk bring two new sounds. Bottles slosh at a gentle shake, like coins. " +
                     "Paper rustles only at a hard shake, like cloth. And some chests are locked, or have a false bottom.",
         ["locked"] = "Locked. Buy it and you'll pick the lock before you open it. A crowbar's quicker, but it breaks glass.",
+        ["padded"] = "Heard it a shake late? Cloth in a chest settles around hard things (coins, metal, jewelry) and muffles " +
+                     "them: they sound one shake harder than usual. So there's cloth in there: tick it.",
         ["dropped"] = "Dropped! A solid thud is a plain chest. A hollow boom means a false bottom: something hidden nobody's priced.",
         ["hollow"] = "Hear that boom? A false bottom. Tick it on your slip: whatever's in there, nobody's priced it.",
         ["broke"] = "Glass breaks when you drop it. If you heard a slosh, think twice before dropping.",
         ["heard_Bottles"] = "Slosh: a bottle. Delicate, like coins: a clank drowns it out.",
         ["heard_Paper"] = "Rustle: paper. Soft, like cloth: it only sounds at a hard shake.",
-        ["tier3"] = "The town shop: jewelry, which tinkles at a gentle shake; mages, whose things are often magic (a witchlight " +
+        ["tier3"] = "The town shop: jewelry, which tinkles at a gentle shake; mages, whose things are often enchanted (a witchlight " +
                     "would show it); and lots with two or three of a kind. Count the rattles: click a row again for each.",
         ["heard_Jewels"] = "Tinkle: jewelry. Delicate, and worth the most.",
-        ["lamp"] = "The witchlight's lit, and it stays lit: magic glows when it makes a sound. Click the star on a row to mark it magic.",
+        ["lamp"] = "The witchlight's lit, and it stays lit: anything enchanted glows when it makes a sound. Click the star on a row " +
+                   "to mark one enchanted.",
         ["trumpet"] = "Your ear trumpet hears through cloth: padded things sound at their usual shake now. Sellers don't have one.",
         ["counted"] = "Two of a kind: each one adds its value. Sellers who don't count only price one.",
         ["synergy"] = "The shop's getting a name for something: a synergy. Open Synergies and put it to work. One at a time, " +
                       "until you buy a Guild Charter.",
-        ["glow"] = "It glowed! That one's enchanted: four times the value. Click the star on its row to mark it magic.",
+        ["glow"] = "It glowed! That one's enchanted: worth twice as much. Click the star on its row to mark it.",
         ["tier4"] = "The Emporium. Nobles, adventurers and a crook. Mind Silas: he sells gilded iron as gold and jewels, " +
                     "and it sounds just like the real thing. A magnet would catch it.",
         ["magnet"] = "Magnet's on: iron can't move. Metal goes quiet, so nothing drowns out the delicate things. " +

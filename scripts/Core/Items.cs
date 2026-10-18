@@ -17,8 +17,8 @@ public enum Rarity { Common, Uncommon, Rare, Epic, Legendary }
 /// <summary>
 /// A kind of thing and its rules, which match everyday experience: light, hard things (coins, bottles, jewelry)
 /// rattle at the gentlest shake; heavy metal only moves when you shake firmly, and its clanking drowns out anything
-/// delicate; soft things (cloth, paper) only make a sound when you shake hard. Cloth packed around hard things
-/// (metal, coins, jewelry) muffles them: they only sound at a shake one strength harder than usual. Loose cloth doesn't.
+/// delicate; soft things (cloth, paper) only make a sound when you shake hard. Cloth in a chest settles around the hard
+/// things (metal, coins, jewelry) and muffles them: they only sound at a shake one strength harder than usual.
 /// </summary>
 /// <param name="StirsAt">The gentlest shake that makes it move and sound.</param>
 /// <param name="Delicate">Quiet enough that clanking drowns it out.</param>
@@ -29,8 +29,8 @@ public enum Rarity { Common, Uncommon, Rare, Epic, Legendary }
 /// <param name="Tier">The shop tier at which this kind starts turning up.</param>
 /// <param name="Names">Name at each quality, common to legendary.</param>
 /// <param name="Sprites">Sprite at each quality, under res://assets/sprites/items/.</param>
-/// <param name="Muffled">Hard enough to rattle, so cloth packed around it muffles it.</param>
-/// <param name="Pads">Packed in a chest, it pads (muffles) the hard things.</param>
+/// <param name="Muffled">Hard enough to rattle, so cloth in the chest muffles it.</param>
+/// <param name="Pads">In a chest, it pads (muffles) the hard things.</param>
 /// <param name="FakeName">What sounds just like this kind of thing but is worth nothing.</param>
 /// <param name="FakeIron">The fake is gilded iron, so a magnet holds it still.</param>
 /// <param name="FakeStirsAt">The fake moves at a gentler shake than the real thing (sand pours), or Still if it doesn't.</param>
@@ -51,15 +51,16 @@ public sealed record CategoryDef(
     int Tier,
     string[] Names,
     string[] Sprites,
-    string MagicName,
-    string MagicSprite,
     string FakeName = null,
     string FakeSprite = null,
     bool FakeIron = true,
     Shake FakeStirsAt = Shake.Still);
 
 /// <summary>One thing in a chest.</summary>
-/// <param name="Magic">Enchanted: worth four times as much. It sounds like any other; under a witchlight it glows.</param>
+/// <param name="Magic">
+/// Enchanted: any thing can be. Worth twice as much, and counts double on display. It sounds like any other; under a
+/// witchlight it glows.
+/// </param>
 /// <param name="Fake">
 /// Sounds just like the real thing, worth nothing: gilded iron (a magnet holds it) or a bag of sand (which pours at the
 /// gentlest shake, where paper never rustles).
@@ -73,12 +74,15 @@ public sealed record Item(Category Category, Rarity Quality, bool Magic = false,
     public int Id { get; init; } = Interlocked.Increment(ref _lastId);
 
     public CategoryDef Def => Categories.Get(Category);
-    public string Name => Broken ? $"Broken {Def.Names[(int)Quality]}" : Fake ? Def.FakeName : Magic ? Def.MagicName : Def.Names[(int)Quality];
+    public string Name => Broken ? $"Broken {Def.Names[(int)Quality]}" : Fake ? Def.FakeName : Magic ? $"Enchanted {Entry}" : Entry;
 
-    /// <summary>The name in the collection: broken things count as what they were.</summary>
-    public string Entry => Fake ? Def.FakeName : Magic ? Def.MagicName : Def.Names[(int)Quality];
+    /// <summary>
+    /// The name in the collection: broken things count as what they were, and an enchanted one fills the same entry
+    /// (the journal stars it).
+    /// </summary>
+    public string Entry => Fake ? Def.FakeName : Def.Names[(int)Quality];
 
-    public string Sprite => Fake ? Def.FakeSprite : Magic ? Def.MagicSprite : Def.Sprites[(int)Quality];
+    public string Sprite => Fake ? Def.FakeSprite : Def.Sprites[(int)Quality];
     public int Value => Broken ? 0 : Fake ? 1 : Categories.Value(Category, Quality, Magic);
     public bool Iron => Def.Iron || (Fake && Def.FakeIron);
 
@@ -86,8 +90,8 @@ public sealed record Item(Category Category, Rarity Quality, bool Magic = false,
     public Shake StirsAt => Fake && Def.FakeStirsAt != Shake.Still ? Def.FakeStirsAt : Def.StirsAt;
     public string Word => Def.Word;
 
-    /// <summary>Its colour when revealed: its quality, one better if it's magic.</summary>
-    public Rarity Rarity => Fake || Broken ? Rarity.Common : Magic ? (Rarity)Math.Min(4, (int)Quality + 1) : Quality;
+    /// <summary>Its colour when revealed: its quality (an enchanted one glows as well).</summary>
+    public Rarity Rarity => Fake || Broken ? Rarity.Common : Quality;
 
     /// <summary>How much it adds to the shop's exhibition when displayed. Fakes and broken things add nothing.</summary>
     public int Prestige => Fake || Broken ? 0 : (1 << (int)Quality) * (Magic ? 2 : 1);
@@ -100,34 +104,31 @@ public static class Categories
     /// <summary>How much more a better thing of the same kind is worth: common, uncommon, rare, epic, legendary.</summary>
     public static readonly int[] QualityMultiplier = { 1, 3, 8, 20, 50 };
 
-    public const int MagicMultiplier = 4;
+    public const int MagicMultiplier = 2;
 
     public static readonly CategoryDef[] All =
     {
         new(Category.Coins, "Coins", "jingle", "jingle", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, Muffled: true, Pads: false, 12, 1,
             new[] { "Pouch of Copper", "Silver Crowns", "Gold Doubloons", "Royal Gold", "Dragon's Hoard" },
             new[] { "copper_pouch", "silver_crowns", "gold_doubloons", "royal_gold", "dragon_hoard" },
-            "Fairy Gold", "fairy_gold", "Gilded Slugs", "gilded_slugs"),
+            "Gilded Slugs", "gilded_slugs"),
         new(Category.Metal, "Metal", "clank", "clank", 1f, Shake.Firm, Delicate: false, Loud: true, Iron: true, Fragile: false, Muffled: true, Pads: false, 5, 1,
             new[] { "Rusty Knife", "Soldier's Helm", "Steel Sword", "Knight's Gauntlet", "Royal Rapier" },
-            new[] { "rusty_knife", "soldiers_helm", "steel_sword", "knights_gauntlet", "royal_rapier" },
-            "Rune Blade", "rune_blade"),
+            new[] { "rusty_knife", "soldiers_helm", "steel_sword", "knights_gauntlet", "royal_rapier" }),
         new(Category.Cloth, "Cloth", "flump", "flump", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, Muffled: false, Pads: true, 6, 1,
             new[] { "Moth-Eaten Cloak", "Wool Coat", "Silk Cloak", "Golden Mantle", "Royal Robe" },
-            new[] { "moth_eaten_cloak", "wool_coat", "silk_cloak", "golden_mantle", "royal_robe" },
-            "Wizard's Hat", "wizard_hat"),
+            new[] { "moth_eaten_cloak", "wool_coat", "silk_cloak", "golden_mantle", "royal_robe" }),
         new(Category.Bottles, "Bottles", "slosh", "slosh", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: true, Muffled: false, Pads: false, 8, 2,
             new[] { "Bottle of Ale", "Jar of Honey", "Vintage Brandy", "Elven Wine", "Ambrosia" },
-            new[] { "ale_bottle", "honey_jar", "vintage_brandy", "elven_wine", "ambrosia" },
-            "Mana Potion", "mana_potion"),
+            new[] { "ale_bottle", "honey_jar", "vintage_brandy", "elven_wine", "ambrosia" }),
         new(Category.Paper, "Paper", "rustle", "rustle", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, Muffled: false, Pads: false, 5, 2,
             new[] { "Bundle of Letters", "Merchant's Ledger", "Treasure Map", "Illuminated Codex", "Royal Charter" },
             new[] { "love_letters", "merchants_ledger", "treasure_map", "illuminated_codex", "royal_charter" },
-            "Spell Scroll", "spell_scroll", "Bag of Sand", "sand_bag", FakeIron: false, FakeStirsAt: Shake.Gentle),
+            "Bag of Sand", "sand_bag", FakeIron: false, FakeStirsAt: Shake.Gentle),
         new(Category.Jewels, "Jewelry", "tinkle", "tinkle", 1.1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, Muffled: true, Pads: false, 20, 3,
             new[] { "Brass Ring", "Silver Locket", "Gold Ring", "Sunfire Diamond", "Jeweled Chalice" },
             new[] { "brass_ring", "silver_locket", "gold_ring", "sunfire_diamond", "jeweled_chalice" },
-            "Moonstone Pendant", "moonstone_pendant", "Paste Diamond", "paste_diamond"),
+            "Paste Diamond", "paste_diamond"),
     };
 
     public static CategoryDef Get(Category category) => All[(int)category];
@@ -206,16 +207,15 @@ public static class Categories
 
     /// <summary>Every item sprite the game can show, for the importer and the collection.</summary>
     public static IEnumerable<string> AllSprites() =>
-        All.SelectMany(c => c.Sprites.Append(c.MagicSprite).Append(c.FakeSprite)).Where(s => s != null).Distinct();
+        All.SelectMany(c => c.Sprites.Append(c.FakeSprite)).Where(s => s != null).Distinct();
 }
 
 /// <summary>Every kind of thing there is to find, for the ledger's collection page.</summary>
 public static class Collection
 {
-    /// <summary>Kind by kind: each quality, then the magic one, then (for coins, paper and jewelry) the fake.</summary>
+    /// <summary>Kind by kind: each quality, then (for coins, paper and jewelry) the fake.</summary>
     public static IEnumerable<Item> Entries => Categories.All.SelectMany(c =>
         Enumerable.Range(0, 5).Select(q => new Item(c.Category, (Rarity)q))
-            .Append(new Item(c.Category, Rarity.Rare, Magic: true))
             .Concat(c.FakeName != null ? new[] { new Item(c.Category, Rarity.Common, Fake: true) } : Array.Empty<Item>()));
 
     public static int Size => Entries.Count();

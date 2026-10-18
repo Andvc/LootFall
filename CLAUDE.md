@@ -28,20 +28,26 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 - `scripts/Core` stays engine-free (no `using Godot`) so it can be simulated headlessly.
 - Design rules (see `docs/design.md`): the puzzle is three rules (a thing only sounds once the shake stirs it;
   clanks drown out delicate things; sellers price only what they think is there). Never show the player what a chest
-  is worth before purchase: the slip only adds up what the player ticked, at the average for the chest's colour, and
-  each item's real quality is rolled around that colour (`Categories.Odds`) so openings still surprise. Clues are
+  is worth before purchase: the slip only adds up what the player ticked, and its odds bar only says how likely that
+  is to beat the price (`Appraisal.ChanceAbove`); each item's real quality is rolled around the chest's colour
+  (`Categories.Odds`) so openings still surprise. Clues are
   perceptual (which sounds come at which strength, what glows, what the magnet silences, a hollow drop) or stated
   (what the seller says they heard). Any new way to judge a chest must follow a rule people know from real life.
   The slip values things as good as the chest's colour promises (`Categories.Nominal`); sellers price by the average
-  (`Categories.Expected`). Layers of deduction (packing, counting, sound-alikes like sand and gilded iron) arrive one
-  shop at a time, each taught by the seller it belongs to.
+  (`Categories.Expected`); `Strategy` buys when the odds bar is on its side (`Appraisal.LikelyWorth`), like a player
+  would. Layers of deduction (padding, counting, sound-alikes like sand and gilded iron) arrive one shop at a time,
+  each taught by the seller it belongs to. Rules apply every time or not at all (any real cloth pads, `Chest.Padded`):
+  a hidden roll that makes a rule work only sometimes reads as a bug. Enchantment (`Item.Magic`) is something any
+  thing can be: x2 value and exhibition, same quality, colour and sprite.
 - One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`); kinds differ in how
   hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
   Introduce new things one at a time: by shop tier (`CategoryDef.Tier`, `SellerDef.Tier`) and with a Bram hint
   (`Hints.cs`).
 - A seller's first visit (with tips on) is a lesson (`Lessons.cs`): a chest that guarantees what it teaches, and
   steps whose `Done` checks run every frame on the hearing, the slip and the visit. Keep checks to things the player
-  does, so they can't miss; the sim's lesson test plays each one.
+  does, so they can't miss; the sim's lesson test plays each one. A lesson waits for tips already up
+  (`MentorView.ShowLesson`), `CounterPhase.Teach` holds other tips back during one, and `Lesson.Covers` lists the tips
+  it makes redundant. Read a guided `--autoplay` run's `[Bram ...]` lines to check the tutorial reads in order.
 - Synergies (`Synergies.cs`) come from what's been acquired (ten of a kind at a quality per level) or achieved; only
   active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
 - Every seller has one way of judging a chest (`Judgment`: listening, counting rattles, weight, colour, a dream, a
@@ -68,8 +74,10 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   filtering (project default), and Kenney Mini at multiples of 8px (`UiKit.MakeLabel` snaps sizes; min 16).
 - Kenney Mini has no fallback font: stick to ASCII in UI strings.
 - Panels and buttons use the 9-slice frames from `UiKit` (`MakePanel`, `MakeFrame`, `MakeButton`), not StyleBoxFlat.
-- Item sprites vary in size (up to 72px); in 32px slots use the kind icons (`UiKit.MakeKindIcon`), drawn as 16x16
-  pixel art in `tools/import_art.py` like the tool icons.
+- Item sprites vary in size (up to 89px). To show a particular thing in a slot (collection, shelf, exhibition,
+  chooser) use `UiKit.MakeItemIcon`, its own sprite from `assets/sprites/items/icons/` (halved by `tools/import_art.py`
+  when over 48px), so it looks the same everywhere. Kind icons (`UiKit.MakeKindIcon`, 16x16 art like the tool icons)
+  stand for a kind, not a thing. Tool icons are 16px art at 3x; draw them at 2/3 scale for exact 2x.
 
 ## Known gaps
 

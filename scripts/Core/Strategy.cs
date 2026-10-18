@@ -54,15 +54,15 @@ public static class Strategy
     };
 
     /// <summary>
-    /// What the chest is worth to a careful player who knows the seller: the slip at what things are worth on average
-    /// (better than the colour now and then), plus a fair guess at what couldn't be checked (soft things in a chest
-    /// they couldn't shake hard, a false bottom in a chest they couldn't drop), and a bit more from a seller whose
-    /// things run better than their colour.
+    /// What the chest is worth to a careful player who knows the seller: what the odds bar says it's more likely than not
+    /// worth (they buy when the bar says it's better than even), plus a fair guess at what couldn't be checked (soft
+    /// things in a chest they couldn't shake hard, a false bottom in a chest they couldn't drop), and a bit more from a
+    /// seller whose things run better than their colour.
     /// </summary>
     public static int Worth(Visit visit, Appraisal slip, Hearing hearing)
     {
         var seller = visit.Seller;
-        float worth = slip.ExpectedWorth;
+        float worth = slip.LikelyWorth();
         if (!hearing.HasTried(Shake.Hard, false))
         {
             float total = seller.Kinds.Sum();

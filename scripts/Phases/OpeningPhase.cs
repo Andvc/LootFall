@@ -151,11 +151,14 @@ public partial class OpeningPhase : Phase
     /// <summary>How many qualities better than its chest promised (0 if not, or if it's fake or broken).</summary>
     int StepsUp(Item item) => item.Fake || item.Broken ? 0 : Math.Max(0, item.Quality - _colour);
 
+    /// <summary>Worse than its chest promised (fakes and broken glass have their own letdowns).</summary>
+    bool Worse(Item item) => !item.Fake && !item.Broken && item.Quality < _colour;
+
     async Task FlyOut()
     {
         _step = Step.Reveal;
-        // What the chest promised (or worse) first, worst to best; then the surprises, smallest first; whatever was under a
-        // false bottom comes out last of all.
+        // The letdowns first, then what the chest promised, worst to best; then the surprises, smallest first; whatever
+        // was under a false bottom comes out last of all.
         var reads = _report.Items.OrderBy(r => r.Hidden).ThenBy(r => StepsUp(r.Item)).ThenBy(r => r.Item.Value).ToList();
         int n = reads.Count;
         float spacing = n == 0 ? 0 : Math.Min(232f, 1180f / n);
@@ -177,6 +180,12 @@ public partial class OpeningPhase : Phase
                 await Climb(reads[i], x, i, spacing);
                 if (!Alive) return;
                 await Wait(last ? 0.6 : 0.3);
+            }
+            else if (Worse(reads[i].Item))
+            {
+                await Sag(reads[i], x, spacing);
+                if (!Alive) return;
+                await Wait(last ? 0.6 : 0.15);
             }
             else
             {
@@ -246,6 +255,48 @@ public partial class OpeningPhase : Phase
             sprite.Rotation = spin * (1 - t);
         }), 0f, 1f, 0.55f);
         flight.TweenCallback(Callable.From(() => Landed(read, sprite, scale, land, spacing, 0)));
+    }
+
+    /// <summary>
+    /// Something worse than its chest: it pops up in the chest's colour as if all's well, then sags, the colour draining
+    /// to what it really is, and flops onto the table. Quick: a letdown, not a show.
+    /// </summary>
+    async Task Sag(ItemRead read, float x, float spacing)
+    {
+        var item = read.Item;
+        var sprite = MakeSprite(item, out int scale);
+        var start = SeamPos + new Vector2(0, -ChestPixel * 3);
+        var peak = new Vector2(Mathf.Lerp(start.X, x, 0.3f), start.Y - 170);
+        sprite.Position = start;
+        sprite.Modulate = Palette.Of(_colour).Lightened(0.3f);
+        Sfx.Play("whoosh", 1.3f, -12);
+        var up = sprite.CreateTween().SetParallel();
+        up.TweenProperty(sprite, "position", peak, 0.3f).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
+        up.TweenProperty(sprite, "scale", Vector2.One * scale * 1.5f, 0.3f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        await ToSignal(up, Tween.SignalName.Finished);
+        if (!Alive) return;
+
+        var color = Palette.Of(item.Quality);
+        Sfx.Play("deflate", 1f, -4);
+        FloatText("WORSE...", peak + new Vector2(0, -70), color, 24);
+        var sag = sprite.CreateTween().SetParallel();
+        sag.TweenProperty(sprite, "modulate", color.Lightened(0.2f), 0.35f);
+        sag.TweenProperty(sprite, "scale", new Vector2(scale * 1.2f, scale * 0.95f), 0.35f).SetTrans(Tween.TransitionType.Sine);
+        sag.TweenProperty(sprite, "rotation", 0.3f, 0.35f).SetTrans(Tween.TransitionType.Sine);
+        sag.TweenProperty(sprite, "position:y", peak.Y + 24, 0.35f).SetTrans(Tween.TransitionType.Sine);
+        Game.Moment("07_worse", 0.2);
+        await ToSignal(sag, Tween.SignalName.Finished);
+        if (!Alive) return;
+
+        var land = TableSpot(x, sprite.Texture, scale);
+        var down = sprite.CreateTween().SetParallel();
+        down.TweenProperty(sprite, "position", land, 0.26f).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.In);
+        down.TweenProperty(sprite, "scale", Vector2.One * scale, 0.26f);
+        down.TweenProperty(sprite, "rotation", 0f, 0.26f);
+        down.TweenProperty(sprite, "modulate", Colors.White, 0.26f);
+        await ToSignal(down, Tween.SignalName.Finished);
+        if (!Alive) return;
+        Landed(read, sprite, scale, land, spacing, 0);
     }
 
     /// <summary>
@@ -333,11 +384,12 @@ public partial class OpeningPhase : Phase
         Sfx.PlayGroup(item.Def.Sound, item.Def.Pitch, 4);
         QualityEffects(item, at, stepsUp);
         if (stepsUp > 0) Surprise(at, stepsUp);
-        if (item.Magic)
+        if (item.Magic && !item.Broken)
         {
             Fx.Burst(this, at, Palette.Magic, 60, 320f);
+            Fx.Aura(this, at, Palette.Magic, 56f);
             Sfx.Play("sting", 1.3f, -2);
-            FloatText("MAGIC!", at + new Vector2(0, -70), Palette.Magic, 24);
+            FloatText("ENCHANTED! x2", at + new Vector2(0, -70), Palette.Magic, 24);
         }
         if (item.Fake)
         {
@@ -504,9 +556,12 @@ public partial class OpeningPhase : Phase
         Game.Shake(profit > 0 ? Mathf.Min(0.6f, 0.3f + profit / 600f) : 0.25f);
         Game.Flash(color, 0.25f);
         Fx.Dust(this, new Vector2(640, 180), 2f);
-        var gut = Add(UiKit.MakeLabel(Gut.Bought(held, _purchase.Paid, _rng), 16, Palette.Text, HorizontalAlignment.Center, outline: 4)
-            .Place(240, 190, 640, 20));
+        float score = Gut.BuyScore(held, _purchase.Paid);
+        var gut = Add(UiKit.MakeLabel(Gut.Bought(held, _purchase.Paid, _rng), 16, Palette.Gradient(score), HorizontalAlignment.Center, outline: 4)
+            .Place(240, 188, 640, 20));
         gut.ZIndex = 10;
+        var meter = Add(UiKit.MakeGutMeter(score, 212, "fleeced", "a steal").Place(334, 212, 452, 30));
+        meter.ZIndex = 10;
         Game.Moment("08_results", 0.3);
 
         if (profit > 0) FlyCoins(new Vector2(640, 142), Math.Clamp(profit / 4, 4, 28));
@@ -532,7 +587,7 @@ public partial class OpeningPhase : Phase
             _ => "",
         };
         if (fee > 0) grade += $" Keen Eye: a valuer's fee of {fee}g.";
-        Add(UiKit.MakeLabel(visit.Explain() + grade, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(160, 238, 800, 64));
+        Add(UiKit.MakeLabel(visit.Explain() + grade, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(160, 246, 800, 64));
         bool last = State.Queue.Count == 0;
         Add(UiKit.MakeButton(last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next).Place(1000, 300, 260, 52));
         foreach (var (item, at, worth) in _landed) AddKeepButton(item, at, worth);
@@ -546,7 +601,7 @@ public partial class OpeningPhase : Phase
 
     /// <summary>
     /// A button under something grand enough to show: keep it for display instead of selling it. You give up its price;
-    /// the exhibition draws more and better customers, and the Crown wants to see one. Magic things count double. With
+    /// the exhibition draws more and better customers, and the Crown wants to see one. Enchanted things count double. With
     /// the display full, you pick something on display to sell to make room.
     /// </summary>
     void AddKeepButton(Item item, Vector2 at, int worth)
@@ -570,7 +625,7 @@ public partial class OpeningPhase : Phase
     {
         Sfx.Play("sting", 1.4f, -4);
         Game.Hud.SetGold(State.Gold);
-        FloatText(item.Magic ? $"+{item.Prestige} exhibition (x2: magic!)" : $"+{item.Prestige} exhibition", at + new Vector2(0, -80),
+        FloatText(item.Magic ? $"+{item.Prestige} exhibition (x2: enchanted!)" : $"+{item.Prestige} exhibition", at + new Vector2(0, -80),
             Palette.Magic, 16);
         Teach("kept");
         RefreshKeep();
@@ -586,11 +641,11 @@ public partial class OpeningPhase : Phase
                 button.Disabled = true;
                 continue;
             }
-            // The points it would add, so a magic thing's double shows before you choose.
+            // The points it would add, so an enchanted thing's double shows before you choose.
             string points = item.Magic ? $"+{item.Prestige}*" : $"+{item.Prestige}";
             button.Disabled = _swap != null || State.Gold + (State.DisplayFull ? State.Display.Max(i => i.Value) : 0) < worth;
             button.Text = State.DisplayFull ? $"Swap {points} (-{worth}g)" : $"Keep {points} (-{worth}g)";
-            button.TooltipText = $"{item.Prestige} exhibition points" + (item.Magic ? " (double: it's magic)" : "") +
+            button.TooltipText = $"{item.Prestige} exhibition points" + (item.Magic ? " (double: it's enchanted)" : "") +
                                  (State.DisplayFull ? ". Your display is full: sell something on it to make room." : ".");
         }
     }
@@ -620,7 +675,7 @@ public partial class OpeningPhase : Phase
             var choice = UiKit.MakeButton($"{old.Name}: +{old.Value}g, -{old.Prestige} pts", Palette.Of(old.Rarity).Darkened(0.4f), 16,
                 () => Swap(item, worth, at, old)).Place(16 + i % columns * 320, 44 + i / columns * 48, 312, 40);
             choice.Disabled = !affordable;
-            choice.AddChild(UiKit.MakeKindIcon(old.Category, new Vector2(18, 20)));
+            choice.AddChild(UiKit.MakeItemIcon(old, new Vector2(20, 20), 32));
             panel.AddChild(choice);
         }
         panel.AddChild(UiKit.MakeButton("Never mind", Palette.Text, 16, CloseSwap).Place(w / 2 - 90, h - 52, 180, 40));

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bpuyr2ej2rx43"
-path="res://.godot/imported/fairy_gold.png-b8b72401eef1ae0dee569ac0421905ca.ctex"
+uid="uid://b6ax3qsu8kqls"
+path="res://.godot/imported/golden_mantle.png-212970b81a7df2c35cb9dfab8a59c6ed.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/items/fairy_gold.png"
-dest_files=["res://.godot/imported/fairy_gold.png-b8b72401eef1ae0dee569ac0421905ca.ctex"]
+source_file="res://assets/sprites/items/icons/golden_mantle.png"
+dest_files=["res://.godot/imported/golden_mantle.png-212970b81a7df2c35cb9dfab8a59c6ed.ctex"]
 
 [params]
 

@@ -76,6 +76,9 @@ public sealed class GameState
     /// <summary>Every kind of thing you've found, by its collection name.</summary>
     public HashSet<string> Found { get; } = new();
 
+    /// <summary>Collection entries you've also found enchanted (the journal stars them).</summary>
+    public HashSet<string> FoundEnchanted { get; } = new();
+
     /// <summary>What you kept to show off in the shop instead of selling.</summary>
     public List<Item> Display { get; } = new();
 
@@ -131,12 +134,12 @@ public sealed class GameState
     public float Sturdier => Synergies.Sturdier(Active("vintner"));
 
     /// <summary>What a thing fetches when you sell it: its value, how cleanly the lock came open, and your synergies.</summary>
-    public int SaleValue(Item item, PickGrade grade = PickGrade.Clean)
-    {
-        float bonus = 1 + Synergies.SaleBonus(Active("jewelry")) +
-                      (item.Category == Category.Bottles ? Synergies.BottleBonus(Active("vintner")) : 0);
-        return (int)MathF.Round(item.Value * Picks.Multiplier(grade) * bonus);
-    }
+    public int SaleValue(Item item, PickGrade grade = PickGrade.Clean) =>
+        (int)MathF.Round(item.Value * Picks.Multiplier(grade) * SaleMultiplier(item.Category));
+
+    /// <summary>What your synergies add to the price of a thing of this kind (1 with none).</summary>
+    public float SaleMultiplier(Category kind) =>
+        1 + Synergies.SaleBonus(Active("jewelry")) + (kind == Category.Bottles ? Synergies.BottleBonus(Active("vintner")) : 0);
 
     /// <summary>A keen eye's fee for a perfect read of a chest that held this much.</summary>
     public int KeenFee(int held) => (int)MathF.Round(held * Synergies.KeenFee(Active("keen")));
@@ -288,6 +291,7 @@ public sealed class GameState
     public bool Collect(Item item)
     {
         Acquire(item);
+        if (item.Magic && !item.Broken && !item.Fake) FoundEnchanted.Add(item.Entry);
         if (item.Broken || !Found.Add(item.Entry)) return false;
         Today.NewFinds++;
         return true;

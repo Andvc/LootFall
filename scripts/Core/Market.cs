@@ -34,6 +34,9 @@ public static class Market
     /// <summary>Two or three of a kind turn up from this shop tier on.</summary>
     public const int PairsTier = 3;
 
+    /// <summary>Cloth shares chests with hard things (and so muffles them) from this shop tier on.</summary>
+    public const int PaddingTier = 2;
+
     /// <summary>The most things in one chest, false bottom aside.</summary>
     public const int MaxItems = 6;
 
@@ -86,9 +89,15 @@ public static class Market
         // A crook always has something to fake; a lady always has her jewels.
         var fakeable = kinds.Where(seller.Fakes.Contains).ToArray();
         if (seller.Judge == Judgment.Crook && fakeable.Length > 0) picked.Add(rng.PickWeighted(fakeable, c => seller.Kinds[(int)c]));
-        if (seller.Judge == Judgment.Jeweller && kinds.Contains(Category.Jewels)) picked.Add(Category.Jewels);
+        if (seller.Always is Category always && kinds.Contains(always)) picked.Add(always);
         while (picked.Count < count)
-            picked.Add(rng.PickWeighted(kinds.Except(picked).ToArray(), c => seller.Kinds[(int)c]));
+        {
+            // Before the village shop (where Granny Wick teaches it), cloth never shares a chest with hard things, so
+            // nothing is muffled yet.
+            var open = kinds.Except(picked).Where(c => shopTier >= PaddingTier || !Pads(picked.Append(c))).ToArray();
+            if (open.Length == 0) break;
+            picked.Add(rng.PickWeighted(open, c => seller.Kinds[(int)c]));
+        }
 
         // From the town shop on, a lot can hold two or three of a kind.
         var all = new List<Category>();
@@ -118,13 +127,23 @@ public static class Market
             var hideable = HiddenKinds.Where(k => Categories.Get(k.Kind).Tier <= shopTier).ToArray();
             hidden = new Item(rng.PickWeighted(hideable, k => k.Weight).Kind, Categories.RollQuality(rng, colour));
         }
-        // Some people pack their things in the cloth to keep them from rattling about.
-        bool packed = shopTier >= 2 && items.Any(i => i.Def.Pads) && rng.NextFloat() < seller.PackChance;
-        return new Chest(items, colour, hidden, lockTier, packed);
+        return new Chest(items, colour, hidden, lockTier);
     }
+
+    /// <summary>Cloth together with something it would muffle.</summary>
+    static bool Pads(IEnumerable<Category> kinds) =>
+        kinds.Any(k => Categories.Get(k).Pads) && kinds.Any(k => Categories.Get(k).Muffled);
 
     static readonly (Category Kind, float Weight)[] HiddenKinds =
         { (Category.Coins, 3f), (Category.Jewels, 3f), (Category.Paper, 2f) };
+
+    /// <summary>What a false bottom might hold at this shop, and how likely each kind is.</summary>
+    public static IEnumerable<(Category Kind, float Chance)> HiddenOdds(int shopTier)
+    {
+        var kinds = HiddenKinds.Where(k => Categories.Get(k.Kind).Tier <= shopTier).ToArray();
+        float total = kinds.Sum(k => k.Weight);
+        return kinds.Select(k => (k.Kind, k.Weight / total));
+    }
 
     /// <summary>
     /// What a false bottom is worth in a chest of this colour, at this shop: as good as the colour says (the slip

@@ -84,6 +84,7 @@ public partial class Main : Node2D
 
         if (args.Contains("--autoplay"))
         {
+            MentorView.Trace = text => GD.Print($"[Bram d{State.Day} {State.Current?.Seller.Key ?? "-"}] {text}");
             _bot = new Autoplay
             {
                 QuitAtEnd = args.Contains("--quit-at-end"),

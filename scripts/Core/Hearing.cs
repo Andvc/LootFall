@@ -88,9 +88,12 @@ public sealed class Hearing
         return !Trumpet && def.Muffled && first == def.StirsAt + 1 && HasTried(def.StirsAt, false);
     }
 
+    /// <summary>A hard thing sounded a shake late: there's cloth in there.</summary>
+    public bool HeardPadded => _heard.Select(h => h.Item).Distinct().Any(SoundsPadded);
+
     /// <summary>
     /// A careful read: every separate thing that made a sound is in there, counted kind by kind; anything that glowed is
-    /// magic; a jingle or tinkle that goes quiet once the magnet is on is gilded iron, and a rustle at a gentle shake is
+    /// enchanted; a jingle or tinkle that goes quiet once the magnet is on is gilded iron, and a rustle at a gentle shake is
     /// sand, so neither counts; glass you heard break is worth nothing now; a hard thing that only sounded one shake late
     /// was padded, so there's cloth; a hollow boom is a false bottom.
     /// </summary>
@@ -105,7 +108,7 @@ public sealed class Hearing
     }
 
     /// <summary>What a player perceives by shaking at these levels, by the rules.</summary>
-    /// <param name="lamp">The witchlight is lit: magic glows when it sounds.</param>
+    /// <param name="lamp">The witchlight is lit: anything enchanted glows when it sounds.</param>
     /// <param name="magnetLevels">Levels also tried with the magnet on.</param>
     /// <param name="trumpet">Listening through an ear trumpet.</param>
     public static Hearing Simulate(Chest chest, IEnumerable<Shake> levels, bool lamp = false, IEnumerable<Shake> magnetLevels = null, bool trumpet = false)

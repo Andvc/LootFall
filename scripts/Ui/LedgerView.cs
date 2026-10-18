@@ -131,14 +131,17 @@ public partial class LedgerView : Node2D
         }
     }
 
-    /// <summary>A grid: one row per kind, one column per quality, then magic and fake. Found things show; the rest are "?".</summary>
+    /// <summary>
+    /// A grid: one row per kind, one column per quality, then the fake. Found things show as they came out of the chest;
+    /// the rest are "?". A star means you've found one enchanted too.
+    /// </summary>
     void BuildCollection()
     {
-        const float cell = 64, gridX = TableX + 140, gridY = PanelY + 92;
-        string[] columns = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Magic", "Fake" };
+        const float cell = 64, gridX = TableX + 140, gridY = PanelY + 92, step = cell + 76;
+        string[] columns = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Fake" };
         for (int c = 0; c < columns.Length; c++)
-            _page.AddChild(UiKit.MakeLabel(columns[c], 16, c < 5 ? Palette.Of((Rarity)c) : c == 5 ? Palette.Magic : Palette.Muted, HorizontalAlignment.Center)
-                .Place(gridX + c * (cell + 60) - 30, gridY - 26, cell + 60, 20));
+            _page.AddChild(UiKit.MakeLabel(columns[c], 16, c < 5 ? Palette.Of((Rarity)c) : Palette.Muted, HorizontalAlignment.Center)
+                .Place(gridX + c * step - 38, gridY - 26, cell + 66, 20));
         var entries = Collection.Entries.ToList();
         int row = 0;
         foreach (var kind in Categories.All)
@@ -146,24 +149,22 @@ public partial class LedgerView : Node2D
             float y = gridY + row * cell;
             _page.AddChild(UiKit.MakeKindIcon(kind.Category, new Vector2(TableX + 16, y + cell / 2 - 6)));
             _page.AddChild(UiKit.MakeLabel(kind.Name, 16, Palette.Text).Place(TableX + 40, y + cell / 2 - 16, 100, 20));
-            var mine = entries.Where(e => e.Category == kind.Category).ToList();
-            for (int i = 0; i < mine.Count; i++)
+            foreach (var entry in entries.Where(e => e.Category == kind.Category))
             {
-                var entry = mine[i];
-                int column = entry.Fake ? 6 : entry.Magic ? 5 : (int)entry.Quality;
-                float x = gridX + column * (cell + 60);
+                int column = entry.Fake ? 5 : (int)entry.Quality;
+                float x = gridX + column * step;
                 bool found = _state.Found.Contains(entry.Entry);
+                bool enchanted = _state.FoundEnchanted.Contains(entry.Entry);
                 var slot = UiKit.MakePanel(found ? Palette.Of(entry.Rarity) : Palette.PanelBorder).Place(x, y, cell - 10, cell - 10);
-                slot.TooltipText = found ? $"{entry.Entry}: {entry.Value}g" : "Not found yet";
+                slot.TooltipText = !found ? "Not found yet"
+                    : $"{entry.Entry}: {entry.Value}g" + (enchanted ? $" (found enchanted too: {entry.Value * Categories.MagicMultiplier}g)" : "");
                 slot.MouseFilter = Control.MouseFilterEnum.Pass;
                 _page.AddChild(slot);
                 if (found)
                 {
-                    var texture = GD.Load<Texture2D>($"res://assets/sprites/items/{entry.Sprite}.png");
-                    if (texture.GetWidth() <= 50 && texture.GetHeight() <= 50)
-                        slot.AddChild(new Sprite2D { Texture = texture, Position = new Vector2((cell - 10) / 2, (cell - 10) / 2) });
-                    else
-                        slot.AddChild(UiKit.MakeKindIcon(kind.Category, new Vector2((cell - 10) / 2, (cell - 10) / 2)));
+                    slot.AddChild(UiKit.MakeItemIcon(entry, new Vector2((cell - 10) / 2, (cell - 10) / 2), 48));
+                    if (enchanted)
+                        slot.AddChild(UiKit.MakeLabel("*", 24, Palette.Magic, outline: 4).Place(cell - 26, -8, 24, 30));
                 }
                 else
                 {
@@ -172,8 +173,8 @@ public partial class LedgerView : Node2D
             }
             row++;
         }
-        _page.AddChild(UiKit.MakeLabel($"Found {_state.Found.Count} of {Collection.Size}. Hover one to see its name and price.", 16, Palette.Muted)
-            .Place(TableX, PanelY + PanelH - 34, PanelW - 48, 20));
+        _page.AddChild(UiKit.MakeLabel($"Found {_state.Found.Count} of {Collection.Size}. A star: found enchanted too. Hover one to see its " +
+                                       "name and price.", 16, Palette.Muted).Place(TableX, PanelY + PanelH - 34, PanelW - 48, 20));
     }
 
     void BuildSounds()
@@ -198,7 +199,7 @@ public partial class LedgerView : Node2D
             tier >= 2 ? "Cloth packed in a chest muffles metal, coins and jewelry: they sound one shake harder. An ear trumpet hears through it." : null,
             tier >= 2 ? "Dropped, a chest with a false bottom booms hollow. Glass may break." : null,
             tier >= 3 ? "Two or three of a kind each sound from their own spot: count them. Sand rustles like paper, but pours at a gentle shake." : null,
-            tier >= 3 ? $"Magic sounds like anything else; under a witchlight it glows (worth x{Categories.MagicMultiplier})." +
+            tier >= 3 ? $"Anything can be enchanted: it sounds the same, but glows under a witchlight. Worth x{Categories.MagicMultiplier}." +
                         (tier >= 4 ? " Gilded fakes are iron: a magnet silences them." : "") : null,
         }.Where(r => r != null).ToArray();
         _page.AddChild(UiKit.MakeLabel(string.Join("\n", rules.Select(r => "- " + r)), 16, Palette.Text)

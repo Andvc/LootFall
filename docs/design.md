@@ -27,14 +27,14 @@ Then, one at a time as the shop grows, more layers of deduction, each taught by 
 | Layer | From | The rule | How you tell |
 |---|---|---|---|
 | False bottoms | village | a sealed hollow under the floor never rattles | drop the chest: a hollow BOOM (glass may break) |
-| Packing | village | cloth packed around metal, coins and jewelry muffles them: they sound one shake harder | a jingle that only comes at a firm shake means there's packing, so there's cloth; the **Ear Trumpet** hears through it |
+| Padding | village | cloth in a chest settles around metal, coins and jewelry and muffles them: they sound one shake harder. Always, whenever there's cloth (at the stall, cloth never shares a chest with them) | a jingle that only comes at a firm shake means there's cloth; the **Ear Trumpet** hears through it |
 | Two or three of a kind | town | each thing sounds from its own spot, so more of them rattle more often | count the words over the chest; most sellers never count |
 | Sand | town | sand rustles just like paper, but pours at the gentlest shake; paper never does | a rustle at a gentle shake is sand |
-| Magic | town | magic sounds like anything else | under the **Witchlight** it glows |
+| Enchantment | town | anything can be enchanted (worth double); it sounds like anything else | under the **Witchlight** it glows |
 | Gilded fakes | Emporium | gilded iron jingles and tinkles like gold and jewels | under the **Magnet** iron can't move: a fake goes quiet |
 
 Sound-alikes (sand, gilded iron) are the deductive heart of the later shops: the sound tells you the kind of thing,
-but only the rules tell you whether it's real. Packing changes *when* things sound, which hides them from anyone who
+but only the rules tell you whether it's real. Padding changes *when* things sound, which hides them from anyone who
 only shakes at one strength (most sellers) or can't shake hard (Granny Wick's chests).
 
 How fast you drag sets the shake strength (gentle from 40 px/s, firm from 520, hard from 1150). There's no meter:
@@ -48,21 +48,33 @@ inside rolls its own quality around that: 70% as promised, 15% one worse, 13% on
 three better (what would fall below common or above legendary stays at the end). Value is the kind's base times
 1, 3, 8, 20 or 50 by quality.
 
-The slip shows what each thing would be worth **if it's as good as the chest promises**, so it's easy to read and on
-the cautious side: things come out better than their colour about as often as worse, and better is worth far more.
+The slip shows what each thing would be worth **if it's as good as the chest promises** (`Categories.Nominal`).
 Sellers price by the **average** (`Categories.Expected`), which keeps the economy easy to balance.
+
+Neither number answers the question a player actually has, so the panel shows an **odds bar** under the total: "Worth
+more than 55g? 62%". It's exact (`Appraisal.Outcomes` combines every ticked thing's quality odds, what a false bottom
+might hold, and the shop's sale bonuses), updates as you tick rows and as you move the offer slider, and runs from red
+(a long shot) through gold to green (a safe bet). Why not show the average: 70% of things come out exactly as promised
+and the average includes rare big upgrades, so most chests are worth a little *less* than it, and a player who paid it
+would lose a little on most buys. Why not just the promised total: a price a little above it can still be worth a
+gamble, and one a little below is nearly always a good buy, and the bare number says neither. With the bar there are
+no sums to do, and it's only as good as your listening, so the read is still yours. The sim's careful player buys
+when the bar is on their side, which wins more often than buying on the average (85 to 92% of buys profit) and still
+profits from every seller.
 
 | Kind | Sound | Stirs at | Note | Common | Legendary |
 |---|---|---|---|---|---|
-| Coins | jingle | gentle | delicate, muffled by packing | Pouch of Copper 12g | Dragon's Hoard 600g |
-| Metal | clank | firm | loud, iron, muffled by packing | Rusty Knife 5g | Royal Rapier 250g |
-| Cloth | flump | hard | soft; packing | Moth-Eaten Cloak 6g | Royal Robe 300g |
+| Coins | jingle | gentle | delicate, muffled by cloth | Pouch of Copper 12g | Dragon's Hoard 600g |
+| Metal | clank | firm | loud, iron, muffled by cloth | Rusty Knife 5g | Royal Rapier 250g |
+| Cloth | flump | hard | soft; muffles the hard things | Moth-Eaten Cloak 6g | Royal Robe 300g |
 | Bottles | slosh | gentle | delicate, glass | Bottle of Ale 8g | Ambrosia 400g |
 | Paper | rustle | hard | soft; sand sounds alike | Bundle of Letters 5g | Royal Charter 250g |
-| Jewelry | tinkle | gentle | delicate, muffled by packing | Brass Ring 20g | Jeweled Chalice 1000g |
+| Jewelry | tinkle | gentle | delicate, muffled by cloth | Brass Ring 20g | Jeweled Chalice 1000g |
 
-Magic is worth four times as much and sounds like anything else; a fake (gilded slugs, paste, a bag of sand) is worth
-1g; broken glass is worth nothing.
+From the town shop, **anything can be enchanted** (5% of things, more from mages): an Enchanted Silk Cloak is still a
+silk cloak, the same quality and colour, worth twice as much and twice the exhibition points. It sounds like anything
+else; under the Witchlight it glows. A fake (gilded slugs, paste, a bag of sand) is worth 1g; broken glass is worth
+nothing.
 
 ## Ways to judge a chest
 
@@ -72,8 +84,8 @@ Each answers one question by a rule you'd expect from real life. All of them are
 |---|---|---|---|
 | Shake gently, firmly, hard | start | which kinds are inside, and how many of each | Granny Wick hates a hard shake |
 | Drop it (lift it high, let go) | village | a hollow BOOM means a false bottom | glass may break (half the time each); Madame Zara hates it |
-| Ear Trumpet (100g) | village | always on once bought: packing can't muffle anything | none |
-| Witchlight (200g) | town | always lit once bought: magic glows when it makes a sound | none |
+| Ear Trumpet (100g) | village | always on once bought: cloth can't muffle anything | none |
+| Witchlight (200g) | town | always lit once bought: anything enchanted glows when it makes a sound | none |
 | Magnet (400g) | Emporium | iron can't move: no clanks to drown things out, and gilded fakes go quiet | Lady Ermine hates it |
 
 **Left out: the scale.** A weight only means something if you add up what each thing should weigh in your head, which
@@ -89,14 +101,19 @@ everything (-10%) and breaks glass. Fine Lockpicks (50g) widen the sweet spot.
 When you pass, the seller takes the chest away unopened: opening it after you turned it down wouldn't make sense. But
 you get feedback straight away, the way you would in life: a gut feeling, from what it really held against their
 price (or what they'd have taken, if they wanted you to name one). Six bands, from "You have a feeling you dodged a
-cart" through "Could have gone either way" to "Even the heavens pity you", each with a few variants. A seller who
-storms off leaves the same feeling. After an opening, the verdict gets a gut line too, from what it held against what
-you paid ("You feel like you just got fleeced", "Highway robbery. The legal kind.").
+cart" through "Could have gone either way" to "Even the heavens pity you", each with a few variants. Words alone are
+hard to rank, so the feeling also has a colour and a meter: a strip from red ("missed out") to green ("right call"),
+with a marker that slides to where this call landed (`Gut.PassScore`: even at one half, a third of the price or
+less at the green end, four times it or more at the red). A seller who storms off leaves the same feeling. After an
+opening, the verdict gets a gut line and meter too, from what it held against what you paid, from "fleeced" to "a
+steal" (`Gut.BuyScore`).
 
 ## Opening a chest
 
-It opens by itself (no holding): a short rumble in the chest's own colour, then the burst. Things no better than the
-chest promised land quickly, worst first. A thing **better** than its chest rises out still glowing in the chest's
+It opens by itself (no holding): a short rumble in the chest's own colour, then the burst. A thing **worse** than its
+chest comes first: it pops up in the chest's colour as if all's well, then sags with a deflating slide while the
+colour drains to what it really is ("WORSE..."), and flops onto the table. Things as good as promised land quickly.
+An enchanted thing lands in a purple glow ("ENCHANTED! x2"). A thing **better** than its chest rises out still glowing in the chest's
 colour while the room dims, trembles, and climbs a quality at a time ("BETTER!", "EVEN BETTER!!", "INCREDIBLE!!!"),
 each step with a flash, a ring and a rising arpeggio, before it slams onto the table. Two or more steps up also stop
 time, flash the room white, and throw confetti and a fanfare. Each quality lands with its own effect, not just its
@@ -112,14 +129,14 @@ spot a careful player can see through. Not every visit is a deal: often the righ
 | How they judge | Who | Their blind spot | How to beat it |
 |---|---|---|---|
 | Listen at one strength | Penn (gently), Hob (hard), Tobias (firmly, and makes up a sound), Wick (firmly), Gull (hard), Pell (firmly), Shelly (hard) | what their strength can't stir, a clank drowns or packing muffles; they never count | shake at the strengths they didn't; count |
-| Listen gently, then hard | Pip | nothing she can hear; magic and false bottoms | witchlight and drop: she has plenty of both |
+| Listen gently, then hard | Pip | nothing she can hear; enchantment and false bottoms | witchlight and drop: she has plenty of both |
 | Count the rattles | Mags | a rattle's a rattle: a knife costs what a purse does | buy when the rattles are good kinds |
 | Weight | Brask | heavy means valuable: metal is heavy and cheap, bottles and paper light | buy light chests of good things |
 | The chest's colour | Vex (12 seconds), Zara (feels magic) | never look inside | buy when it holds more than a chest that colour usually does |
 | A dream | Orrin | the price has nothing to do with the chest | add it up, buy when the dream's cheap |
 | Knows only metal | Grit | prices other things at half, and jewelry as diamonds | haggle; mind the tinkles |
 | Knows only her jewelry | Ermine | prices her jewels at what she paid; the rest comes free, but some jewels are paste | weigh the free things against the paste |
-| Feels magic | Wren | can't tell a coin from a coat; wants more only for magic | name a low price; a refusal means magic |
+| Feels magic | Wren | can't tell a coin from a coat; wants more only for enchanted things | name a low price; a refusal means something's enchanted |
 | No idea | Tam | takes a few coins for anything; sometimes it's empty | shake first: an empty chest makes no sound |
 | Packed it himself | Silas | sells gilded iron as gold and jewels for half | a magnet silences fakes |
 
@@ -138,23 +155,23 @@ Three ways to trade:
 | Sergeant Brask | village | weight | fixed, at about what he thinks it's worth | | light chests of good things; lockboxes (80% locked) for a masterful pick |
 | Tobias the Tinker | village | a firm shake | haggle | | his misses, if you catch the sound he made up |
 | Old Marta | village | a gentle shake | fixed, steep | | false bottoms (45%) she's forgotten; drop and listen |
-| Granny Wick | village | a firm shake | fixed, steep (1.8 to 2.1 times) | **shake it hard: +50%** | packs everything in cloth (90%): padded things she never hears |
-| Wren the Apprentice | town | feeling for magic | name a price | | takes a little for anything not magic; brings magic (25%) |
-| Magister Orrin | town | a dream (0.5 to 2.8 times a usual chest) | fixed | | brings magic (20%); sometimes a steal |
+| Granny Wick | village | a firm shake | fixed, steep (1.8 to 2.1 times) | **shake it hard: +50%** | a seamstress: usually brings cloth, which pads the rest; padded things she never hears |
+| Wren the Apprentice | town | feeling for magic | name a price | | takes a little for anything not enchanted; brings enchanted things (25%) |
+| Magister Orrin | town | a dream (0.5 to 2.8 times a usual chest) | fixed | | brings enchanted things (20%); sometimes a steal |
 | Grit the Miner | town | knowing metal (hard) | haggle, comes down further | | everything but metal and jewelry at half |
 | Madame Zara | town | the colour, plus magic | fixed | **drop it: +50%** | trick boxes with false bottoms (50%) she doesn't price |
 | Pell the Pawnbroker | town | a firm shake, never counting | fixed, steep (2 to 2.5 times) | | lots of two or three of a kind (60%), priced as one |
 | Shelly the Beachcomber | town | a hard shake | fixed | | half her "paper" is sand; bottles a clank drowns for her |
 | Baron Vex | Emporium | the colour | fixed | **12 seconds to decide** | the best chests, often better than their colour (40% one step up) |
 | Captain Gull | Emporium | a hard shake | haggle | | always prices in a false bottom: real 55% of the time |
-| Pip the Sharp | Emporium | a gentle shake, then a hard one | fixed | | magic (20%) and false bottoms (30%) |
+| Pip the Sharp | Emporium | a gentle shake, then a hard one | fixed (1.2 to 1.45 times) | | enchanted things (20%) and false bottoms (30%) |
 | Lady Ermine | Emporium | her jewelry, at what she paid | fixed | **use a magnet: +50%** | everything else free; 25% of her jewels are paste |
 | Silas | Emporium | packed it himself | fixed, at half | | real goods for half; fakes (60%) worth nothing |
 
 For listeners, whether the chest holds something they can't price (unheard, or a second of a kind they didn't count)
 is rolled first, at their miss rate (55%, 45% for Wick and Pell, 50% for Gull; Pip and Silas miss nothing), which
-keeps buying blind from paying while listening does. Everyone packs a chest with cloth now and then (30%, from the
-village shop); everyone brings two of a kind now and then (8%, from the town shop).
+keeps buying blind from paying while listening does. From the village shop, any chest with cloth in it is padded;
+everyone brings two of a kind now and then (8%, from the town shop).
 
 ## A seller's first visit is a lesson
 
@@ -167,13 +184,21 @@ lesson can always be skipped. Steps adapt to the tools you own (Wick's lesson wi
 infer cloth from a late jingle; with one, it says what the trumpet hides from her). Day one is still the scripted
 stall day; Tam, Hob and Mags teach naming a price, haggling and counting rattles on their first visit after it.
 
+Lessons and Bram's tips never talk over each other. A lesson waits until any tip already up (a new shop, a lock, a
+new way of trading) has been read. While a lesson runs, tips that would come up don't pile up behind it: they wait
+for their moment to come round again. And a lesson's `Covers` marks the tips it already teaches as seen (Hob's lesson
+is the haggling tip; Marta's, the drop and the boom). `--autoplay` prints every message Bram shows, and flags any
+that was replaced before it could be read.
+
 `--sim` ends with a lesson test: every lesson played the careful way (the same strategy the bot and the sim use),
 with and without the shop's tools, must complete every step in order.
 
 ## Collection, synergies and exhibition
 
-Every thing you open goes in the ledger's collection the first time you find it (39 entries: five qualities of six
-kinds, six magic things, three fakes) and in the journal's tally of what you've acquired, kind by quality.
+Every thing you open goes in the ledger's collection the first time you find it (33 entries: five qualities of six
+kinds and three fakes; finding one enchanted stars its entry) and in the journal's tally of what you've acquired,
+kind by quality. Each thing looks the same everywhere: the collection, the shelf, the exhibition and the keep chooser
+all show its own sprite (`UiKit.MakeItemIcon`, from icons `tools/import_art.py` halves when a sprite is too big).
 
 **Synergies** turn that tally into goals. Each has five levels; ten of a kind at common or better reaches level 1,
 ten at uncommon or better level 2, and so on to ten legendary for level 5. Two are achievements instead.
@@ -186,7 +211,7 @@ ten at uncommon or better level 2, and so on to ten legendary for level 5. Two a
 | Archivist | paper | chests 3% likelier to have a false bottom |
 | Tailor | cloth | exhibition +10% |
 | Keen Eye | perfect reads in a row (3, 6, 10, 15, 25) | a perfect read earns a fee of 3% of what the chest held |
-| Arcanist | magic things found (3, 8, 15, 25, 40) | each thing 2% likelier to be magic |
+| Arcanist | enchanted things found (3, 8, 15, 25, 40) | each thing 2% likelier to be enchanted |
 
 Only **one** synergy is active at a time, chosen at the end of a day (the day-end screen's Synergies button opens the
 journal with switches). A Guild Charter (300g, town) and a Royal Seal (900g, Emporium) add a slot each. That makes a
@@ -194,10 +219,10 @@ specific kind of chest worth wanting: a player chasing Jewelry Tycoon level 3 wa
 jewelry, and will pay up for them.
 
 After an opening, anything not fake or broken can be **kept for display** instead of sold: you give up its price. The
-button shows the points it adds (a star for magic, which counts double). With the display full, it becomes **Swap**:
+button shows the points it adds (a star for enchanted, which counts double). With the display full, it becomes **Swap**:
 pick something on display to sell, and the new thing takes its place. Display space: a shelf of 2, then cabinets of
 3, 3 and 4 (60g, 250g, 600g). The **exhibition** score is the display's prestige (1, 2, 4, 8 or 16 by quality; double
-for magic). Every 10 points brings a customer a day (up to two), and each point makes a chest 1% likelier to be a
+if enchanted). Every 10 points brings a customer a day (up to two), and each point makes a chest 1% likelier to be a
 colour better (up to 40%). The Crown wants an exhibition of 40 before it grants the warrant, and past 40 an
 exhibition brings nothing more.
 
@@ -206,8 +231,8 @@ exhibition brings nothing more.
 | Shop | Cost | Customers/day | Chests | New |
 |---|---|---|---|---|
 | Roadside Stall | start | 4 | mostly wood | jingle, clank, flump; three strengths; clanks drown jingles; from day 2, haggling, naming a price, counting rattles |
-| Village Shop | 60g | 5 | mostly green | slosh and rustle; locks; false bottoms and the drop; packing and the Ear Trumpet; Brask's weight, Tobias's tall tales, Marta, Wick |
-| Town Shop | 200g | 6 | mostly blue | jewelry; two or three of a kind (Pell); sand (Shelly); magic and the Witchlight; Wren, Orrin's dreams, Grit, Zara; the Guild Charter |
+| Village Shop | 60g | 5 | mostly green | slosh and rustle; locks; false bottoms and the drop; padding and the Ear Trumpet; Brask's weight, Tobias's tall tales, Marta, Wick |
+| Town Shop | 200g | 6 | mostly blue | jewelry; two or three of a kind (Pell); sand (Shelly); enchantment and the Witchlight; Wren, Orrin's dreams, Grit, Zara; the Guild Charter |
 | The Emporium | 1200g | 7 | blue and purple | Vex's clock, Gull's false bottoms, Pip, Silas's fakes, Ermine's paste, the Magnet, the Royal Seal |
 | Royal Warrant | 5000g and an exhibition of 40 | | | the goal |
 
@@ -218,24 +243,25 @@ and the slip; a hard shake for cloth; listening past a clank; passing when they 
 
 | Style | Village | Town | Emporium | Royal Warrant | First synergy | Exhibition on day 20 | Good buys | Perfect reads |
 |---|---|---|---|---|---|---|---|---|
-| Pays their price, every chest | day 4 | day 17 | day 30 | never | (none chosen) | 0 | 52% | 21% |
-| One hard shake, keeps the seller's marks | day 3 | day 12 | day 20 | never | (none chosen) | 0 | 75% | 56% |
-| Every strength, drops when safe | day 2 | day 8 | day 12 | never (no exhibition) | day 2 | 0 | 78% | 65% |
-| + Ear Trumpet, Witchlight and Magnet | day 2 | day 8 | day 13 | never (no exhibition) | day 2 | 0 | 84% | 85% |
-| + keeps grand things from the town shop on, up to 40 | day 2 | day 9 | day 14 | day 21 | day 2 | 42 | 85% | 85% |
+| Pays their price, every chest | day 4 | day 15 | never | never | (none chosen) | 0 | 52% | 20% |
+| One hard shake, keeps the seller's marks | day 4 | day 12 | day 23 | never | (none chosen) | 0 | 87% | 59% |
+| Every strength, drops when safe | day 3 | day 8 | day 13 | never (no exhibition) | day 2 | 0 | 84% | 64% |
+| + Ear Trumpet, Witchlight and Magnet | day 3 | day 8 | day 13 | never (no exhibition) | day 2 | 0 | 92% | 85% |
+| + keeps grand things from the town shop on, up to 40 | day 3 | day 8 | day 15 | day 24 | day 2 | 43 | 92% | 86% |
 
-Profit per customer for the careful collector: 8g at the stall, 15g at the village, 68g in town, 179g at the
-Emporium (where synergies at levels 3 and 4 add most of the last). By day 30, most careful collectors have every
-synergy at level 3 or 4; level 5 (ten legendary of a kind, or 25 perfect reads in a row) is reached by 1% to 29%.
+The careful styles buy when the odds bar is on their side (`Appraisal.LikelyWorth`), so nine buys in ten turn a
+profit. Profit per customer for the careful collector: 7g at the stall, 16g at the village, 60g in town, 95g at the
+Emporium. By day 30, most careful collectors have every synergy at level 3, and many at 4; level 5 (ten legendary of a
+kind, or 25 perfect reads in a row) is reached by up to 17%.
 
 Per seller, at their own shop, profit per visit for a careful player with every tool, against paying their price
-blind. Every habit pays for putting up with it; only Tam (a few coins for anything), Wick (her padded things) and
-Wren pay a little blind:
+blind. Every habit pays for putting up with it; only Tam (a few coins for anything), Wick (her padded things), Wren
+and Marta pay a little blind:
 
 | | Tam | Penn | Hob | Mags | Brask | Tobias | Marta | Wick | Wren | Orrin | Grit | Zara | Pell | Shelly | Vex | Gull | Pip | Ermine | Silas |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Careful | +12 | +5 | +11 | +6 | +12 | +18 | +23 | +27 | +39 | +115 | +159 | +26 | +157 | +41 | +164 | +152 | +186 | +96 | +109 |
-| Blind | +15 | -1 | -2 | +3 | 0 | -47 | +2 | +11 | +8 | -5 | -282 | -53 | -1 | -12 | -156 | -375 | -17 | -11 | +8 |
+| Careful | +11 | +3 | +12 | +5 | +12 | +16 | +32 | +25 | +44 | +47 | +153 | +27 | +112 | +31 | +60 | +116 | +56 | +39 | +81 |
+| Blind | +12 | -5 | +3 | +4 | +1 | -50 | +6 | +11 | +10 | -78 | -331 | -31 | -42 | -26 | -275 | -425 | -22 | -77 | -24 |
 
 Every seller's lesson completes, played the careful way, with and without the tools of their shop.
 
@@ -249,12 +275,19 @@ Every seller's lesson completes, played the careful way, with and without the to
    alike. **v5** keeps v4's three rules and adds variety that follows its own believable rules: quality rolls around
    the chest's colour, three ways to trade, sellers with one habit and one reward each, the drop, lockpicking, and a
    collection worth keeping. **v6** gives each seller their own way of judging a chest, so each visit is a different
-   puzzle. **v7** adds layers of deduction one at a time (packing and the ear trumpet, counting, sand), a lesson for
+   puzzle. **v7** adds layers of deduction one at a time (padding and the ear trumpet, counting, sand), a lesson for
    each seller's first visit, a gut feeling instead of opening a chest you passed on, openings that build to their
    surprises, kinder quality odds with longer upward tails, a slip that reads at the chest's colour, and synergies
-   that give the collection goals.
+   that give the collection goals. **v8** makes padding certain (any cloth pads, so the rule never seems to misfire),
+   makes enchantment something any thing can be, replaces "worth about" with an odds bar, colours the gut feeling,
+   shows a worse-than-expected find as a letdown, and stops lessons and tips talking over each other.
 5. **Opening a passed chest (v5 to v6).** Immediate feedback, but it made no sense: they're taking it home. The gut
    feeling keeps the feedback and keeps the chest closed.
+6. **Random packing (v7).** Some sellers packed their cloth around the rest and some didn't, a roll the player never
+   saw, so cloth muffling coins seemed to work only sometimes. Cloth now always pads.
+7. **Magic as its own kind of thing (v5 to v7).** A magic thing had its own name and sprite and showed one colour
+   better than its quality, so a purple chest's "gold" find could arrive without the upgrade fanfare, and its picture
+   didn't match anything in the journal. Enchantment is now something any thing can be.
 
 ## Open questions
 
@@ -265,4 +298,7 @@ Every seller's lesson completes, played the careful way, with and without the to
 - Granny Wick pays a little even blind (her padded things are the reward for not shaking hard). A fair kindly seller,
   or a hole?
 - Synergies reach level 4 within 30 days for most careful players; level 5 is a long goal. Is the pace right?
+- The odds bar takes the arithmetic away but not the read: it only knows what you ticked. Does it still leave room
+  for a hunch (paying a little over the odds for a chest you suspect holds more), or does everyone just follow it?
+- Enchantment is now x2 instead of x4: still exciting enough to hunt with the witchlight?
 - No save game yet, and sellers don't remember you.

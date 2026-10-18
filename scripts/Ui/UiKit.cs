@@ -121,6 +121,58 @@ public static class UiKit
         };
     }
 
+    /// <summary>
+    /// A thing's own sprite for a small slot, the same picture it had when it came out of the chest: its icon (the sprite,
+    /// halved if it's big) at the largest integer scale that fits a <paramref name="box"/>-pixel square, centered on
+    /// <paramref name="center"/> (or standing on it). Something enchanted glows behind it; fakes and broken things look dull.
+    /// </summary>
+    public static Node2D MakeItemIcon(Core.Item item, Vector2 center, float box, bool standing = false)
+    {
+        var texture = GD.Load<Texture2D>($"res://assets/sprites/items/icons/{item.Sprite}.png");
+        int scale = Math.Max(1, (int)(box / Math.Max(texture.GetWidth(), texture.GetHeight())));
+        var middle = standing ? new Vector2(0, -texture.GetHeight() * scale / 2f) : Vector2.Zero;
+        var icon = new Node2D { Position = center };
+        if (item.Magic && !item.Broken)
+            icon.AddChild(new Painter(p =>
+            {
+                for (int i = 3; i >= 1; i--) p.DrawCircle(middle, box * 0.5f * i / 3f, Palette.Magic with { A = 0.16f });
+            }));
+        var sprite = new Sprite2D { Texture = texture, Scale = Vector2.One * scale, Position = middle };
+        if (item.Fake || item.Broken) sprite.Modulate = new Color(0.6f, 0.6f, 0.65f);
+        icon.AddChild(sprite);
+        return icon;
+    }
+
+    /// <summary>
+    /// How your gut rates a call: a strip running from red (a bad call) to green (a great one), with a marker that slides
+    /// out from the middle to <paramref name="score"/> (0 to 1). The words at either end say what each end means.
+    /// </summary>
+    public static Control MakeGutMeter(float score, float width, string worst, string best)
+    {
+        const float h = 16, words = 120;
+        var meter = new Control { MouseFilter = Control.MouseFilterEnum.Ignore, Size = new Vector2(width + 2 * words, 30) };
+        meter.AddChild(MakeLabel(worst, 16, Palette.Bad, HorizontalAlignment.Right, outline: 4).Place(0, 0, words - 8, 20));
+        meter.AddChild(MakeLabel(best, 16, Palette.Good, outline: 4).Place(words + width + 8, 0, words, 20));
+        float at = 0.5f;
+        var strip = new Painter(p =>
+        {
+            for (int x = 0; x < width; x += 4) p.DrawRect(new Rect2(x, 0, 4, h), Palette.Gradient(x / width).Darkened(0.2f));
+            p.DrawRect(new Rect2(0, 0, width, h), Palette.PanelBorder, false, 3);
+            // The marker: a bright notch with a little pointer above and below.
+            float mx = Mathf.Round(width * at);
+            var c = Palette.Gradient(at).Lightened(0.35f);
+            p.DrawRect(new Rect2(mx - 3, -4, 6, h + 8), Colors.Black);
+            p.DrawRect(new Rect2(mx - 1, -2, 2, h + 4), c);
+        }) { Position = new Vector2(words, 2) };
+        meter.AddChild(strip);
+        meter.CreateTween().TweenMethod(Callable.From<float>(t =>
+        {
+            at = t;
+            strip.QueueRedraw();
+        }), 0.5f, Mathf.Clamp(score, 0f, 1f), 0.6f).SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out).SetDelay(0.2f);
+        return meter;
+    }
+
     /// <summary>The 32px icon for a kind of thing (coins, metal...), centered on <paramref name="center"/>.</summary>
     public static Sprite2D MakeKindIcon(Core.Category category, Vector2 center) => MakeKindIcon(category.ToString().ToLowerInvariant(), center);
 

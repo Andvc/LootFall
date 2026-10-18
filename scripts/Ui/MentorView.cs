@@ -7,8 +7,8 @@ namespace LootFall.Ui;
 
 /// <summary>
 /// Uncle Bram at your elbow: a face and one short tip at a time about what's in front of you. Tips that come up
-/// together wait their turn; click the box for the next one. During a seller's lesson the box shows the step to do and
-/// stays up until it's done (or skipped); tips that come up meanwhile wait until the lesson's over.
+/// together wait their turn; click the box for the next one. A seller's lesson waits until the tips already up have
+/// been read; then the box shows the step to do and stays up until it's done (or skipped).
 /// </summary>
 public partial class MentorView : Control
 {
@@ -16,7 +16,10 @@ public partial class MentorView : Control
     readonly Queue<string> _queue = new();
     Label _text, _more;
     Button _skip;
-    bool _lesson, _waiting;
+    bool _lesson, _waiting, _showingTip;
+
+    /// <summary>A lesson step waiting for the tips in front of it to be read.</summary>
+    (string Text, bool Waiting)? _held;
 
     public bool Showing => Visible;
 
@@ -28,6 +31,9 @@ public partial class MentorView : Control
 
     /// <summary>The player skipped the lesson.</summary>
     public event Action LessonSkipped;
+
+    /// <summary>Set by the autoplay bot: every message Bram shows, for reading the tutorial through.</summary>
+    public static Action<string> Trace;
 
     public override void _Ready()
     {
@@ -72,9 +78,24 @@ public partial class MentorView : Control
         UpdateMore();
     }
 
-    /// <summary>Shows a lesson step: one to do (it stays up) or one to read (click on).</summary>
+    /// <summary>
+    /// Shows a lesson step: one to do (it stays up) or one to read (click on). If a tip is still up, the step waits
+    /// until it (and any after it) has been read.
+    /// </summary>
     public void ShowLesson(string text, bool waiting)
     {
+        if (!_lesson && Visible)
+        {
+            _held = (text, waiting);
+            UpdateMore();
+            return;
+        }
+        Begin(text, waiting);
+    }
+
+    void Begin(string text, bool waiting)
+    {
+        _held = null;
         _lesson = true;
         _waiting = waiting;
         _skip.Visible = true;
@@ -84,6 +105,12 @@ public partial class MentorView : Control
     /// <summary>The lesson's over: back to tips.</summary>
     public void EndLesson()
     {
+        // Over before it began: the tips in front of it carry on as they were.
+        if (_held != null)
+        {
+            _held = null;
+            UpdateMore();
+        }
         if (!_lesson) return;
         _lesson = false;
         _skip.Visible = false;
@@ -99,12 +126,21 @@ public partial class MentorView : Control
             if (!_waiting) LessonRead?.Invoke();
             return;
         }
-        if (_queue.Count > 0) Show(_queue.Dequeue());
+        if (_queue.Count > 0) Show(_queue.Dequeue(), afterClick: true);
+        else if (_held is var (text, waiting))
+        {
+            _showingTip = false;
+            Begin(text, waiting);
+        }
         else Visible = false;
     }
 
-    void Show(string text)
+    void Show(string text, bool afterClick = false)
     {
+        // A tip still up and unread when something else replaces it would never be seen: say so in the trace.
+        if (Visible && _showingTip && !afterClick) Trace?.Invoke($"(replaced unread: {_text.Text})");
+        Trace?.Invoke((_lesson ? (_waiting ? "[do] " : "[read] ") : "") + text);
+        _showingTip = !_lesson;
         Visible = true;
         _text.Text = text;
         UpdateMore();
@@ -113,6 +149,9 @@ public partial class MentorView : Control
         Main.Instance.Sfx.Play("blip", 0.8f, -10);
     }
 
-    void UpdateMore() => _more.Text = _lesson ? (_waiting ? "do it to go on" : "click to go on")
-        : _queue.Count > 0 ? $"click for more ({_queue.Count})" : "click to close";
+    void UpdateMore()
+    {
+        int more = _queue.Count + (_held != null ? 1 : 0);
+        _more.Text = _lesson ? (_waiting ? "do it to go on" : "click to go on") : more > 0 ? $"click for more ({more})" : "click to close";
+    }
 }

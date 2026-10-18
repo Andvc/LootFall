@@ -95,8 +95,8 @@ public partial class DayEndPhase : Phase
             _cards.AddChild(slot);
             if (!filled) continue;
             var item = State.Display[i];
-            slot.AddChild(UiKit.MakeKindIcon(item.Category, new Vector2(25, 25)));
-            var sell = new Button { Flat = true, FocusMode = Control.FocusModeEnum.None, TooltipText = $"{item.Name}, {item.Prestige} points{(item.Magic ? " (double: magic)" : "")}. Click to sell it for {item.Value}g." };
+            slot.AddChild(UiKit.MakeItemIcon(item, new Vector2(25, 25), 44));
+            var sell = new Button { Flat = true, FocusMode = Control.FocusModeEnum.None, TooltipText = $"{item.Name}, {item.Prestige} points{(item.Magic ? " (double: enchanted)" : "")}. Click to sell it for {item.Value}g." };
             sell.Pressed += () => SellFromDisplay(item);
             slot.AddChild(sell.Place(0, 0, 50, 50));
         }

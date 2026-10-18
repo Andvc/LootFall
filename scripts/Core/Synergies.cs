@@ -102,9 +102,9 @@ public static class Synergies
         },
         new()
         {
-            Key = "arcane", Name = "Arcanist", Blurb = "Magic things found", Steps = new[] { 3, 8, 15, 25, 40 }, StepWord = "magic things", Tier = 3,
+            Key = "arcane", Name = "Arcanist", Blurb = "Enchanted things found", Steps = new[] { 3, 8, 15, 25, 40 }, StepWord = "enchanted things", Tier = 3,
             Achieved = s => s.MagicFound,
-            Effect = l => $"Mages seek you out: each thing is {Pct(MagicBonus(l))} likelier to be magic.",
+            Effect = l => $"Mages seek you out: each thing is {Pct(MagicBonus(l))} likelier to be enchanted.",
         },
     };
 

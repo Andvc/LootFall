@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://csr34ydcp1ts0"
-path="res://.godot/imported/rune_blade.png-eebc0956ae1ec70fc40dd8b7c62511b9.ctex"
+uid="uid://bhw25x4yq18a5"
+path="res://.godot/imported/sand_bag.png-4c75da210da98e09c78a16866b319d61.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/items/rune_blade.png"
-dest_files=["res://.godot/imported/rune_blade.png-eebc0956ae1ec70fc40dd8b7c62511b9.ctex"]
+source_file="res://assets/sprites/items/icons/sand_bag.png"
+dest_files=["res://.godot/imported/sand_bag.png-4c75da210da98e09c78a16866b319d61.ctex"]
 
 [params]
 
