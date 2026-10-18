@@ -366,6 +366,7 @@ public partial class Main : Node2D
         foreach (var kind in chest.Items.Where(i => i.Magic).Select(i => i.Category)) slip.ToggleMagic(kind);
         State.Opening = new Purchase(visit, slip);
         SwitchTo(new LockpickPhase());
+        Moment("24_vault_lock", 1.5);
     }
 
     /// <summary>After a chest's been opened: the next customer, or (after the vault) the epilogue and the end of the debt.</summary>

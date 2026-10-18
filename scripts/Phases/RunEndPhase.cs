@@ -57,7 +57,7 @@ public partial class RunEndPhase : Phase
             panel.AddChild(UiKit.MakeLabel(value, 16, Palette.Text, HorizontalAlignment.Right).Place(300, 24 + i * 32, 268, 20));
         }
         var profile = Game.Profile;
-        if (profile != null)
+        if (profile is { Runs: > 0 })
             Add(UiKit.MakeLabel($"All runs: {profile.Runs} started, {profile.Cleared} debts cleared, {profile.Vaults} vaults opened, " +
                                 $"best week {profile.BestWeek}.", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(0, 532, 1280, 20));
 

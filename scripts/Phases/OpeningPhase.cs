@@ -616,6 +616,7 @@ public partial class OpeningPhase : Phase
 
         _mentor = Add(new MentorView { Position = new Vector2(812, 72), ZIndex = 20 });
         Teach("opened");
+        if (visit.Seller == Story.VaultSeller) Game.Moment("24_vault", 1.5);
         if (_landed.Any(l => l.Item.Quality != _purchase.Chest.Quality && l.Item.Displayable)) Teach("quality");
         if (State.DisplayOpen && _landed.Any(l => l.Item.Displayable && l.Item.Prestige >= 4)) Teach("keep");
         if (_deliverButtons.Count > 0) Teach("deliver");

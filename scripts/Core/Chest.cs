@@ -83,6 +83,8 @@ public sealed class Chest
     /// <param name="sturdier">How much less likely glass is to break (a vintner's packing).</param>
     public (bool Hollow, List<Item> Broke) Drop(Random rng, float sturdier = 0f)
     {
+        // Packed tight in straw: nothing breaks, and the straw muffles any boom.
+        if (Sealed) return (false, new List<Item>());
         var broke = _items.Where(i => i.Def.Fragile && !i.Broken && rng.NextFloat() < DropBreakChance * (1 - sturdier)).ToList();
         foreach (var item in broke) Break(item);
         return (Hidden != null, broke);
