@@ -8,7 +8,12 @@ Source: https://github.com/sparklinlabs/superpowers-asset-packs
 
 - Chest: Ninja Adventure pack (`ninja-adventure/items/big-treasure-chest.png`), recolored per lot origin.
 - Items, backgrounds and the burst effect: RPG Battle System pack (`rpg-battle-system/item`, `backgrounds`, `fx`).
-- Seller portraits and Uncle Bram: Ninja Adventure pack (`ninja-adventure/characters/faceset`); Granny Wick is one of them recoloured.
+- Seller portraits, Uncle Bram, Mister Vane, Nim, the Stranger and the Hooded Woman: Ninja Adventure pack
+  (`ninja-adventure/characters/faceset`); Granny Wick, Vane and the Hooded Woman are recoloured.
+- Curios: RPG Battle System and Ninja Adventure items. The Grey Guild's sign: a Medieval Fantasy emblem
+  (`medieval-fantasy/items/emblem`), greyed.
+- Shop backgrounds: RPG Battle System backgrounds and Western FPS 2D props, with architecture drawn in
+  `tools/import_art.py`.
 
 ## Font and sound
 

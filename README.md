@@ -3,10 +3,12 @@
 A small game about the satisfaction of opening treasure chests. You inherit a roadside stall; people bring you
 chests and price them their own way: by what they heard, by weight, by the chest's colour, or by a dream. Shake each
 one yourself, gently, firmly and hard, find what they missed or misjudged, trade for it, and open it on the spot.
-Keep the best for your exhibition and grow the stall into the finest shop in the kingdom.
+Grow the stall into the finest shop in the kingdom, because it comes with Uncle Bram's old debt: every fifth evening
+the Grey Guild comes for a due that climbs from 40g to 22,000g in eight weeks. Pay them all and the stall is free;
+find all four pieces of an old map on the way and King Aldric's lost vault opens on your counter.
 
-**Status:** Early Access (0.9): the full loop from roadside stall to Royal Warrant, with saves, settings and a guided
-start. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
+**Status:** Early Access (0.10): runs of eight weeks against the Guild's dues (then endless), with curios,
+commissions, weekly events and a story; saves, settings and a guided start. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
 Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam.
 Design rationale: [docs/design.md](docs/design.md).
 
@@ -34,11 +36,18 @@ Design rationale: [docs/design.md](docs/design.md).
    a new look and something new), tools (the Witchlight shows what's enchanted, the Magnet silences iron and fakes,
    Fine Lockpicks) and cabinets. From the town shop, choose which of the shop's synergies to put to work (ten of a
    kind at a quality earns one).
+6. **The week:** every fifth evening Mister Vane collects the Guild's due. Short, pawn what's on display or sell your
+   curios back; once a run Bram will vouch for you; otherwise the Guild takes the shop. From the second week, Nim the
+   peddler sells **curios** that bend one rule each (a lucky coin, a jeweller's loupe, a forged receipt for the
+   Guild...), regulars post **commissions** (deliver what they want from a chest instead of selling it), and once a
+   week something happens in town: a market day, a festival, the Royal Buyer, a gilded chest, a storm, a shipwreck,
+   or the Stranger with a sealed chest that nothing rattles in. The Hooded Woman trades map pieces for the finds she
+   asks for.
 
 Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each. After
 that, each seller's first visit is a lesson in their habit, and each new part of the shop (renovations, lockpicking,
-the display shelf, synergies, the warrant) comes with a word from Bram when it opens up. The shop saves at the start
-of every day.
+the display shelf, synergies, the Guild, curios, commissions) comes with a word from Bram when it opens up. The shop
+saves at the start of every day; your best runs are kept on the title screen.
 
 ## Controls
 
@@ -55,6 +64,9 @@ of every day.
 | Pick a lock | Space or left click when the pick is in the green; F for the crowbar |
 | Open the chest | It opens by itself (click or Space to hurry it) |
 | Keep something for display | Its Keep button after an opening (Swap when the display is full); sell it back from the exhibition at day end |
+| Deliver to a commission | Its Deliver button after an opening |
+| Buy or sell back a curio | Nim's screen, the morning he visits |
+| Pay the Guild, pawn, ask Bram | The Guild's screen, every fifth evening |
 | Choose synergies | Synergies, at the end of a day |
 | Next tip from Bram | Click his box |
 | Pause, settings, quit to title | Esc, or Menu in the top bar |
@@ -65,8 +77,8 @@ The code is split so the game rules can be tested without the engine:
 
 | Folder | What's in it |
 |---|---|
-| `scripts/Core` | Pure C# rules: kinds, qualities and the shaking rules, chests, sellers and how they judge and trade, the appraisal slip, a careful player's read and strategy, sellers' lessons, synergies, upgrades, the shop's progress and exhibition, Bram's hints. No Godot types. |
-| `scripts/Phases` | The screens of the loop (counter, lockpicking, opening, end of day). |
+| `scripts/Core` | Pure C# rules: kinds, qualities and the shaking rules, chests, sellers and how they judge and trade, the appraisal slip, a careful player's read and strategy, sellers' lessons, synergies, upgrades, the shop's progress and exhibition, the run (the Guild's dues, curios, commissions, events, the story), Bram's hints. No Godot types. |
+| `scripts/Phases` | The screens: title, counter, lockpicking, opening, end of day, the Guild's night, Nim's curios, story scenes, the end of a run. |
 | `scripts/Ui` | Visuals: the shakeable chest, the ledger, Bram, the seller, HUD, particles and styling. |
 | `scripts/Audio` | Recorded sounds, the synthesized slosh, and placeholder effects. |
 | `scripts/Debug` | Balance simulation (with the lesson test), the shake test and an autoplay bot for screenshots and recordings. |
@@ -80,7 +92,8 @@ godot --headless --path . -- --sim                         # balance report
 godot --headless --path . -- --shake-test                  # check that shaking follows the rules
 xvfb-run -a godot --path . --rendering-driver opengl3 -- \
   --autoplay --days=1 --shots=$PWD/shots                   # play the guided day, save screenshots
-# add --start-tier=3 --gold=600 to jump ahead with the tools you'd have by then
+# add --start-tier=3 --gold=600 to jump ahead with the tools you'd have by then,
+# or --start-week=6 for a shop as a careful player would have it by then (--gold=N sets its purse)
 xvfb-run -a godot --path . -- --shell-demo --shots=$PWD/shots_shell  # title, pause and settings screenshots
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```

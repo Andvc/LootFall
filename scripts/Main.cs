@@ -20,7 +20,7 @@ namespace LootFall;
 /// holding one thing of each quality, two of them better than the chest, to preview the opening's effects; quits
 /// after with --quit-at-end), --shell-demo (with --shots: the title screen, a new game, the pause menu and the
 /// settings, one screenshot each, then quits), --start-week=N (a shop as a careful player would have it by then, played
-/// through by the balance simulation). Autoplay sets --days=N to stop after that many days.
+/// through by the balance simulation; --gold=N then sets its purse). Autoplay sets --days=N to stop after that many days.
 /// </summary>
 public partial class Main : Node2D
 {
@@ -85,6 +85,7 @@ public partial class Main : Node2D
                 if (!Simulation.FastForward(State, (startWeek - 1) * Guild.DaysPerWeek))
                     GD.Print($"--start-week: this seed's shop was foreclosed in week {State.Week}; starting from there anyway");
                 State.Guided = !args.Contains("--no-tutorial");
+                if (int.TryParse(Arg(args, "--gold"), out var gold)) State.Gold = gold;
                 foreach (var key in new[] { "intro", "dayend", "colours", "slip", "ledger", "upgrades", "display", "synergy", "tier2", "tier3", "tier4" })
                     State.HintsSeen.Add(key);
             }

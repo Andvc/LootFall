@@ -309,7 +309,8 @@ public partial class CounterPhase : Phase
         {
             var c = open[i];
             string what = c.Kind == CommissionKind.Enchanted ? "Anything enchanted"
-                : $"{Categories.Get(c.Category).Name} {Categories.QualityName(c.Quality)}+{(c.Needed > 1 ? $" {c.Delivered}/{c.Needed}" : "")}";
+                : $"{Categories.Get(c.Category).Name} {Categories.QualityName(c.Quality)}{(c.Quality < Rarity.Legendary ? "+" : "")}" +
+                  (c.Needed > 1 ? $" {c.Delivered}/{c.Needed}" : "");
             var color = c.Story ? Palette.Magic : Palette.Text;
             var line = UiKit.MakeLabel(what, 16, color).Place(12, 28 + i * 24, 180, 20);
             line.MouseFilter = Control.MouseFilterEnum.Pass;

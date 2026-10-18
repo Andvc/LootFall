@@ -14,8 +14,11 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after. Its last
    section is the lesson test: every seller's lesson must complete when played the careful way.
 3. Visual changes: run the autoplay bot under Xvfb with `--shots=<dir>` and look at the PNGs.
-   Bot flags: `--seed=N --quit-at-end --days=N --no-tutorial --start-tier=N --gold=N`. `--start-tier`
-   jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens). With tips
+   Bot flags: `--seed=N --quit-at-end --days=N --no-tutorial --start-tier=N --gold=N --start-week=N`. `--start-tier`
+   jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens);
+   `--start-week` fast-forwards a run with the sim's careful collector (curios, commissions, exhibition and all; `--gold`
+   then sets the purse, e.g. 0 to see a short night and foreclosure). The bot plays scenes, Nim, the Guild's night and
+   deliveries, and quits when a run ends. With tips
    on, every seller's first visit is a lesson, so a guided run at a tier shows those lessons; the bot logs any lesson
    it couldn't finish. `--opening-demo` opens a crafted chest with every quality and two surprises (record it).
    `--shell-demo` walks the title screen, a new game, the pause menu and the settings.
@@ -51,13 +54,21 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   it makes redundant. Read a guided `--autoplay` run's `[Bram ...]` lines to check the tutorial reads in order.
 - Synergies (`Synergies.cs`) come from what's been acquired (ten of a kind at a quality per level) or achieved; only
   active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
+- The run (`Run.cs`, a partial of `GameState`): five-day weeks; the Grey Guild's due every fifth evening (`Guild.Due`,
+  eight weeks then endless x1.5); pawning, Bram's word once a run, foreclosure. Curios (`Curios.cs`, from Nim weekly)
+  each bend one rule and never reveal what's in a chest; commissions (`Commissions.cs`) pay for delivering finds;
+  one event a week (`Events.cs`); the story's scenes and the map to the vault (`Story.cs`). The sim's report must show
+  careful players usually clear the debt (week 8 the real wall), careless ones foreclosed within a few weeks, and early
+  foreclosures rare for careful play. Anything added to the run goes in `SaveData` too; the profile across runs is
+  `Profile` (user://profile.json).
 - The shop opens up a step at a time (`GameState.UpgradesOpen` once it has earned `UpgradesAt`, `DisplayOpen` with
   the village shop, `SynergiesOpen` with the town shop), each introduced by a Bram tip when it happens. Gate new
   systems the same way, in Core, so the sim and the bot follow them.
 - Each shop tier has its own picture (`assets/backgrounds/shop{tier}.png`, drawn by `build_shops` in
   `tools/import_art.py`, shown with `UiKit.MakeShop`); keep the counter top at y 476 and the shelf at y 196.
 - The game opens on `TitlePhase`; `Main` saves `GameState.Save()` to user://save.json at the start of each day (not
-  for the bot or debugging flags) and Esc opens `PauseMenu`. `Settings` (user://settings.cfg) scales screen shake and
+  for the bot or debugging flags) and Esc opens `PauseMenu`. A day: `Main.StartDay` (the week's scene, Nim), the
+  counter, `DayEndPhase`, then `Main.CloseDay` (Vane's introduction the first evening, `DuesPhase` on the fifth). `Settings` (user://settings.cfg) scales screen shake and
   flashes: route new screen effects through `Main.Shake`/`Flash`. Anything added to `GameState` that should survive
   a day boundary goes in `SaveData` too.
 - Every seller has one way of judging a chest (`Judgment`: listening, counting rattles, weight, colour, a dream, a

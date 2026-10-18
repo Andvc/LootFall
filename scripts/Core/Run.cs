@@ -321,7 +321,8 @@ public sealed partial class GameState
 
         var e = Events.Pick(rng, Tier, _eventsSeen);
         WeekEvent = e.Key;
-        EventDay = rng.Next(1, Guild.DaysPerWeek + 1);
+        // The first event comes later in its week: that week's first morning already brings Nim and the commissions.
+        EventDay = rng.Next(Week == Events.FromWeek ? 3 : 1, Guild.DaysPerWeek + 1);
         var kinds = Categories.UpTo(Tier).Select(c => c.Category).ToArray();
         BuyerKind = rng.PickOne(kinds);
         // Nim's first visit is the morning after the Guild's first: something new just when the shop's found its feet.

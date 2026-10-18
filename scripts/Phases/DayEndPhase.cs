@@ -17,7 +17,7 @@ namespace LootFall.Phases;
 /// </summary>
 public partial class DayEndPhase : Phase
 {
-    const float CardW = 400, CardH = 106, CardGapX = 16, CardGapY = 10, CardsX = 40, CardsY = 206, SideX = 872, SideW = 368;
+    const float CardW = 400, CardH = 112, CardGapX = 16, CardGapY = 8, CardsX = 40, CardsY = 206, SideX = 872, SideW = 368;
 
     Node2D _cards, _side;
     Label _goldLabel, _header;
@@ -283,7 +283,7 @@ public partial class DayEndPhase : Phase
             MouseFilter = Control.MouseFilterEnum.Ignore,
         }.Place(12, 12, 48, 48));
         card.AddChild(UiKit.MakeLabel(upgrade.Name, 24, upgrade.IsRenovation ? Palette.Gold : Palette.Text).Place(70, 8, 216, 30));
-        card.AddChild(UiKit.MakeLabel(upgrade.Blurb, 16, Palette.Muted).Wrapped().Place(70, 40, CardW - 82, 60));
+        card.AddChild(UiKit.MakeLabel(upgrade.Blurb, 16, Palette.Muted).Wrapped().Place(70, 40, CardW - 82, 66));
         if (affordable)
         {
             var buy = UiKit.MakeButton($"{upgrade.Cost}g", risky ? Palette.Warn : Palette.Good, 16, () => Buy(upgrade)).Place(CardW - 112, 8, 100, 30);
@@ -292,9 +292,10 @@ public partial class DayEndPhase : Phase
         }
         else
         {
-            card.AddChild(UiKit.MakeLabel($"{upgrade.Cost}g", 24, Palette.Muted, HorizontalAlignment.Right).Place(CardW - 132, 6, 120, 30));
-            card.AddChild(UiKit.MakeLabel($"{upgrade.Cost - State.Gold}g more", 16, Palette.Muted.Darkened(0.2f), HorizontalAlignment.Right)
-                .Place(CardW - 172, CardH - 26, 160, 20));
+            var price = UiKit.MakeLabel($"{upgrade.Cost}g", 24, Palette.Muted, HorizontalAlignment.Right).Place(CardW - 132, 6, 120, 30);
+            price.TooltipText = $"{upgrade.Cost - State.Gold}g more to go";
+            price.MouseFilter = Control.MouseFilterEnum.Pass;
+            card.AddChild(price);
         }
         return card;
     }

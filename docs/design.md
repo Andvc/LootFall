@@ -9,7 +9,12 @@ work out what they missed, made up or misjudged. Mark what you think is inside o
 way each customer trades: pay their price, haggle, or name your own. Pass, and your gut tells you whether you were
 right; buy, and the chest bursts open on the spot: each thing's true quality, a tick or a cross against your slip,
 and now and then something far better than the chest promised. What you acquire builds the shop's name (synergies)
-and its exhibition, which draw more and better customers. The goal is the Royal Warrant.
+and its exhibition, which draw more and better customers. The stall comes with Bram's old debt to the Grey Guild:
+every fifth evening Mister Vane collects a due that climbs from 40g to 22,000g over eight weeks. Curios from Nim the
+peddler bend the rules in your favour, regulars pay well for commissions, something different happens in town once a
+week, and a hooded woman trades pieces of a map to King Aldric's lost vault for the finds only a good ear turns up.
+Pay all eight dues and the stall is free (and with the whole map, the vault opens on your counter); fall short and
+the Guild takes the shop.
 
 ## The puzzle: rules you'd expect from real life
 
@@ -205,12 +210,112 @@ Everything arrives when it's needed, each with a word from Bram, so the first da
 | The stall has earned 120g, all told (`GameState.UpgradesAt`) | renovations and tools at the end of the day; until then the day-end screen shows how far there is to go | what a renovation brings |
 | The Village Shop | locks and lockpicking; the display shelf, keeping things, the exhibition and cabinets | the lock (the first time, the pick waits while he talks); the shelf and why an exhibition matters |
 | The Town Shop | synergies: the journal has tallied everything from day one, so some are ready to switch on | what a synergy is and where to choose one |
-| The Emporium | the Royal Warrant | what the Crown wants |
+| The Emporium | the biggest crowd, the magnet, the Royal Seal | that from now on it's about the Guild |
+| The first evening | the Grey Guild and Bram's debt: a due every fifth evening | a scene: Vane, then Bram |
+| Week 2 | Bram's piece of the map; commissions; Nim's curios (his first visit is that morning); one event a week | a scene; a tip with each |
+| Week 3 | the Hooded Woman's commissions, which pay in map pieces | a scene |
+| A short night | pawning, and (once a run) Bram's word | a tip |
 
 `GameState.UpgradesOpen`, `DisplayOpen` and `SynergiesOpen` hold the gates, so the sim and the bot follow them too. "Earned" is what
 the chests you've bought brought in (the day end's "the chests held", added up): a careful player gets there at the
 end of day 3, after two days of practice at the stall. (Counting profit instead took five to eight days at the stall
 with nothing new, too long.)
+
+## The run: the Guild's dues
+
+The days come in weeks of five. At the end of each week's fifth day Mister Vane of the Grey Guild comes for the
+week's due (`Guild.Due`, `DuesPhase`). Bram's debt is eight weeks long; after that the Guild keeps coming for "interest",
+half as much again each week, for as long as you last (endless).
+
+| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | then |
+|---|---|---|---|---|---|---|---|---|---|
+| Due | 40g | 100g | 250g | 700g | 2,000g | 6,000g | 13,000g | 22,000g | x1.5 a week |
+
+The first weeks are small while you learn the stall and the village; from week 4 the dues climb with what a growing
+shop can earn, so every evening's spending is a decision: a renovation or cabinet now pays back over days, but the
+Guild comes on a fixed night. The HUD always shows the next due and when; the day-end screen shows it against your
+gold, and an upgrade that would leave you short tonight has an orange price.
+
+Short on the night: pawn what's on display (at 60% of its price) or sell curios back (half their price). Once a run,
+if even that won't do, Bram vouches for you: everything you have goes to the Guild and the rest, with half as much
+again, is added to next week's due (not in week 8: the last of the debt is the last). Otherwise the Guild takes the
+shop and the run is over. A short night is also the most dramatic moment the shop has: what do you give up first?
+
+## Curios
+
+Nim the peddler drops by before opening once a week from week 2 (`PeddlerPhase`; his first visit is the morning after
+the Guild's first) with three curios (`Curios.Stock`: rarer ones more often as the weeks go by). Each bends one rule of
+the trade, and you have room for three (a Curio Case, 250g at the town shop, adds a fourth), so which ones you keep
+shapes how you play: whom to haggle with, which sounds to chase, whether to save or spend. None of them tells you what
+a chest holds before you buy it. Prices climb with the stakes (common 50g, uncommon 100g, rare 180g in week 2, half as
+much again each week after); Nim buys them back for half.
+
+| Curio | | Does |
+|---|---|---|
+| Lucky Coin | common | the first chest you open each day: everything in it gets two tries at its quality |
+| Lucky Shell | common | one chest in six you open: everything in it is a step better |
+| Jeweller's Loupe | common | coins and jewelry sell for +50% |
+| Smith's Glove | common | metal sells for +50% |
+| Hatter's Cap | common | cloth and paper sell for +50% |
+| Shop Lantern | common | one more customer every day |
+| Collector's Catalogue | common | every new find in the journal pays 10g per shop tier |
+| Merchant's Signet | uncommon | hagglers and those who ask you to name a price settle for 15% less |
+| Savings Jar | uncommon | nightly interest: 5% of your gold, up to 25g per shop tier |
+| Letter of Introduction | uncommon | commissions pay +50% |
+| Burglar's Knife | uncommon (village on) | forcing a lock breaks and scratches nothing |
+| Smuggler's Hook | uncommon (village on) | false bottoms turn up far more often |
+| Witch's Draught | uncommon (town on) | enchanted things turn up far more often |
+| Four-Leaf Clover | rare | chests come in a colour better more often |
+| Forged Receipt | rare | the Guild's dues are a fifth less |
+| Visitors' Book | rare (village on) | every night, 3g per exhibition point |
+| Cursed Crescent | rare | everything sells for +50%, but the Guild's dues are a quarter more |
+
+Effects live in `GameState` (`Run.cs`): sale multipliers, the chests' boosts, the dues, the night's income and a
+curio's luck at purchase, which the opening announces ("Lucky Coin: 2 things came out better!").
+
+## Commissions
+
+From week 2, three regulars you've met post a commission each week (`Patrons.Roll`), good until the Guild's next
+visit: one thing of a kind at a quality (a step better than the shop's chests usually are), two or three of a kind
+(a step lower), or (from the town shop) anything enchanted. They pay two or three times what such a thing sells
+for. A board under the seller lists them, the slip marks the kinds they want with a gold pennant, and anything that
+comes out of a chest you open can be delivered instead of sold. A commission makes a sound worth more than its price:
+a chest with a flump in it is worth chasing when Penn wants silk.
+
+## Events
+
+Once a week from week 2, on a day of its own, something happens in town (the day card announces it; `Events`):
+
+| Event | That day |
+|---|---|
+| Market Day | three more customers |
+| Harvest Festival | everything sells for a quarter more |
+| The Royal Buyer | one kind of thing sells for double |
+| A Gilded Chest | someone brings one of the old royal chests: gold, a colour better than its seller thinks, with something enchanted inside |
+| The Stranger | an extra customer with a sealed black chest packed in straw: nothing rattles, but a drop tells you how heavy it is (heavy ones hold more: often junk, sometimes a fortune) |
+| A Storm | two fewer customers, but every chest a colour better |
+| A Shipwreck (town on) | lots come in twos and threes |
+
+They all come round before any comes twice.
+
+## The story
+
+Twenty years ago Bram borrowed from the Grey Guild to buy a quarter of a map to King Aldric's vault. Scenes
+(`ScenePhase`, `Story`) play the first evening (Vane introduces the debt), at the start of some weeks, and at the
+end:
+
+- Week 2: Bram tells you about the map and gives you his piece.
+- Week 3, 5 and 7: the Hooded Woman asks for something (old papers, a ring, something enchanted, each better than the
+  regulars ask for) and pays a map piece for it. Miss one and she asks again the next week, until the debt's last week.
+- Week 4: Bram recognises her voice; the Guild has been buying up old records. Week 5: she says the debt was a leash.
+- Week 6: Vane offers to halve that night's due for the map. Take it and there's no vault.
+- Week 7: she is Mara, Bram's old partner. Week 8: the last due.
+- Debt paid: with all four pieces, Mara and Bram bring the vault to the counter: a gilded chest with a dwarven lock
+  and the best of everything inside, opened like any other. Then you keep trading against the Guild's interest, or
+  retire.
+
+Every run is recorded in `user://profile.json` (runs, debts cleared, vaults opened, the furthest week), shown on the
+title screen and at the end of a run.
 
 ## The shop's look
 
@@ -258,8 +363,8 @@ button shows the points it adds (a star for enchanted, which counts double). Wit
 pick something on display to sell, and the new thing takes its place. Display space: a shelf of 2, then cabinets of
 3, 3 and 4 (60g, 250g, 600g). The **exhibition** score is the display's prestige (1, 2, 4, 8 or 16 by quality; double
 if enchanted). Every 10 points brings a customer a day (up to two), and each point makes a chest 1% likelier to be a
-colour better (up to 40%). The Crown wants an exhibition of 40 before it grants the warrant, and past 40 an
-exhibition brings nothing more.
+colour better (up to 40%). Past 40 an exhibition brings nothing more, unless visitors pay to see it (the Visitors'
+Book curio).
 
 ## Stages
 
@@ -269,9 +374,8 @@ exhibition brings nothing more.
 | Village Shop | 60g, once the stall has earned 120g | 5 | mostly green | slosh and rustle; locks; false bottoms and the drop; the display shelf and cabinets; Brask's weight, Tobias's tall tales, Marta, Wick's sewing |
 | Town Shop | 200g | 6 | mostly blue | jewelry; two or three of a kind (Pell); sand (Shelly); enchantment and the Witchlight; synergies and the Guild Charter; Wren, Orrin's dreams, Grit, Zara |
 | The Emporium | 1200g | 7 | blue and purple | Vex's clock, Gull's false bottoms, Pip, Silas's fakes, Ermine's paste, the Magnet, the Royal Seal |
-| Royal Warrant | 5000g and an exhibition of 40 | | | the goal |
 
-The Painted Sign (40g) adds a customer a day. Day one is scripted: four customers, one lesson each (a gentle shake
+The Painted Sign (40g) adds a customer a day; the Curio Case (250g, town) room for a fourth curio. Day one is scripted: four customers, one lesson each (a gentle shake
 and the slip; a hard shake for cloth; listening past a clank; passing when they heard everything).
 
 ## Evidence (`godot --headless --path . -- --sim`, 200 campaigns of 30 days)

@@ -117,7 +117,7 @@ public partial class PeddlerPhase : Phase
         Game.Hud.SetGold(State.Gold);
         _nim.Say(Peddler.Thanks[State.CurioKeys.Count % Peddler.Thanks.Length], Palette.Good);
         _nim.Bob();
-        FloatText($"{curio.Name}!", new Vector2(CardsX + 1.5f * CardW + CardGap, 400), Palette.Magic, 24);
+        FloatText($"{curio.Name}!", new Vector2(CardsX + 1.5f * CardW + CardGap, 560), Palette.Magic, 24);
         Build();
         Game.Moment("22_bought", 0.4);
         return true;
