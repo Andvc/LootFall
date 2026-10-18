@@ -389,9 +389,9 @@ upgrades, delivering commissions, paying the Guild (pawning, or Bram's word, whe
 |---|---|---|---|---|---|---|---|
 | Pays their price, every chest | 100 83 60 23 10 6 5 0% | 0% | 0% | all (week 4) | day 5 | never | never |
 | One hard shake, keeps the seller's marks | 100 100 91 57 29 15 11 1% | 1% | 0% | all (week 5) | day 6 | never | never |
-| Every strength, drops when safe | 100 100 98 94 87 81 80 59% | 59% | 58% | 99% (week 9) | day 3 | day 10 | day 14 |
-| + Witchlight and Magnet | 100 100 98 94 87 82 80 65% | 65% | 64% | 97% (week 10) | day 3 | day 10 | day 15 |
-| + keeps grand things | 100 100 97 93 83 80 79 71% | 71% | 70% | 90% (week 11) | day 3 | day 10 | day 16 |
+| Every strength, drops when safe | 100 100 98 94 88 82 81 60% | 60% | 59% | 99% (week 9) | day 3 | day 10 | day 14 |
+| + Witchlight and Magnet | 100 100 98 94 87 82 80 66% | 66% | 64% | 97% (week 10) | day 3 | day 10 | day 15 |
+| + keeps grand things | 100 100 98 93 83 79 79 71% | 71% | 71% | 91% (week 11) | day 3 | day 10 | day 16 |
 
 Week by week for the careful player with both tools (gold on the Guild's night, before paying):
 
