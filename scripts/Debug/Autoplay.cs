@@ -25,7 +25,7 @@ public partial class Autoplay : Node
 
     const double ShakeSeconds = 1.6;
 
-    bool _ledgerShown;
+    bool _ledgerShown, _collectionShown;
 
     static GameState State => Main.Instance.State;
 
@@ -129,6 +129,20 @@ public partial class Autoplay : Node
                 Main.Instance.Moment($"02_ledger_{page}", 0.3);
                 await Wait(1.5);
             }
+            if (!IsInstanceValid(counter)) return;
+            counter.CloseLedger();
+            await Wait(0.5);
+        }
+        // Later, once there's something in it, a look at the collection too.
+        else if (!_collectionShown && !hurried && State.Found.Count >= 10)
+        {
+            _collectionShown = true;
+            counter.OpenLedger();
+            await Wait(1.0);
+            if (!IsInstanceValid(counter)) return;
+            counter.LedgerPage(2);
+            Main.Instance.Moment("02_collection", 0.3);
+            await Wait(1.5);
             if (!IsInstanceValid(counter)) return;
             counter.CloseLedger();
             await Wait(0.5);

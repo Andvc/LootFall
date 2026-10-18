@@ -343,10 +343,10 @@ public partial class CounterPhase : Phase
             {
                 var lit = UiKit.MakePanel(Palette.Magic.Darkened(0.3f)).Place(x, y + 2, w, 36);
                 // Tool icons are 16px art at 3x; two thirds of that is exactly 2x, which fits the sign.
-                var sign = UiKit.MakeSprite($"res://assets/ui/icons/{icon}.png", new Vector2(22, 18), 1);
+                var sign = UiKit.MakeSprite($"res://assets/ui/icons/{icon}.png", new Vector2(20, 18), 1);
                 sign.Scale = Vector2.One * (2f / 3f);
                 lit.AddChild(sign);
-                lit.AddChild(UiKit.MakeLabel(tools == 1 ? longName : shortName, 16, Palette.Magic).Place(40, 8, w - 46, 20));
+                lit.AddChild(UiKit.MakeLabel(tools == 1 ? longName : shortName, 16, Palette.Magic).Place(36, 8, w - 40, 20));
                 panel.AddChild(lit);
                 x += w + 8;
             }

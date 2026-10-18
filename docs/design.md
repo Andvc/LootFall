@@ -187,8 +187,9 @@ stall day; Tam, Hob and Mags teach naming a price, haggling and counting rattles
 Lessons and Bram's tips never talk over each other. A lesson waits until any tip already up (a new shop, a lock, a
 new way of trading) has been read. While a lesson runs, tips that would come up don't pile up behind it: they wait
 for their moment to come round again. And a lesson's `Covers` marks the tips it already teaches as seen (Hob's lesson
-is the haggling tip; Marta's, the drop and the boom). `--autoplay` prints every message Bram shows, and flags any
-that was replaced before it could be read.
+is the haggling tip; Marta's, the drop and the boom). A new shop's crowd doesn't all arrive on its first day: with
+tips on, no more than three lessons a day (`GameState.LessonsPerDay`), so the town shop's six newcomers take two days
+to meet. `--autoplay` prints every message Bram shows, and flags any that was replaced before it could be read.
 
 `--sim` ends with a lesson test: every lesson played the careful way (the same strategy the bot and the sim use),
 with and without the shop's tools, must complete every step in order.

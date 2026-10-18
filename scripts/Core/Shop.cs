@@ -223,17 +223,29 @@ public sealed class GameState
         }
 
         // Each renovation brings its own crowd; the old regulars still drop by now and then. Nobody comes twice in a
-        // day unless everyone else already has. A smithing name draws smiths and soldiers.
+        // day unless everyone else already has. A smithing name draws smiths and soldiers. With tips on, no more than
+        // a few newcomers (each a lesson) a day: the rest of a new shop's crowd comes in over the next days.
         var sellers = Sellers.All.Where(s => s.Tier <= Tier).ToArray();
         float smiths = Synergies.SmithVisits(Active("smith"));
         while (Queue.Count < CustomersPerDay)
         {
             var fresh = sellers.Where(s => Queue.All(v => v.Seller != s)).ToArray();
             var pool = fresh.Length > 0 ? fresh : sellers.Where(s => Queue[^1].Seller != s).ToArray();
+            if (Queue.Count(v => v.Lesson != null) >= LessonsPerDay)
+            {
+                var known = pool.Where(s => !Teaches(s)).ToArray();
+                if (known.Length > 0) pool = known;
+            }
             var seller = Rng.PickWeighted(pool, s => (s.Tier == Tier ? 3f : s.Tier == Tier - 1 ? 0.6f : 0.15f) * (s.Metalworker ? smiths : 1f));
             Queue.Add(NewVisit(seller));
         }
     }
+
+    /// <summary>With tips on, at most this many sellers' lessons in one day.</summary>
+    public const int LessonsPerDay = 3;
+
+    /// <summary>Their next visit would be a lesson.</summary>
+    bool Teaches(SellerDef seller) => Guided && Lessons.For(seller.Key) != null && !Tutored.Contains(seller.Key);
 
     /// <summary>A seller's visit: the first time (with tips on), the lesson that introduces their habit.</summary>
     Visit NewVisit(SellerDef seller)
