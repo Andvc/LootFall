@@ -25,6 +25,10 @@ public sealed partial class GameState
     public int DaysToDue => Guild.DaysPerWeek - Math.Max(1, DayOfWeek);
 
     public int WeeksPaid { get; private set; }
+
+    /// <summary>Vane has introduced the Guild (the first evening): until then, nothing shows the due.</summary>
+    public bool GuildIntroduced => Day > 1 || WeeksPaid > 0;
+
     public bool Foreclosed { get; private set; }
 
     /// <summary>All eight weeks of Bram's debt are paid. The Guild keeps coming (endless), but the run is won.</summary>

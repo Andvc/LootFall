@@ -59,7 +59,7 @@ public partial class TitlePhase : Phase
         y += _save == null ? 70 : 56;
         Add(UiKit.MakeButton("Settings", Palette.Text, 16, OpenSettings).Place(ButtonsX, y, ButtonW, 44));
         y += 56;
-        Add(UiKit.MakeButton("Quit", Palette.Text, 16, () => GetTree().Quit()).Place(ButtonsX, y, ButtonW, 44));
+        Add(UiKit.MakeButton("Quit", Palette.Text, 16, Game.QuitGame).Place(ButtonsX, y, ButtonW, 44));
 
         Add(UiKit.MakeLabel(Main.Version, 16, Palette.Muted, outline: 4).Place(24, 684, 400, 20));
         if (Game.Profile?.Summary is string record)

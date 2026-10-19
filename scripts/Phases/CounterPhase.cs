@@ -46,6 +46,9 @@ public partial class CounterPhase : Phase
     ShakeBox _shake;
     MentorView _mentor;
     LedgerView _ledger;
+    static readonly Core.Shake[] Levels = { Core.Shake.Gentle, Core.Shake.Firm, Core.Shake.Hard };
+    readonly Label[] _strengthWords = new Label[3];
+    Node2D _strength;
     Label _hint, _notes, _worth, _askLabel, _ask, _chanceText, _footer, _timer;
     Painter _chance;
     float _chanceShown;
@@ -100,9 +103,10 @@ public partial class CounterPhase : Phase
         // Once you own the witchlight it's always lit: anything enchanted glows when it makes a sound.
         _lamp = State.Has("lamp");
         _shake.Witchlight = _lamp;
-        _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(316, 452, 484, 20));
+        _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(316, 478, 484, 20));
         _hint.ZIndex = 10;
-        _notes = Add(UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(316, 492, 484, 88));
+        BuildStrength();
+        _notes = Add(UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(316, 500, 484, 84));
         _notes.ZIndex = 10;
         _timer = Add(UiKit.MakeLabel("", 32, Palette.Warn, HorizontalAlignment.Center, outline: 6).Place(206, 92, 64, 40));
         _timer.ZIndex = 10;
@@ -126,6 +130,44 @@ public partial class CounterPhase : Phase
         Note(ChestNote());
         Refresh();
         Game.Moment("01_counter", 1.0);
+    }
+
+    /// <summary>
+    /// Under the chest while you shake it: gentle, firm, hard, with how hard you're shaking lit up and the strengths
+    /// you've already tried in green. It's your hands, not what's inside: the sounds still tell you that.
+    /// </summary>
+    void BuildStrength()
+    {
+        _strength = Add(new Node2D { ZIndex = 10, Visible = false });
+        for (int i = 0; i < Levels.Length; i++)
+        {
+            _strengthWords[i] = UiKit.MakeLabel(Categories.LevelName(Levels[i]), 16, Palette.Muted, HorizontalAlignment.Center, outline: 4)
+                .Place(-120 + i * 80, 0, 80, 20);
+            _strength.AddChild(_strengthWords[i]);
+        }
+    }
+
+    void UpdateStrength()
+    {
+        _strength.Visible = _shake.Dragging && !Concluded;
+        if (!_strength.Visible) return;
+        _strength.Position = _shake.View.Position + new Vector2(0, _shake.View.Bottom + 6);
+        for (int i = 0; i < Levels.Length; i++)
+        {
+            var color = Levels[i] == _shake.Level ? Palette.Gold : _hearing.HasTried(Levels[i], _magnet) ? Palette.Good : Palette.Muted;
+            if (_strengthWords[i].GetThemeColor("font_color") != color) _strengthWords[i].AddThemeColorOverride("font_color", color);
+        }
+    }
+
+    /// <summary>What you've shaken it at so far (with the magnet as it is now), and what you haven't.</summary>
+    string TriedSoFar()
+    {
+        var tried = Levels.Where(level => _hearing.HasTried(level, _magnet)).ToList();
+        if (tried.Count == 0) return "";
+        // Not a nudge to shake a chest hard when its seller won't have it.
+        var untried = Levels.Where(level => !tried.Contains(level) && !(level == Core.Shake.Hard && _visit.Seller.HatesHardShake)).ToList();
+        string done = $"Shaken {string.Join(" and ", tried.Select(Categories.Adverb))}.";
+        return untried.Count == 0 ? done : $"{done} Not {string.Join(" or ", untried.Select(Categories.Adverb))} yet.";
     }
 
     void StartLesson()
@@ -243,10 +285,13 @@ public partial class CounterPhase : Phase
                 Angered(_visit.Anger(_rng));
         }
         CheckLesson();
-        _hint.Text = Busy || Concluded ? ""
-            : _shake.Hover ? "Drag to shake it. Lift it high and let go to drop it."
+        UpdateStrength();
+        string tried = TriedSoFar();
+        _hint.Text = Busy || Concluded || _shake.Dragging ? ""
+            : _shake.Hover && tried == "" ? "Drag to shake it. Lift it high and let go to drop it."
             : _magnet ? "Magnet on: iron can't move"
-            : _shake.HeardAnything ? "" : _lamp ? "Drag the chest to shake it. The witchlight's lit." : "Drag the chest to shake it";
+            : tried != "" ? tried
+            : _lamp ? "Drag the chest to shake it. The witchlight's lit." : "Drag the chest to shake it";
 
         // An impatient seller's clock runs while you're deciding (not while Bram is talking, but while he waits for you).
         if (_visit.Seller.Patience > 0 && !Concluded && !_busy && (!_mentor.Showing || _mentor.WaitingForAction))
@@ -535,7 +580,7 @@ public partial class CounterPhase : Phase
         int price = bought ? _visit.PricePaid : offering ? offer : _visit.Ask;
         bool priced = price > 0 && worth > 0;
         _chanceShown = priced ? _slip.ChanceAbove(price, State.SaleMultiplier) : -1;
-        _chanceText.Text = worth == 0 && _hearing.HasTried(Core.Shake.Hard, false) && _hearing.HasTried(Core.Shake.Gentle, false)
+        _chanceText.Text = worth == 0 && !_shake.HeardAnything && _hearing.HasTried(Core.Shake.Hard, false) && _hearing.HasTried(Core.Shake.Gentle, false)
                 ? "Not a sound: empty, as far as you can tell."
             : worth == 0 ? "Tick what you think is inside."
             : !priced ? "Name a price: the bar shows your odds."

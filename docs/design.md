@@ -10,7 +10,7 @@ way each customer trades: pay their price, haggle, or name your own. Pass, and y
 right; buy, and the chest bursts open on the spot: each thing's true quality, a tick or a cross against your slip,
 and now and then something far better than the chest promised. What you acquire builds the shop's name (synergies)
 and its exhibition, which draw more and better customers. The stall comes with Bram's old debt to the Grey Guild:
-every fifth evening Mister Vane collects a due that climbs from 40g to 22,000g over eight weeks. Curios from Nim the
+every fifth evening Mister Vane collects a due that climbs from 40g to 26,000g over eight weeks. Curios from Nim the
 peddler bend the rules in your favour, regulars pay well for commissions, something different happens in town once a
 week, and a hooded woman trades pieces of a map to King Aldric's lost vault for the finds only a good ear turns up.
 Pay all eight dues and the stall is free (and with the whole map, the vault opens on your counter); fall short and
@@ -42,16 +42,27 @@ but only the rules tell you whether it's real. Soft things only sound at a hard 
 who won't shake hard (most sellers) or isn't allowed to (Granny Wick's chests: take her sewing on faith, or pay to be
 sure).
 
-How fast you drag sets the shake strength (gentle from 40 px/s, firm from 520, hard from 1150). There's no meter:
-the sounds tell you. `ShakeBox` gates physics impacts by `Chest.Sounds`/`Chest.Audible`, and the shake test checks the
-two agree, thing by thing, with and without the magnet.
+How fast you drag sets the shake strength (gentle from 40 px/s, firm from 520, hard from 1150). While you shake,
+three words under the chest (gentle, firm, hard) show how hard you're shaking and, in green, the strengths you've
+already given it a fair go at; at rest the line under the chest says the same ("Shaken gently and firmly. Not hard
+yet."). That's your hands, not the chest: what's inside is still only in the sounds. (v5 to v10 had no readout at all,
+and the beginner playtest showed new players couldn't tell a firm shake from a hard one, or which a lesson was still
+waiting for.) `ShakeBox` gates physics impacts by `Chest.Sounds`/`Chest.Audible`, and the shake test checks the two
+agree, thing by thing, with and without the magnet.
 
 ## What a chest holds, and how good it is
 
 A chest's **colour** says what to expect: wood (common), green (uncommon), blue (rare), purple (epic). Each thing
-inside rolls its own quality around that: 70% as promised, 15% one worse, 13% one better, 1.6% two better, 0.4%
+inside rolls its own quality around that: 80% as promised, 15% one worse, 4.5% one better, 0.4% two better, 0.1%
 three better (what would fall below common or above legendary stays at the end). Value is the kind's base times
 1, 3, 8, 20 or 50 by quality.
+
+Surprises are rare on purpose: in v10 one thing in five came out better (two steps in 2%), a third of a careful
+player's income came from them, and one lucky chest could pay for a renovation. Now a careful player sees about one
+thing in ten come out better and 1 in 200 jump two steps or more, and surprises are about a sixth of the income. So a long
+dry spell doesn't drag on, a pity counter (`GameState.DrySpell`) counts the things opened since the last surprise:
+after 15, each chest you buy has a 3% chance per thing more (up to 50%) that one thing in it is a step better, and
+any surprise resets it. Curios that improve quality (Lucky Coin, Lucky Shell) work on top of this.
 
 The slip shows what each thing would be worth **if it's as good as the chest promises** (`Categories.Nominal`).
 Sellers price by the **average** (`Categories.Expected`), which keeps the economy easy to balance.
@@ -59,7 +70,7 @@ Sellers price by the **average** (`Categories.Expected`), which keeps the econom
 Neither number answers the question a player actually has, so the panel shows an **odds bar** under the total: "Worth
 more than 55g? 62%". It's exact (`Appraisal.Outcomes` combines every ticked thing's quality odds, what a false bottom
 might hold, and the shop's sale bonuses), updates as you tick rows and as you move the offer slider, and runs from red
-(a long shot) through gold to green (a safe bet). Why not show the average: 70% of things come out exactly as promised
+(a long shot) through gold to green (a safe bet). Why not show the average: 80% of things come out exactly as promised
 and the average includes rare big upgrades, so most chests are worth a little *less* than it, and a player who paid it
 would lose a little on most buys. Why not just the promised total: a price a little above it can still be worth a
 gamble, and one a little below is nearly always a good buy, and the bare number says neither. With the bar there are
@@ -211,10 +222,12 @@ Everything arrives when it's needed, each with a word from Bram, so the first da
 | The Village Shop | locks and lockpicking; the display shelf, keeping things, the exhibition and cabinets | the lock (the first time, the pick waits while he talks); the shelf and why an exhibition matters |
 | The Town Shop | synergies: the journal has tallied everything from day one, so some are ready to switch on | what a synergy is and where to choose one |
 | The Emporium | the biggest crowd, the magnet, the Royal Seal | that from now on it's about the Guild |
-| The first evening | the Grey Guild and Bram's debt: a due every fifth evening | a scene: Vane, then Bram |
+| The first evening | the Grey Guild and Bram's debt: a due every fifth evening (until then nothing shows it) | a scene: Vane, then Bram |
 | Week 2 | Bram's piece of the map; commissions; Nim's curios (his first visit is that morning); one event a week | a scene; a tip with each |
 | Week 3 | the Hooded Woman's commissions, which pay in map pieces | a scene |
 | A short night | pawning, and (once a run) Bram's word | a tip |
+| A day that starts nearly broke | Bram's secret stash (three times a run) | the day card, and a tip the first time |
+| The day's event | a chip in the top bar that reopens it | a tip pointing at it |
 
 `GameState.UpgradesOpen`, `DisplayOpen` and `SynergiesOpen` hold the gates, so the sim and the bot follow them too. "Earned" is what
 the chests you've bought brought in (the day end's "the chests held", added up): a careful player gets there at the
@@ -229,12 +242,25 @@ half as much again each week, for as long as you last (endless).
 
 | Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | then |
 |---|---|---|---|---|---|---|---|---|---|
-| Due | 40g | 100g | 250g | 700g | 2,000g | 6,000g | 13,000g | 22,000g | x1.5 a week |
+| Due | 40g | 100g | 300g | 900g | 2,500g | 7,500g | 15,000g | 26,000g | x1.5 a week |
 
 The first weeks are small while you learn the stall and the village; from week 4 the dues climb with what a growing
 shop can earn, so every evening's spending is a decision: a renovation or cabinet now pays back over days, but the
-Guild comes on a fixed night. The HUD always shows the next due and when; the day-end screen shows it against your
-gold, and an upgrade that would leave you short tonight has an orange price.
+Guild comes on a fixed night. Once Vane has introduced himself (the first evening; nothing mentions the due before
+then), the HUD shows the next due and when, and the day-end screen shows it against your gold.
+
+Spending is guided, not blocked. The day-end screen says how much to keep for tomorrow's chests
+(`ShopTiers.Working`: 20g at the stall, 30g in the village, 100g in town, 250g at the Emporium, counting the shop a
+renovation would make), and an upgrade that would leave less than that, or leave you short for the Guild tonight, has
+an orange price and a tooltip saying why. The sim's careful player keeps the same purse (`Strategy.Reserve` adds it
+to what the next due needs), so Bram's advice is what good play does: buying the village at 120g and opening it with
+60g is fine, because a careful player passes on the dear chests and buys the bargains until the purse grows. (A
+safer-sounding 70g made the sim renovate three days later and clear the debt a tenth less often.)
+
+**Bram's secret stash** is the safety net for a beginner who spends too much or buys badly: start a day with less than
+20g at the stall and he slips you 30g; 40g/60g in the village, 80g/120g in town, 150g/250g at the Emporium. Three
+times a run (`GameState.StashLeft`); the day card says so, with how many are left, and Bram explains it the first
+time. The careful player hardly needs it (about once in two runs).
 
 Short on the night: pawn what's on display (at 60% of its price) or sell curios back (half their price). Once a run,
 if even that won't do, Bram vouches for you: everything you have goes to the Guild and the rest, with half as much
@@ -247,8 +273,9 @@ Nim the peddler drops by before opening once a week from week 2 (`PeddlerPhase`;
 the Guild's first) with three curios (`Curios.Stock`: rarer ones more often as the weeks go by). Each bends one rule of
 the trade, and you have room for three (a Curio Case, 250g at the town shop, adds a fourth), so which ones you keep
 shapes how you play: whom to haggle with, which sounds to chase, whether to save or spend. None of them tells you what
-a chest holds before you buy it. Prices climb with the stakes (common 50g, uncommon 100g, rare 180g in week 2, half as
-much again each week after); Nim buys them back for half.
+a chest holds before you buy it. Commons cost 1g, always, and Nim's first visit (week 2) always lays out at least
+one, so a new player can try a curio before they can afford one; uncommons cost 60g and rares 140g in week 2, and
+60% of that more each week after. Nim buys them back for half.
 
 | Curio | | Does |
 |---|---|---|
@@ -284,7 +311,8 @@ a chest with a flump in it is worth chasing when Penn wants silk.
 
 ## Events
 
-Once a week from week 2, on a day of its own, something happens in town (the day card announces it; `Events`):
+Once a week from week 2, on a day of its own, something happens in town (the day card announces it, and a chip in the
+top bar keeps it there all day: click it to read it again; `Events`):
 
 | Event | That day |
 |---|---|
@@ -331,7 +359,11 @@ counter), shown at 2x behind the counter and dimmed behind the lockpicking, open
 The game opens on a title screen (Continue, New game, Settings, Quit) over your shop as you left it. The shop is
 saved to `user://save.json` at the start of each day (`GameState.Save` and `Load`, plain JSON from Core), so leaving
 mid-day starts that day over; the pause menu (Esc, or Menu in the top bar) says so. Settings (`user://settings.cfg`):
-volume, fullscreen, screen shake and flashes (full, reduced or off), and Uncle Bram's tips.
+volume, fullscreen, screen shake and flashes (full, reduced or off), Uncle Bram's tips, and **item sounds**: for each
+kind of thing, which of three or four sounds it makes (`Audio.SoundSets`; recorded ones from Kenney's CC0 packs via
+`tools/import_art.py`, a few synthesized in `Sfx`). Each kind's sound stays the one you'd expect in real life (a
+purse, a pot, a thump of cloth, a bottle, pages, glass), so any set keeps the rules readable; the choice is taste.
+Click a kind's option to hear the next one.
 
 ## Collection, synergies and exhibition
 
@@ -354,14 +386,17 @@ ten at uncommon or better level 2, and so on to ten legendary for level 5. Two a
 | Arcanist | enchanted things found (3, 8, 15, 25, 40) | each thing 2% likelier to be enchanted |
 
 Only **one** synergy is active at a time, chosen at the end of a day (the day-end screen's Synergies button opens the
-journal with switches). A Guild Charter (300g, town) and a Royal Seal (900g, Emporium) add a slot each. That makes a
+journal with switches). A Guild Charter (300g, town) and then a Royal Seal (900g, Emporium, only once you have the
+charter) add a slot each. The Synergies button is on the day-end screen from the moment the town shop opens, even
+before any synergy is reached ("Synergies: none reached yet"), so Bram's tip always has something to point at. That makes a
 specific kind of chest worth wanting: a player chasing Jewelry Tycoon level 3 wants blue chests with coins and
 jewelry, and will pay up for them.
 
 After an opening, anything not fake or broken can be **kept for display** instead of sold: you give up its price. The
 button shows the points it adds (a star for enchanted, which counts double). With the display full, it becomes **Swap**:
-pick something on display to sell, and the new thing takes its place. Display space: a shelf of 2, then cabinets of
-3, 3 and 4 (60g, 250g, 600g). The **exhibition** score is the display's prestige (1, 2, 4, 8 or 16 by quality; double
+pick something on display to sell, and the new thing takes its place. Display space: a shelf with room for one, then
+six cabinets of one each, each on offer only once the one before it is bought: Oak Cabinet 60g and Oak Dresser 120g
+(village), Glass Cabinet 250g and Glass Case 400g (town), Gilded Cabinet 700g and Gilded Case 1,100g (Emporium). The **exhibition** score is the display's prestige (1, 2, 4, 8 or 16 by quality; double
 if enchanted). Every 10 points brings a customer a day (up to two), and each point makes a chest 1% likelier to be a
 colour better (up to 40%). Past 40 an exhibition brings nothing more, unless visitors pay to see it (the Visitors'
 Book curio).
@@ -372,51 +407,55 @@ Book curio).
 |---|---|---|---|---|
 | Roadside Stall | start | 4 | mostly wood | jingle, clank, flump; three strengths; clanks drown jingles; from day 2, haggling, naming a price, counting rattles |
 | Village Shop | 60g, once the stall has earned 120g | 5 | mostly green | slosh and rustle; locks; false bottoms and the drop; the display shelf and cabinets; Brask's weight, Tobias's tall tales, Marta, Wick's sewing |
-| Town Shop | 200g | 6 | mostly blue | jewelry; two or three of a kind (Pell); sand (Shelly); enchantment and the Witchlight; synergies and the Guild Charter; Wren, Orrin's dreams, Grit, Zara |
-| The Emporium | 1200g | 7 | blue and purple | Vex's clock, Gull's false bottoms, Pip, Silas's fakes, Ermine's paste, the Magnet, the Royal Seal |
+| Town Shop | 300g | 6 | mostly blue | jewelry; two or three of a kind (Pell); sand (Shelly); enchantment and the Witchlight; synergies and the Guild Charter; Wren, Orrin's dreams, Grit, Zara |
+| The Emporium | 2,000g | 7 | blue and purple | Vex's clock, Gull's false bottoms, Pip, Silas's fakes, Ermine's paste, the Magnet, the Royal Seal |
 
 The Painted Sign (40g) adds a customer a day; the Curio Case (250g, town) room for a fourth curio. The Emporium has
 three big sums to grow into while the dues climb: the Night Market (2,500g, two more customers a day), the Patrons'
-Book (4,000g, a fourth commission a week) and the Velvet Case (6,000g, a fifth curio). Day one is scripted: four customers, one lesson each (a gentle shake
+Book (4,000g, a fourth commission a week) and the Velvet Case (6,000g, a fifth curio, after the Curio Case). Day one is scripted: four customers, one lesson each (a gentle shake
 and the slip; a hard shake for cloth; listening past a clank; passing when they heard everything).
 
-## Evidence (`godot --headless --path . -- --sim`, 200 runs per style, up to 12 weeks)
+## Evidence (`godot --headless --path . -- --sim`, 300 runs per style, up to 12 weeks)
 
 Each style plays whole runs: buying chests, curios (a careful player's taste, keeping enough back for the Guild) and
-upgrades, delivering commissions, paying the Guild (pawning, or Bram's word, when short).
+upgrades (keeping Bram's working purse), delivering commissions, paying the Guild (pawning, or Bram's word, when
+short), and taking Bram's stash when a day starts nearly broke.
 
 | Style | Still trading after each due, weeks 1-8 | Debt cleared | Vault | Foreclosed (median week) | Village | Town | Emporium |
 |---|---|---|---|---|---|---|---|
-| Pays their price, every chest | 100 83 60 23 10 6 5 0% | 0% | 0% | all (week 4) | day 5 | never | never |
-| One hard shake, keeps the seller's marks | 100 100 91 57 29 15 11 1% | 1% | 0% | all (week 5) | day 6 | never | never |
-| Every strength, drops when safe | 100 100 98 94 88 82 81 60% | 60% | 59% | 99% (week 9) | day 3 | day 10 | day 14 |
-| + Witchlight and Magnet | 100 100 98 94 87 82 80 66% | 66% | 64% | 97% (week 10) | day 3 | day 10 | day 15 |
-| + keeps grand things | 100 100 98 93 83 79 79 71% | 71% | 71% | 91% (week 11) | day 3 | day 10 | day 16 |
+| Pays their price, every chest | 100 95 76 42 26 18 11 0% | 0% | 0% | all (week 4) | day 7 | never | never |
+| One hard shake, keeps the seller's marks | 100 100 95 58 32 23 16 0% | 0% | 0% | all (week 5) | day 7 | never | never |
+| Every strength, drops when safe | 100 100 100 97 92 88 87 58% | 58% | 52% | all (week 9) | day 3 | day 9 | day 15 |
+| + Witchlight and Magnet | 100 100 100 97 91 87 87 71% | 71% | 62% | 99% (week 10) | day 3 | day 9 | day 15 |
+| + keeps grand things | 100 100 100 97 86 77 77 69% | 69% | 64% | 99% (week 10) | day 3 | day 11 | day 16 |
 
 Week by week for the careful player with both tools (gold on the Guild's night, before paying):
 
 | Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Due | 40 | 100 | 250 | 700 | 2,000 | 6,000 | 13,000 | 22,000 | 33,000 | 49,500 | 74,250 |
-| Gold, 10th percentile | 78 | 161 | 368 | 563 | 498 | 6,324 | 11,594 | 4,144 | 28,394 | 23,880 | 25,959 |
-| Gold, median | 134 | 421 | 1,491 | 4,998 | 12,872 | 25,363 | 40,217 | 48,684 | 69,494 | 65,251 | 54,863 |
-| Paid | 100% | 100% | 98% | 96% | 92% | 94% | 99% | 82% | 90% | 75% | 44% |
-| At the Emporium | 0% | 8% | 50% | 81% | 88% | 95% | 98% | 98% | 100% | | |
+| Due | 40 | 100 | 300 | 900 | 2,500 | 7,500 | 15,000 | 26,000 | 39,000 | 58,500 | 87,750 |
+| Gold, 10th percentile | 81 | 213 | 592 | 1,045 | 2,930 | 9,853 | 16,170 | 12,410 | 26,573 | 24,221 | 20,740 |
+| Gold, median | 133 | 557 | 2,030 | 6,411 | 14,299 | 25,986 | 36,457 | 42,248 | 48,547 | 41,543 | 33,598 |
+| Paid | 100% | 100% | 100% | 97% | 94% | 96% | 100% | 82% | 80% | 37% | 6% |
+| At the Emporium | 0% | 3% | 46% | 82% | 88% | 93% | 97% | 97% | 100% | 100% | 100% |
 
-(Dues shown before curios: the Forged Receipt takes a fifth off, which is why the report's medians read 17,600 in week
+(Dues shown before curios: the Forged Receipt takes a fifth off, which is why the report's medians read 20,800 in week
 8.) The early weeks are gentle and the renovations' payback is quick; the weeks that end runs are week 5 (shops still
-in the village when the due reaches 2,000) and week 8, the 22,000 wall. A careful player fills about 26 commissions a
-run (some 14,000g), Bram vouches in 30% of runs (usually week 4 or 5), and endless lasts two or three more weeks.
-Careless play loses the shop in week 4 or 5.
+in the village when the due reaches 2,500) and week 8, the 26,000 wall. A careful player fills about 27 commissions a
+run (some 14,000g), Bram vouches in about a fifth of runs (usually week 5), his stash opens about once in two runs,
+and endless lasts two or three more weeks. Careless play loses the shop in week 4 or 5.
+
+Surprises: a careful player sees 10% of things come out a step better than their chest and 0.5% two or more, worth 16%
+of what the chests held (v10: 20%, 2% and 29%).
 
 Per seller, at their own shop, profit per visit for a careful player with every tool, against paying their price
-blind (unchanged by the run). Every habit pays for putting up with it; only Tam (a few coins for anything), Wick (her unpriced sewing), Wren
-and Mags pay a little blind:
+blind (unchanged by the run). Every habit pays for putting up with it; only Tam (a few coins for anything), Wick (her
+unpriced sewing), Wren, Mags and Brask pay a little blind:
 
 | | Tam | Penn | Hob | Mags | Brask | Tobias | Marta | Wick | Wren | Orrin | Grit | Zara | Pell | Shelly | Vex | Gull | Pip | Ermine | Silas |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Careful | +14 | +4 | +10 | +5 | +13 | +19 | +18 | +19 | +45 | +43 | +150 | +27 | +122 | +29 | +62 | +110 | +62 | +38 | +82 |
-| Blind | +15 | -2 | -2 | +3 | +1 | -49 | -3 | +5 | +11 | -87 | -331 | -25 | -29 | -25 | -257 | -422 | -15 | -83 | -39 |
+| Careful | +10 | +4 | +9 | +5 | +11 | +16 | +17 | +16 | +31 | +42 | +123 | +28 | +97 | +21 | +27 | +99 | +63 | +31 | +69 |
+| Blind | +10 | -2 | -3 | +2 | +2 | -38 | -4 | +7 | +9 | -72 | -359 | -24 | -28 | -27 | -319 | -351 | -18 | -65 | -31 |
 
 Every seller's lesson completes, played the careful way, with and without the tools of their shop.
 
@@ -440,7 +479,11 @@ Every seller's lesson completes, played the careful way, with and without the to
    village shop, synergies with the town shop, each introduced by Bram), gives every shop its own look, and adds the
    title screen, daily saves, pause menu and settings. **v10** turns the shop into a run: the Grey Guild's weekly dues
    (eight weeks, then endless), curios from Nim, commissions, an event each week, the Stranger's sealed chests and the
-   gilded ones, and the story of King Aldric's vault.
+   gilded ones, and the story of King Aldric's vault. **v11** makes surprises rare (with a pity counter for long dry
+   spells), adds Bram's secret stash as a beginner's safety net, guides early spending (a working purse, orange
+   prices), makes commons 1g at Nim's, chains the cabinets and synergy slots one after another, keeps the day's
+   event in the top bar, lets you choose each kind's sound, and, after a beginner's playtest, shows how hard you're
+   shaking.
 5. **Opening a passed chest (v5 to v6).** Immediate feedback, but it made no sense: they're taking it home. The gut
    feeling keeps the feedback and keeps the chest closed.
 6. **Cloth padding (v7 to v8).** Cloth packed around hard things made them sound one shake harder (with an Ear Trumpet
@@ -455,7 +498,8 @@ Every seller's lesson completes, played the careful way, with and without the to
 
 ## Open questions
 
-- Is drag speed a good stand-in for shake strength with a real mouse? The thresholds need playtesting.
+- Is drag speed a good stand-in for shake strength with a real mouse? The thresholds need playtesting; the words under
+  the chest now show where you are.
 - Vex's twelve seconds: enough to shake gently and hard and decide, but is it fun or just stressful?
 - Should displayed things ever sell for more than their price (a famous piece)? Today they only draw customers.
 - Is counting by ear (and by the words over the chest) readable with four or five things rattling at once?
@@ -466,9 +510,10 @@ Every seller's lesson completes, played the careful way, with and without the to
   for a hunch (paying a little over the odds for a chest you suspect holds more), or does everyone just follow it?
 - Enchantment is now x2 instead of x4: still exciting enough to hunt with the witchlight?
 - The shop saves at the start of each day only, and sellers don't remember you.
-- Four days at the stall before the first renovation: long enough to learn the three rules, or too long?
-- The sim's careful player is a perfect listener: real players will clear the debt less often. Is 22,000g in week 8
-  a wall people want to climb again, or a cliff? Bram's word (once a run) is the safety net; is once enough?
+- Three days at the stall before the first renovation: long enough to learn the three rules, or too long?
+- The sim's careful player is a perfect listener: real players will clear the debt less often. Is 26,000g in week 8
+  a wall people want to climb again, or a cliff? Bram's word (once a run) and his stash (three times) are the safety
+  nets; are they enough for a beginner, and too much for a good player?
 - Curios are chosen by a fixed taste in the sim: which ones do players actually pick, and do any feel useless (the
   knife, the hook)?
 - The vault usually comes with clearing the debt for a careful player (the Hooded Woman's asks are met by volume at

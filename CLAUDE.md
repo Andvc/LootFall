@@ -44,7 +44,8 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   time, each taught by the seller it belongs to. Rules apply every time or not at all: a hidden roll that makes a rule
   work only sometimes reads as a bug, and a rule people can't reason about from real life (v7's cloth padding) goes. Enchantment (`Item.Magic`) is something any
   thing can be: x2 value and exhibition, same quality, colour and sprite.
-- One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`); kinds differ in how
+- One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`; alternatives for each
+  kind, chosen in Settings > Item sounds, are in `Audio.SoundSets`: play `SoundSets.Group(kind)`); kinds differ in how
   hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
   Introduce new things one at a time: by shop tier (`CategoryDef.Tier`, `SellerDef.Tier`) and with a Bram hint
   (`Hints.cs`).
@@ -57,11 +58,14 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
 - The run (`Run.cs`, a partial of `GameState`): five-day weeks; the Grey Guild's due every fifth evening (`Guild.Due`,
   eight weeks then endless x1.5); pawning, Bram's word once a run, foreclosure. Curios (`Curios.cs`, from Nim weekly)
-  each bend one rule and never reveal what's in a chest; commissions (`Commissions.cs`) pay for delivering finds;
+  each bend one rule and never reveal what's in a chest (commons cost 1g); commissions (`Commissions.cs`) pay for delivering finds;
   one event a week (`Events.cs`); the story's scenes and the map to the vault (`Story.cs`). The sim's report must show
   careful players usually clear the debt (week 8 the real wall), careless ones foreclosed within a few weeks, and early
   foreclosures rare for careful play. Anything added to the run goes in `SaveData` too; the profile across runs is
-  `Profile` (user://profile.json).
+  `Profile` (user://profile.json). Bram's stash (`GameState.Stash`, three times a run) tops up a day that starts
+  nearly broke. Bram's working purse (`ShopTiers.Working`) is both the day-end advice (orange prices) and what
+  `Strategy.Reserve` keeps, so the advice is what the sim's careful player does: tune them together. Surprises
+  (`Categories.Odds`) are rare, with a pity counter (`GameState.DrySpell`); the sim reports their share of income.
 - The shop opens up a step at a time (`GameState.UpgradesOpen` once it has earned `UpgradesAt`, `DisplayOpen` with
   the village shop, `SynergiesOpen` with the town shop), each introduced by a Bram tip when it happens. Gate new
   systems the same way, in Core, so the sim and the bot follow them.
@@ -83,7 +87,9 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 - Buttons use `FocusMode.None`: Space is reserved for lockpicking and holding the chest open. L opens the ledger.
 - `Hearing.Read` and `Strategy` model a careful player (what they hear, when they drop or use the magnet, what they
   offer and keep) for the sim and the bot. Update them when a rule, tool or trade changes.
-- Phases are swapped by `Main.SwitchTo`; check `Alive` after every `await` in a phase.
+- Phases are swapped by `Main.SwitchTo`; check `Alive` after every `await` in a phase. Quit through `Main.QuitGame`
+  (it frees the phase and bot and releases the sounds first), never `GetTree().Quit()`: long runs crashed on exit
+  otherwise, and short ones leaked.
 - Screen effects go through `Main` (`Shake`, `Flash`, `HitStop`, `Zoom`); capture points use `Main.Moment(name)`.
 - Godot C# naming differs from GDScript in places (e.g. `CpuParticles2D`, `AudioStreamWav`).
 

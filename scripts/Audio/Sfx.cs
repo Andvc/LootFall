@@ -21,6 +21,7 @@ public partial class Sfx : Node
     readonly Random _rng = new();
     AudioStreamPlayer _hum;
     int _nextVoice;
+    bool _released;
 
     public override void _Ready()
     {
@@ -35,8 +36,27 @@ public partial class Sfx : Node
         AddChild(_hum);
     }
 
+    /// <summary>Stops every sound and lets go of them all, so quitting leaves nothing playing (or leaked) behind.</summary>
+    public void Release()
+    {
+        _released = true;
+        foreach (var voice in _voices)
+        {
+            voice.Stop();
+            voice.Stream = null;
+        }
+        _hum.Stop();
+        _hum.Stream = null;
+        var streams = _sounds.Values.Concat(_synthGroups.Values.SelectMany(s => s)).Concat(_groups.Values.SelectMany(s => s)).Distinct().ToList();
+        _sounds.Clear();
+        _synthGroups.Clear();
+        _groups.Clear();
+        foreach (var stream in streams) stream.Dispose();
+    }
+
     public void Play(string name, float pitch = 1f, float volumeDb = 0f)
     {
+        if (_released) return;
         if (!_sounds.TryGetValue(name, out var stream))
         {
             GD.PushWarning($"Unknown sound '{name}'");
@@ -51,6 +71,7 @@ public partial class Sfx : Node
     /// </summary>
     public void PlayGroup(string group, float pitch = 1f, float volumeDb = 0f)
     {
+        if (_released) return;
         if (_sounds.TryGetValue(group, out var synth))
         {
             PlayStream(synth, pitch, volumeDb);
@@ -89,6 +110,7 @@ public partial class Sfx : Node
 
     void PlayStream(AudioStream stream, float pitch, float volumeDb)
     {
+        if (_released) return;
         var voice = _voices.FirstOrDefault(v => !v.Playing) ?? _voices[_nextVoice++ % _voices.Count];
         voice.Stream = stream;
         voice.PitchScale = Mathf.Max(0.05f, pitch);
@@ -99,7 +121,7 @@ public partial class Sfx : Node
     /// <summary>The rising hum while the lid is held. 0 stops it.</summary>
     public void Hum(float intensity)
     {
-        if (intensity <= 0.001f)
+        if (intensity <= 0.001f || _released)
         {
             _hum.Stop();
             return;

@@ -128,18 +128,15 @@ public static class Strategy
     /// <summary>What a careful player's shop of each tier clears in a bad day's trading (about half a usual one).</summary>
     static readonly int[] BadDay = { 0, 15, 30, 150, 300 };
 
-    /// <summary>What it takes to buy a day's chests at each tier.</summary>
-    static readonly int[] Capital = { 0, 20, 25, 100, 250 };
-
     /// <summary>
-    /// Gold to keep back: enough to buy tomorrow's chests, and whatever of the next due a run of bad days before the
-    /// Guild comes wouldn't cover (at the shop's tier after a renovation being considered; the first day back is spent
-    /// building up again, so it doesn't count).
+    /// Gold to keep back: enough to buy tomorrow's chests (Bram's advice, <see cref="ShopTiers.Working"/>), and whatever
+    /// of the next due a run of bad days before the Guild comes wouldn't cover (at the shop's tier after a renovation
+    /// being considered; the first day back is spent building up again, so it doesn't count).
     /// </summary>
     public static int Reserve(GameState state, int tier = 0)
     {
         tier = Math.Max(tier, state.Tier);
-        return Capital[tier] + Math.Max(0, state.NextDue - Math.Max(0, state.DaysToNextDue - 1) * BadDay[tier]);
+        return ShopTiers.Working(tier) + Math.Max(0, state.NextDue - Math.Max(0, state.DaysToNextDue - 1) * BadDay[tier]);
     }
 
     /// <summary>

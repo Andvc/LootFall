@@ -62,6 +62,8 @@ public partial class Hud : CanvasLayer
         var e = state?.TodayEvent;
         _event.Visible = e != null;
         _earlyAccess.Visible = e == null;
+        // With the event's chip beside it, the day's title moves right to make room ("Day 13 - Roadside Stall" is long).
+        _lot.Place(e == null ? 330 : 418, 12, e == null ? 420 : 336, 30);
         if (e == null)
         {
             CloseEvent();
@@ -99,7 +101,7 @@ public partial class Hud : CanvasLayer
     /// <summary>Shows the Guild's next due: how much, and how soon.</summary>
     public void SetDue(Core.GameState state)
     {
-        _dueChip.Visible = state.Day > 0;
+        _dueChip.Visible = state.GuildIntroduced;
         int due = state.NextDue;
         _due.Text = $"Due {due}g";
         _due.AddThemeColorOverride("font_color", state.Gold >= due ? Palette.Gold : Palette.Warn);

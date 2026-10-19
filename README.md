@@ -4,10 +4,10 @@ A small game about the satisfaction of opening treasure chests. You inherit a ro
 chests and price them their own way: by what they heard, by weight, by the chest's colour, or by a dream. Shake each
 one yourself, gently, firmly and hard, find what they missed or misjudged, trade for it, and open it on the spot.
 Grow the stall into the finest shop in the kingdom, because it comes with Uncle Bram's old debt: every fifth evening
-the Grey Guild comes for a due that climbs from 40g to 22,000g in eight weeks. Pay them all and the stall is free;
+the Grey Guild comes for a due that climbs from 40g to 26,000g in eight weeks. Pay them all and the stall is free;
 find all four pieces of an old map on the way and King Aldric's lost vault opens on your counter.
 
-**Status:** Early Access (0.10): runs of eight weeks against the Guild's dues (then endless), with curios,
+**Status:** Early Access (0.11): runs of eight weeks against the Guild's dues (then endless), with curios,
 commissions, weekly events and a story; saves, settings and a guided start. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
 Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam.
 Design rationale: [docs/design.md](docs/design.md).
@@ -18,7 +18,8 @@ Design rationale: [docs/design.md](docs/design.md).
    heft it, some go by its colour, some feel for magic, some have no idea. The chest's colour (wood, green, blue,
    purple) says how good things inside tend to be. Each customer has one habit worth learning, and a few won't stand
    for something (a hard shake, a drop, a magnet).
-2. **Shake it yourself.** How fast you drag is how hard you shake. Light things (coins jingle, bottles slosh,
+2. **Shake it yourself.** How fast you drag is how hard you shake (the words under the chest show gentle, firm or
+   hard as you go, and which you've tried). Light things (coins jingle, bottles slosh,
    jewelry tinkles) rattle at a gentle shake; metal only clanks at a firm one, and its clanking drowns out anything
    delicate; soft things (cloth flumps, paper rustles) only sound at a hard shake. Lift it high and let go to drop it:
    a hollow boom means a false bottom (but glass may break). As the shop grows, more to work out: two or three of a
@@ -37,7 +38,8 @@ Design rationale: [docs/design.md](docs/design.md).
    Fine Lockpicks) and cabinets. From the town shop, choose which of the shop's synergies to put to work (ten of a
    kind at a quality earns one).
 6. **The week:** every fifth evening Mister Vane collects the Guild's due. Short, pawn what's on display or sell your
-   curios back; once a run Bram will vouch for you; otherwise the Guild takes the shop. From the second week, Nim the
+   curios back; once a run Bram will vouch for you; otherwise the Guild takes the shop. Start a day nearly broke and
+   Bram dips into his secret stash for you (three times a run). From the second week, Nim the
    peddler sells **curios** that bend one rule each (a lucky coin, a jeweller's loupe, a forged receipt for the
    Guild...), regulars post **commissions** (deliver what they want from a chest instead of selling it), and once a
    week something happens in town: a market day, a festival, the Royal Buyer, a gilded chest, a storm, a shipwreck,
@@ -69,6 +71,8 @@ saves at the start of every day; your best runs are kept on the title screen.
 | Pay the Guild, pawn, ask Bram | The Guild's screen, every fifth evening |
 | Choose synergies | Synergies, at the end of a day |
 | Next tip from Bram | Click his box |
+| Reread today's event | Click it in the top bar |
+| Choose each kind's sound | Settings, Item sounds: click a kind's sound to hear the next |
 | Pause, settings, quit to title | Esc, or Menu in the top bar |
 
 ## Development

@@ -27,7 +27,7 @@ public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Early Access 0.10";
+    public const string Version = "Early Access 0.11";
     const string SavePath = "user://save.json", ProfilePath = "user://profile.json";
 
     public GameState State { get; private set; }
@@ -103,7 +103,7 @@ public partial class Main : Node2D
         {
             Sfx.Export(soundDir);
             GD.Print($"Exported synthesized sounds to {soundDir}");
-            GetTree().Quit();
+            QuitGame();
             return;
         }
         Hud = new Hud();
@@ -164,6 +164,29 @@ public partial class Main : Node2D
         await Wait(0.6);
         Moment("13_item_sounds");
         await Wait(0.8);
+        QuitGame();
+    }
+
+    bool _quitting;
+
+    /// <summary>
+    /// Quits cleanly: lets go of the screen and the bot first, gives anything still waiting on them a frame or two to
+    /// notice, and collects what the managed side still holds, so the engine doesn't shut down around live objects (after
+    /// a long session that could crash on the way out).
+    /// </summary>
+    public async void QuitGame()
+    {
+        if (_quitting) return;
+        _quitting = true;
+        GetTree().Paused = false;
+        _phase?.QueueFree();
+        _phase = null;
+        _bot?.QueueFree();
+        _bot = null;
+        Sfx?.Release();
+        for (int i = 0; i < 3; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
         GetTree().Quit();
     }
 
@@ -206,7 +229,7 @@ public partial class Main : Node2D
         _saving = false;
         if (_bot != null)
         {
-            GetTree().Quit();
+            QuitGame();
             return;
         }
         ToTitle();
@@ -288,7 +311,7 @@ public partial class Main : Node2D
         SwitchTo(opening);
         while (IsInstanceValid(opening) && !opening.Finished) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await ToSignal(GetTree().CreateTimer(3.0), SceneTreeTimer.SignalName.Timeout);
-        if (quit) GetTree().Quit();
+        if (quit) QuitGame();
     }
 
     /// <summary>Opens King Aldric's vault straight away (no lock), to see the finale's opening.</summary>
@@ -301,7 +324,7 @@ public partial class Main : Node2D
         SwitchTo(opening);
         while (IsInstanceValid(opening) && !opening.Finished) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await ToSignal(GetTree().CreateTimer(3.0), SceneTreeTimer.SignalName.Timeout);
-        if (quit) GetTree().Quit();
+        if (quit) QuitGame();
     }
 
     /// <summary>Saves the shop (a real game only), starts a new day, and plays its morning.</summary>
@@ -347,7 +370,7 @@ public partial class Main : Node2D
     /// <summary>After the day's end: the Guild's introduction (the first evening), its due (the fifth), or the next morning.</summary>
     public void CloseDay()
     {
-        if (State.Day == 1 && State.WeeksPaid == 0) SwitchTo(new ScenePhase(Story.Intro(), StartDay, "THE GREY GUILD"));
+        if (!State.GuildIntroduced) SwitchTo(new ScenePhase(Story.Intro(), StartDay, "THE GREY GUILD"));
         else if (State.DuesTonight && !State.PaidThisWeek) SwitchTo(new DuesPhase());
         else StartDay();
     }
@@ -405,17 +428,20 @@ public partial class Main : Node2D
         AddChild(layer);
         var e = State.TodayEvent;
         int stash = State.Today.Stash;
-        float h = (e == null ? 136 : 216) + (stash > 0 ? 28 : 0);
-        var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(390, 130, 500, h);
+        // The Guild's due shows once Vane has introduced it (the first evening).
+        bool guild = State.GuildIntroduced;
+        float h = (e == null ? 136 : 216) + (stash > 0 ? 28 : 0) - (guild ? 0 : 28);
+        var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(306, 130, 500, h);
         card.MouseFilter = Control.MouseFilterEnum.Ignore;
         card.AddChild(UiKit.MakeLabel($"DAY {State.Day}", 48, Palette.Gold, HorizontalAlignment.Center, outline: 6).Place(0, 12, 500, 56));
         card.AddChild(UiKit.MakeLabel($"Week {State.Week}, day {State.DayOfWeek} of {Guild.DaysPerWeek}  -  {ShopTiers.Name(State.Tier)}", 16,
             Palette.Text, HorizontalAlignment.Center).Place(0, 72, 500, 20));
         string due = State.DuesTonight ? $"The Guild comes tonight for {State.DueNow}g."
             : $"The Guild comes for {State.DueNow}g at the end of day {State.Day + State.DaysToDue}.";
-        card.AddChild(UiKit.MakeLabel(due, 16, State.Gold >= State.DueNow ? Palette.Muted : Palette.Warn, HorizontalAlignment.Center)
-            .Place(0, 100, 500, 20));
-        float y = 132;
+        if (guild)
+            card.AddChild(UiKit.MakeLabel(due, 16, State.Gold >= State.DueNow ? Palette.Muted : Palette.Warn, HorizontalAlignment.Center)
+                .Place(0, 100, 500, 20));
+        float y = guild ? 132 : 104;
         if (stash > 0)
         {
             card.AddChild(UiKit.MakeLabel($"Uncle Bram slipped you {stash}g from his secret stash ({State.StashLeft} left).", 16, Palette.Good,

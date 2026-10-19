@@ -36,7 +36,7 @@ public partial class Autoplay : Node
     {
         if (MaxDays <= 0 || day <= MaxDays) return true;
         GD.Print($"Autoplay finished {MaxDays} days with {State.Gold}g ({ShopTiers.Name(State.Tier)})");
-        GetTree().Quit();
+        Main.Instance.QuitGame();
         return false;
     }
 
@@ -81,7 +81,7 @@ public partial class Autoplay : Node
                          $"{State.WeeksPaid} dues paid, {State.Gold}g, {State.MapPieces} map pieces, vault {(State.VaultOpened ? "opened" : "not opened")}");
                 // With days still to play, keep trading against the Guild's interest.
                 if (end.Cleared && MaxDays > State.Day && IsInstanceValid(end)) end.KeepTrading();
-                else GetTree().Quit();
+                else Main.Instance.QuitGame();
                 break;
         }
     }
@@ -389,7 +389,7 @@ public partial class Autoplay : Node
         }
         if (!IsInstanceValid(opening)) return;
         await ReadTips(opening.Mentor);
-        if (QuitAtEnd) GetTree().Quit();
+        if (QuitAtEnd) Main.Instance.QuitGame();
         else if (IsInstanceValid(opening)) opening.Next();
     }
 

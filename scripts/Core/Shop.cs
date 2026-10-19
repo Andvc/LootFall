@@ -20,10 +20,10 @@ public static class ShopTiers
     /// <summary>Gold to keep for a day's chests at a shop of this tier: Bram's advice before spending on the shop.</summary>
     public static int Working(int tier) => tier switch
     {
-        1 => 25,
-        2 => 70,
-        3 => 200,
-        _ => 500,
+        1 => 20,
+        2 => 30,
+        3 => 100,
+        _ => 250,
     };
 }
 

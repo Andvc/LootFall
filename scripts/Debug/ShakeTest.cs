@@ -79,6 +79,6 @@ public partial class ShakeTest : Node2D
                      $"at the right level {levelOk.GetValueOrDefault(trial)}/{Count} shakes");
         foreach (var (category, n) in missedBy.OrderByDescending(p => p.Value))
             GD.Print($"  missed {category}: {n}");
-        GetTree().Quit();
+        Main.Instance.QuitGame();
     }
 }

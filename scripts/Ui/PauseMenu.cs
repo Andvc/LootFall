@@ -61,6 +61,6 @@ public partial class PauseMenu : CanvasLayer
         GetTree().Paused = false;
         QueueFree();
         if (toTitle) Main.Instance.ToTitle();
-        else Main.Instance.GetTree().Quit();
+        else Main.Instance.QuitGame();
     }
 }

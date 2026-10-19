@@ -47,7 +47,7 @@ public partial class DayEndPhase : Phase
         BuildCards();
 
         bool dues = State.DuesTonight && !State.PaidThisWeek;
-        bool intro = State.Day == 1 && State.WeeksPaid == 0;
+        bool intro = !State.GuildIntroduced;
         Add(UiKit.MakeButton(dues ? "Close up: Vane is waiting" : intro ? "Close up for the night" : $"Open the shop: Day {State.Day + 1}",
             dues ? Palette.Warn : Palette.Gold, dues ? 16 : 24, NextDay).Place(SideX, 626, SideW, 64));
         _synergies = Add(UiKit.MakeButton("", Palette.Magic.Darkened(0.2f), 16, OpenSynergies).Place(SideX, 586, SideW, 34));
@@ -120,8 +120,11 @@ public partial class DayEndPhase : Phase
     {
         foreach (var child in _cards.GetChildren()) child.QueueFree();
         BuildSide();
-        _goldLabel.Text = State.UpgradesOpen ? $"You have {State.Gold}g. Keep about {ShopTiers.Working(State.Tier)}g for tomorrow's chests."
-            : $"You have {State.Gold}g";
+        // Bram's working purse, and (with a renovation on offer) the bigger one its shop would need.
+        var next = Upgrades.Available(State).FirstOrDefault(u => u.IsRenovation);
+        string keep = next == null ? $"Keep about {ShopTiers.Working(State.Tier)}g for tomorrow's chests."
+            : $"Keep about {ShopTiers.Working(State.Tier)}g for chests ({ShopTiers.Working(next.SetsTier)}g after renovating).";
+        _goldLabel.Text = State.UpgradesOpen ? $"You have {State.Gold}g. {keep}" : $"You have {State.Gold}g";
         _header.Text = State.UpgradesOpen ? "SPEND IT ON THE SHOP" : "FIX UP THE STALL";
         if (!State.UpgradesOpen)
         {
@@ -146,36 +149,27 @@ public partial class DayEndPhase : Phase
     {
         foreach (var child in _side.GetChildren()) child.QueueFree();
 
-        // The Guild.
-        int due = State.NextDue;
-        bool tonight = State.DuesTonight && !State.PaidThisWeek;
-        bool enough = State.Gold >= due;
-        var guild = UiKit.MakePanel(tonight ? Palette.Warn.Darkened(0.2f) : Palette.PanelBorder).Place(SideX, 182, SideW, 112);
-        _side.AddChild(guild);
-        guild.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/guild.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
-            .Place(14, 14, 44, 48));
-        guild.AddChild(UiKit.MakeLabel(tonight ? "VANE COMES TONIGHT" : "THE GUILD'S DUE", 16, tonight ? Palette.Warn : Palette.Muted).Place(70, 10, 290, 20));
-        guild.AddChild(UiKit.MakeLabel($"{due}g", 32, enough ? Palette.Gold : Palette.Bad, outline: 4).Place(70, 28, 200, 40));
-        string when = tonight ? "tonight" : State.PaidThisWeek ? $"end of day {State.Day + Guild.DaysPerWeek}" : $"end of day {State.Day + State.DaysToDue}";
-        guild.AddChild(UiKit.MakeLabel(when, 16, Palette.Muted, HorizontalAlignment.Right).Place(180, 40, 176, 20));
-        float fill = Math.Clamp(State.Gold / (float)Math.Max(1, due), 0, 1);
-        guild.AddChild(new Painter(p =>
+        // The Guild, once Vane has introduced it. The first evening, only a hint of the visit to come.
+        if (State.GuildIntroduced) BuildGuild();
+        else
         {
-            p.DrawRect(new Rect2(0, 0, SideW - 28, 14), new Color("#120e1a"));
-            p.DrawRect(new Rect2(0, 0, (SideW - 28) * fill, 14), (enough ? Palette.Gold : Palette.Bad).Darkened(0.25f));
-            p.DrawRect(new Rect2(0, 0, SideW - 28, 14), Palette.PanelBorder, false, 2);
-        }) { Position = new Vector2(14, 72) });
-        string week = State.Week <= Guild.Weeks ? $"Week {State.Week} of {Guild.Weeks}" : $"Week {State.Week}: the Guild's interest";
-        guild.AddChild(UiKit.MakeLabel(enough ? $"{week}. You have it." : $"{week}. {due - State.Gold}g short.", 16,
-            enough ? Palette.Muted : Palette.Warn).Place(14, 88, SideW - 28, 20));
+            var watcher = UiKit.MakePanel(Palette.PanelBorder).Place(SideX, 182, SideW, 112);
+            _side.AddChild(watcher);
+            watcher.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/guild.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
+                .Place(14, 14, 44, 48));
+            watcher.AddChild(UiKit.MakeLabel("A man in a grey coat has been watching the stall all day. He's still outside.", 16, Palette.Muted)
+                .Wrapped().Place(70, 12, SideW - 84, 88));
+        }
 
         // This week's commissions.
         var board = UiKit.MakePanel(Palette.PanelBorder).Place(SideX, 302, SideW, 196);
         _side.AddChild(board);
         board.AddChild(UiKit.MakeLabel("COMMISSIONS", 16, Palette.Gold.Darkened(0.2f)).Place(14, 10, 200, 20));
-        board.AddChild(UiKit.MakeLabel("until the Guild comes", 16, Palette.Muted, HorizontalAlignment.Right).Place(150, 10, 204, 20));
+        if (State.GuildIntroduced)
+            board.AddChild(UiKit.MakeLabel("until the Guild comes", 16, Palette.Muted, HorizontalAlignment.Right).Place(150, 10, 204, 20));
         if (State.Commissions.Count == 0)
-            board.AddChild(UiKit.MakeLabel(State.Week < Patrons.FromWeek ? "Regulars start asking for things once the Guild has been."
+            board.AddChild(UiKit.MakeLabel(!State.GuildIntroduced ? "Regulars will start asking you for things soon."
+                : State.Week < Patrons.FromWeek ? "Regulars start asking for things once the Guild has been."
                 : "Nobody's asking for anything this week.", 16, Palette.Muted).Wrapped().Place(14, 40, SideW - 28, 60));
         for (int i = 0; i < Math.Min(4, State.Commissions.Count); i++)
         {
@@ -204,6 +198,32 @@ public partial class DayEndPhase : Phase
             spot.AddChild(UiKit.MakeCurioIcon(curio, new Vector2(28, 31)));
             curios.AddChild(spot);
         }
+    }
+
+    /// <summary>The Guild's next due: how much, when, and how close you are.</summary>
+    void BuildGuild()
+    {
+        int due = State.NextDue;
+        bool tonight = State.DuesTonight && !State.PaidThisWeek;
+        bool enough = State.Gold >= due;
+        var guild = UiKit.MakePanel(tonight ? Palette.Warn.Darkened(0.2f) : Palette.PanelBorder).Place(SideX, 182, SideW, 112);
+        _side.AddChild(guild);
+        guild.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/guild.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
+            .Place(14, 14, 44, 48));
+        guild.AddChild(UiKit.MakeLabel(tonight ? "VANE COMES TONIGHT" : "THE GUILD'S DUE", 16, tonight ? Palette.Warn : Palette.Muted).Place(70, 10, 290, 20));
+        guild.AddChild(UiKit.MakeLabel($"{due}g", 32, enough ? Palette.Gold : Palette.Bad, outline: 4).Place(70, 28, 200, 40));
+        string when = tonight ? "tonight" : State.PaidThisWeek ? $"end of day {State.Day + Guild.DaysPerWeek}" : $"end of day {State.Day + State.DaysToDue}";
+        guild.AddChild(UiKit.MakeLabel(when, 16, Palette.Muted, HorizontalAlignment.Right).Place(180, 40, 176, 20));
+        float fill = Math.Clamp(State.Gold / (float)Math.Max(1, due), 0, 1);
+        guild.AddChild(new Painter(p =>
+        {
+            p.DrawRect(new Rect2(0, 0, SideW - 28, 14), new Color("#120e1a"));
+            p.DrawRect(new Rect2(0, 0, (SideW - 28) * fill, 14), (enough ? Palette.Gold : Palette.Bad).Darkened(0.25f));
+            p.DrawRect(new Rect2(0, 0, SideW - 28, 14), Palette.PanelBorder, false, 2);
+        }) { Position = new Vector2(14, 72) });
+        string week = State.Week <= Guild.Weeks ? $"Week {State.Week} of {Guild.Weeks}" : $"Week {State.Week}: the Guild's interest";
+        guild.AddChild(UiKit.MakeLabel(enough ? $"{week}. You have it." : $"{week}. {due - State.Gold}g short.", 16,
+            enough ? Palette.Muted : Palette.Warn).Place(14, 88, SideW - 28, 20));
     }
 
     /// <summary>What's on display, what it does for the shop, and a click to sell any of it.</summary>

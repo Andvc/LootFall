@@ -85,12 +85,13 @@ public partial class OpeningPhase : Phase
         float y = 140;
         foreach (var bonus in bonuses)
         {
-            tally.AddChild(UiKit.MakeLabel(bonus, 16, Palette.Magic).Place(40, y, 320, 20));
+            tally.AddChild(UiKit.MakeLabel(bonus, 16, Palette.Magic).Place(40, y, 280, 20));
             y += 22;
         }
+        // Kept to the tally's width, clear of the profit stamp.
         if (_purchase.Luck != null)
             tally.AddChild(UiKit.MakeLabel($"{Curios.Get(_purchase.Luck).Name}: {_purchase.Improved} thing{(_purchase.Improved == 1 ? "" : "s")} came out better!",
-                16, Palette.Good, outline: 4).Place(40, y, 420, 20));
+                16, Palette.Good, outline: 4).Wrapped().Place(40, y, 280, 44));
     }
 
     public override void _Process(double delta)
