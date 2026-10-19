@@ -45,12 +45,13 @@ public static class Hints
         ["exhibition"] = "Your exhibition. Click anything in it to sell it if you need the money.",
 
         // The shop opens up a step at a time.
-        ["upgrades"] = $"{GameState.UpgradesAt}g earned: the stall pays its way! Now spend it on the shop. A Village Shop brings more customers, " +
-                       "richer chests, and a shelf for your best finds.",
-        ["display"] = "A shelf behind the counter! Now you can keep grand things for display instead of selling them: an " +
-                      "exhibition draws more customers, and better chests. Cabinets hold more.",
+        ["upgrades"] = $"{GameState.UpgradesAt}g earned: the stall pays its way! A Village Shop brings more customers, richer chests " +
+                       "and a shelf. But village chests cost more: keep enough for tomorrow's. An orange price means wait a day.",
+        ["stash"] = "Nearly broke? I keep a little put by for days like this. Don't tell the Guild. It won't last: three times, no more.",
+        ["display"] = "A shelf behind the counter, with room for one thing! Keep something grand for display instead of selling " +
+                      "it: an exhibition draws more customers, and better chests. Each cabinet adds room for one more.",
         ["synergy"] = "Town folk know a shop by what it collects. Your journal has tallied everything you've acquired: ten of a " +
-                      "kind earns a synergy. Open Synergies and put one to work.",
+                      "kind earns a synergy. Open Synergies, bottom right, to put one to work or see how close you are.",
         ["slots"] = "Another synergy slot: open Synergies and put one more to work.",
         ["emporium"] = "The Emporium! As grand as shops get. Bigger things to grow into now: a night market, a patrons' book, " +
                        "a velvet case for curios. Just keep enough back for Vane.",
@@ -66,7 +67,7 @@ public static class Hints
         ["commissions"] = "Regulars want things now: see the board on the left. When something they want comes out of a chest, " +
                           "hand it over instead of selling it. A commission pays far more than a sale.",
         ["deliver"] = "Someone wants this! Deliver it for the commission, or sell it as usual.",
-        ["event"] = "Something's happening in town today: one day a week is different. Read the day card.",
+        ["event"] = "Something's happening in town today: one day a week is different. It's up in the top bar: click it to read it again.",
         ["stranger"] = "The Stranger. Packed tight in straw: nothing inside can move, so there's nothing to hear. Drop it to feel " +
                        "how heavy it is. Heavy ones hold more.",
         ["gilded"] = "Gold! One of the old royal chests. Its seller thinks the gold is paint, and priced it as the colour underneath.",

@@ -112,6 +112,23 @@ SOUNDS = {
     "rustle": [(CASINO, "cardShove1"), (CASINO, "cardShove2"), (CASINO, "cardShove4")],
     "tinkle": _variants(UI, "glass", [1, 2, 3]),
 
+    # Alternatives for each kind (scripts/Audio/SoundSets.cs), to audition and choose in Settings > Item sounds.
+    "jingle_chips": [(CASINO, f"chipsCollide{i}") for i in range(1, 5)],
+    "jingle_handle": [(CASINO, f"chipsHandle{i}") for i in range(1, 7)],
+    "clank_light": _variants(IMPACT, "impactMetal_light", range(5)),
+    "clank_pot": [(RPG, f"metalPot{i}") for i in range(1, 4)],
+    "clank_plate": _variants(IMPACT, "impactPlate_medium", range(5)),
+    "flump_soft": _variants(IMPACT, "impactSoft_medium", range(5)),
+    "flump_heavy": _variants(IMPACT, "impactSoft_heavy", range(5)),
+    "flump_leather": [(RPG, "dropLeather"), (RPG, "handleSmallLeather"), (RPG, "handleSmallLeather2"), (RPG, "clothBelt"),
+                      (RPG, "clothBelt2")],
+    "slosh_clink": _variants(IMPACT, "impactGlass_light", range(5)),
+    "rustle_book": [(RPG, f"bookFlip{i}") for i in range(1, 4)],
+    "rustle_slide": [(CASINO, f"cardSlide{i}") for i in range(1, 9)],
+    "rustle_shuffle": [(CASINO, "cardShuffle"), (CASINO, "cardFan1"), (CASINO, "cardFan2")],
+    "tinkle_glass": _variants(UI, "glass", [4, 5, 6]),
+    "tinkle_plate": _variants(IMPACT, "impactPlate_light", range(5)),
+
     # Handling the chest and the shop
     "land": _variants(IMPACT, "impactPlank_medium", range(5)),
     "clack": _variants(IMPACT, "impactMetal_heavy", range(3)),

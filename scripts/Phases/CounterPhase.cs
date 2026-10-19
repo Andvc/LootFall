@@ -214,6 +214,7 @@ public partial class CounterPhase : Phase
         if (_visit.Chest.Lock.Locked) Teach("locked");
         if (_lamp) Teach("lamp");
         if (firstOfDay && State.TodayEvent != null) Teach("event");
+        if (firstOfDay && State.Today.Stash > 0) Teach("stash");
         if (State.Commissions.Any(c => !c.Done)) Teach("commissions");
         if (State.Commissions.Any(c => c.Story && !c.Done)) Teach("hood");
         if (_visit.Chest.Sealed) Teach("stranger");
@@ -293,14 +294,9 @@ public partial class CounterPhase : Phase
         }
     }
 
-    /// <summary>
-    /// This week's open commissions, under the seller: what's wanted and what it pays (the slip marks the kinds), and
-    /// today's event above them.
-    /// </summary>
+    /// <summary>This week's open commissions, under the seller: what's wanted and what it pays (the slip marks the kinds).</summary>
     void BuildBoard()
     {
-        if (State.TodayEvent is EventDef e)
-            Add(UiKit.MakeLabel(Events.Tag(e, State.BuyerKind), 16, Palette.Magic, outline: 4).Place(16, 66, 420, 20));
         var open = State.Commissions.Where(c => !c.Done).Take(3).ToList();
         if (open.Count == 0) return;
         var board = Add(UiKit.MakePanel(Palette.Gold.Darkened(0.4f)).Place(12, 492, 292, 30 + open.Count * 24));

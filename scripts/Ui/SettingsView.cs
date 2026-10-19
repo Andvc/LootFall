@@ -5,11 +5,12 @@ namespace LootFall.Ui;
 
 /// <summary>
 /// The settings, over whatever screen you're on (it keeps working while the game is paused): volume, fullscreen,
-/// screen shake and flashes, and Uncle Bram's tips. Changes apply at once and are saved when it closes.
+/// screen shake and flashes, Uncle Bram's tips, and which sound each kind of thing makes. Changes apply at once and
+/// are saved when it closes.
 /// </summary>
 public partial class SettingsView : Control
 {
-    const float W = 640, H = 380, X = (1280 - W) / 2, Y = (720 - H) / 2, ControlX = X + 320;
+    const float W = 640, H = 436, X = (1280 - W) / 2, Y = (720 - H) / 2, ControlX = X + 320;
 
     public event Action Closed;
 
@@ -58,10 +59,25 @@ public partial class SettingsView : Control
             if (Main.Instance.State != null) Main.Instance.State.Guided = Settings.Tips;
         }));
 
+        row += 56;
+        Row("Item sounds", row);
+        AddChild(UiKit.MakeButton("Choose...", Palette.PanelBorder.Lightened(0.2f), 16, OpenSounds).Place(ControlX, row - 4, 200, 36));
+
         AddChild(UiKit.MakeButton("Done", Palette.Gold, 24, Close).Place(X + W / 2 - 100, Y + H - 68, 200, 48));
         Refresh();
         Modulate = Colors.Transparent;
         CreateTween().TweenProperty(this, "modulate", Colors.White, 0.12f);
+    }
+
+    SoundSetsView _sounds;
+
+    /// <summary>Opens the item sounds chooser on top (the bot's shell demo uses this too).</summary>
+    public void OpenSounds()
+    {
+        if (_sounds != null) return;
+        _sounds = new SoundSetsView { ZIndex = 5 };
+        _sounds.Closed += () => _sounds = null;
+        AddChild(_sounds);
     }
 
     void Row(string text, float y) => AddChild(UiKit.MakeLabel(text, 16, Palette.Text).Place(X + 40, y + 4, 270, 20));
@@ -88,7 +104,7 @@ public partial class SettingsView : Control
 
     public override void _UnhandledInput(InputEvent e)
     {
-        if (e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
+        if (e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape } && _sounds == null)
         {
             GetViewport().SetInputAsHandled();
             Close();

@@ -17,7 +17,7 @@ public static class Guild
     public const int Weeks = 8;
 
     /// <summary>Each week's due: small while you learn the stall, then climbing with what a growing shop can earn.</summary>
-    static readonly int[] Dues = { 40, 100, 250, 700, 2000, 6000, 13000, 22000 };
+    static readonly int[] Dues = { 40, 100, 300, 900, 2500, 7500, 15000, 26000 };
 
     /// <summary>After the debt: each week half as much again, for as long as you last.</summary>
     const float EndlessGrowth = 1.5f;
@@ -43,10 +43,10 @@ public static class Guild
     {
         "Evening. The Guild's due, if you please.",
         "Week two. You're still here. Good: the Guild hates to waste a shop.",
-        "Two hundred and fifty. Your uncle never made it past week three, you know.",
+        "Three hundred. Your uncle never made it past week three, you know.",
         "I hear you've been buying up chests. The Guild notices things like that.",
         "My masters are curious about you. That's rarely good news.",
-        "Six thousand. The Guild is starting to take you seriously.",
+        "Seven and a half thousand. The Guild is starting to take you seriously.",
         "One more week after this. Then the debt's paid. Unless you'd like to sell us the shop now?",
         "The last of it. Every coin, mind.",
     };

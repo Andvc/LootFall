@@ -3,8 +3,8 @@ using Godot;
 namespace LootFall;
 
 /// <summary>
-/// The player's settings, kept in user://settings.cfg: volume, fullscreen, how much the screen shakes and flashes, and
-/// whether Uncle Bram gives tips (for new games, and for the one in progress).
+/// The player's settings, kept in user://settings.cfg: volume, fullscreen, how much the screen shakes and flashes,
+/// whether Uncle Bram gives tips (for new games, and for the one in progress), and which sound each kind of thing makes.
 /// </summary>
 public static class Settings
 {
@@ -20,6 +20,13 @@ public static class Settings
 
     public static bool Tips { get; set; } = true;
 
+    /// <summary>For each kind of thing, which of its sounds to use (an index into <see cref="Audio.SoundSets.For"/>).</summary>
+    static readonly int[] _soundSets = new int[System.Enum.GetValues<Core.Category>().Length];
+
+    public static int SoundSet(Core.Category kind) => _soundSets[(int)kind];
+
+    public static void SetSoundSet(Core.Category kind, int option) => _soundSets[(int)kind] = option;
+
     public static void Load()
     {
         var file = new ConfigFile();
@@ -29,6 +36,8 @@ public static class Settings
             Fullscreen = (bool)file.GetValue("video", "fullscreen", Fullscreen);
             Shake = (float)file.GetValue("video", "shake", Shake);
             Tips = (bool)file.GetValue("game", "tips", Tips);
+            foreach (var kind in System.Enum.GetValues<Core.Category>())
+                _soundSets[(int)kind] = (int)file.GetValue("sounds", kind.ToString().ToLowerInvariant(), 0);
         }
         Apply();
     }
@@ -40,6 +49,8 @@ public static class Settings
         file.SetValue("video", "fullscreen", Fullscreen);
         file.SetValue("video", "shake", Shake);
         file.SetValue("game", "tips", Tips);
+        foreach (var kind in System.Enum.GetValues<Core.Category>())
+            file.SetValue("sounds", kind.ToString().ToLowerInvariant(), _soundSets[(int)kind]);
         file.Save(Path);
     }
 

@@ -348,7 +348,7 @@ public partial class ShakeBox : Node2D
         HeardAnything = true;
         float loud = Mathf.Clamp((strength - ImpactThreshold) / 600f, 0f, 1f);
         // Always the kind's own sound, give or take a hair: things of a kind sound alike.
-        Sfx.PlayGroup(item.Def.Sound, item.Def.Pitch * (1f + 0.04f * Rand()), Mathf.LinearToDb(0.4f + 0.6f * loud) + 3f);
+        Sfx.PlayGroup(SoundSets.Group(item.Category), item.Def.Pitch * (1f + 0.04f * Rand()), Mathf.LinearToDb(0.4f + 0.6f * loud) + 3f);
 
         if (_wordCooldown.GetValueOrDefault(index) <= 0)
         {

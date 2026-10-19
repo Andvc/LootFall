@@ -131,12 +131,15 @@ public static class Categories
     public static int Value(Category category, Rarity quality, bool magic) =>
         Get(category).BaseValue * QualityMultiplier[(int)quality] * (magic ? MagicMultiplier : 1);
 
-    /// <summary>How far a thing's quality lands from its chest's colour, and how often.</summary>
-    static readonly (int Steps, float Chance)[] Spread = { (-1, 0.15f), (0, 0.7f), (1, 0.13f), (2, 0.016f), (3, 0.004f) };
+    /// <summary>
+    /// How far a thing's quality lands from its chest's colour, and how often. A step better is a treat, two a rare
+    /// event; a long dry spell is softened at purchase (<see cref="GameState.DrySpell"/>), not here.
+    /// </summary>
+    static readonly (int Steps, float Chance)[] Spread = { (-1, 0.15f), (0, 0.8f), (1, 0.045f), (2, 0.004f), (3, 0.001f) };
 
     /// <summary>
-    /// What's inside a chest of a given colour: mostly that quality, sometimes one worse, now and then better, and once
-    /// in a long while two or three steps better. Nothing is worse than common or better than legendary: those chances
+    /// What's inside a chest of a given colour: mostly that quality, sometimes one worse, now and then a step better, and
+    /// once in a long while two or three steps better. Nothing is worse than common or better than legendary: those chances
     /// stay at the end they'd fall off.
     /// </summary>
     public static (Rarity Quality, float Chance)[] Odds(Rarity chest) =>

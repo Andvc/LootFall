@@ -23,8 +23,8 @@ public static class Simulation
     /// <summary>The order a sensible player buys things in.</summary>
     public static readonly string[] BuyOrder =
     {
-        "shop2", "sign", "cabinet1", "picks", "shop3", "lamp", "charter", "case", "cabinet2", "shop4", "magnet", "cabinet3", "seal",
-        "night", "patrons", "velvet",
+        "shop2", "sign", "cabinet1", "picks", "cabinet2", "shop3", "lamp", "charter", "case", "cabinet3", "cabinet4", "shop4", "magnet",
+        "cabinet5", "seal", "cabinet6", "night", "patrons", "velvet",
     };
 
 
@@ -53,7 +53,11 @@ public static class Simulation
         public readonly int[] GoldAtDues = new int[MaxWeeks + 1], Due = new int[MaxWeeks + 1], TierAtDues = new int[MaxWeeks + 1];
         public readonly bool[] Paid = new bool[MaxWeeks + 1];
 
-        public int Commissions, CommissionGold, CurioGold, CurioSpent, Pawned, Short, Grace;
+        public int Commissions, CommissionGold, CurioGold, CurioSpent, Pawned, Short, Grace, Stash;
+
+        /// <summary>Things opened; how many came out a step (or two or more) better than their chest; what that added.</summary>
+        public int Opened, BetterOne, BetterTwo;
+        public long Held, SurpriseGold;
         public readonly HashSet<string> Curios = new();
         public readonly float[] ProfitByTier = new float[5];
         public readonly int[] CustomersByTier = new int[5];
@@ -97,8 +101,18 @@ public static class Simulation
             GD.Print($"per run: {logs.Average(l => l.Commissions):0.0} commissions ({logs.Average(l => l.CommissionGold):0}g), curios earned " +
                      $"{logs.Average(l => l.CurioGold):0}g for {logs.Average(l => l.CurioSpent):0}g, pawned on {logs.Average(l => l.Short):0.0} nights, " +
                      $"map pieces {logs.Average(l => l.Pieces):0.0}, map given {100f * logs.Count(l => l.MapGiven > 0) / logs.Count:0}%, " +
+                     $"Bram's stash opened {logs.Average(l => l.Stash):0.0} times, " +
                      $"Bram vouched in {100f * logs.Count(l => l.Grace > 0) / logs.Count:0}% (median week " +
                      $"{logs.Where(l => l.Grace > 0).Select(l => l.Grace).DefaultIfEmpty(0).OrderBy(w => w).ElementAt(logs.Count(l => l.Grace > 0) / 2)})");
+        }
+
+        GD.Print("\nSurprises (things better than their chest's colour), share of things opened, and of what the chests held:");
+        foreach (var style in Styles.Skip(2))
+        {
+            var logs = all[style];
+            float opened = Math.Max(1, logs.Sum(l => l.Opened));
+            GD.Print($"  {style.Name,-22} a step better {100f * logs.Sum(l => l.BetterOne) / opened,5:0.0}%   two or more {100f * logs.Sum(l => l.BetterTwo) / opened,5:0.0}%   " +
+                     $"worth {100f * logs.Sum(l => l.SurpriseGold) / Math.Max(1, logs.Sum(l => l.Held)),4:0}% of what the chests held");
         }
 
         var careful = all[Styles[^2]];
@@ -283,6 +297,7 @@ public static class Simulation
                 if (log.ReachedTier[t] == 0 && state.Tier >= t) log.ReachedTier[t] = day;
         }
         log.WeeksPaid = state.WeeksPaid;
+        log.Stash = GameState.StashTimes - state.StashLeft;
         log.Pieces = state.MapPieces;
         log.MapGiven = state.MapGiven ? 1 : 0;
         log.Curios.UnionWith(state.CurioKeys);
@@ -327,6 +342,15 @@ public static class Simulation
             {
                 int sale = state.SaleValue(item, grade);
                 value += sale;
+                if (!item.Fake && !item.Broken)
+                {
+                    log.Opened++;
+                    int steps = item.Quality - visit.Chest.Quality;
+                    if (steps == 1) log.BetterOne++;
+                    if (steps >= 2) log.BetterTwo++;
+                    log.Held += item.Value;
+                    if (steps > 0) log.SurpriseGold += item.Value - Categories.Value(item.Category, visit.Chest.Quality, item.Magic);
+                }
                 state.Collect(item);
                 var commission = Strategy.ShouldDeliver(state, item, sale);
                 if (commission != null)

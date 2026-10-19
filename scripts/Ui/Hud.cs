@@ -3,16 +3,18 @@ using Godot;
 namespace LootFall.Ui;
 
 /// <summary>
-/// Top bar: title, week, day and shop, the Guild's next due, gold, and a Menu button (the same as Esc). Lives on its
-/// own layer so screen shake doesn't move it.
+/// Top bar: title, today's event (click it to read it again), day and shop, the Guild's next due, gold, and a Menu
+/// button (the same as Esc). Lives on its own layer so screen shake doesn't move it.
 /// </summary>
 public partial class Hud : CanvasLayer
 {
     /// <summary>Where the purse is on screen: coins you earn fly here.</summary>
     public static readonly Vector2 Purse = new(992, 27);
 
-    Label _lot, _due, _when;
-    Control _dueChip;
+    Label _lot, _due, _when, _earlyAccess;
+    Control _dueChip, _eventPopup;
+    Button _event;
+    string _eventTitle, _eventText;
     Label _gold;
     float _shownGold;
 
@@ -27,7 +29,13 @@ public partial class Hud : CanvasLayer
         }));
         AddChild(UiKit.MakeSprite("res://assets/sprites/items/gold_doubloons.png", Purse, 2));
         AddChild(UiKit.MakeLabel("LOOTFALL", 32, Palette.Gold, outline: 4).Place(24, 8, 300, 40));
-        AddChild(UiKit.MakeLabel("early access", 16, Palette.Muted).Place(196, 20, 160, 20));
+        _earlyAccess = UiKit.MakeLabel("early access", 16, Palette.Muted).Place(196, 20, 160, 20);
+        AddChild(_earlyAccess);
+        _event = UiKit.MakeButton("", Palette.Magic.Darkened(0.3f), 16, ToggleEvent).Place(188, 9, 222, 38);
+        _event.ClipText = true;
+        _event.TooltipText = "Today's event: click to read it again.";
+        _event.Visible = false;
+        AddChild(_event);
         _lot = UiKit.MakeLabel("", 24, Palette.Text, HorizontalAlignment.Center).Place(330, 12, 420, 30);
         AddChild(_lot);
         // The Guild's next due, and when: it turns orange when you haven't got it yet.
@@ -46,6 +54,43 @@ public partial class Hud : CanvasLayer
         _gold.PivotOffset = new Vector2(30, 15);
         AddChild(_gold);
         AddChild(UiKit.MakeButton("Menu", Palette.PanelBorder.Lightened(0.15f), 16, () => Main.Instance.OpenPause()).Place(1164, 10, 100, 34));
+    }
+
+    /// <summary>Today's event, if there is one: a button that opens what it's about.</summary>
+    public void SetEvent(Core.GameState state)
+    {
+        var e = state?.TodayEvent;
+        _event.Visible = e != null;
+        _earlyAccess.Visible = e == null;
+        if (e == null)
+        {
+            CloseEvent();
+            return;
+        }
+        _event.Text = Core.Events.Tag(e, state.BuyerKind);
+        _eventTitle = e.Name;
+        _eventText = Core.Events.Describe(e, state.BuyerKind);
+    }
+
+    void ToggleEvent()
+    {
+        if (_eventPopup != null)
+        {
+            CloseEvent();
+            return;
+        }
+        _eventPopup = UiKit.MakePanel(Palette.Magic.Darkened(0.2f)).Place(188, 60, 460, 156);
+        _eventPopup.AddChild(UiKit.MakeLabel(_eventTitle.ToUpperInvariant(), 24, Palette.Magic, outline: 4).Place(20, 14, 420, 30));
+        _eventPopup.AddChild(UiKit.MakeLabel(_eventText, 16, Palette.Text).Wrapped().Place(20, 50, 420, 60));
+        _eventPopup.AddChild(UiKit.MakeButton("Close", Palette.PanelBorder.Lightened(0.15f), 16, CloseEvent).Place(170, 110, 120, 34));
+        AddChild(_eventPopup);
+        Main.Instance?.Moment("30_event_popup", 0.3);
+    }
+
+    void CloseEvent()
+    {
+        _eventPopup?.QueueFree();
+        _eventPopup = null;
     }
 
     public void SetDay(int day, int tier) =>

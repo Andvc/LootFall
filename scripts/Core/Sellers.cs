@@ -335,7 +335,7 @@ public static class Sellers
         // The Emporium: a hurried baron, a smuggler, a sharp dealer, a lady with jewels and a crook.
         new()
         {
-            Key = "vex", Name = "Baron Vex", Tier = 4, Judge = Judgment.Colour, Patience = 12f, QualityBoost = 0.4f, Markup = (1.5f, 1.8f),
+            Key = "vex", Name = "Baron Vex", Tier = 4, Judge = Judgment.Colour, Patience = 12f, QualityBoost = 0.2f, Markup = (1.5f, 1.8f),
             Kinds = new[] { 4f, 1, 2, 2, 1, 4 }, Colours = new[] { 0, 0, 0.2f, 0.8f },
             Habit = "Prices by the colour, never looks inside, and gives you 12 seconds. His things are often better than their colour.",
             Pitches = new[] { "A {colour} chest. A {colour} chest goes for {price}. You have twelve seconds.",

@@ -56,11 +56,15 @@ public static class Curios
     /// <summary>Room for this many curios, more with a curio case.</summary>
     public const int Slots = 3;
 
-    /// <summary>What Nim asks for one, this week. Prices climb with the stakes.</summary>
+    /// <summary>Nim's first visit is in the second week.</summary>
+    public const int FirstWeek = 2;
+
+    /// <summary>What Nim asks for one, this week: a common one for a single coin; the rest climb with the stakes.</summary>
     public static int Price(CurioDef curio, int week)
     {
-        int basePrice = curio.Rarity switch { CurioRarity.Common => 50, CurioRarity.Uncommon => 100, _ => 180 };
-        return Money.Round(basePrice * (1 + 0.5f * Math.Max(0, week - 2)));
+        if (curio.Rarity == CurioRarity.Common) return 1;
+        int basePrice = curio.Rarity == CurioRarity.Uncommon ? 60 : 140;
+        return Money.Round(basePrice * (1 + 0.6f * Math.Max(0, week - 2)));
     }
 
     /// <summary>What Nim (or the Guild) gives you for one: half what it'd cost this week.</summary>
@@ -83,6 +87,10 @@ public static class Curios
             stock.Add(pick);
             pool.Remove(pick);
         }
+        // Nim's first visit always has something anyone can afford.
+        var commons = pool.Where(c => c.Rarity == CurioRarity.Common).ToArray();
+        if (state.Week <= FirstWeek && stock.Count > 0 && stock.All(c => c.Rarity != CurioRarity.Common) && commons.Length > 0)
+            stock[^1] = rng.PickOne(commons);
         return stock;
     }
 

@@ -32,16 +32,16 @@ public static class Events
 
     public static EventDef Get(string key) => All.First(e => e.Key == key);
 
-    /// <summary>The event in a few words, for the corner of the counter.</summary>
+    /// <summary>The event in a few words, for the top bar (click it for the whole story).</summary>
     public static string Tag(EventDef e, Category kind) => e.Key switch
     {
-        "market" => "Market Day: 3 more customers",
-        "festival" => "Festival: everything sells +25%",
-        "buyer" => $"Royal Buyer: {Categories.Get(kind).Name.ToLowerInvariant()} sells x2",
-        "gilded" => "A gilded chest is coming",
-        "stranger" => "The Stranger is in town",
-        "storm" => "Storm: chests a colour better",
-        "wreck" => "Shipwreck: lots in twos and threes",
+        "market" => "Market Day: +3 customers",
+        "festival" => "Festival: sales +25%",
+        "buyer" => $"Royal Buyer: {Categories.Get(kind).Name.ToLowerInvariant()} x2",
+        "gilded" => "A gilded chest today",
+        "stranger" => "The Stranger's in town",
+        "storm" => "Storm: better chests",
+        "wreck" => "Shipwreck: lots of pairs",
         _ => e.Name,
     };
 

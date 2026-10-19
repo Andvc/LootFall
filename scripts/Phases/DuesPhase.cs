@@ -251,7 +251,7 @@ public partial class DuesPhase : Phase
         _vane.Say(Guild.Paid(State.Week), Palette.Good);
         _vane.Bob();
         Teach("dues");
-        AfterSettled(State.LastTopUp > 0 ? $"Uncle Bram slipped you {State.LastTopUp}g to keep the shop going." : null);
+        AfterSettled(null);
     }
 
     public void AskGrace()

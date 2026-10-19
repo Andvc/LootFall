@@ -64,7 +64,6 @@ public sealed partial class GameState
         WeeksPaid++;
         _halfDue = false;
         Arrears = owed;
-        LastTopUp = TopUp();
         return owed;
     }
 
@@ -105,7 +104,7 @@ public sealed partial class GameState
         return value;
     }
 
-    /// <summary>Pays the week's due, if there's enough gold. Bram tops you up afterwards if it leaves you nearly broke.</summary>
+    /// <summary>Pays the week's due, if there's enough gold.</summary>
     public bool PayDues()
     {
         int due = DueNow;
@@ -114,12 +113,68 @@ public sealed partial class GameState
         WeeksPaid++;
         _halfDue = false;
         Arrears = 0;
-        LastTopUp = TopUp();
         return true;
     }
 
-    /// <summary>What Bram slipped you after the last due, if anything.</summary>
-    public int LastTopUp { get; private set; }
+    // ---- Bram's secret stash ----
+
+    /// <summary>How many times Bram will dip into his secret stash for you in a run.</summary>
+    public const int StashTimes = 3;
+
+    public int StashLeft { get; private set; } = StashTimes;
+
+    /// <summary>
+    /// Start a day with less than <c>Below</c> and Bram slips you <c>Gift</c> from his secret stash, while it lasts: a
+    /// little at the stall, more for a bigger shop, whose chests cost more.
+    /// </summary>
+    public static (int Below, int Gift) Stash(int tier) => tier switch
+    {
+        1 => (20, 30),
+        2 => (40, 60),
+        3 => (80, 120),
+        _ => (150, 250),
+    };
+
+    /// <summary>Nearly broke at the start of a day: Bram helps out, if he still can.</summary>
+    void DipIntoStash()
+    {
+        var (below, gift) = Stash(Tier);
+        if (StashLeft <= 0 || Gold >= below) return;
+        StashLeft--;
+        Gold += gift;
+        Today.Stash = gift;
+    }
+
+    // ---- Surprises ----
+
+    /// <summary>Things opened since the last one that came out better than its chest promised.</summary>
+    public int DrySpell { get; private set; }
+
+    /// <summary>
+    /// After this many things without a surprise, each chest you buy gets a growing chance (this much per thing more)
+    /// that something in it is a step better than its colour, up to a cap: a long dry spell doesn't last forever.
+    /// </summary>
+    public const int PityAfter = 15;
+    public const float PityStep = 0.03f, PityMax = 0.5f;
+
+    public float PityChance => Math.Clamp((DrySpell - PityAfter) * PityStep, 0f, PityMax);
+
+    /// <summary>
+    /// A chest you've just bought: after a long dry spell, maybe one thing in it is a step better. Then the spell ends if
+    /// anything in it beat its chest's colour, or grows by what's in it.
+    /// </summary>
+    void Pity(Chest chest)
+    {
+        var eligible = chest.Everything.Where(i => !i.Fake && !i.Broken).ToList();
+        var lift = eligible.Where(i => i.Quality < Rarity.Legendary).ToArray();
+        if (lift.Length > 0 && Rng.NextFloat() < PityChance)
+        {
+            var pick = Rng.PickOne(lift);
+            chest.Improve(i => i.Id == pick.Id ? i with { Quality = i.Quality + 1 } : i);
+        }
+        if (chest.Everything.Any(i => !i.Fake && !i.Broken && i.Quality > chest.Quality)) DrySpell = 0;
+        else DrySpell += eligible.Count;
+    }
 
     /// <summary>The Guild takes the shop: the run is over.</summary>
     public void Foreclose() => Foreclosed = true;

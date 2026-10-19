@@ -13,6 +13,9 @@ namespace LootFall.Audio;
 public partial class Sfx : Node
 {
     readonly Dictionary<string, AudioStream> _sounds = new();
+
+    /// <summary>Synthesized sounds with a few takes each, played like a group of recordings.</summary>
+    readonly Dictionary<string, AudioStream[]> _synthGroups = new();
     readonly Dictionary<string, AudioStream[]> _groups = new();
     readonly List<AudioStreamPlayer> _voices = new();
     readonly Random _rng = new();
@@ -53,6 +56,11 @@ public partial class Sfx : Node
             PlayStream(synth, pitch, volumeDb);
             return;
         }
+        if (_synthGroups.TryGetValue(group, out var takes))
+        {
+            PlayStream(takes[_rng.Next(takes.Length)], pitch, volumeDb);
+            return;
+        }
         if (!_groups.TryGetValue(group, out var streams))
         {
             var list = new List<AudioStream>();
@@ -74,6 +82,9 @@ public partial class Sfx : Node
         DirAccess.MakeDirRecursiveAbsolute(directory);
         foreach (var (name, stream) in _sounds)
             if (stream is AudioStreamWav wav) wav.SaveToWav($"{directory}/{name}.wav");
+        foreach (var (name, takes) in _synthGroups)
+            for (int i = 0; i < takes.Length; i++)
+                if (takes[i] is AudioStreamWav wav) wav.SaveToWav($"{directory}/{name}_{i}.wav");
     }
 
     void PlayStream(AudioStream stream, float pitch, float volumeDb)
@@ -132,6 +143,43 @@ public partial class Sfx : Node
         }
         Add("slosh", slosh);
 
+        // Alternatives for Settings > Item sounds (SoundSets): a few takes of each, so repeats don't sound identical.
+        // Bright coins: three or four quick metallic pings, like coins knocking together.
+        _synthGroups["jingle_bright"] = Takes(4, () =>
+        {
+            var coins = new Synth(0.45f);
+            int hits = rng.Next(3, 5);
+            for (int i = 0; i < hits; i++)
+            {
+                float t = i * R(0.035f, 0.07f), f = R(2200, 3400);
+                coins.Tone(t, 0.3f, f, R(0.18f, 0.28f), R(14, 22)).Tone(t, 0.25f, f * 1.51f, 0.12f, 20).Tone(t, 0.2f, f * 2.13f, 0.06f, 26);
+            }
+            return coins;
+        });
+        // A glug: a deeper rush and fewer, lower bubbles rising slowly.
+        _synthGroups["slosh_glug"] = Takes(3, () =>
+        {
+            var glug = new Synth(0.7f).Noise(0, 0.5f, 0.3f, 5, 0.025f, attack: 0.08f);
+            for (int i = 0; i < 5; i++)
+            {
+                float t = 0.06f + i * R(0.07f, 0.11f), f = R(160, 320);
+                glug.Tone(t, 0.11f, f, R(0.45f, 0.6f), 24, freqEnd: f * R(1.5f, 1.9f), attack: 0.006f);
+            }
+            return glug;
+        });
+        // Little bells: two or three high pings with a bell's uneven overtones.
+        _synthGroups["tinkle_bell"] = Takes(4, () =>
+        {
+            var bells = new Synth(0.6f);
+            int hits = rng.Next(2, 4);
+            for (int i = 0; i < hits; i++)
+            {
+                float t = i * R(0.05f, 0.11f), f = R(1900, 3100);
+                bells.Tone(t, 0.5f, f, R(0.16f, 0.24f), R(9, 14)).Tone(t, 0.35f, f * 2.76f, 0.07f, 18).Tone(t, 0.25f, f * 5.4f, 0.03f, 26);
+            }
+            return bells;
+        });
+
         Add("lantern", new Synth(0.5f).Noise(0, 0.45f, 0.3f, 7, 0.08f, attack: 0.05f).Tone(0.02f, 0.3f, 1300, 0.08f, 12));
 
         // Lockpicking: a pin setting, a perfect set, the pick snapping, the crowbar.
@@ -179,6 +227,8 @@ public partial class Sfx : Node
     }
 
     void Add(string name, Synth synth) => _sounds[name] = synth.ToWav();
+
+    static AudioStream[] Takes(int count, Func<Synth> make) => Enumerable.Range(0, count).Select(_ => (AudioStream)make().ToWav()).ToArray();
 
     /// <summary>A tiny additive synth that renders into a float buffer.</summary>
     sealed class Synth

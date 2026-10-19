@@ -24,14 +24,13 @@ public partial class DayEndPhase : Phase
     MentorView _mentor;
     Button _synergies;
     LedgerView _ledger;
-    int _topUp;
 
     public MentorView Mentor => _mentor;
 
     public override void _Ready()
     {
         bool shopWasOpen = State.UpgradesOpen;
-        _topUp = State.EndDay();
+        State.EndDay();
         Add(UiKit.MakeShop(State.Tier, 0.38f));
         Game.Hud.SetDay(State.Day, State.Tier);
         Game.Hud.SetGold(State.Gold);
@@ -40,12 +39,9 @@ public partial class DayEndPhase : Phase
         Game.Hud.SetDue(State);
         Add(UiKit.MakeLabel($"END OF DAY {State.Day}", 32, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 64, 1280, 40));
         BuildSummary(today);
-        if (_topUp > 0)
-            Add(UiKit.MakeLabel($"Uncle Bram slipped you {_topUp}g to keep the shop going.", 16, Palette.Warn, HorizontalAlignment.Center, outline: 4)
-                .Place(0, 158, 1280, 20));
 
         _header = Add(Header("", CardsX, 182));
-        _goldLabel = Add(UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(456, 182, 400, 20));
+        _goldLabel = Add(UiKit.MakeLabel("", 16, Palette.Gold, HorizontalAlignment.Right).Place(256, 182, 600, 20));
         _cards = Add(new Node2D());
         _side = Add(new Node2D());
         BuildCards();
@@ -92,16 +88,20 @@ public partial class DayEndPhase : Phase
         }
     }
 
-    void Teach(string key)
+    /// <summary>Bram's tip, the first time. True if he said it.</summary>
+    bool Teach(string key)
     {
-        if (key != null && State.FirstTime(key)) _mentor.Say(Hints.Get(key));
+        if (key == null || !State.FirstTime(key)) return false;
+        _mentor.Say(Hints.Get(key));
+        return true;
     }
 
     /// <summary>What the shop's grown into brings, said once: a shelf to display things on, synergies, the Emporium.</summary>
     void Unlocked()
     {
+        RefreshSynergyButton();
         if (State.DisplayOpen) Teach("display");
-        if (State.SynergiesOpen) Teach("synergy");
+        if (State.SynergiesOpen && Teach("synergy")) Pulse(_synergies);
         if (State.Tier >= ShopTiers.Max) Teach("emporium");
     }
 
@@ -120,7 +120,8 @@ public partial class DayEndPhase : Phase
     {
         foreach (var child in _cards.GetChildren()) child.QueueFree();
         BuildSide();
-        _goldLabel.Text = $"You have {State.Gold}g";
+        _goldLabel.Text = State.UpgradesOpen ? $"You have {State.Gold}g. Keep about {ShopTiers.Working(State.Tier)}g for tomorrow's chests."
+            : $"You have {State.Gold}g";
         _header.Text = State.UpgradesOpen ? "SPEND IT ON THE SHOP" : "FIX UP THE STALL";
         if (!State.UpgradesOpen)
         {
@@ -275,7 +276,9 @@ public partial class DayEndPhase : Phase
     Control MakeCard(Upgrade upgrade, float x, float y)
     {
         bool affordable = State.Gold >= upgrade.Cost;
-        bool risky = State.DuesTonight && !State.PaidThisWeek && State.Gold - upgrade.Cost < State.DueNow;
+        int left = State.Gold - upgrade.Cost, keep = ShopTiers.Working(Math.Max(State.Tier, upgrade.SetsTier));
+        bool shortForGuild = State.DuesTonight && !State.PaidThisWeek && left < State.DueNow;
+        bool risky = shortForGuild || left < keep;
         var card = UiKit.MakePanel(upgrade.IsRenovation ? Palette.Gold : Palette.PanelBorder).Place(x, y, CardW, CardH);
         card.AddChild(new TextureRect
         {
@@ -287,7 +290,10 @@ public partial class DayEndPhase : Phase
         if (affordable)
         {
             var buy = UiKit.MakeButton($"{upgrade.Cost}g", risky ? Palette.Warn : Palette.Good, 16, () => Buy(upgrade)).Place(CardW - 112, 8, 100, 30);
-            buy.TooltipText = risky ? "You'd be short for the Guild tonight!" : $"Buy the {upgrade.Name}";
+            buy.TooltipText = shortForGuild ? "You'd be short for the Guild tonight!"
+                : left < keep ? $"That leaves you {left}g. A day's chests at the {ShopTiers.Name(Math.Max(State.Tier, upgrade.SetsTier))} " +
+                                $"usually need about {keep}g: maybe wait a day."
+                : $"Buy the {upgrade.Name}. Leaves you {left}g.";
             card.AddChild(buy);
         }
         else
@@ -315,7 +321,11 @@ public partial class DayEndPhase : Phase
             FloatText($"{ShopTiers.Name(State.Tier)}!", new Vector2(640, 150), Palette.Gold, 40);
             Unlocked();
         }
-        else if (upgrade.SynergySlots > 0) Teach("slots");
+        else if (upgrade.SynergySlots > 0)
+        {
+            RefreshSynergyButton();
+            if (Teach("slots")) Pulse(_synergies);
+        }
         else if (upgrade.Customers > 1 || upgrade.Commissions > 0 || upgrade.CurioSlots > 0)
         {
             Sfx.Play("upgrade", 1f, -4);
@@ -344,11 +354,21 @@ public partial class DayEndPhase : Phase
     void RefreshSynergyButton()
     {
         int reached = Synergies.All.Count(x => x.Level(State) > 0), active = State.ActiveSynergies.Count;
-        _synergies.Text = $"Synergies: {active} of {State.SynergySlots} active";
-        _synergies.Visible = State.SynergiesOpen && reached > 0;
+        _synergies.Text = reached == 0 ? "Synergies: none reached yet" : $"Synergies: {active} of {State.SynergySlots} active";
+        // From the town shop on it's always there, even before the first is reached: the journal shows how close you are.
+        _synergies.Visible = State.SynergiesOpen;
         bool waiting = active < State.SynergySlots && reached > active;
         _synergies.Modulate = waiting ? new Color(1.3f, 1.3f, 1.3f) : Colors.White;
         if (waiting) _synergies.Text += " (choose!)";
+    }
+
+    /// <summary>Draws the eye to a button Bram has just mentioned.</summary>
+    static void Pulse(Control control)
+    {
+        control.PivotOffset = control.Size / 2;
+        var tween = control.CreateTween().SetLoops(3);
+        tween.TweenProperty(control, "scale", Vector2.One * 1.06f, 0.25f);
+        tween.TweenProperty(control, "scale", Vector2.One, 0.25f);
     }
 
     /// <summary>Opens the journal on the synergies page, where they can be switched on and off.</summary>

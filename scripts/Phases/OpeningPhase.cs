@@ -396,7 +396,7 @@ public partial class OpeningPhase : Phase
         // Squash on impact, then spring back.
         sprite.Scale = new Vector2(scale * 1.35f, scale * 0.65f);
         sprite.CreateTween().TweenProperty(sprite, "scale", Vector2.One * scale, 0.35f).SetTrans(Tween.TransitionType.Elastic).SetEase(Tween.EaseType.Out);
-        Sfx.PlayGroup(item.Def.Sound, item.Def.Pitch, 4);
+        Sfx.PlayGroup(Audio.SoundSets.Group(item.Category), item.Def.Pitch, 4);
         QualityEffects(item, at, stepsUp);
         if (stepsUp > 0) Surprise(at, stepsUp);
         if (item.Magic && !item.Broken)

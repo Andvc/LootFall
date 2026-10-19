@@ -114,7 +114,7 @@ public static class Synergies
     public static string Pct(float fraction) => $"{MathF.Round(fraction * 100)}%";
 
     public static float SaleBonus(int level) => 0.03f * level;
-    public static float MetalBetter(int level) => 0.05f * level;
+    public static float MetalBetter(int level) => 0.03f * level;
     public static float BottleBonus(int level) => 0.08f * level;
     public static float Sturdier(int level) => 0.15f * level;
     public static float HiddenBonus(int level) => 0.03f * level;

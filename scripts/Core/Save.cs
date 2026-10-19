@@ -42,6 +42,8 @@ public sealed class SaveData
     public int WeeksPaid { get; set; }
     public int Arrears { get; set; }
     public bool GraceUsed { get; set; }
+    public int StashUsed { get; set; }
+    public int DrySpell { get; set; }
     public bool BramPiece { get; set; }
     public int HoodPieces { get; set; }
     public bool MapGiven { get; set; }

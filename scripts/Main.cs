@@ -159,6 +159,10 @@ public partial class Main : Node2D
         pause.AddChild(settings);
         await Wait(0.6);
         Moment("12_settings");
+        await Wait(0.5);
+        settings.OpenSounds();
+        await Wait(0.6);
+        Moment("13_item_sounds");
         await Wait(0.8);
         GetTree().Quit();
     }
@@ -311,6 +315,7 @@ public partial class Main : Node2D
         State.StartDay();
         Hud.SetDay(State.Day, State.Tier);
         Hud.SetDue(State);
+        Hud.SetEvent(State);
         if (_bot != null && !_bot.OnDayStarted(State.Day)) return;
         // The first morning of a week (from the second): who comes by, and what they want.
         if (State.DayOfWeek == 1 && State.Week >= 2)
@@ -399,7 +404,8 @@ public partial class Main : Node2D
         var layer = new CanvasLayer { Layer = 40 };
         AddChild(layer);
         var e = State.TodayEvent;
-        float h = e == null ? 136 : 216;
+        int stash = State.Today.Stash;
+        float h = (e == null ? 136 : 216) + (stash > 0 ? 28 : 0);
         var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(390, 130, 500, h);
         card.MouseFilter = Control.MouseFilterEnum.Ignore;
         card.AddChild(UiKit.MakeLabel($"DAY {State.Day}", 48, Palette.Gold, HorizontalAlignment.Center, outline: 6).Place(0, 12, 500, 56));
@@ -409,11 +415,19 @@ public partial class Main : Node2D
             : $"The Guild comes for {State.DueNow}g at the end of day {State.Day + State.DaysToDue}.";
         card.AddChild(UiKit.MakeLabel(due, 16, State.Gold >= State.DueNow ? Palette.Muted : Palette.Warn, HorizontalAlignment.Center)
             .Place(0, 100, 500, 20));
+        float y = 132;
+        if (stash > 0)
+        {
+            card.AddChild(UiKit.MakeLabel($"Uncle Bram slipped you {stash}g from his secret stash ({State.StashLeft} left).", 16, Palette.Good,
+                HorizontalAlignment.Center).Place(0, y - 4, 500, 20));
+            Hud.SetGold(State.Gold);
+            y += 28;
+        }
         if (e != null)
         {
-            card.AddChild(UiKit.MakeLabel(e.Name.ToUpperInvariant(), 24, Palette.Magic, HorizontalAlignment.Center, outline: 4).Place(0, 132, 500, 30));
+            card.AddChild(UiKit.MakeLabel(e.Name.ToUpperInvariant(), 24, Palette.Magic, HorizontalAlignment.Center, outline: 4).Place(0, y, 500, 30));
             card.AddChild(UiKit.MakeLabel(Events.Describe(e, State.BuyerKind), 16, Palette.Text, HorizontalAlignment.Center).Wrapped()
-                .Place(20, 164, 460, 44));
+                .Place(20, y + 32, 460, 44));
             Sfx.Play("chime", 1f, -6);
         }
         layer.AddChild(card);
@@ -423,10 +437,10 @@ public partial class Main : Node2D
         var tween = card.CreateTween();
         tween.TweenProperty(card, "modulate", Colors.White, 0.25f).SetDelay(0.2f);
         tween.Parallel().TweenProperty(card, "scale", Vector2.One, 0.25f).SetDelay(0.2f).SetTrans(Tween.TransitionType.Back);
-        tween.TweenInterval(e == null ? 1.0 : 2.6);
+        tween.TweenInterval(e == null && stash == 0 ? 1.0 : 2.6);
         tween.TweenProperty(card, "modulate", Colors.Transparent, 0.35f);
         tween.TweenCallback(Callable.From(layer.QueueFree));
-        Moment(e == null ? "00_daycard" : $"00_event_{e.Key}", 0.6);
+        Moment(e != null ? $"00_event_{e.Key}" : stash > 0 ? "00_stash" : "00_daycard", 0.6);
     }
 
     /// <summary>Calls the next customer to the counter, or closes up for the day.</summary>
@@ -434,6 +448,7 @@ public partial class Main : Node2D
     {
         Hud.SetDay(State.Day, State.Tier);
         Hud.SetDue(State);
+        Hud.SetEvent(State);
         if (State.NextCustomer()) SwitchTo(new CounterPhase());
         else SwitchTo(new DayEndPhase());
     }

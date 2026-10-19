@@ -16,6 +16,15 @@ public static class ShopTiers
         3 => "Town Shop",
         _ => "The Emporium",
     };
+
+    /// <summary>Gold to keep for a day's chests at a shop of this tier: Bram's advice before spending on the shop.</summary>
+    public static int Working(int tier) => tier switch
+    {
+        1 => 25,
+        2 => 70,
+        3 => 200,
+        _ => 500,
+    };
 }
 
 /// <summary>A chest bought today, with the slip the player bought it on. It's opened straight away.</summary>
@@ -50,6 +59,9 @@ public sealed class DayStats
     /// <summary>Things handed over for commissions, and what completed commissions paid.</summary>
     public int Delivered, Commissions;
 
+    /// <summary>What Bram slipped you from his secret stash this morning.</summary>
+    public int Stash;
+
     /// <summary>What curios brought in (a catalogue's fees, interest, visitors' coins) and what curios cost.</summary>
     public int Curios, CurioSpent;
 
@@ -60,17 +72,14 @@ public sealed partial class GameState
 {
     public const int StartingGold = 40;
 
-    /// <summary>Display space you start with: a shelf behind the counter.</summary>
-    public const int ShelfSlots = 2;
+    /// <summary>Display space you start with: a shelf behind the counter, with room for one thing.</summary>
+    public const int ShelfSlots = 1;
 
     /// <summary>Exhibition points per extra customer a day (up to two).</summary>
     public const int ExhibitionPerCustomer = 10;
 
     /// <summary>Past this, an exhibition draws no more customers and no better chests.</summary>
     public const int ExhibitionCap = 40;
-
-    /// <summary>If you end a day with less than this, Bram tops you up to it.</summary>
-    public const int Allowance = 20;
 
     /// <summary>Bram lets you spend on the shop once the stall has earned this much, all told.</summary>
     public const int UpgradesAt = 120;
@@ -245,7 +254,8 @@ public sealed partial class GameState
             Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
             FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
             Display = Display.Select(i => new SavedItem { Category = i.Category, Quality = i.Quality, Magic = i.Magic }).ToList(),
-            WeeksPaid = WeeksPaid, Arrears = Arrears, GraceUsed = !GraceLeft, BramPiece = BramPiece, HoodPieces = HoodPieces, MapGiven = MapGiven, VaultOpened = VaultOpened,
+            WeeksPaid = WeeksPaid, Arrears = Arrears, GraceUsed = !GraceLeft, BramPiece = BramPiece, StashUsed = StashTimes - StashLeft,
+            DrySpell = DrySpell, HoodPieces = HoodPieces, MapGiven = MapGiven, VaultOpened = VaultOpened,
             Curios = _curios.ToList(), EventsSeen = _eventsSeen.ToList(), WeekEvent = WeekEvent, EventDay = EventDay,
             BuyerKind = BuyerKind, PeddlerDay = PeddlerDay,
             Commissions = Commissions.Select(c => new SavedCommission
@@ -266,7 +276,8 @@ public sealed partial class GameState
             Gold = data.Gold, Day = data.Day, Tier = Math.Clamp(data.Tier, 1, ShopTiers.Max), Guided = data.Guided,
             TotalEarned = data.TotalEarned, UpgradesOpen = data.UpgradesOpen, MagicFound = data.MagicFound,
             PerfectStreak = data.PerfectStreak, BestStreak = data.BestStreak,
-            WeeksPaid = data.WeeksPaid, Arrears = data.Arrears, GraceLeft = !data.GraceUsed, BramPiece = data.BramPiece, HoodPieces = data.HoodPieces, MapGiven = data.MapGiven,
+            WeeksPaid = data.WeeksPaid, Arrears = data.Arrears, GraceLeft = !data.GraceUsed, BramPiece = data.BramPiece,
+            StashLeft = Math.Clamp(StashTimes - data.StashUsed, 0, StashTimes), DrySpell = data.DrySpell, HoodPieces = data.HoodPieces, MapGiven = data.MapGiven,
             VaultOpened = data.VaultOpened, WeekEvent = data.WeekEvent, EventDay = data.EventDay, BuyerKind = data.BuyerKind,
             PeddlerDay = data.PeddlerDay,
         };
@@ -308,6 +319,7 @@ public sealed partial class GameState
         Queue.Clear();
         Current = null;
         Today = new DayStats();
+        DipIntoStash();
         if (DayOfWeek == 1) StartWeek();
         PeddlerStock.Clear();
         if (PeddlerToday) PeddlerStock.AddRange(Curios.Stock(new Random(unchecked(Seed * 6151 + Day)), this));
@@ -397,6 +409,7 @@ public sealed partial class GameState
         Today.Bought++;
         Today.Spent += visit.PricePaid;
         var (luck, improved) = Luck(visit.Chest);
+        Pity(visit.Chest);
         return new Purchase(visit, slip, luck, improved);
     }
 
@@ -438,23 +451,12 @@ public sealed partial class GameState
 
     /// <summary>
     /// Closes the day: adds what its chests brought in to the total (renovations open once it's enough) and what curios
-    /// bring in overnight. Returns the allowance paid if the shop was nearly broke, else 0 (on the Guild's night, Bram
-    /// waits until the due is paid).
+    /// bring in overnight.
     /// </summary>
-    public int EndDay()
+    public void EndDay()
     {
         TotalEarned += Today.Earned;
         if (TotalEarned >= UpgradesAt) UpgradesOpen = true;
         Overnight();
-        return DuesTonight ? 0 : TopUp();
-    }
-
-    /// <summary>If the shop is nearly broke, Bram tops it up to the allowance. Returns how much.</summary>
-    int TopUp()
-    {
-        if (Gold >= Allowance) return 0;
-        int topUp = Allowance - Gold;
-        Gold = Allowance;
-        return topUp;
     }
 }

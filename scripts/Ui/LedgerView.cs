@@ -227,7 +227,7 @@ public partial class LedgerView : Node2D
         row.GuiInput += e =>
         {
             if (e is not InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left }) return;
-            Sfx.PlayGroup(kind.Sound, kind.Pitch, 2f);
+            Sfx.PlayGroup(Audio.SoundSets.Group(kind.Category), kind.Pitch, 2f);
             row.PivotOffset = row.Size / 2;
             var bump = row.CreateTween();
             bump.TweenProperty(row, "scale", Vector2.One * 1.02f, 0.05f);
