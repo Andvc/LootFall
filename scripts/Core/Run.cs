@@ -34,20 +34,31 @@ public sealed partial class GameState
     /// <summary>All eight weeks of Bram's debt are paid. The Guild keeps coming (endless), but the run is won.</summary>
     public bool DebtCleared => WeeksPaid >= Guild.Weeks;
 
-    /// <summary>This week's due, with any curio's effect (and the Guild's half-price deal for the map).</summary>
+    /// <summary>The day the debt was cleared, on the eighth Guild night or paid off early (0 until it is).</summary>
+    public int ClearedDay { get; private set; }
+
+    /// <summary>The week the debt was cleared in (0 until it is).</summary>
+    public int ClearedWeek => ClearedDay <= 0 ? 0 : (ClearedDay - 1) / Guild.DaysPerWeek + 1;
+
+    /// <summary>This week's due (with the Guild's half-price deal for the map, and anything rolled over from last week).</summary>
     public int DueNow => Money.Round(DueFor(Week) * (_halfDue ? 0.5f : 1)) + Arrears;
 
-    /// <summary>A week's due with your curios as they are now.</summary>
-    public int DueFor(int week) => Money.Round(Guild.Due(week) * (HasCurio("receipt") ? Curios.ReceiptDues : 1) *
-                                               (HasCurio("crescent") ? Curios.CrescentDues : 1));
+    /// <summary>A week's due.</summary>
+    public int DueFor(int week) => Guild.Due(week);
 
     bool _halfDue;
 
     /// <summary>What's left of last week's due after Bram vouched for you, with the Guild's interest.</summary>
     public int Arrears { get; private set; }
 
-    /// <summary>Bram can vouch for you once a run: a short night rolls over to next week instead of costing the shop.</summary>
-    public bool GraceLeft { get; private set; } = true;
+    /// <summary>How many times Bram has vouched for you this run.</summary>
+    public int GraceUsed { get; private set; }
+
+    /// <summary>
+    /// Bram can vouch for you once a run (twice with a guildsman's marker): a short night rolls over to next week instead
+    /// of costing the shop.
+    /// </summary>
+    public bool GraceLeft => GraceUsed < 1 + (HasCurio("marker") ? 1 : 0);
 
     /// <summary>The Guild's interest on a due that rolls over.</summary>
     public const float GraceInterest = 1.5f;
@@ -64,7 +75,7 @@ public sealed partial class GameState
         if (!CanAskGrace) return 0;
         int owed = (int)MathF.Ceiling((DueNow - Gold) * GraceInterest);
         Gold = 0;
-        GraceLeft = false;
+        GraceUsed++;
         WeeksPaid++;
         _halfDue = false;
         Arrears = owed;
@@ -74,15 +85,18 @@ public sealed partial class GameState
     /// <summary>This week's due is paid (it's the Guild's night, and they've been).</summary>
     public bool PaidThisWeek => WeeksPaid >= Week;
 
+    /// <summary>The week of the next due the Guild will come for: this one, or the first not paid yet.</summary>
+    public int NextDueWeek => PaidThisWeek ? WeeksPaid + 1 : Week;
+
     /// <summary>The next due the Guild will come for, and the days of trading left before it.</summary>
-    public int NextDue => PaidThisWeek ? DueFor(Week + 1) : DueNow;
-    public int DaysToNextDue => PaidThisWeek ? Guild.DaysPerWeek : DaysToDue;
+    public int NextDue => PaidThisWeek ? DueFor(NextDueWeek) + Arrears : DueNow;
+    public int DaysToNextDue => (NextDueWeek - Week) * Guild.DaysPerWeek + DaysToDue;
 
-    /// <summary>What pawning a displayed thing fetches tonight: the Guild's price.</summary>
-    public int PawnValue(Item item) => (int)MathF.Round(SaleValue(item) * Guild.PawnRate);
+    /// <summary>What pawning a displayed thing fetches tonight: the Guild's price (better with a pawn ticket).</summary>
+    public int PawnValue(Item item) => (int)MathF.Round(SaleValue(item) * (HasCurio("ticket") ? Curios.TicketRate : Guild.PawnRate));
 
-    /// <summary>What a curio fetches if you sell it back.</summary>
-    public int CurioValue(string key) => Curios.SellPrice(Curios.Get(key), Week);
+    /// <summary>What a curio fetches if you sell it back: half what you paid for it.</summary>
+    public int CurioValue(string key) => Math.Max(1, (_curioPaid.TryGetValue(key, out int paid) ? paid : Curios.Price(Curios.Get(key), Week)) / 2);
 
     /// <summary>Everything that could be pawned to make up a due.</summary>
     public int PawnableWorth => Display.Sum(PawnValue) + _curios.Sum(CurioValue);
@@ -99,11 +113,12 @@ public sealed partial class GameState
         return value;
     }
 
-    /// <summary>Sells a curio back (to Nim, or to the Guild on a short night) for half what it costs now.</summary>
+    /// <summary>Sells a curio back (to Nim, or to the Guild on a short night) for half what you paid.</summary>
     public int SellCurio(string key)
     {
-        if (!_curios.Remove(key)) return 0;
         int value = CurioValue(key);
+        if (!_curios.Remove(key)) return 0;
+        _curioPaid.Remove(key);
         Gold += value;
         return value;
     }
@@ -117,15 +132,52 @@ public sealed partial class GameState
         WeeksPaid++;
         _halfDue = false;
         Arrears = 0;
+        if (DebtCleared && ClearedDay == 0) ClearedDay = Day;
         return true;
+    }
+
+    /// <summary>
+    /// What's left of Bram's debt: this week's due if it's still to pay (with anything rolled over), and every week's
+    /// after it, to the eighth. Nothing once it's cleared.
+    /// </summary>
+    public int DebtLeft
+    {
+        get
+        {
+            if (DebtCleared) return 0;
+            int left = PaidThisWeek ? Arrears : DueNow;
+            for (int week = Math.Max(Week, WeeksPaid) + 1; week <= Guild.Weeks; week++) left += DueFor(week);
+            return left;
+        }
+    }
+
+    /// <summary>You could pay off the whole debt now, and finish ahead of time.</summary>
+    public bool CanPayOff => GuildIntroduced && !DebtCleared && !Foreclosed && Gold >= DebtLeft;
+
+    /// <summary>
+    /// Pays off everything that's left of the debt at once: the run is won, however early. If you keep trading, the
+    /// Guild leaves you alone until its interest starts, after the eighth week.
+    /// </summary>
+    public int PayOff()
+    {
+        if (!CanPayOff) return 0;
+        int paid = DebtLeft;
+        Gold -= paid;
+        WeeksPaid = Guild.Weeks;
+        Arrears = 0;
+        _halfDue = false;
+        ClearedDay = Day;
+        return paid;
     }
 
     // ---- Bram's secret stash ----
 
-    /// <summary>How many times Bram will dip into his secret stash for you in a run.</summary>
+    /// <summary>How many times Bram will dip into his secret stash for you in a run (once more with a rainy-day purse).</summary>
     public const int StashTimes = 3;
 
-    public int StashLeft { get; private set; } = StashTimes;
+    public int StashUsed { get; private set; }
+
+    public int StashLeft => Math.Max(0, StashTimes + (HasCurio("purse") ? 1 : 0) - StashUsed);
 
     /// <summary>
     /// Start a day with less than <c>Below</c> and Bram slips you <c>Gift</c> from his secret stash, while it lasts: a
@@ -144,7 +196,7 @@ public sealed partial class GameState
     {
         var (below, gift) = Stash(Tier);
         if (StashLeft <= 0 || Gold >= below) return;
-        StashLeft--;
+        StashUsed++;
         Gold += gift;
         Today.Stash = gift;
     }
@@ -161,7 +213,10 @@ public sealed partial class GameState
     public const int PityAfter = 15;
     public const float PityStep = 0.03f, PityMax = 0.5f;
 
-    public float PityChance => Math.Clamp((DrySpell - PityAfter) * PityStep, 0f, PityMax);
+    /// <summary>A lucky shell makes a dry spell end sooner.</summary>
+    int PityStart => HasCurio("shell") ? Curios.ShellPityAfter : PityAfter;
+
+    public float PityChance => Math.Clamp((DrySpell - PityStart) * PityStep, 0f, PityMax);
 
     /// <summary>
     /// A chest you've just bought: after a long dry spell, maybe one thing in it is a step better. Then the spell ends if
@@ -244,6 +299,9 @@ public sealed partial class GameState
 
     readonly List<string> _curios = new();
 
+    /// <summary>What you paid for each curio: Nim (or the Guild) gives half of it back.</summary>
+    readonly Dictionary<string, int> _curioPaid = new();
+
     public IReadOnlyList<string> CurioKeys => _curios;
     public IEnumerable<CurioDef> OwnedCurios => _curios.Select(Curios.Get);
     public bool HasCurio(string key) => _curios.Contains(key);
@@ -255,6 +313,7 @@ public sealed partial class GameState
         if (CuriosFull || HasCurio(curio.Key) || Gold < price) return false;
         Gold -= price;
         _curios.Add(curio.Key);
+        _curioPaid[curio.Key] = price;
         Today.CurioSpent += price;
         return true;
     }
@@ -267,34 +326,55 @@ public sealed partial class GameState
     /// <summary>What Nim has today.</summary>
     public List<CurioDef> PeddlerStock { get; } = new();
 
-    /// <summary>What a curio's luck did to a chest you've just bought: which curio, and how many things it improved.</summary>
-    (string Curio, int Improved) Luck(Chest chest)
+    /// <summary>
+    /// What a curio's luck did to a chest you've just bought: which curio, and how many things it changed. The first that
+    /// does anything is the one the opening announces.
+    /// </summary>
+    (string Curio, int Changed) Luck(Chest chest)
     {
         if (chest.Sealed || chest.Items.Count == 0) return (null, 0);
-        int improved = 0;
-        if (HasCurio("coin") && Today.Bought == 1)
+        string curio = null;
+        int changed = 0;
+        void Apply(string key, Func<Item, Item> change)
         {
+            if (!HasCurio(key)) return;
+            int n = 0;
             chest.Improve(i =>
             {
                 if (i.Fake || i.Broken) return i;
-                var again = Categories.RollQuality(Rng, chest.Quality);
-                if (again <= i.Quality) return i;
-                improved++;
-                return i with { Quality = again };
+                var next = change(i);
+                if (next.Quality != i.Quality) n++;
+                return next;
             });
-            if (improved > 0) return ("coin", improved);
+            if (n == 0 || curio != null) return;
+            curio = key;
+            changed = n;
         }
-        if (HasCurio("shell") && Rng.NextFloat() < Curios.ShellChance)
+
+        // The day's first chest: two tries at each thing's quality. The week's first: a step better all round.
+        if (Today.Bought == 1)
+            Apply("coin", i => Categories.RollQuality(Rng, chest.Quality) is var again && again > i.Quality ? i with { Quality = again } : i);
+        if (HasCurio("clover") && CloverWeek != Week)
         {
-            chest.Improve(i =>
-            {
-                if (i.Fake || i.Broken || i.Quality == Rarity.Legendary) return i;
-                improved++;
-                return i with { Quality = i.Quality + 1 };
-            });
-            if (improved > 0) return ("shell", improved);
+            CloverWeek = Week;
+            Apply("clover", i => i.Quality < Rarity.Legendary ? i with { Quality = i.Quality + 1 } : i);
         }
-        return (null, 0);
+        // A gambler's luck: some of what came out as promised swings, better or (more often) worse.
+        Apply("token", i => i.Quality == chest.Quality && Rng.NextFloat() < Curios.TokenSwing ? i with { Quality = Categories.Swing(Rng, i.Quality) } : i);
+        // A smith or a hatter mends what came out worse than the chest promised.
+        Apply("gauntlet", i => i.Category == Category.Metal && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
+        Apply("cap", i => i.Category == Category.Cloth && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
+        return (curio, changed);
+    }
+
+    /// <summary>The week a four-leaf clover last brought luck: once a week, to the first chest you open.</summary>
+    public int CloverWeek { get; private set; }
+
+    /// <summary>A cursed crescent: everything comes out exactly as its chest promised (after any other luck).</summary>
+    void Steady(Chest chest)
+    {
+        if (!HasCurio("crescent") || chest.Sealed) return;
+        chest.Improve(i => i.Fake || i.Broken ? i : i with { Quality = chest.Quality });
     }
 
     /// <summary>What a pick grade does to a thing's price: forcing with a burglar's knife scratches nothing.</summary>
@@ -303,22 +383,14 @@ public sealed partial class GameState
     /// <summary>How much less likely glass is to break when you force a lock (a burglar's knife: it never does).</summary>
     public float ForceSturdier => HasCurio("knife") ? 1f : Sturdier;
 
-    /// <summary>What curios add to the price of a thing of this kind, and what today's event does.</summary>
-    float CurioSales(Category kind)
-    {
-        float kindBonus = kind switch
-        {
-            Category.Coins or Category.Jewels when HasCurio("loupe") => Curios.KindBonus,
-            Category.Metal when HasCurio("gauntlet") => Curios.KindBonus,
-            Category.Cloth or Category.Paper when HasCurio("cap") => Curios.KindBonus,
-            _ => 0,
-        };
-        return kindBonus;
-    }
-
-    float EventSales(Category kind) => (HasCurio("crescent") ? Curios.CrescentSales : 1) *
-                                       (EventIs("festival") ? Events.FestivalSales : 1) *
+    /// <summary>What today's event does to the price of a thing of this kind.</summary>
+    float EventSales(Category kind) => (EventIs("festival") ? Events.FestivalSales : 1) *
                                        (EventIs("buyer") && kind == BuyerKind ? Events.BuyerSales : 1);
+
+    /// <summary>What a fake sells for: nothing much, unless a jeweller's loupe knows good paste from a bag of sand.</summary>
+    float FakeValue(Item item) => HasCurio("loupe") && item.Category is Category.Coins or Category.Jewels
+        ? Categories.Value(item.Category, item.Quality, false) * Curios.LoupeFakes
+        : item.Value;
 
     // ---- Commissions ----
 
@@ -326,9 +398,18 @@ public sealed partial class GameState
     public List<Commission> Commissions { get; } = new();
 
     /// <summary>A commission this thing would do for, if any.</summary>
-    public Commission WantedBy(Item item) => Commissions.FirstOrDefault(c => c.Wants(item));
+    public Commission WantedBy(Item item) => Commissions.FirstOrDefault(c => Takes(c, item));
 
-    public int CommissionReward(Commission c) => Money.Round(c.Reward * (HasCurio("letter") ? 1 + Curios.LetterBonus : 1));
+    /// <summary>
+    /// Whether a commission would take this thing: what it asks for, or (with a letter of introduction, for the regulars)
+    /// a quality lower.
+    /// </summary>
+    public bool Takes(Commission c, Item item) => c.Wants(item, LetterLeeway(c));
+
+    /// <summary>How many qualities lower than asked a commission will take.</summary>
+    public int LetterLeeway(Commission c) => HasCurio("letter") && !c.Story ? 1 : 0;
+
+    public int CommissionReward(Commission c) => c.Reward;
 
     /// <summary>
     /// Hands something over for a commission instead of selling it (giving up <paramref name="forgo"/>, its sale price,
@@ -336,7 +417,7 @@ public sealed partial class GameState
     /// </summary>
     public int Deliver(Item item, Commission commission, int forgo = 0)
     {
-        if (!commission.Wants(item)) return 0;
+        if (!Takes(commission, item)) return 0;
         Gold -= forgo;
         Today.Earned -= forgo;
         commission.Delivered++;

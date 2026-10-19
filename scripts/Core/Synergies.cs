@@ -65,6 +65,11 @@ public sealed class SynergyDef
     }
 }
 
+/// <summary>
+/// What the shop gets known for. A name brings people and chances your way (more of a kind in the chests, smiths at the
+/// door, false bottoms, enchanted things), and spares you some breakage; it never adds a share to what things sell for,
+/// which would grow the shop faster than your judgment does.
+/// </summary>
 public static class Synergies
 {
     public static readonly SynergyDef[] All =
@@ -72,17 +77,18 @@ public static class Synergies
         new()
         {
             Key = "jewelry", Name = "Jewelry Tycoon", Blurb = "Coins and jewelry", Kinds = new[] { Category.Coins, Category.Jewels }, Tier = 3,
-            Effect = l => $"Everything you sell fetches +{Pct(SaleBonus(l))}: your name opens purses.",
+            Effect = l => $"Moneychangers and jewellers come your way: coins and jewelry turn up in chests {Pct(MoneyKinds(l))} more often.",
         },
         new()
         {
             Key = "smith", Name = "Smithing Tycoon", Blurb = "Metal", Kinds = new[] { Category.Metal },
-            Effect = l => $"Smiths and soldiers come more often, and metal is {Pct(MetalBetter(l))} likelier to be one quality better.",
+            Effect = l => $"Smiths and soldiers, who bring plenty of metal, come {Pct(SmithVisits(l) - 1)} more often.",
         },
         new()
         {
             Key = "vintner", Name = "Vintner", Blurb = "Bottles", Kinds = new[] { Category.Bottles }, Tier = 2,
-            Effect = l => $"Bottles fetch +{Pct(BottleBonus(l))}, and glass is {Pct(Sturdier(l))} less likely to break.",
+            Effect = l => l >= SynergyDef.MaxLevel ? "Packed like a vintner: glass never breaks, dropped or forced."
+                : $"Packed like a vintner: glass is {Pct(Sturdier(l))} less likely to break, dropped or forced.",
         },
         new()
         {
@@ -98,7 +104,7 @@ public static class Synergies
         {
             Key = "keen", Name = "Keen Eye", Blurb = "Perfect reads in a row", Steps = new[] { 3, 6, 10, 15, 25 }, StepWord = "perfect reads in a row",
             Achieved = s => s.BestStreak,
-            Effect = l => $"A perfect read earns you a valuer's fee: +{Pct(KeenFee(l))} of what the chest held.",
+            Effect = l => $"A perfect read earns you a valuer's fee: {KeenFee(l)}g per shop tier.",
         },
         new()
         {
@@ -113,15 +119,13 @@ public static class Synergies
     /// <summary>"12%", the same in every locale.</summary>
     public static string Pct(float fraction) => $"{MathF.Round(fraction * 100)}%";
 
-    public static float SaleBonus(int level) => 0.03f * level;
-    public static float MetalBetter(int level) => 0.03f * level;
-    public static float BottleBonus(int level) => 0.08f * level;
-    public static float Sturdier(int level) => 0.15f * level;
-    public static float HiddenBonus(int level) => 0.03f * level;
+    public static float MoneyKinds(int level) => 0.1f * level;
+    public static float Sturdier(int level) => Math.Min(1f, 0.2f * level);
+    public static float HiddenBonus(int level) => 0.02f * level;
     public static float ShowBonus(int level) => 0.1f * level;
-    public static float KeenFee(int level) => 0.03f * level;
-    public static float MagicBonus(int level) => 0.02f * level;
+    public static int KeenFee(int level) => level;
+    public static float MagicBonus(int level) => 0.01f * level;
 
     /// <summary>How much more often smiths and soldiers (who bring a lot of metal) come in.</summary>
-    public static float SmithVisits(int level) => 1f + 0.3f * level;
+    public static float SmithVisits(int level) => 1f + 0.2f * level;
 }

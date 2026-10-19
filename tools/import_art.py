@@ -91,7 +91,10 @@ CURIOS = {
     "coin": ("item", 30), "shell": ("item", 58), "loupe": ("item", 79), "gauntlet": ("item", 18), "cap": ("item", 60),
     "lantern": ("item", 17), "catalogue": ("item", 41), "signet": ("item", 37), "jar": ("ninja", "jar.png", (0, 0, 16, 16)),
     "letter": ("item", 23), "knife": ("item", 32), "hook": ("item", 55), "draught": ("item", 11), "clover": ("item", 65),
-    "receipt": ("ninja", "scroll-empty.png", None), "book": ("item", 40), "crescent": ("item", 49),
+    "book": ("item", 40), "crescent": ("item", 49),
+    "crate": ("medieval", "crate.png", None), "oil": ("item", 61), "purse": ("item", 21), "ticket": ("ninja", "scroll-empty.png", None),
+    "watch": ("item", 29), "token": ("item", 20), "marker": ("item", 25), "gloves": ("item", 52),
+    "dome": ("ninja", "empty-pot.png", None),
 }
 CURIO_SLOT = 56
 
@@ -854,11 +857,15 @@ def build_curios(sp):
         if source[0] == "item":
             img = Image.open(os.path.join(sp, f"rpg-battle-system/item/{source[1]}.png")).convert("RGBA")
         else:
-            img = Image.open(os.path.join(sp, f"ninja-adventure/items/{source[1]}")).convert("RGBA")
+            folder = "ninja-adventure/items" if source[0] == "ninja" else "medieval-fantasy/items"
+            img = Image.open(os.path.join(sp, folder, source[1])).convert("RGBA")
             if source[2]:
                 img = img.crop(source[2])
         img = img.crop(img.getbbox())
-        if max(img.size) <= CURIO_SLOT // 2:
+        # Tiny sprites (a 9px jar) at 3x, small ones at 2x, big ones halved: all about the same size in a slot.
+        if max(img.size) <= 12:
+            img = img.resize((img.width * 3, img.height * 3), Image.NEAREST)
+        elif max(img.size) <= CURIO_SLOT // 2:
             img = img.resize((img.width * 2, img.height * 2), Image.NEAREST)
         elif max(img.size) > CURIO_SLOT:
             img = halve(img)

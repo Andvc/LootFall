@@ -102,15 +102,14 @@ public partial class Hud : CanvasLayer
     public void SetDue(Core.GameState state)
     {
         _dueChip.Visible = state.GuildIntroduced;
-        int due = state.NextDue;
-        _due.Text = $"Due {due}g";
+        int due = state.NextDue, days = state.DaysToNextDue;
+        _due.Text = state.DebtCleared ? $"Interest {due}g" : $"Due {due}g";
         _due.AddThemeColorOverride("font_color", state.Gold >= due ? Palette.Gold : Palette.Warn);
-        _when.Text = state.PaidThisWeek ? "next week" : state.DaysToDue switch
-        {
-            0 => "tonight!",
-            1 => "tomorrow night",
-            int days => $"in {days + 1} days",
-        };
+        // After paying off early, the Guild doesn't come again until its interest starts.
+        _when.Text = !state.PaidThisWeek && days == 0 ? "tonight!"
+            : state.NextDueWeek > state.Week + 1 ? $"in week {state.NextDueWeek}"
+            : state.PaidThisWeek ? "next week"
+            : days == 1 ? "tomorrow night" : $"in {days + 1} days";
         _when.AddThemeColorOverride("font_color", state.DuesTonight && !state.PaidThisWeek ? Palette.Warn : Palette.Muted);
     }
 

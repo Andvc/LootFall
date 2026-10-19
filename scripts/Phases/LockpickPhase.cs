@@ -39,7 +39,7 @@ public partial class LockpickPhase : Phase
     public override void _Ready()
     {
         _purchase = State.Opening;
-        _lock = _purchase.Chest.Lock;
+        _lock = State.Oiled(_purchase.Chest.Lock);
         _speed = _lock.NeedleSpeed;
         // Fine lockpicks give a wider sweet spot.
         _zoneWidth = _lock.ZoneDegrees * (State.Has("picks") ? 1.35f : 1f);

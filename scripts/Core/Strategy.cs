@@ -14,17 +14,26 @@ public static class Strategy
 
     /// <summary>
     /// Which strengths to shake at: all three, except gently and hard when there's no time (hard hears everything
-    /// firm does), or gently and firmly when the seller won't have it shaken hard.
+    /// firm does), or gently and firmly when the seller won't have it shaken hard. Kid gloves and a pocket watch lift
+    /// those limits.
     /// </summary>
-    public static Shake[] Levels(Visit visit) =>
-        visit.Seller.HatesHardShake ? new[] { Shake.Gentle, Shake.Firm }
-        : visit.Seller.Patience > 0 ? new[] { Shake.Gentle, Shake.Hard }
+    public static Shake[] Levels(Visit visit, GameState state = null) =>
+        visit.Seller.HatesHardShake && !Gloved(state) ? new[] { Shake.Gentle, Shake.Firm }
+        : Rushed(visit, state) ? new[] { Shake.Gentle, Shake.Hard }
         : Every;
 
-    /// <summary>Drop it to listen for a false bottom, unless there's glass in there or the seller would mind.</summary>
-    public static bool ShouldDrop(Visit visit, Hearing hearing, int tier) =>
-        tier >= 2 && !visit.Seller.HatesDrop && visit.Seller.Patience == 0 && !hearing.Dropped &&
-        !Categories.All.Any(c => c.Fragile && hearing.HeardAny(c.Category));
+    static bool Gloved(GameState state) => state?.KidGloves ?? false;
+
+    /// <summary>An impatient seller, and no pocket watch to make the time stretch.</summary>
+    static bool Rushed(Visit visit, GameState state) => visit.Seller.Patience > 0 && !(state?.HasCurio("watch") ?? false);
+
+    /// <summary>
+    /// Drop it to listen for a false bottom, unless there's glass in there (and no padded crate) or the seller would
+    /// mind.
+    /// </summary>
+    public static bool ShouldDrop(Visit visit, Hearing hearing, int tier, GameState state = null) =>
+        tier >= 2 && (!visit.Seller.HatesDrop || Gloved(state)) && !Rushed(visit, state) && !hearing.Dropped &&
+        (state?.HasCurio("crate") == true || !Categories.All.Any(c => c.Fragile && hearing.HeardAny(c.Category)));
 
     /// <summary>
     /// Where to check with the magnet: each strength at which a jingle or tinkle was heard (a gilded fake goes quiet
@@ -32,7 +41,7 @@ public static class Strategy
     /// </summary>
     public static Shake[] MagnetLevels(Visit visit, Hearing hearing, GameState state)
     {
-        if (!state.Has("magnet") || visit.Seller.HatesMagnet || visit.Seller.Patience > 0) return Array.Empty<Shake>();
+        if (!state.Has("magnet") || (visit.Seller.HatesMagnet && !state.KidGloves) || Rushed(visit, state)) return Array.Empty<Shake>();
         var gilded = Categories.All.Where(c => c.FakeName != null && c.FakeIron).Select(c => c.Category).ToArray();
         // The gentlest strength each one sounded at: where a fake would go quiet.
         return gilded.Select(c => Every.FirstOrDefault(l => hearing.HeardAt(c, l, false))).Where(l => l != Shake.Still)
@@ -63,6 +72,8 @@ public static class Strategy
     /// </summary>
     public static int FirstOffer(Visit visit, int worth) => visit.Trade switch
     {
+        // A haggler who'll hear you out (a merchant's signet) can be tried with a cheeky offer first.
+        Trade.Haggle when visit.HearsOut && visit.OffersMade == 0 => Money.Round(Math.Min(visit.Ask * 0.3f, worth * 0.8f)),
         Trade.Haggle => Money.Round(Math.Min(visit.Ask * 0.55f, worth * 0.8f)),
         _ when visit.Seller.Judge == Judgment.Clueless => Money.Round(Math.Min(worth * 0.5f, visit.Seller.Tier * 4)),
         // Someone who only knows magic takes a modest sum when there's none.
@@ -109,7 +120,7 @@ public static class Strategy
         {
             int n = slip.Count(c.Category);
             if (n == 0) continue;
-            float p = Categories.Odds(slip.Chest).Where(o => o.Quality >= c.Quality).Sum(o => o.Chance);
+            float p = Categories.Odds(slip.Chest).Where(o => o.Quality >= c.Quality - state.LetterLeeway(c)).Sum(o => o.Chance);
             float hit = 1 - MathF.Pow(1 - p, Math.Min(n, c.Needed - c.Delivered));
             float each = state.CommissionReward(c) / (float)c.Needed - Categories.Nominal(c.Category, c.Quality) * state.SaleMultiplier(c.Category);
             extra += hit * Math.Max(0, each) * (c.Story ? 1f : 0.5f);
@@ -153,9 +164,12 @@ public static class Strategy
     /// <summary>A careful player's taste in curios, best first.</summary>
     public static readonly string[] CurioOrder =
     {
-        "receipt", "clover", "lantern", "loupe", "letter", "coin", "book", "signet", "jar", "crescent", "shell", "gauntlet", "cap",
-        "catalogue", "hook", "draught", "knife",
+        "clover", "coin", "dome", "letter", "book", "gloves", "jar", "signet", "shell", "gauntlet", "cap", "oil", "catalogue", "lantern",
+        "hook", "draught", "watch", "crate", "knife", "purse", "ticket", "marker", "loupe",
     };
+
+    /// <summary>What a careful player never buys: a gamble, and a curse.</summary>
+    static readonly string[] Shuns = { "token", "crescent" };
 
     static int Rank(string key) => Array.IndexOf(CurioOrder, key) is var i and >= 0 ? i : CurioOrder.Length;
 
@@ -166,7 +180,8 @@ public static class Strategy
     public static (CurioDef Buy, string Sell) ChooseCurio(GameState state, IEnumerable<CurioDef> stock)
     {
         // The Visitors' Book is no use without an exhibition.
-        var wanted = stock.Where(c => !state.HasCurio(c.Key) && (c.Key != "book" || state.Exhibition >= 10)).OrderBy(c => Rank(c.Key));
+        var wanted = stock.Where(c => !state.HasCurio(c.Key) && !Shuns.Contains(c.Key) && (c.Key != "book" || state.Exhibition >= 10))
+            .OrderBy(c => Rank(c.Key));
         foreach (var curio in wanted)
         {
             int price = Curios.Price(curio, state.Week);
@@ -203,6 +218,9 @@ public static class Strategy
         }
         return order;
     }
+
+    /// <summary>Pay off the whole debt as soon as there's enough: it's what the run is for.</summary>
+    public static bool ShouldPayOff(GameState state) => state.CanPayOff;
 
     /// <summary>The Guild's offer for the map: a careful player takes it only if it's that or the shop.</summary>
     public static bool TakeOffer(GameState state) => state.Gold < state.DueNow && state.Gold >= state.DueNow / 2;

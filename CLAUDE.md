@@ -58,13 +58,17 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
 - The run (`Run.cs`, a partial of `GameState`): five-day weeks; the Grey Guild's due every fifth evening (`Guild.Due`,
   eight weeks then endless x1.5); pawning, Bram's word once a run, foreclosure. Curios (`Curios.cs`, from Nim weekly)
-  each bend one rule and never reveal what's in a chest (commons cost 1g); commissions (`Commissions.cs`) pay for delivering finds;
+  each bend one rule, never reveal what's in a chest and never add a share to sale prices (nor do synergies: a few
+  percent on every sale compounds into weeks; the sim's "what curios and synergies are worth" lines show it), and are
+  priced as a share of the week's due (commons 1g on Nim's first visit); commissions (`Commissions.cs`) pay for delivering finds;
   one event a week (`Events.cs`); the story's scenes and the map to the vault (`Story.cs`). The sim's report must show
   careful players usually clear the debt (week 8 the real wall), careless ones foreclosed within a few weeks, and early
   foreclosures rare for careful play. Anything added to the run goes in `SaveData` too; the profile across runs is
   `Profile` (user://profile.json). Bram's stash (`GameState.Stash`, three times a run) tops up a day that starts
   nearly broke. Bram's working purse (`ShopTiers.Working`) is both the day-end advice (orange prices) and what
-  `Strategy.Reserve` keeps, so the advice is what the sim's careful player does: tune them together. Surprises
+  `Strategy.Reserve` keeps, so the advice is what the sim's careful player does: tune them together. The whole debt
+  can be paid off early (`GameState.DebtLeft`, `PayOff`) from the day end or the Guild's night; the sim's careful
+  player does, and reports the week each run cleared (week 8 should stay the usual one). Surprises
   (`Categories.Odds`) are rare, with a pity counter (`GameState.DrySpell`); the sim reports their share of income.
 - The shop opens up a step at a time (`GameState.UpgradesOpen` once it has earned `UpgradesAt`, `DisplayOpen` with
   the village shop, `SynergiesOpen` with the town shop), each introduced by a Bram tip when it happens. Gate new

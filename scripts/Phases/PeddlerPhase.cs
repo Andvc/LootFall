@@ -53,7 +53,7 @@ public partial class PeddlerPhase : Phase
         // Your curios: click one to sell it back for half.
         const float y = 440;
         _board.AddChild(UiKit.MakeLabel($"YOUR CURIOS {State.CurioKeys.Count}/{State.CurioSlots}", 16, Palette.Magic).Place(CardsX, y, 300, 20));
-        _board.AddChild(UiKit.MakeLabel("Click one to sell it back to Nim for half its price.", 16, Palette.Muted).Place(CardsX + 220, y, 600, 20));
+        _board.AddChild(UiKit.MakeLabel("Click one to sell it back to Nim for half what you paid.", 16, Palette.Muted).Place(CardsX + 220, y, 600, 20));
         for (int i = 0; i < State.CurioSlots; i++)
         {
             float x = CardsX + i * 76;

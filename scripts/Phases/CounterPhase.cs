@@ -91,7 +91,7 @@ public partial class CounterPhase : Phase
     {
         _visit = State.Current;
         _slip = new Appraisal(_visit, State.Tier);
-        _patience = _visit.Seller.Patience;
+        _patience = State.Patience(_visit.Seller);
         Add(UiKit.MakeShop(State.Tier, 0.92f));
         BuildShelf();
 
@@ -165,7 +165,8 @@ public partial class CounterPhase : Phase
         var tried = Levels.Where(level => _hearing.HasTried(level, _magnet)).ToList();
         if (tried.Count == 0) return "";
         // Not a nudge to shake a chest hard when its seller won't have it.
-        var untried = Levels.Where(level => !tried.Contains(level) && !(level == Core.Shake.Hard && _visit.Seller.HatesHardShake)).ToList();
+        var untried = Levels.Where(level => !tried.Contains(level) && !(level == Core.Shake.Hard && _visit.Seller.HatesHardShake && !State.KidGloves))
+            .ToList();
         string done = $"Shaken {string.Join(" and ", tried.Select(Categories.Adverb))}.";
         return untried.Count == 0 ? done : $"{done} Not {string.Join(" or ", untried.Select(Categories.Adverb))} yet.";
     }
@@ -234,7 +235,7 @@ public partial class CounterPhase : Phase
         string colour = chest.Gilded
             ? $"Gilded! An old royal chest, a colour better than its seller thinks: expect {Categories.QualityName(chest.Quality)} things."
             : $"A {Categories.ChestSkin(chest.Quality)} chest: expect {Categories.QualityName(chest.Quality)} things.";
-        return chest.Lock.Locked ? $"{colour} Locked: {chest.Lock.Name}, {chest.Lock.Pins} pins." : colour;
+        return chest.Lock.Locked ? $"{colour} Locked: {chest.Lock.Name}, {State.Oiled(chest.Lock).Pins} pins." : colour;
     }
 
     /// <summary>Bram's tips for whatever is new about this customer.</summary>
@@ -281,7 +282,8 @@ public partial class CounterPhase : Phase
             _shaken[key] = before + delta;
             if (before < TryTime && _shaken[key] >= TryTime) _hearing.Tried(level, _magnet);
             // Some sellers won't have their chest shaken hard: a moment of it (not a stray flick) and up goes the price.
-            if (level == Core.Shake.Hard && _visit.Seller.HatesHardShake && _shaken[key] >= HardShakeTolerance && !Concluded && !_busy)
+            if (level == Core.Shake.Hard && _visit.Seller.HatesHardShake && !State.KidGloves && _shaken[key] >= HardShakeTolerance && !Concluded &&
+                !_busy)
                 Angered(_visit.Anger(_rng));
         }
         CheckLesson();
@@ -659,7 +661,7 @@ public partial class CounterPhase : Phase
             Game.Moment("05_drop_sealed", 0.3);
             return;
         }
-        var (hollow, broke) = _visit.Chest.Drop(_rng, State.Sturdier);
+        var (hollow, broke) = _visit.Chest.Drop(_rng, State.DropSturdier);
         _hearing.HeardDrop(hollow, broke);
         Game.Shake(0.35f);
         if (hollow)
@@ -683,7 +685,7 @@ public partial class CounterPhase : Phase
             Teach("broke");
         }
         Teach("dropped");
-        if (_visit.Seller.HatesDrop) Angered(_visit.Anger(_rng));
+        if (_visit.Seller.HatesDrop && !State.KidGloves) Angered(_visit.Anger(_rng));
         else _seller.Say(_rng.PickOne(new[] { "Oi! Careful with that.", "Mind the floor!", "Easy!" }));
         Refresh();
         Game.Moment("05_drop", 0.3);
@@ -755,7 +757,7 @@ public partial class CounterPhase : Phase
         Sfx.PlayGroup("clack", _magnet ? 1.2f : 0.9f, -2);
         _shake.View.Wobble(0.4f);
         if (_magnet) Teach("magnet");
-        if (_magnet && _visit.Seller.HatesMagnet) Angered(_visit.Anger(_rng));
+        if (_magnet && _visit.Seller.HatesMagnet && !State.KidGloves) Angered(_visit.Anger(_rng));
         Refresh();
         Game.Moment("05_magnet", 0.6);
     }

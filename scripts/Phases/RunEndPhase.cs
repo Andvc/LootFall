@@ -31,10 +31,13 @@ public partial class RunEndPhase : Phase
         logo.PivotOffset = new Vector2(640, 40);
         logo.Scale = Vector2.One * 1.3f;
         logo.CreateTween().TweenProperty(logo, "scale", Vector2.One, 0.4f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        int early = State.ClearedWeek > 0 ? Guild.Weeks - State.ClearedWeek : 0;
+        string paid = early > 0 ? $"Bram's debt is paid, {early} week{(early == 1 ? "" : "s")} early" : "Bram's debt is paid";
         string sub = _cleared
-            ? State.VaultOpened ? "Bram's debt is paid, and King Aldric's hoard sits on your counter."
-            : State.MapGiven ? "Bram's debt is paid. The Guild has the map; let them dig."
-            : "Bram's debt is paid. The vault will have to wait."
+            ? State.VaultOpened ? $"{paid}, and King Aldric's hoard sits on your counter."
+            : State.MapGiven ? $"{paid}. The Guild has the map; let them dig."
+            : State.Week < Guild.Weeks && State.MapPieces > 0 ? $"{paid}. Keep trading, and the map may still lead to the vault."
+            : $"{paid}. The vault will have to wait."
             : State.DebtCleared ? $"Bram's debt was paid, but the Guild's interest caught up with you in week {State.Week}."
             : $"The Guild took the shop in week {State.Week}.";
         Add(UiKit.MakeLabel(sub, 24, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 168, 1280, 30));
@@ -42,7 +45,7 @@ public partial class RunEndPhase : Phase
         var panel = Add(UiKit.MakePanel(color.Darkened(0.3f)).Place(340, 220, 600, 300));
         var rows = new List<(string, string)>
         {
-            ("Weeks the Guild was paid", $"{State.WeeksPaid}"),
+            ("Debt cleared", State.ClearedDay > 0 ? $"day {State.ClearedDay}, week {State.ClearedWeek}" : "no"),
             ("Days of trading", $"{State.Day}"),
             ("The shop", ShopTiers.Name(State.Tier)),
             ("The chests brought in", $"{State.TotalEarned}g"),
@@ -65,7 +68,9 @@ public partial class RunEndPhase : Phase
         if (_cleared)
         {
             Add(UiKit.MakeButton("Keep trading", Palette.Gold, 24, KeepTrading).Place(340, 580, 290, 64)).TooltipText =
-                "The Guild keeps coming, for half as much again each week. How long can you last?";
+                State.Week < Guild.Weeks
+                    ? $"Nobody's coming for anything until week {Guild.Weeks + 1}: then the Guild wants interest, half as much again each week."
+                    : "The Guild keeps coming, for half as much again each week. How long can you last?";
             Add(UiKit.MakeButton("Retire", Palette.Text, 24, Retire).Place(650, 580, 290, 64)).TooltipText = "Hang up your apron: back to the title.";
             Sfx.Play("fanfare", 1f, -2);
             Fx.Confetti(this, new Vector2(640, 120), 160);

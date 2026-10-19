@@ -62,8 +62,8 @@ public static class Hints
         // The run: the Guild's dues, curios, commissions, events.
         ["dues"] = "Paid. Next week the Guild wants more, and more the week after. Whatever you spend on the shop has to " +
                    "earn its keep before Vane comes back.",
-        ["peddler"] = "Nim sells curios: trinkets that each bend one rule of the trade. You've room for three. Pick the ones " +
-                      "that suit how you like to deal.",
+        ["peddler"] = "Nim sells curios: trinkets that each bend one rule of the trade. You've room for three. His prices climb " +
+                      "each week, like the Guild's, so a good one is cheapest now.",
         ["commissions"] = "Regulars want things now: see the board on the left. When something they want comes out of a chest, " +
                           "hand it over instead of selling it. A commission pays far more than a sale.",
         ["deliver"] = "Someone wants this! Deliver it for the commission, or sell it as usual.",
@@ -71,6 +71,8 @@ public static class Hints
         ["stranger"] = "The Stranger. Packed tight in straw: nothing inside can move, so there's nothing to hear. Drop it to feel " +
                        "how heavy it is. Heavy ones hold more.",
         ["gilded"] = "Gold! One of the old royal chests. Its seller thinks the gold is paint, and priced it as the colour underneath.",
+        ["payoff"] = "Look at that purse: enough to pay off the whole debt, every week of it, right now! Do it and the stall is " +
+                     "ours, early. Or keep trading first: the Guild only ever asks for this week's due.",
         ["pawn"] = "Short? Pawn what's on display, or your curios, at the Guild's price. If even that isn't enough, the shop is theirs.",
         ["hood"] = "The Hooded Woman's commission pays in map pieces. If you miss it, she'll ask again next week.",
 

@@ -41,9 +41,10 @@ public sealed class Commission
     public string PatronName => Story ? Core.Story.HoodName : Sellers.All.FirstOrDefault(s => s.Key == Patron)?.Name ?? Patron;
 
     /// <summary>Whether this thing would do. Fakes and broken things never do.</summary>
-    public bool Wants(Item item) => !Done && !item.Fake && !item.Broken && (Kind == CommissionKind.Enchanted
+    /// <param name="leeway">How many qualities lower than asked they'll take (a letter of introduction).</param>
+    public bool Wants(Item item, int leeway = 0) => !Done && !item.Fake && !item.Broken && (Kind == CommissionKind.Enchanted
         ? item.Magic
-        : item.Category == Category && item.Quality >= Quality);
+        : item.Category == Category && item.Quality >= Quality - leeway);
 
     /// <summary>What's wanted, in a few words: "a rare or better metal thing", "3 cloth, uncommon or better".</summary>
     public string What => Kind switch
@@ -152,7 +153,8 @@ public static class Patrons
             2 => (tier >= 3 ? Category.Jewels : Category.Coins, false),
             _ => (Category.Metal, tier >= 3),
         };
-        var quality = (Rarity)Math.Min(4, (int)Asked(tier) + 1);
+        // A step better than the regulars ask, but never legendary: with surprises as rare as they are, that's luck, not an eye.
+        var quality = (Rarity)Math.Min((int)Rarity.Epic, (int)Asked(tier) + 1);
         int worth = Categories.Nominal(kind, quality);
         return new Commission
         {

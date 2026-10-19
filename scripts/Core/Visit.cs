@@ -62,8 +62,13 @@ public sealed class Visit
 
     public bool Deciding => Outcome == VisitOutcome.Deciding;
 
+    /// <summary>A haggler who hears you out (a merchant's signet): an offer too low gets a second try, not a slammed door.</summary>
+    public bool HearsOut { get; set; }
+
+    bool _retry;
+
     /// <summary>Whether you can make an offer now.</summary>
-    public bool CanOffer => Deciding && (Trade == Trade.Haggle ? OffersMade == 0 : Trade == Trade.Offer && Ask == 0);
+    public bool CanOffer => Deciding && (Trade == Trade.Haggle ? OffersMade == 0 || _retry : Trade == Trade.Offer && Ask == 0);
 
     /// <summary>Whether there's a price on the table you can just pay.</summary>
     public bool CanBuy => Deciding && Ask > 0;
@@ -72,6 +77,7 @@ public sealed class Visit
     {
         if (!CanOffer) throw new InvalidOperationException("No offer to make");
         OffersMade++;
+        _retry = false;
         amount = Math.Max(1, amount);
         if (amount >= Floor) return new Response(ResponseKind.Accept, amount, Sell(amount, rng));
         if (Trade == Trade.Offer)
@@ -79,7 +85,12 @@ public sealed class Visit
             if (OffersMade == 1) return new Response(ResponseKind.TryAgain, 0, rng.PickOne(Seller.Refusals));
             return Leave(rng);
         }
-        if (amount < Ask * Market.Insult) return Leave(rng);
+        if (amount < Ask * Market.Insult)
+        {
+            if (!HearsOut || OffersMade > 1) return Leave(rng);
+            _retry = true;
+            return new Response(ResponseKind.TryAgain, 0, rng.PickOne(Seller.Refusals));
+        }
         // Not enough: they meet you partway, never below what they'd really take, and that's final.
         Ask = Math.Max(Floor, Money.Round((amount + Ask) / 2f));
         return new Response(ResponseKind.Counter, Ask, rng.PickOne(Seller.Counters).Replace("{price}", $"{Ask}g"));

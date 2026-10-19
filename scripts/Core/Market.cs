@@ -88,7 +88,7 @@ public static class Market
         if (seller.Judge == Judgment.Crook && fakeable.Length > 0) picked.Add(rng.PickWeighted(fakeable, c => seller.Kinds[(int)c]));
         if (seller.Always is Category always && kinds.Contains(always)) picked.Add(always);
         while (picked.Count < count)
-            picked.Add(rng.PickWeighted(kinds.Except(picked).ToArray(), c => seller.Kinds[(int)c]));
+            picked.Add(rng.PickWeighted(kinds.Except(picked).ToArray(), c => seller.Kinds[(int)c] * boosts.Weight(c)));
 
         // From the town shop on, a lot can hold two or three of a kind.
         var all = new List<Category>();
@@ -108,7 +108,7 @@ public static class Market
             bool fake = seller.Fakes.Contains(c) && rng.NextFloat() < seller.FakeChance;
             bool magic = !fake && rng.NextFloat() < magicChance;
             var quality = Categories.RollQuality(rng, colour);
-            if (quality < Rarity.Legendary && rng.NextFloat() < seller.QualityBoost + boosts.Better(c)) quality++;
+            if (quality < Rarity.Legendary && rng.NextFloat() < seller.QualityBoost) quality++;
             return new Item(c, quality, magic, fake);
         }).ToList();
 
@@ -281,15 +281,16 @@ public static class Market
     }
 }
 
-/// <summary>What the shop's exhibition and synergies do to the chests people bring in.</summary>
+/// <summary>What the shop's exhibition, synergies, curios and today's event do to the chests people bring in.</summary>
 /// <param name="BetterChests">The chance a chest is one colour better.</param>
 /// <param name="Hidden">Added to the chance of a false bottom.</param>
 /// <param name="Magic">Added to the chance each thing is magic.</param>
-/// <param name="MetalBetter">The chance a metal thing is one quality better.</param>
 /// <param name="Pairs">Added to the chance (from the town shop on) of two or three of a kind.</param>
-public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float MetalBetter = 0, float Pairs = 0)
+/// <param name="MoneyKinds">How much more often coins and jewelry turn up (a jewelry tycoon's name): 0.2 is a fifth more.</param>
+public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float Pairs = 0, float MoneyKinds = 0)
 {
     public static readonly Boosts None = new();
 
-    public float Better(Category category) => category == Category.Metal ? MetalBetter : 0f;
+    /// <summary>How likely a seller is to have put a thing of this kind in, against what they usually bring.</summary>
+    public float Weight(Category category) => category is Category.Coins or Category.Jewels ? 1 + MoneyKinds : 1;
 }

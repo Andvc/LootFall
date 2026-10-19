@@ -148,6 +148,13 @@ public static class Categories
 
     public static Rarity RollQuality(Random rng, Rarity chest) => rng.PickWeighted(Odds(chest), o => o.Chance).Quality;
 
+    /// <summary>A swing away from a quality, as the spread swings: a step worse most often, sometimes better.</summary>
+    public static Rarity Swing(Random rng, Rarity quality)
+    {
+        var steps = rng.PickWeighted(Spread.Where(s => s.Steps != 0).ToArray(), s => s.Chance).Steps;
+        return (Rarity)Math.Clamp((int)quality + steps, 0, 4);
+    }
+
     /// <summary>What one plain thing of this kind is worth on average in a chest of this colour. Sellers price by this.</summary>
     public static int Expected(Category category, Rarity chest) =>
         (int)MathF.Round(Odds(chest).Sum(o => o.Chance * Value(category, o.Quality, false)));

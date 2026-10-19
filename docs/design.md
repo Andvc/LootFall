@@ -10,11 +10,11 @@ way each customer trades: pay their price, haggle, or name your own. Pass, and y
 right; buy, and the chest bursts open on the spot: each thing's true quality, a tick or a cross against your slip,
 and now and then something far better than the chest promised. What you acquire builds the shop's name (synergies)
 and its exhibition, which draw more and better customers. The stall comes with Bram's old debt to the Grey Guild:
-every fifth evening Mister Vane collects a due that climbs from 40g to 26,000g over eight weeks. Curios from Nim the
+every fifth evening Mister Vane collects a due that climbs from 40g to 7,000g over eight weeks. Curios from Nim the
 peddler bend the rules in your favour, regulars pay well for commissions, something different happens in town once a
 week, and a hooded woman trades pieces of a map to King Aldric's lost vault for the finds only a good ear turns up.
-Pay all eight dues and the stall is free (and with the whole map, the vault opens on your counter); fall short and
-the Guild takes the shop.
+Pay all eight dues, or the whole of what's left at once whenever you have it, and the stall is free (and with the whole
+map, the vault opens on your counter); fall short and the Guild takes the shop.
 
 ## The puzzle: rules you'd expect from real life
 
@@ -59,10 +59,10 @@ three better (what would fall below common or above legendary stays at the end).
 
 Surprises are rare on purpose: in v10 one thing in five came out better (two steps in 2%), a third of a careful
 player's income came from them, and one lucky chest could pay for a renovation. Now a careful player sees about one
-thing in ten come out better and 1 in 200 jump two steps or more, and surprises are about a sixth of the income. So a long
-dry spell doesn't drag on, a pity counter (`GameState.DrySpell`) counts the things opened since the last surprise:
-after 15, each chest you buy has a 3% chance per thing more (up to 50%) that one thing in it is a step better, and
-any surprise resets it. Curios that improve quality (Lucky Coin, Lucky Shell) work on top of this.
+thing in twelve come out better and 1 in 170 jump two steps or more, and surprises are about a seventh of the income.
+So a long dry spell doesn't drag on, a pity counter (`GameState.DrySpell`) counts the things opened since the last
+surprise: after 15 (7 with a Lucky Shell), each chest you buy has a 3% chance per thing more (up to 50%) that one thing
+in it is a step better, and any surprise resets it. The Lucky Coin and the Four-Leaf Clover work on top of this.
 
 The slip shows what each thing would be worth **if it's as good as the chest promises** (`Categories.Nominal`).
 Sellers price by the **average** (`Categories.Expected`), which keeps the economy easy to balance.
@@ -242,7 +242,18 @@ half as much again each week, for as long as you last (endless).
 
 | Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | then |
 |---|---|---|---|---|---|---|---|---|---|
-| Due | 40g | 100g | 300g | 900g | 2,500g | 7,500g | 15,000g | 26,000g | x1.5 a week |
+| Due | 40g | 100g | 300g | 800g | 1,400g | 2,400g | 3,800g | 7,000g | x1.5 a week |
+
+These follow what a careful shop earns on its own judgment, now that no curio or synergy adds a share to sales (v10
+and v11 climbed to 26,000g, which only the +50% curios made payable). The last week is the wall: twice the week
+before, so the debt's last two weeks (10,800g) are rarely in hand before week 8.
+
+**Paying it off early.** Whenever you have all that's left of the debt (`GameState.DebtLeft`: this week's due if it's
+unpaid, and every week's after it to the eighth), you can pay it at once: from the day-end screen's Guild panel, which
+shows what's left and turns into a "Pay it all off" button (with a confirmation), or on the Guild's night beside the
+week's due. The debt is cleared and the run is won, however early (`ClearedDay`; the profile keeps your fastest).
+Keep trading after, and nobody comes until week 9, when the Guild's interest starts. A careful player usually pays
+the eighth due on the night; a lucky run has it all a week early, and nobody yet has managed two.
 
 The first weeks are small while you learn the stall and the village; from week 4 the dues climb with what a growing
 shop can earn, so every evening's spending is a decision: a renovation or cabinet now pays back over days, but the
@@ -262,7 +273,7 @@ safer-sounding 70g made the sim renovate three days later and clear the debt a t
 times a run (`GameState.StashLeft`); the day card says so, with how many are left, and Bram explains it the first
 time. The careful player hardly needs it (about once in two runs).
 
-Short on the night: pawn what's on display (at 60% of its price) or sell curios back (half their price). Once a run,
+Short on the night: pawn what's on display (at 60% of its price) or sell curios back (half what you paid). Once a run,
 if even that won't do, Bram vouches for you: everything you have goes to the Guild and the rest, with half as much
 again, is added to next week's due (not in week 8: the last of the debt is the last). Otherwise the Guild takes the
 shop and the run is over. A short night is also the most dramatic moment the shop has: what do you give up first?
@@ -271,34 +282,51 @@ shop and the run is over. A short night is also the most dramatic moment the sho
 
 Nim the peddler drops by before opening once a week from week 2 (`PeddlerPhase`; his first visit is the morning after
 the Guild's first) with three curios (`Curios.Stock`: rarer ones more often as the weeks go by). Each bends one rule of
-the trade, and you have room for three (a Curio Case, 250g at the town shop, adds a fourth), so which ones you keep
-shapes how you play: whom to haggle with, which sounds to chase, whether to save or spend. None of them tells you what
-a chest holds before you buy it. Commons cost 1g, always, and Nim's first visit (week 2) always lays out at least
-one, so a new player can try a curio before they can afford one; uncommons cost 60g and rares 140g in week 2, and
-60% of that more each week after. Nim buys them back for half.
+the trade, and you have room for three (a Curio Case, 250g at the town shop, and a Velvet Case at the Emporium add one
+each), so which ones you keep shapes how you play. None of them tells you what a chest holds before you buy it, and
+**none adds a share to what things sell for, or takes one off what you pay**. The shop's long game is your purse
+growing on good judgment, chest after chest; a few percent on every sale compounds into weeks (v10 and v11 had
++50% on whole kinds of things, +50% on everything with a cursed crescent, a fifth off every due: the sim's careful
+player cleared the debt 69% of the time with curios and synergies and never without them). Now a curio changes what
+you can do, what luck does, or what happens on a bad night.
+
+**Prices follow the economy.** A curio costs a share of the week's due (common a tenth, uncommon a quarter, rare
+three-fifths: 30, 75 and 180g in week 3, 700, 1,750 and 4,200g in week 8), and the dues follow what a shop that's
+keeping up makes, so a curio costs about the same share of your means early and late. On Nim's first visit the commons
+are 1g, and he always has one. He buys curios back for half what you paid (so one bought cheap doesn't sell dear later).
 
 | Curio | | Does |
 |---|---|---|
 | Lucky Coin | common | the first chest you open each day: everything in it gets two tries at its quality |
-| Lucky Shell | common | one chest in six you open: everything in it is a step better |
-| Jeweller's Loupe | common | coins and jewelry sell for +50% |
-| Smith's Glove | common | metal sells for +50% |
-| Hatter's Cap | common | cloth and paper sell for +50% |
-| Shop Lantern | common | one more customer every day |
+| Lucky Shell | common | a dry spell ends twice as soon: the pity starts after 7 plain finds, not 15 |
+| Shop Lantern | common | one more customer on the fifth day of each week |
 | Collector's Catalogue | common | every new find in the journal pays 10g per shop tier |
-| Merchant's Signet | uncommon | hagglers and those who ask you to name a price settle for 15% less |
+| Padded Crate | common (village on) | glass never breaks when you drop a chest |
+| Locksmith's Oil | common (village on) | every lock has one pin fewer |
+| Rainy-Day Purse | common | Bram's stash has one more dip in it |
+| Pawn Ticket | common | on a short night, what you pawn fetches four-fifths of its price, not three-fifths |
+| Merchant's Signet | uncommon | hagglers hear you out: an offer too low gets a second try, not a slammed door |
 | Savings Jar | uncommon | nightly interest: 5% of your gold, up to 25g per shop tier |
-| Letter of Introduction | uncommon | commissions pay +50% |
+| Letter of Introduction | uncommon | regulars take what you deliver a quality lower than they asked for (not the Hooded Woman) |
 | Burglar's Knife | uncommon (village on) | forcing a lock breaks and scratches nothing |
-| Smuggler's Hook | uncommon (village on) | false bottoms turn up far more often |
-| Witch's Draught | uncommon (town on) | enchanted things turn up far more often |
-| Four-Leaf Clover | rare | chests come in a colour better more often |
-| Forged Receipt | rare | the Guild's dues are a fifth less |
-| Visitors' Book | rare (village on) | every night, 3g per exhibition point |
-| Cursed Crescent | rare | everything sells for +50%, but the Guild's dues are a quarter more |
+| Smuggler's Hook | uncommon (village on) | false bottoms turn up a little more often (+5%) |
+| Witch's Draught | uncommon (town on) | enchanted things turn up a little more often (+3%) |
+| Pocket Watch | uncommon (Emporium) | impatient sellers give you twice as long |
+| Gambler's Token | uncommon | luck swings both ways: things come out better or worse than their chest twice as often |
+| Cursed Crescent | uncommon | no surprises: everything comes out exactly as its chest promised, never better or worse |
+| Guildsman's Marker | uncommon | Bram's word is good twice a run |
+| Smith's Glove | uncommon | metal never comes out worse than its chest promised (you mend it) |
+| Hatter's Cap | uncommon | cloth never comes out worse than its chest promised |
+| Jeweller's Loupe | uncommon (Emporium) | good paste and gilded fakes sell as costume pieces, for a quarter of the real thing |
+| Four-Leaf Clover | rare | the first chest you open each week: everything in it is a step better |
+| Visitors' Book | rare (village on) | every night, 2g per exhibition point |
+| Kid Gloves | rare (village on) | nobody minds how you handle their chest: shake hard, drop it, use the magnet |
+| Bell Jar | rare (village on) | room to display one more thing |
 
-Effects live in `GameState` (`Run.cs`): sale multipliers, the chests' boosts, the dues, the night's income and a
-curio's luck at purchase, which the opening announces ("Lucky Coin: 2 things came out better!").
+The token and the crescent are a gamble and a safe bet: the token's swings are slightly better than even, the
+crescent's certainty slightly worse, and the sim's careful player buys neither. Effects live in `GameState` (`Run.cs`
+and `Shop.cs`); what a curio's luck did at purchase, the opening announces ("Lucky Coin: 2 things came out better!",
+"Smith's Glove: 1 thing mended.").
 
 ## Commissions
 
@@ -333,14 +361,16 @@ Twenty years ago Bram borrowed from the Grey Guild to buy a quarter of a map to 
 end:
 
 - Week 2: Bram tells you about the map and gives you his piece.
-- Week 3, 5 and 7: the Hooded Woman asks for something (old papers, a ring, something enchanted, each better than the
-  regulars ask for) and pays a map piece for it. Miss one and she asks again the next week, until the debt's last week.
+- Week 3, 5 and 7: the Hooded Woman asks for something (old papers, a ring, something enchanted, each a step better
+  than the regulars ask for, but never legendary) and pays a map piece for it. Miss one and she asks again the next
+  week, until the debt's last week, even if the debt's already paid off.
 - Week 4: Bram recognises her voice; the Guild has been buying up old records. Week 5: she says the debt was a leash.
 - Week 6: Vane offers to halve that night's due for the map. Take it and there's no vault.
 - Week 7: she is Mara, Bram's old partner. Week 8: the last due.
 - Debt paid: with all four pieces, Mara and Bram bring the vault to the counter: a gilded chest with a dwarven lock
   and the best of everything inside, opened like any other. Then you keep trading against the Guild's interest, or
-  retire.
+  retire. Paid off early without the whole map, you can keep trading: the Guild leaves you alone until week 9, and if
+  Mara's last piece comes, the vault opens that night.
 
 Every run is recorded in `user://profile.json` (runs, debts cleared, vaults opened, the furthest week), shown on the
 title screen and at the end of a run.
@@ -373,17 +403,21 @@ kind by quality. Each thing looks the same everywhere: the collection, the shelf
 all show its own sprite (`UiKit.MakeItemIcon`, from icons `tools/import_art.py` halves when a sprite is too big).
 
 **Synergies** turn that tally into goals. Each has five levels; ten of a kind at common or better reaches level 1,
-ten at uncommon or better level 2, and so on to ten legendary for level 5. Two are achievements instead.
+ten at uncommon or better level 2, and so on to ten legendary for level 5. Two are achievements instead. A synergy is
+what the shop gets known for, and a name works the way it does in real life: it brings people and chances your way
+and spares you some breakage. It never adds a share to what things sell for (v7 to v11 had +3% to +15% on every sale,
+or a fee of 3% to 15% of what a perfect read's chest held; on margins of a few percent, that grew the shop far faster
+than judgment did).
 
 | Synergy | Needs | Does (per level) |
 |---|---|---|
-| Jewelry Tycoon | coins and jewelry | +3% on everything you sell |
-| Smithing Tycoon | metal | smiths and soldiers come 30% more often; metal 5% likelier to be one quality better |
-| Vintner | bottles | bottles fetch +8%; glass 15% less likely to break |
-| Archivist | paper | chests 3% likelier to have a false bottom |
+| Jewelry Tycoon | coins and jewelry | coins and jewelry turn up in chests 10% more often |
+| Smithing Tycoon | metal | smiths and soldiers (who bring metal) come 20% more often |
+| Vintner | bottles | glass 20% less likely to break, dropped or forced (never, at level 5) |
+| Archivist | paper | chests 2% likelier to have a false bottom |
 | Tailor | cloth | exhibition +10% |
-| Keen Eye | perfect reads in a row (3, 6, 10, 15, 25) | a perfect read earns a fee of 3% of what the chest held |
-| Arcanist | enchanted things found (3, 8, 15, 25, 40) | each thing 2% likelier to be enchanted |
+| Keen Eye | perfect reads in a row (3, 6, 10, 15, 25) | a perfect read earns a valuer's fee of 1g per shop tier |
+| Arcanist | enchanted things found (3, 8, 15, 25, 40) | each thing 1% likelier to be enchanted |
 
 Only **one** synergy is active at a time, chosen at the end of a day (the day-end screen's Synergies button opens the
 journal with switches). A Guild Charter (300g, town) and then a Royal Seal (900g, Emporium, only once you have the
@@ -396,7 +430,8 @@ After an opening, anything not fake or broken can be **kept for display** instea
 button shows the points it adds (a star for enchanted, which counts double). With the display full, it becomes **Swap**:
 pick something on display to sell, and the new thing takes its place. Display space: a shelf with room for one, then
 six cabinets of one each, each on offer only once the one before it is bought: Oak Cabinet 60g and Oak Dresser 120g
-(village), Glass Cabinet 250g and Glass Case 400g (town), Gilded Cabinet 700g and Gilded Case 1,100g (Emporium). The **exhibition** score is the display's prestige (1, 2, 4, 8 or 16 by quality; double
+(village), Glass Cabinet 250g and Glass Case 400g (town), Gilded Cabinet 700g and Gilded Case 1,100g (Emporium); a Bell
+Jar (a curio) holds one more. The **exhibition** score is the display's prestige (1, 2, 4, 8 or 16 by quality; double
 if enchanted). Every 10 points brings a customer a day (up to two), and each point makes a chest 1% likelier to be a
 colour better (up to 40%). Past 40 an exhibition brings nothing more, unless visitors pay to see it (the Visitors'
 Book curio).
@@ -419,34 +454,56 @@ and the slip; a hard shake for cloth; listening past a clank; passing when they 
 
 Each style plays whole runs: buying chests, curios (a careful player's taste, keeping enough back for the Guild) and
 upgrades (keeping Bram's working purse), delivering commissions, paying the Guild (pawning, or Bram's word, when
-short), and taking Bram's stash when a day starts nearly broke.
+short), taking Bram's stash when a day starts nearly broke, and paying off the whole debt as soon as it can.
 
 | Style | Still trading after each due, weeks 1-8 | Debt cleared | Vault | Foreclosed (median week) | Village | Town | Emporium |
 |---|---|---|---|---|---|---|---|
-| Pays their price, every chest | 100 95 76 42 26 18 11 0% | 0% | 0% | all (week 4) | day 7 | never | never |
-| One hard shake, keeps the seller's marks | 100 100 95 58 32 23 16 0% | 0% | 0% | all (week 5) | day 7 | never | never |
-| Every strength, drops when safe | 100 100 100 97 92 88 87 58% | 58% | 52% | all (week 9) | day 3 | day 9 | day 15 |
-| + Witchlight and Magnet | 100 100 100 97 91 87 87 71% | 71% | 62% | 99% (week 10) | day 3 | day 9 | day 15 |
-| + keeps grand things | 100 100 100 97 86 77 77 69% | 69% | 64% | 99% (week 10) | day 3 | day 11 | day 16 |
+| Pays their price, every chest | 100 95 74 33 10 5 1 0% | 0% | 0% | all (week 4) | day 7 | never | never |
+| One hard shake, keeps the seller's marks | 100 100 94 52 20 15 13 0% | 0% | 0% | all (week 5) | day 7 | never | never |
+| Every strength, drops when safe | 100 100 100 96 86 80 78 37% | 37% | 37% | all (week 8) | day 3 | day 10 | day 19 |
+| + Witchlight and Magnet | 100 100 100 96 87 81 79 58% | 58% | 58% | all (week 10) | day 3 | day 10 | day 19 |
+| + keeps grand things | 100 100 100 96 78 64 63 59% | 59% | 59% | all (week 10) | day 3 | day 12 | day 23 |
+
+("Foreclosed" counts the Guild's endless interest after the debt, which catches every shop by week 12.)
+
+When the debt was cleared, as a share of all runs:
+
+| Style | Week 6 | Week 7 (paid off early) | Week 8 |
+|---|---|---|---|
+| Every strength, drops when safe | 0% | 8% | 29% |
+| + Witchlight and Magnet | 0% | 19% | 38% |
+| + keeps grand things | 1% | 24% | 35% |
 
 Week by week for the careful player with both tools (gold on the Guild's night, before paying):
 
 | Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Due | 40 | 100 | 300 | 900 | 2,500 | 7,500 | 15,000 | 26,000 | 39,000 | 58,500 | 87,750 |
-| Gold, 10th percentile | 81 | 213 | 592 | 1,045 | 2,930 | 9,853 | 16,170 | 12,410 | 26,573 | 24,221 | 20,740 |
-| Gold, median | 133 | 557 | 2,030 | 6,411 | 14,299 | 25,986 | 36,457 | 42,248 | 48,547 | 41,543 | 33,598 |
-| Paid | 100% | 100% | 100% | 97% | 94% | 96% | 100% | 82% | 80% | 37% | 6% |
-| At the Emporium | 0% | 3% | 46% | 82% | 88% | 93% | 97% | 97% | 100% | 100% | 100% |
+| Due | 40 | 100 | 300 | 800 | 1,400 | 2,400 | 3,800 | 7,000 | 10,500 | 15,750 | 23,600 |
+| Gold, 10th percentile | 81 | 199 | 464 | 644 | 688 | 2,117 | 4,214 | 3,878 | 11,317 | 6,085 | 4,257 |
+| Gold, median | 133 | 446 | 1,127 | 2,135 | 3,599 | 6,062 | 7,590 | 8,468 | 15,202 | 10,609 | 6,352 |
+| Paid | 100% | 100% | 100% | 96% | 91% | 93% | 98% | 71% | 95% | 23% | 0% |
+| At the Emporium | 0% | 1% | 18% | 52% | 70% | 83% | 90% | 90% | 99% | 100% | 100% |
 
-(Dues shown before curios: the Forged Receipt takes a fifth off, which is why the report's medians read 20,800 in week
-8.) The early weeks are gentle and the renovations' payback is quick; the weeks that end runs are week 5 (shops still
-in the village when the due reaches 2,500) and week 8, the 26,000 wall. A careful player fills about 27 commissions a
-run (some 14,000g), Bram vouches in about a fifth of runs (usually week 5), his stash opens about once in two runs,
-and endless lasts two or three more weeks. Careless play loses the shop in week 4 or 5.
+The weeks that end runs are week 5 (shops still in the village when the due reaches 1,400) and week 8, the 7,000
+wall. A careful player fills about 22 commissions a run (some 8,400g), Bram vouches in about a quarter of runs
+(usually week 4), his stash opens about once in two runs, and endless lasts a week or two more. Careless play loses
+the shop in week 4 or 5.
 
-Surprises: a careful player sees 10% of things come out a step better than their chest and 0.5% two or more, worth 16%
-of what the chests held (v10: 20%, 2% and 29%).
+What curios and synergies are worth, to the careful player with both tools:
+
+| | Debt cleared | Median day cleared | Median gold on the night, week 4 / 6 / 8 |
+|---|---|---|---|
+| With both | 58% | 36 | 2,135 / 6,062 / 8,468 |
+| No curios | 39% | 37 | 1,840 / 5,183 / 6,928 |
+| No synergies | 41% | 37 | 2,076 / 5,288 / 6,601 |
+| Neither | 18% | 37 | 1,924 / 4,352 / 4,598 |
+
+They matter (a careful player who ignores them clears the debt less than a third as often), but they don't run the
+game: those who clear it with them do so about a day sooner, not weeks. Before v12 the same table read 69% with both
+and 0% with neither.
+
+Surprises: a careful player sees 8% of things come out a step better than their chest and 0.6% two or more, worth 15%
+of what the chests held.
 
 Per seller, at their own shop, profit per visit for a careful player with every tool, against paying their price
 blind (unchanged by the run). Every habit pays for putting up with it; only Tam (a few coins for anything), Wick (her
@@ -495,9 +552,21 @@ Every seller's lesson completes, played the careful way, with and without the to
 8. **The Royal Warrant as the goal (v5 to v9).** A 5,000g upgrade and an exhibition of 40, with nothing pressing until
    then: the days felt the same from the town shop on, and nothing ever went wrong. v10 replaces it with the Guild's
    weekly dues (pressure that climbs), curios, commissions, events and a story with a vault at the end.
+9. **Percentage bonuses from curios and synergies (v7 to v11).** +50% on coins and jewelry (or metal, or cloth and
+   paper), +50% on everything with a cursed crescent, a fifth off every due, +3% a level on every sale, a fee of 3% a
+   level of what a perfect read's chest held, commissions +50%, one chest in six a step better. A careful buy's margin
+   is a few percent of what the chest holds, so a few percent more on every sale multiplied how fast the shop grew:
+   the sim's careful player cleared the debt 69% of the time with curios and synergies and never without, and the
+   dues had climbed to 26,000g to keep up. v12 makes curios rule-benders and synergies a name that brings chances
+   your way, and sets the dues by what judgment earns: take every curio and synergy away and a careful player
+   finishes about a day later.
 
 ## Open questions
 
+- With no percentage bonuses, are curios still exciting to find? Which do players pick, and does anyone take the token
+  or the crescent?
+- Paying off early: does a week-7 finish feel like the reward it should, or like the story ending before Mara's last
+  piece? (Keep trading, and her last ask still comes.)
 - Is drag speed a good stand-in for shake strength with a real mouse? The thresholds need playtesting; the words under
   the chest now show where you are.
 - Vex's twelve seconds: enough to shake gently and hard and decide, but is it fun or just stressful?
@@ -511,7 +580,7 @@ Every seller's lesson completes, played the careful way, with and without the to
 - Enchantment is now x2 instead of x4: still exciting enough to hunt with the witchlight?
 - The shop saves at the start of each day only, and sellers don't remember you.
 - Three days at the stall before the first renovation: long enough to learn the three rules, or too long?
-- The sim's careful player is a perfect listener: real players will clear the debt less often. Is 26,000g in week 8
+- The sim's careful player is a perfect listener: real players will clear the debt less often. Is 7,000g in week 8
   a wall people want to climb again, or a cliff? Bram's word (once a run) and his stash (three times) are the safety
   nets; are they enough for a beginner, and too much for a good player?
 - Curios are chosen by a fixed taste in the sim: which ones do players actually pick, and do any feel useless (the

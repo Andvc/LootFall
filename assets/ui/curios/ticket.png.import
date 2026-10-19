@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ce0xr2jvkgndd"
-path="res://.godot/imported/receipt.png-0fe17a115f9f7700ea0678f9555c9ef3.ctex"
+uid="uid://cak7ypek6blrj"
+path="res://.godot/imported/ticket.png-63739b9037a4ddaf29aa9d7c928ba817.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/curios/receipt.png"
-dest_files=["res://.godot/imported/receipt.png-0fe17a115f9f7700ea0678f9555c9ef3.ctex"]
+source_file="res://assets/ui/curios/ticket.png"
+dest_files=["res://.godot/imported/ticket.png-63739b9037a4ddaf29aa9d7c928ba817.ctex"]
 
 [params]
 

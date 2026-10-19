@@ -27,7 +27,7 @@ public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Early Access 0.11";
+    public const string Version = "Early Access 0.12";
     const string SavePath = "user://save.json", ProfilePath = "user://profile.json";
 
     public GameState State { get; private set; }
@@ -372,6 +372,8 @@ public partial class Main : Node2D
     {
         if (!State.GuildIntroduced) SwitchTo(new ScenePhase(Story.Intro(), StartDay, "THE GREY GUILD"));
         else if (State.DuesTonight && !State.PaidThisWeek) SwitchTo(new DuesPhase());
+        // The debt was paid off early and the last piece of the map has just come: the vault, tonight.
+        else if (State.VaultDue) SwitchTo(new ScenePhase(Story.MapWhole(), Vault, "THE WHOLE MAP"));
         else StartDay();
     }
 
@@ -383,13 +385,32 @@ public partial class Main : Node2D
             SwitchTo(new ScenePhase(Story.Foreclosed(State), () => SwitchTo(new RunEndPhase(cleared: false))));
             return;
         }
-        if (State.WeeksPaid == Guild.Weeks && State.DebtCleared && State.Week == Guild.Weeks)
+        if (State.DebtCleared && State.ClearedDay == State.Day)
         {
-            WriteProfile(p => p.Cleared++);
-            SwitchTo(new ScenePhase(Story.Cleared(State), Vault, "FREE AND CLEAR"));
+            Cleared();
             return;
         }
         StartDay();
+    }
+
+    /// <summary>
+    /// Pays off the rest of Bram's debt at the end of a day, however early: the scene, then the vault (with the whole
+    /// map) or the end of the run.
+    /// </summary>
+    public void PayOffDebt()
+    {
+        if (State.PayOff() <= 0) return;
+        Sfx.PlayGroup("pay");
+        Hud.SetGold(State.Gold);
+        Hud.SetDue(State);
+        Cleared();
+    }
+
+    /// <summary>The debt's just been cleared: Vane's last visit and Bram's joy, then the vault or the end of the run.</summary>
+    void Cleared()
+    {
+        WriteProfile(p => p.Cleared++);
+        SwitchTo(new ScenePhase(Story.Cleared(State), Vault, "FREE AND CLEAR"));
     }
 
     /// <summary>With the whole map, Mara and Bram bring King Aldric's vault to the counter: pick its lock and open it.</summary>

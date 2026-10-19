@@ -42,13 +42,19 @@ public sealed class SaveData
     public int WeeksPaid { get; set; }
     public int Arrears { get; set; }
     public bool GraceUsed { get; set; }
+    public int GraceCount { get; set; }
     public int StashUsed { get; set; }
+    public int ClearedDay { get; set; }
+    public int CloverWeek { get; set; }
     public int DrySpell { get; set; }
     public bool BramPiece { get; set; }
     public int HoodPieces { get; set; }
     public bool MapGiven { get; set; }
     public bool VaultOpened { get; set; }
     public List<string> Curios { get; set; } = new();
+
+    /// <summary>What was paid for each curio, in the same order.</summary>
+    public List<int> CurioPaid { get; set; } = new();
     public List<string> EventsSeen { get; set; } = new();
     public string WeekEvent { get; set; }
     public int EventDay { get; set; }
@@ -114,6 +120,9 @@ public sealed class Profile
     public int BestWeek { get; set; }
     public int BestGold { get; set; }
 
+    /// <summary>The fewest days it's taken to clear Bram's debt (0 until it's been cleared).</summary>
+    public int FastestClear { get; set; }
+
     static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
 
     public string ToJson() => JsonSerializer.Serialize(this, Options);
@@ -135,11 +144,12 @@ public sealed class Profile
     {
         BestWeek = Math.Max(BestWeek, state.Week);
         BestGold = Math.Max(BestGold, state.Gold);
+        if (state.ClearedDay > 0 && (FastestClear == 0 || state.ClearedDay < FastestClear)) FastestClear = state.ClearedDay;
     }
 
     /// <summary>A line for the title screen, or null before the first run.</summary>
     public string Summary => Runs == 0 ? null
-        : $"Best: week {BestWeek}   Debts cleared: {Cleared}   Vaults opened: {Vaults}";
+        : $"Best: week {BestWeek}   Debts cleared: {Cleared}{(FastestClear > 0 ? $" (fastest: day {FastestClear})" : "")}   Vaults opened: {Vaults}";
 }
 
 /// <summary>Something on display, as it's saved.</summary>

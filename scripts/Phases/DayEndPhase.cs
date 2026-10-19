@@ -58,6 +58,7 @@ public partial class DayEndPhase : Phase
         if (State.UpgradesOpen) Teach("upgrades");
         Unlocked();
         if (State.Display.Count > 0) Teach("exhibition");
+        if (State.CanPayOff) Teach("payoff");
         Sfx.Play(today.Profit >= 0 ? "win" : "lose", 1f, -6);
         Game.Moment("09_dayend", 0.5);
     }
@@ -200,7 +201,10 @@ public partial class DayEndPhase : Phase
         }
     }
 
-    /// <summary>The Guild's next due: how much, when, and how close you are.</summary>
+    /// <summary>
+    /// The Guild's next due: how much, when, and how close you are; what's left of the debt in all, and (once you have
+    /// it) a button to pay it all off and finish early.
+    /// </summary>
     void BuildGuild()
     {
         int due = State.NextDue;
@@ -210,20 +214,66 @@ public partial class DayEndPhase : Phase
         _side.AddChild(guild);
         guild.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/guild.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
             .Place(14, 14, 44, 48));
-        guild.AddChild(UiKit.MakeLabel(tonight ? "VANE COMES TONIGHT" : "THE GUILD'S DUE", 16, tonight ? Palette.Warn : Palette.Muted).Place(70, 10, 290, 20));
+        string title = tonight ? "VANE COMES TONIGHT" : State.DebtCleared ? "THE GUILD'S INTEREST" : "THE GUILD'S DUE";
+        guild.AddChild(UiKit.MakeLabel(title, 16, tonight ? Palette.Warn : Palette.Muted).Place(70, 10, 290, 20));
         guild.AddChild(UiKit.MakeLabel($"{due}g", 32, enough ? Palette.Gold : Palette.Bad, outline: 4).Place(70, 28, 200, 40));
-        string when = tonight ? "tonight" : State.PaidThisWeek ? $"end of day {State.Day + Guild.DaysPerWeek}" : $"end of day {State.Day + State.DaysToDue}";
-        guild.AddChild(UiKit.MakeLabel(when, 16, Palette.Muted, HorizontalAlignment.Right).Place(180, 40, 176, 20));
+        string when = tonight ? "tonight" : $"end of day {State.Day + State.DaysToNextDue}";
+        guild.AddChild(UiKit.MakeLabel(when, 16, Palette.Muted, HorizontalAlignment.Right).Place(180, 32, 176, 20));
+        if (!State.DebtCleared)
+            guild.AddChild(UiKit.MakeLabel($"debt left {State.DebtLeft}g", 16, Palette.Muted, HorizontalAlignment.Right).Place(160, 52, 196, 20));
+
+        // Enough for everything that's left: finish now, however early.
+        if (State.CanPayOff)
+        {
+            var payOff = UiKit.MakeButton($"Pay it all off: {State.DebtLeft}g", Palette.Good, 16, ConfirmPayOff).Place(14, 72, SideW - 28, 32);
+            payOff.TooltipText = "Every week's due that's left of Bram's debt, to the eighth, all at once. The run is won; you can keep trading after.";
+            guild.AddChild(payOff);
+            return;
+        }
         float fill = Math.Clamp(State.Gold / (float)Math.Max(1, due), 0, 1);
         guild.AddChild(new Painter(p =>
         {
             p.DrawRect(new Rect2(0, 0, SideW - 28, 14), new Color("#120e1a"));
             p.DrawRect(new Rect2(0, 0, (SideW - 28) * fill, 14), (enough ? Palette.Gold : Palette.Bad).Darkened(0.25f));
             p.DrawRect(new Rect2(0, 0, SideW - 28, 14), Palette.PanelBorder, false, 2);
-        }) { Position = new Vector2(14, 72) });
-        string week = State.Week <= Guild.Weeks ? $"Week {State.Week} of {Guild.Weeks}" : $"Week {State.Week}: the Guild's interest";
+        }) { Position = new Vector2(14, 74) });
+        string week = State.DebtCleared ? "Bram's debt is paid" : State.Week <= Guild.Weeks ? $"Week {State.Week} of {Guild.Weeks}" : $"Week {State.Week}";
         guild.AddChild(UiKit.MakeLabel(enough ? $"{week}. You have it." : $"{week}. {due - State.Gold}g short.", 16,
             enough ? Palette.Muted : Palette.Warn).Place(14, 88, SideW - 28, 20));
+    }
+
+    Control _confirm;
+
+    /// <summary>Paying off the debt ends the run's story: say what it costs and ask first.</summary>
+    public void ConfirmPayOff()
+    {
+        if (_confirm != null || !State.CanPayOff) return;
+        int left = State.DebtLeft;
+        _confirm = Add(new Control { ZIndex = 50 }.Place(0, 0, 1280, 720));
+        _confirm.AddChild(new ColorRect { Color = new Color(0, 0, 0, 0.6f), MouseFilter = Control.MouseFilterEnum.Stop }.Place(-100, -100, 1480, 920));
+        var panel = UiKit.MakePanel(Palette.Good.Darkened(0.2f)).Place(330, 210, 620, 270);
+        _confirm.AddChild(panel);
+        panel.AddChild(UiKit.MakeLabel("PAY OFF THE DEBT?", 32, Palette.Good, HorizontalAlignment.Center, outline: 4).Place(0, 20, 620, 40));
+        string weeks = State.Week < Guild.Weeks ? $", {Guild.Weeks - State.Week} week{(Guild.Weeks - State.Week == 1 ? "" : "s")} early" : "";
+        panel.AddChild(UiKit.MakeLabel($"Pay the Guild {left}g now: every week's due that's left, to the eighth. Bram's debt is cleared{weeks}, " +
+                                       $"and you'd have {State.Gold - left}g left. You can keep trading after.", 16, Palette.Text, HorizontalAlignment.Center)
+            .Wrapped().Place(40, 74, 540, 90));
+        panel.AddChild(UiKit.MakeButton("Pay it off", Palette.Good, 24, PayOff).Place(60, 184, 240, 56));
+        panel.AddChild(UiKit.MakeButton("Not yet", Palette.PanelBorder.Lightened(0.2f), 24, CancelPayOff).Place(320, 184, 240, 56));
+        Game.Moment("09_payoff", 0.4);
+    }
+
+    public void CancelPayOff()
+    {
+        _confirm?.QueueFree();
+        _confirm = null;
+    }
+
+    public void PayOff()
+    {
+        if (_confirm == null) return;
+        CancelPayOff();
+        Game.PayOffDebt();
     }
 
     /// <summary>What's on display, what it does for the shop, and a click to sell any of it.</summary>

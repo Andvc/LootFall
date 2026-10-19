@@ -16,13 +16,17 @@ public static class Guild
     /// <summary>The weeks of Bram's debt. After the last, the dues keep coming (endless).</summary>
     public const int Weeks = 8;
 
-    /// <summary>Each week's due: small while you learn the stall, then climbing with what a growing shop can earn.</summary>
-    static readonly int[] Dues = { 40, 100, 300, 900, 2500, 7500, 15000, 26000 };
+    /// <summary>
+    /// Each week's due: small while you learn the stall, then climbing with what a careful shop can earn on its own
+    /// judgment (no curio or synergy adds a share to what things sell for), with the last week the wall. A lucky run can
+    /// have all of it a week early, and pay it off.
+    /// </summary>
+    static readonly int[] Dues = { 40, 100, 300, 800, 1400, 2400, 3800, 7000 };
 
     /// <summary>After the debt: each week half as much again, for as long as you last.</summary>
     const float EndlessGrowth = 1.5f;
 
-    /// <summary>What the Guild wants at the end of this week (before any curio's discount).</summary>
+    /// <summary>What the Guild wants at the end of this week.</summary>
     public static int Due(int week)
     {
         if (week <= Weeks) return Dues[Math.Max(0, week - 1)];
@@ -46,7 +50,7 @@ public static class Guild
         "Three hundred. Your uncle never made it past week three, you know.",
         "I hear you've been buying up chests. The Guild notices things like that.",
         "My masters are curious about you. That's rarely good news.",
-        "Seven and a half thousand. The Guild is starting to take you seriously.",
+        "Two thousand four hundred. The Guild is starting to take you seriously.",
         "One more week after this. Then the debt's paid. Unless you'd like to sell us the shop now?",
         "The last of it. Every coin, mind.",
     };

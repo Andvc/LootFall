@@ -89,13 +89,18 @@ public static class Story
                 if (state.MapGiven)
                 {
                     lines.Add(new(Hood, "You gave them the map. Then the Guild will find the vault, and nobody will stop them."));
-                    lines.Add(new(Hood, "Pay your debt, then. It's all you have left."));
+                    if (!state.DebtCleared) lines.Add(new(Hood, "Pay your debt, then. It's all you have left."));
                 }
                 else
                 {
                     lines.Add(new(Hood, "My name is Mara. Your uncle and I found the first piece together, a long time ago."));
                     lines.Add(new(Hood, "The Guild made him choose: me, or the stall. He kept the stall. I kept looking."));
                 }
+                break;
+            case 8 when state.DebtCleared:
+                lines.Add(new(Bram, "The last week of the debt, and it's already paid. Nobody's coming for anything this week."));
+                if (state.MapPieces >= Pieces - 1 && !state.MapGiven)
+                    lines.Add(new(Bram, "If Mara gets what she's after, the map is whole. Let's find it for her."));
                 break;
             case 8:
                 lines.Add(new(Bram, "The last week. Pay this, and the stall is ours. Truly ours."));
@@ -110,7 +115,8 @@ public static class Story
         // Whenever she wants something for her next piece, she says what.
         var ask = state.Commissions.FirstOrDefault(c => c.Story);
         if (ask != null)
-            lines.Add(new(Hood, $"{HoodAsks(state.HoodPieces + 1)} Bring me {ask.Phrase} before the Guild comes again, and the next piece is yours."));
+            lines.Add(new(Hood, $"{HoodAsks(state.HoodPieces + 1)} Bring me {ask.Phrase} {(state.DebtCleared ? "this week" : "before the Guild comes again")}, " +
+                                "and the next piece is yours."));
         return lines;
     }
 
@@ -136,36 +142,46 @@ public static class Story
         new(Vane, "Give them to me, and the Guild will forget half of tonight's due. Generous, no?"),
     };
 
-    static string Count(int pieces)
-    {
-        string n = Sellers.Number(pieces);
-        return char.ToUpperInvariant(n[0]) + n[1..] + (pieces == 1 ? " piece" : " pieces");
-    }
+    static string Count(int pieces) => Capital(Sellers.Number(pieces)) + (pieces == 1 ? " piece" : " pieces");
+
+    static string Capital(string word) => char.ToUpperInvariant(word[0]) + word[1..];
 
     public const string OfferTaken = "A sensible choice. The Guild remembers its friends.";
     public const string OfferRefused = "Pity. The Guild remembers that too.";
 
-    /// <summary>The last due is paid.</summary>
+    /// <summary>The debt is paid: the last due, or all that's left of it at once, ahead of time.</summary>
     public static List<Line> Cleared(GameState state)
     {
-        var lines = new List<Line>
-        {
-            new(Vane, Guild.Paid(Guild.Weeks)),
-            new(Bram, "Free and clear! Twenty years, and the stall is ours."),
-        };
-        if (state.MapPieces >= Pieces)
-        {
-            lines.Add(new(Hood, "Bram. It's been a long time."));
-            lines.Add(new(Bram, "Mara. You found them. All of them."));
-            lines.Add(new(Hood, "We found them. Your kin did the finding. Come: the vault's under the old mint, and the Guild is " +
-                                "a day behind us."));
-        }
+        int early = Guild.Weeks - state.Week;
+        string when = early > 0 ? $"{Capital(Sellers.Number(early))} week{(early == 1 ? "" : "s")} early" : "Before I've even come for it";
+        var lines = early > 0 || !state.DuesTonight
+            ? new List<Line>
+            {
+                new(Vane, $"All of it? Now? {when}. The Guild... has no further claim on Bram's stall."),
+                new(Bram, "Free and clear, and ahead of time! Twenty years, and the stall is ours."),
+            }
+            : new List<Line>
+            {
+                new(Vane, Guild.Paid(Guild.Weeks)),
+                new(Bram, "Free and clear! Twenty years, and the stall is ours."),
+            };
+        if (state.MapPieces >= Pieces) lines.AddRange(MapWhole());
         else if (state.MapGiven)
             lines.Add(new(Bram, "And the Guild has the map. Somewhere under the old mint, they're digging. Let them dig."));
+        else if (state.Week < Guild.Weeks)
+            lines.Add(new(Bram, $"And the map's still {state.MapPieces} pieces of {Pieces}. Mara will keep asking: keep trading, and we may yet find the vault."));
         else
             lines.Add(new(Bram, "The vault can wait. The map's not going anywhere, and neither are we."));
         return lines;
     }
+
+    /// <summary>The map is whole and the debt is paid: Mara comes for Bram, and the vault.</summary>
+    public static List<Line> MapWhole() => new()
+    {
+        new(Hood, "Bram. It's been a long time."),
+        new(Bram, "Mara. You found them. All of them."),
+        new(Hood, "We found them. Your kin did the finding. Come: the vault's under the old mint, and the Guild is a day behind us."),
+    };
 
     /// <summary>After the vault's been opened.</summary>
     public static List<Line> VaultEpilogue() => new()

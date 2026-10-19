@@ -155,6 +155,14 @@ public partial class DuesPhase : Phase
         panel.AddChild(bar);
         panel.AddChild(UiKit.MakeLabel(WeekLine(), 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 160, PanelW, 20));
 
+        if (enough && State.CanPayOff && State.Week < Guild.Weeks)
+        {
+            // Enough for all of it: pay the week, or the whole debt and be done.
+            Put(UiKit.MakeButton($"Pay {due}g", Palette.Gold, 24, Pay).Place(PanelX + 40, 404, 320, 64));
+            Put(UiKit.MakeButton($"Pay it all: {State.DebtLeft}g", Palette.Good, 24, PayAll).Place(PanelX + PanelW - 360, 404, 320, 64)).TooltipText =
+                "Every week's due that's left of Bram's debt, all at once. The run is won; you can keep trading after.";
+            return;
+        }
         if (enough)
         {
             Put(UiKit.MakeButton($"Pay {due}g", Palette.Gold, 24, Pay).Place(PanelX + PanelW / 2 - 160, 404, 320, 64));
@@ -165,15 +173,8 @@ public partial class DuesPhase : Phase
     }
 
     string WeekLine() => State.Week < Guild.Weeks
-        ? $"Week {State.Week} of {Guild.Weeks}. Bram's debt still to pay after tonight: {RemainingDebt()}g."
+        ? $"Week {State.Week} of {Guild.Weeks}. Bram's debt still to pay after tonight: {State.DebtLeft - State.DueNow}g."
         : State.Week == Guild.Weeks ? "The last week of Bram's debt." : $"Week {State.Week}: the Guild's interest, for as long as you last.";
-
-    int RemainingDebt()
-    {
-        int left = 0;
-        for (int w = State.Week + 1; w <= Guild.Weeks; w++) left += State.DueFor(w);
-        return left;
-    }
 
     /// <summary>Short: what's on display and your curios, at the Guild's price; Bram's word; or the end.</summary>
     void BuildPawn(int due)
@@ -254,6 +255,22 @@ public partial class DuesPhase : Phase
         AfterSettled(null);
     }
 
+    /// <summary>Pays the whole of what's left of the debt tonight, not just the week's due.</summary>
+    public void PayAll()
+    {
+        if (_paid || State.PayOff() <= 0) return;
+        _paid = true;
+        Sfx.PlayGroup("pay");
+        Sfx.Play("coin", 0.8f, -4);
+        Game.Hud.SetGold(State.Gold);
+        Game.Hud.SetDue(State);
+        BuildTrack();
+        Game.Shake(0.25f);
+        _vane.Say("All of it? Tonight? ...Very well. The Guild has no further claim on Bram's stall.", Palette.Good);
+        _vane.Bob();
+        AfterSettled(null);
+    }
+
     public void AskGrace()
     {
         if (_paid || !State.CanAskGrace) return;
@@ -275,8 +292,8 @@ public partial class DuesPhase : Phase
         panel.AddChild(UiKit.MakeLabel(State.DebtCleared && State.WeeksPaid == Guild.Weeks ? "BRAM'S DEBT IS PAID!" : "PAID",
             40, Palette.Good, HorizontalAlignment.Center, outline: 6).Place(0, 24, PanelW, 50));
         int next = State.NextDue;
-        string ahead = State.WeeksPaid < Guild.Weeks
-            ? $"Next week the Guild wants {next}g: in {Guild.DaysPerWeek} days."
+        string ahead = State.WeeksPaid < Guild.Weeks ? $"Next week the Guild wants {next}g: in {Guild.DaysPerWeek} days."
+            : State.NextDueWeek > State.Week + 1 ? $"The Guild won't be back until week {State.NextDueWeek}."
             : $"The Guild's interest next week: {next}g.";
         panel.AddChild(UiKit.MakeLabel(ahead, 24, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 92, PanelW, 30));
         if (note != null) panel.AddChild(UiKit.MakeLabel(note, 16, Palette.Warn, HorizontalAlignment.Center).Place(0, 140, PanelW, 20));

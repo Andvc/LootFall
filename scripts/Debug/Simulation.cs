@@ -30,7 +30,7 @@ public static class Simulation
 
     enum Care { Blind, OneShake, Listens, Tools }
 
-    sealed record Style(string Name, Care Care, bool Collects);
+    sealed record Style(string Name, Care Care, bool Collects, bool Curios = true, bool Synergies = true);
 
     static readonly Style[] Styles =
     {
@@ -41,13 +41,21 @@ public static class Simulation
         new("+ keeps grand things", Care.Tools, true),
     };
 
+    /// <summary>The careful player with both tools, without curios, synergies or both: what they're worth.</summary>
+    static readonly Style[] Without =
+    {
+        new("no curios", Care.Tools, false, Curios: false),
+        new("no synergies", Care.Tools, false, Synergies: false),
+        new("neither", Care.Tools, false, Curios: false, Synergies: false),
+    };
+
     sealed class Log
     {
         public int Bought, GoodBuys, Perfect, FirstSynergy;
         public readonly int[] ReachedTier = { 1, 1, 0, 0, 0 };
 
         /// <summary>Dues paid; the week the shop was lost (0 if never); the day the debt was cleared and the vault opened.</summary>
-        public int WeeksPaid, LostWeek, ClearedDay, VaultDay, Pieces, MapGiven;
+        public int WeeksPaid, LostWeek, ClearedDay, VaultDay, Pieces, MapGiven, PaidOffWeek;
 
         /// <summary>Per week: gold on the Guild's night before paying, the due, the shop tier, whether it was paid.</summary>
         public readonly int[] GoldAtDues = new int[MaxWeeks + 1], Due = new int[MaxWeeks + 1], TierAtDues = new int[MaxWeeks + 1];
@@ -98,6 +106,10 @@ public static class Simulation
                 GD.Print($"{w,4} {Pct(l => l.Due[w], 0.5f),6} {Pct(l => l.GoldAtDues[w], 0.1f),15} {Pct(l => l.GoldAtDues[w], 0.25f),8} " +
                          $"{Pct(l => l.GoldAtDues[w], 0.5f),8}   {100f * night.Count(l => l.Paid[w]) / night.Count,15:0}%   {string.Join(" ", tiers)}");
             }
+            var cleared = logs.Where(l => l.ClearedDay > 0).ToList();
+            string When(int w) => $"{100f * cleared.Count(l => (l.ClearedDay - 1) / Guild.DaysPerWeek + 1 == w) / logs.Count:0}%";
+            GD.Print($"debt cleared in week 5: {When(5)}, week 6: {When(6)}, week 7: {When(7)}, week 8: {When(8)} " +
+                     $"(paid off early: {100f * logs.Count(l => l.PaidOffWeek > 0 && l.PaidOffWeek <= Guild.Weeks) / logs.Count:0}% of runs)");
             GD.Print($"per run: {logs.Average(l => l.Commissions):0.0} commissions ({logs.Average(l => l.CommissionGold):0}g), curios earned " +
                      $"{logs.Average(l => l.CurioGold):0}g for {logs.Average(l => l.CurioSpent):0}g, pawned on {logs.Average(l => l.Short):0.0} nights, " +
                      $"map pieces {logs.Average(l => l.Pieces):0.0}, map given {100f * logs.Count(l => l.MapGiven > 0) / logs.Count:0}%, " +
@@ -113,6 +125,17 @@ public static class Simulation
             float opened = Math.Max(1, logs.Sum(l => l.Opened));
             GD.Print($"  {style.Name,-22} a step better {100f * logs.Sum(l => l.BetterOne) / opened,5:0.0}%   two or more {100f * logs.Sum(l => l.BetterTwo) / opened,5:0.0}%   " +
                      $"worth {100f * logs.Sum(l => l.SurpriseGold) / Math.Max(1, logs.Sum(l => l.Held)),4:0}% of what the chests held");
+        }
+
+        GD.Print("\nWhat curios and synergies are worth to the careful player with both tools (cleared; median gold on the Guild's night, weeks 4/6/8)");
+        foreach (var style in Without.Prepend(Styles[^2]))
+        {
+            var logs = style == Styles[^2] ? all[style] : Enumerable.Range(0, campaigns).Select(i => Play(style, 1000 + i).Log).ToList();
+            string Gold(int w) => logs.Where(l => l.Due[w] > 0).Select(l => l.GoldAtDues[w]).OrderBy(g => g).Skip(logs.Count(l => l.Due[w] > 0) / 2)
+                .DefaultIfEmpty(0).First().ToString();
+            var days = logs.Where(l => l.ClearedDay > 0).Select(l => l.ClearedDay).OrderBy(d => d).ToList();
+            GD.Print($"  {(style == Styles[^2] ? "with both" : style.Name),-14} cleared {100f * logs.Count(l => l.ClearedDay > 0) / logs.Count,4:0}% " +
+                     $"(median day {(days.Count == 0 ? "-" : days[days.Count / 2].ToString()),3})   gold {Gold(4),7} {Gold(6),7} {Gold(8),7}");
         }
 
         var careful = all[Styles[^2]];
@@ -197,7 +220,7 @@ public static class Simulation
         if (care == Care.OneShake)
         {
             hearing = Hearing.Simulate(chest, new[] { Shake.Hard });
-            if (visit.Seller.HatesHardShake) visit.Anger(rng);
+            if (visit.Seller.HatesHardShake && !state.KidGloves) visit.Anger(rng);
             slip = new Appraisal(visit, tier);
             foreach (var kind in chest.HeardAt(Shake.Hard).GroupBy(i => i.Category))
                 slip.Set(kind.Key, Math.Max(slip.Count(kind.Key), 1));
@@ -219,6 +242,8 @@ public static class Simulation
                 int offer = Math.Min(state.Gold, Strategy.FirstOffer(visit, worth));
                 if (offer <= 0 || worth <= offer) return null;
                 var response = visit.Offer(offer, rng);
+                // A haggler who hears you out lets you try again after a cheeky first offer.
+                if (response.Kind == ResponseKind.TryAgain) response = visit.Offer(Math.Min(state.Gold, Strategy.FirstOffer(visit, worth)), rng);
                 if (response.Kind == ResponseKind.Accept) return response.Price;
                 if (response.Kind == ResponseKind.Counter && worth > visit.Ask && state.Gold >= visit.Ask) return Paid(visit, rng);
                 return null;
@@ -246,11 +271,11 @@ public static class Simulation
     {
         var chest = visit.Chest;
         bool lamp = tools && state.Has("lamp");
-        var hearing = Hearing.Simulate(chest, Strategy.Levels(visit), lamp);
+        var hearing = Hearing.Simulate(chest, Strategy.Levels(visit, state), lamp);
         if (tools) hearing.Listen(chest, Strategy.MagnetLevels(visit, hearing, state), lamp, magnet: true);
-        if (Strategy.ShouldDrop(visit, hearing, state.Tier))
+        if (Strategy.ShouldDrop(visit, hearing, state.Tier, state))
         {
-            var (hollow, broke) = chest.Drop(rng, state.Sturdier);
+            var (hollow, broke) = chest.Drop(rng, state.DropSturdier);
             hearing.HeardDrop(hollow, broke);
         }
         return hearing;
@@ -269,9 +294,9 @@ public static class Simulation
         var grade = PickGrade.Clean;
         if (visit.Chest.Lock.Locked)
         {
-            float roll = rng.NextFloat();
+            float roll = rng.NextFloat(), oil = state.HasCurio("oil") ? 0.1f : 0f;
             grade = state.HasCurio("knife") ? PickGrade.Forced
-                : care >= Care.Listens ? (roll < 0.3f ? PickGrade.Masterful : roll < 0.85f ? PickGrade.Clean : PickGrade.Forced)
+                : care >= Care.Listens ? (roll < 0.3f + oil ? PickGrade.Masterful : roll < 0.85f + oil / 2 ? PickGrade.Clean : PickGrade.Forced)
                 : roll < 0.6f ? PickGrade.Clean : PickGrade.Forced;
         }
         if (grade == PickGrade.Forced) visit.Chest.Force(rng, state.ForceSturdier);
@@ -297,7 +322,7 @@ public static class Simulation
                 if (log.ReachedTier[t] == 0 && state.Tier >= t) log.ReachedTier[t] = day;
         }
         log.WeeksPaid = state.WeeksPaid;
-        log.Stash = GameState.StashTimes - state.StashLeft;
+        log.Stash = state.StashUsed;
         log.Pieces = state.MapPieces;
         log.MapGiven = state.MapGiven ? 1 : 0;
         log.Curios.UnionWith(state.CurioKeys);
@@ -321,7 +346,7 @@ public static class Simulation
     static bool PlayDay(GameState state, Style style, Random rng, Log log)
     {
         state.StartDay();
-        if (state.PeddlerToday) VisitPeddler(state, log);
+        if (state.PeddlerToday && style.Curios) VisitPeddler(state, log);
         while (state.NextCustomer())
         {
             var visit = state.Current;
@@ -388,8 +413,21 @@ public static class Simulation
         log.CurioGold += state.Today.Curios;
         log.CurioSpent += state.Today.CurioSpent;
         if (state.DuesTonight && !Dues(state, log)) return false;
+        if (Strategy.ShouldPayOff(state))
+        {
+            state.PayOff();
+            log.PaidOffWeek = state.Week;
+        }
+        if (state.DebtCleared && log.ClearedDay == 0) log.ClearedDay = state.Day;
+        if (state.VaultDue)
+        {
+            var vault = state.VaultPurchase();
+            state.VaultOpened = true;
+            state.Earn(vault.Chest.Everything.Sum(i => state.SaleValue(i)));
+            log.VaultDay = state.Day;
+        }
         BuyUpgrades(state, style.Care == Care.Tools, style.Collects);
-        if (style.Care >= Care.Listens) ChooseSynergies(state);
+        if (style.Care >= Care.Listens && style.Synergies) ChooseSynergies(state);
         if (log.FirstSynergy == 0 && Synergies.All.Any(s => s.Level(state) > 0)) log.FirstSynergy = state.Day;
         return true;
     }
@@ -440,14 +478,6 @@ public static class Simulation
         }
         if (!state.PaidThisWeek) state.PayDues();
         if (week <= MaxWeeks) log.Paid[week] = true;
-        if (state.DebtCleared && log.ClearedDay == 0) log.ClearedDay = state.Day;
-        if (state.VaultDue)
-        {
-            var vault = state.VaultPurchase();
-            state.VaultOpened = true;
-            state.Earn(vault.Chest.Everything.Sum(i => state.SaleValue(i)));
-            log.VaultDay = state.Day;
-        }
         return true;
     }
 

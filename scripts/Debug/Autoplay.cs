@@ -181,8 +181,8 @@ public partial class Autoplay : Node
         if (!IsInstanceValid(counter)) return;
 
         // Every strength, but only gently and hard for an impatient seller, and never hard for one who'd mind.
-        bool hurried = visit.Seller.Patience > 0;
-        foreach (var level in Strategy.Levels(visit))
+        bool hurried = visit.Seller.Patience > 0 && !State.HasCurio("watch");
+        foreach (var level in Strategy.Levels(visit, State))
             if (!await Shake(counter, level, hurried ? 1.2 : ShakeSeconds)) return;
         // A jingle or tinkle that goes quiet under the magnet is gilded iron: check at the strength it sounded at.
         var magnetLevels = Strategy.MagnetLevels(visit, counter.Hearing, State);
@@ -194,7 +194,7 @@ public partial class Autoplay : Node
                 if (!await Shake(counter, level, ShakeSeconds)) return;
         }
         // Drop it to listen for a false bottom, unless there's glass in there or the seller would mind.
-        if (Strategy.ShouldDrop(visit, counter.Hearing, State.Tier))
+        if (Strategy.ShouldDrop(visit, counter.Hearing, State.Tier, State))
         {
             while (IsInstanceValid(counter) && counter.Shake.Busy) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             if (!IsInstanceValid(counter)) return;
@@ -280,6 +280,15 @@ public partial class Autoplay : Node
                 counter.MakeOffer(offer);
                 await Wait(1.4);
                 if (!IsInstanceValid(counter) || !visit.Deciding) return;
+                // A haggler who hears you out: the cheeky offer was too low, so try the usual one.
+                if (visit.CanOffer)
+                {
+                    await ReadTips(counter.Mentor);
+                    if (!IsInstanceValid(counter) || !visit.Deciding) return;
+                    counter.MakeOffer(Math.Min(State.Gold, Strategy.FirstOffer(visit, worth)));
+                    await Wait(1.4);
+                    if (!IsInstanceValid(counter) || !visit.Deciding) return;
+                }
                 if (worth > visit.Ask && State.Gold >= visit.Ask)
                 {
                     counter.Buy();
@@ -331,6 +340,18 @@ public partial class Autoplay : Node
             dayEnd.CloseSynergies();
             await Wait(0.4);
             if (!IsInstanceValid(dayEnd)) return;
+        }
+        // Enough to pay off the whole debt: a careful player does, and finishes early.
+        if (Strategy.ShouldPayOff(State))
+        {
+            await ReadTips(dayEnd.Mentor);
+            if (!IsInstanceValid(dayEnd)) return;
+            dayEnd.ConfirmPayOff();
+            await Wait(1.5);
+            if (!IsInstanceValid(dayEnd)) return;
+            GD.Print($"Autoplay: paid off the debt on day {State.Day} (week {State.Week}): {State.DebtLeft}g");
+            dayEnd.PayOff();
+            return;
         }
         dayEnd.NextDay();
     }

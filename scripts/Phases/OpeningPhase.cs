@@ -77,11 +77,8 @@ public partial class OpeningPhase : Phase
         tally.AddChild(_worthLabel);
         // What's making things sell for more today, and a curio's luck with what's inside.
         var bonuses = new List<string>();
-        int sale = State.Active("jewelry");
-        if (sale > 0) bonuses.Add($"Jewelry Tycoon +{Synergies.Pct(Synergies.SaleBonus(sale))}");
         if (State.EventIs("festival")) bonuses.Add("Festival +25%");
         if (State.EventIs("buyer")) bonuses.Add($"Royal Buyer: {Categories.Get(State.BuyerKind).Name.ToLowerInvariant()} x2");
-        if (State.HasCurio("crescent")) bonuses.Add("Crescent +50%");
         float y = 140;
         foreach (var bonus in bonuses)
         {
@@ -90,8 +87,8 @@ public partial class OpeningPhase : Phase
         }
         // Kept to the tally's width, clear of the profit stamp.
         if (_purchase.Luck != null)
-            tally.AddChild(UiKit.MakeLabel($"{Curios.Get(_purchase.Luck).Name}: {_purchase.Improved} thing{(_purchase.Improved == 1 ? "" : "s")} came out better!",
-                16, Palette.Good, outline: 4).Wrapped().Place(40, y, 280, 44));
+            tally.AddChild(UiKit.MakeLabel(Curios.LuckLine(_purchase.Luck, _purchase.Improved), 16, Palette.Good, outline: 4).Wrapped()
+                .Place(40, y, 280, 44));
     }
 
     public override void _Process(double delta)
