@@ -30,7 +30,8 @@ public static class Simulation
 
     enum Care { Blind, OneShake, Listens, Tools }
 
-    sealed record Style(string Name, Care Care, bool Collects, bool Curios = true, bool Synergies = true);
+    sealed record Style(string Name, Care Care, bool Collects, bool Curios = true, bool Synergies = true, string Character = Characters.Kit,
+        int Challenge = 0, string[] Talents = null);
 
     static readonly Style[] Styles =
     {
@@ -49,6 +50,8 @@ public static class Simulation
         new("neither", Care.Tools, false, Curios: false, Synergies: false),
     };
 
+    public static readonly string[] AllTalents = Talents.All.Select(t => t.Key).ToArray();
+
     sealed class Log
     {
         public int Bought, GoodBuys, Perfect, FirstSynergy;
@@ -61,7 +64,10 @@ public static class Simulation
         public readonly int[] GoldAtDues = new int[MaxWeeks + 1], Due = new int[MaxWeeks + 1], TierAtDues = new int[MaxWeeks + 1];
         public readonly bool[] Paid = new bool[MaxWeeks + 1];
 
-        public int Commissions, CommissionGold, CurioGold, CurioSpent, Pawned, Short, Grace, Stash;
+        public int Commissions, CommissionGold, CurioGold, CurioSpent, Pawned, Short, Grace, Stash, Mara;
+
+        /// <summary>The run's score had it retired after the debt's eighth week (or when it was lost).</summary>
+        public int Score, Renown;
 
         /// <summary>Things opened; how many came out a step (or two or more) better than their chest; what that added.</summary>
         public int Opened, BetterOne, BetterTwo;
@@ -149,7 +155,35 @@ public static class Simulation
 
         PrintSynergies(campaigns);
         PrintSellers();
+        Meta(Math.Max(50, campaigns / 2));
         LessonTest();
+    }
+
+    /// <summary>
+    /// Bram's kin and the Guild's terms: each character played by the careful collector with both tools, with every
+    /// talent and with none, at each challenge level. The design works if each character usually clears at level 0,
+    /// talents raise the clear rate more than they shorten the run, and the top level is a wall for the best of them.
+    /// </summary>
+    public static void Meta(int campaigns)
+    {
+        GD.Print($"\nBram's kin ({campaigns} runs each, the careful collector with both tools): cleared %, lost (median week), " +
+                 "median clear day, score and renown a run");
+        GD.Print("character   talents  level   cleared   lost first   day   score  renown");
+        foreach (var kin in Characters.All)
+        foreach (var (talents, level) in new[] { (false, 0), (true, 0), (true, 2), (true, 4), (true, 6), (true, Challenges.Max) })
+            GD.Print($"{kin.Name,-10}  {(talents ? "all" : "none"),-7}  {level,5}   {Trial(kin.Key, level, talents ? AllTalents : null, campaigns)}");
+        GD.Print($"(lost first: foreclosed before the debt was cleared, and the median week; every talent costs {Talents.Total} renown, all told)");
+    }
+
+    /// <summary>One line of the meta report: this character on these terms with these talents, over so many runs.</summary>
+    public static string Trial(string character, int challenge, IEnumerable<string> talents, int campaigns)
+    {
+        var style = Styles[^1] with { Character = character, Challenge = challenge, Talents = talents?.ToArray() };
+        var logs = Enumerable.Range(0, campaigns).Select(i => Play(style, 1000 + i).Log).ToList();
+        var lost = logs.Where(l => l.LostWeek > 0 && l.ClearedDay == 0).Select(l => l.LostWeek).OrderBy(w => w).ToList();
+        var days = logs.Where(l => l.ClearedDay > 0).Select(l => l.ClearedDay).OrderBy(d => d).ToList();
+        return $"{100f * days.Count / logs.Count,6:0}%   {(lost.Count == 0 ? "-" : $"{100 * lost.Count / logs.Count}%, wk {lost[lost.Count / 2]}"),-11} " +
+               $"{(days.Count == 0 ? "-" : days[days.Count / 2].ToString()),4}  {logs.Average(l => l.Score),6:0}  {logs.Average(l => l.Renown),6:0}";
     }
 
     /// <summary>For the collector: how many campaigns reached each level of each synergy in 30 days.</summary>
@@ -220,7 +254,7 @@ public static class Simulation
         if (care == Care.OneShake)
         {
             hearing = Hearing.Simulate(chest, new[] { Shake.Hard });
-            if (visit.Seller.HatesHardShake && !state.KidGloves) visit.Anger(rng);
+            if (state.MindsHardShake(visit.Seller)) visit.Anger(rng);
             slip = new Appraisal(visit, tier);
             foreach (var kind in chest.HeardAt(Shake.Hard).GroupBy(i => i.Category))
                 slip.Set(kind.Key, Math.Max(slip.Count(kind.Key), 1));
@@ -229,7 +263,8 @@ public static class Simulation
         {
             hearing = Listen(visit, state, rng, care == Care.Tools);
             slip = hearing.Read(chest.Quality, tier);
-            Strategy.OnFaith(visit, slip, hearing);
+            if (state.Weighs) Strategy.Weigh(slip, hearing, visit, state);
+            Strategy.OnFaith(visit, slip, hearing, state);
         }
 
         int worth = Strategy.Worth(visit, slip, hearing, state);
@@ -308,7 +343,7 @@ public static class Simulation
     /// <summary>One run in this style, until the Guild takes the shop or the days run out.</summary>
     static (Log Log, GameState State) Play(Style style, int seed, int days = Days)
     {
-        var state = new GameState(seed) { Guided = false };
+        var state = GameState.NewRun(seed, style.Character, style.Challenge, style.Talents, guided: false);
         var log = new Log();
         var rng = new Random(seed);
         for (int day = 1; day <= days; day++)
@@ -318,15 +353,23 @@ public static class Simulation
                 log.LostWeek = state.Week;
                 break;
             }
+            if (day == Guild.Weeks * Guild.DaysPerWeek) Scored(state, log);
             for (int t = 2; t <= 4; t++)
                 if (log.ReachedTier[t] == 0 && state.Tier >= t) log.ReachedTier[t] = day;
         }
+        if (log.LostWeek > 0 || days < Guild.Weeks * Guild.DaysPerWeek) Scored(state, log);
         log.WeeksPaid = state.WeeksPaid;
         log.Stash = state.StashUsed;
         log.Pieces = state.MapPieces;
         log.MapGiven = state.MapGiven ? 1 : 0;
         log.Curios.UnionWith(state.CurioKeys);
         return (log, state);
+    }
+
+    static void Scored(GameState state, Log log)
+    {
+        log.Score = Score.Total(state);
+        log.Renown = Score.Renown(state);
     }
 
     /// <summary>
@@ -388,7 +431,7 @@ public static class Simulation
                     }
                     continue;
                 }
-                if (style.Collects)
+                if (style.Collects || state.Is(Characters.Isolde))
                 {
                     var (keep, replace) = Strategy.ShouldKeep(state, item, sale);
                     if (keep)
@@ -438,9 +481,15 @@ public static class Simulation
         for (int i = 0; i < 2; i++)
         {
             var (curio, sell) = Strategy.ChooseCurio(state, state.PeddlerStock);
+            // Nothing worth it on the counter: ask Nim for a second look, if he'll give one.
+            if (curio == null && state.CanRerollPeddler)
+            {
+                state.RerollPeddler();
+                (curio, sell) = Strategy.ChooseCurio(state, state.PeddlerStock);
+            }
             if (curio == null) return;
             if (sell != null) state.SellCurio(sell);
-            state.BuyCurio(curio, Curios.Price(curio, state.Week));
+            state.BuyCurio(curio, state.CuriosPrice(curio));
             log.Curios.Add(curio.Key);
         }
     }
@@ -459,7 +508,12 @@ public static class Simulation
         if (state.Gold < state.DueNow)
         {
             var order = Strategy.PawnOrder(state);
-            if (order == null && state.CanAskGrace)
+            if (order == null && state.CanAskMara)
+            {
+                log.Mara = week;
+                state.AskMara();
+            }
+            else if (order == null && state.CanAskGrace)
             {
                 log.Grace = week;
                 state.AskGrace();

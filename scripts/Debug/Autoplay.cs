@@ -103,6 +103,15 @@ public partial class Autoplay : Node
         for (int i = 0; i < 2 && IsInstanceValid(peddler); i++)
         {
             var (curio, sell) = Strategy.ChooseCurio(State, peddler.Stock.ToList());
+            // Nothing worth it: a second look, if Nim will give one.
+            if (curio == null && State.CanRerollPeddler)
+            {
+                peddler.Reroll();
+                Main.Instance.Moment("22_reroll", 0.4);
+                await Wait(1.2);
+                if (!IsInstanceValid(peddler)) return;
+                (curio, sell) = Strategy.ChooseCurio(State, peddler.Stock.ToList());
+            }
             if (curio == null) break;
             if (sell != null)
             {
@@ -110,7 +119,7 @@ public partial class Autoplay : Node
                 await Wait(0.8);
                 if (!IsInstanceValid(peddler)) return;
             }
-            GD.Print($"Autoplay: bought the {curio.Name} for {Curios.Price(curio, State.Week)}g{(sell != null ? $", selling the {Curios.Get(sell).Name}" : "")}");
+            GD.Print($"Autoplay: bought the {curio.Name} for {State.CuriosPrice(curio)}g{(sell != null ? $", selling the {Curios.Get(sell).Name}" : "")}");
             peddler.Buy(curio);
             await Wait(1.2);
         }
@@ -133,7 +142,8 @@ public partial class Autoplay : Node
         if (State.Gold < State.DueNow)
         {
             var order = Strategy.PawnOrder(State);
-            if (order == null && State.CanAskGrace) dues.AskGrace();
+            if (order == null && State.CanAskMara) dues.AskMara();
+            else if (order == null && State.CanAskGrace) dues.AskGrace();
             else if (order != null)
                 foreach (var thing in order)
                 {
@@ -181,7 +191,7 @@ public partial class Autoplay : Node
         if (!IsInstanceValid(counter)) return;
 
         // Every strength, but only gently and hard for an impatient seller, and never hard for one who'd mind.
-        bool hurried = visit.Seller.Patience > 0 && !State.HasCurio("watch");
+        bool hurried = State.Impatient(visit.Seller) && !State.HasCurio("watch");
         foreach (var level in Strategy.Levels(visit, State))
             if (!await Shake(counter, level, hurried ? 1.2 : ShakeSeconds)) return;
         // A jingle or tinkle that goes quiet under the magnet is gilded iron: check at the strength it sounded at.
@@ -237,7 +247,8 @@ public partial class Autoplay : Node
 
         // The slip, corrected from what it heard (how many of each, and which glowed), one row at a time.
         var read = counter.Hearing.Read(visit.Chest.Quality, State.Tier);
-        Strategy.OnFaith(visit, read, counter.Hearing);
+        if (State.Weighs) Strategy.Weigh(read, counter.Hearing, visit, State);
+        Strategy.OnFaith(visit, read, counter.Hearing, State);
         foreach (var kind in Categories.UpTo(State.Tier).Select(k => k.Category))
         {
             if (counter.Slip.Count(kind) == read.Count(kind) && counter.Slip.Magic(kind) == read.Magic(kind)) continue;

@@ -28,6 +28,12 @@ public static class Market
     /// <summary>How often a talker claims a sound that isn't there.</summary>
     public const float PhantomChance = 0.6f;
 
+    /// <summary>
+    /// Hagglers who know they're dealing with Rosa open this much higher and come down this much less (without it she
+    /// cleared the debt 72% of the time against Kit's 57%).
+    /// </summary>
+    public const float RosaWary = 1.1f;
+
     /// <summary>Angry sellers put the price up by this much.</summary>
     public const float AngerMarkup = 1.5f;
 
@@ -64,7 +70,7 @@ public static class Market
             for (int attempt = 0; attempt < 40 && Misses(seller, chest) != missing; attempt++)
                 chest = Roll(rng, seller, shopTier, colour, boosts);
         }
-        return Price(rng, seller, chest, shopTier);
+        return Price(rng, seller, chest, shopTier, boosts: boosts);
     }
 
     /// <summary>Whether the seller's own listening leaves something unpriced: unheard, or one of several they didn't count.</summary>
@@ -105,7 +111,8 @@ public static class Market
         float magicChance = shopTier >= 3 ? seller.MagicChance + boosts.Magic : 0f;
         var items = all.Select(c =>
         {
-            bool fake = seller.Fakes.Contains(c) && rng.NextFloat() < seller.FakeChance;
+            // Forgers about: any coin might be a gilded slug, whoever brings it.
+            bool fake = (seller.Fakes.Contains(c) && rng.NextFloat() < seller.FakeChance) || (c == Category.Coins && boosts.Slugs > 0 && rng.NextFloat() < boosts.Slugs);
             bool magic = !fake && rng.NextFloat() < magicChance;
             var quality = Categories.RollQuality(rng, colour);
             if (quality < Rarity.Legendary && rng.NextFloat() < seller.QualityBoost) quality++;
@@ -210,12 +217,13 @@ public static class Market
     /// <param name="pitch">A scripted line, with {price}.</param>
     /// <param name="claim">A scripted claim (a lesson's made-up sound).</param>
     /// <param name="floor">A scripted least they'll take (a lesson's).</param>
+    /// <param name="boosts">The shop's terms: sharp sellers' prices, and whether everybody haggles (with Rosa).</param>
     public static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, int? ask = null, Trade? trade = null, string pitch = null,
-        IEnumerable<Category> claim = null, int? floor = null)
+        IEnumerable<Category> claim = null, int? floor = null, Boosts boosts = null)
     {
         var said = claim?.ToList() ?? Claim(rng, seller, chest, shopTier);
         said.Sort();
-        var visit = Price(rng, seller, chest, shopTier, said, ask, trade, pitch);
+        var visit = Price(rng, seller, chest, shopTier, said, ask, trade, pitch, boosts ?? Boosts.None);
         if (floor is int least) visit.SetFloor(least);
         return visit;
     }
@@ -236,16 +244,20 @@ public static class Market
         return claim;
     }
 
-    static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, List<Category> claim, int? ask, Trade? trade, string pitch)
+    static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, List<Category> claim, int? ask, Trade? trade, string pitch, Boosts boosts)
     {
-        float estimate = Estimate(rng, seller, chest, claim, shopTier);
+        float estimate = Estimate(rng, seller, chest, claim, shopTier) * boosts.Dearer;
         var format = trade ?? seller.Trade;
+        // Everybody haggles with Rosa: a fixed price becomes an opening ask (a crook still wants rid of his fakes quick).
+        if (trade == null && boosts.Haggles && format == Trade.Fixed && seller.Judge != Judgment.Crook) format = Trade.Haggle;
         float price, floor;
         switch (format)
         {
             case Trade.Haggle when estimate > 0:
-                price = estimate * rng.Between(HaggleAskMin, HaggleAskMax);
-                floor = estimate * rng.Between(seller.Bottom.Min, seller.Bottom.Max);
+                // Everybody knows Rosa haggles: they open higher, and come down less.
+                float wary = boosts.Haggles ? RosaWary : 1f;
+                price = estimate * rng.Between(HaggleAskMin, HaggleAskMax) * wary;
+                floor = estimate * rng.Between(seller.Bottom.Min, seller.Bottom.Max) * wary;
                 break;
             case Trade.Haggle:
                 price = seller.Tier * rng.Between(4f, 8f);
@@ -287,7 +299,11 @@ public static class Market
 /// <param name="Magic">Added to the chance each thing is magic.</param>
 /// <param name="Pairs">Added to the chance (from the town shop on) of two or three of a kind.</param>
 /// <param name="MoneyKinds">How much more often coins and jewelry turn up (a jewelry tycoon's name): 0.2 is a fifth more.</param>
-public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float Pairs = 0, float MoneyKinds = 0)
+/// <param name="Dearer">What sellers' prices are multiplied by (sharp sellers about).</param>
+/// <param name="Slugs">The chance any coin is a gilded slug (forgers about).</param>
+/// <param name="Haggles">Everybody haggles (with Rosa at the counter).</param>
+public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float Pairs = 0, float MoneyKinds = 0, float Dearer = 1,
+    float Slugs = 0, bool Haggles = false)
 {
     public static readonly Boosts None = new();
 

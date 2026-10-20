@@ -61,6 +61,9 @@ public partial class ShakeBox : Node2D
     /// <summary>How hard the chest is being shaken right now.</summary>
     public Shake Level { get; private set; }
 
+    /// <summary>The hardest shake the hands holding it can manage (Hesk's back stops at firm).</summary>
+    public Shake MaxLevel { get; set; } = Shake.Hard;
+
     /// <summary>The chest's speed (px/s), smoothed so it doesn't drop to zero as you change direction. For the meter.</summary>
     public float Speed => _envelope;
 
@@ -331,6 +334,7 @@ public partial class ShakeBox : Node2D
             break;
         }
         if (!Dragging) Level = Shake.Still;
+        if (Level > MaxLevel) Level = MaxLevel;
     }
 
     /// <summary>A knock inside. Returns whether it made a sound you could hear.</summary>

@@ -20,6 +20,14 @@ public sealed class SaveData
     public int Day { get; set; }
     public int Tier { get; set; }
     public bool Guided { get; set; }
+
+    /// <summary>Who's minding the stall, on what terms, with what talents (fixed for the run).</summary>
+    public string Character { get; set; }
+    public int Challenge { get; set; }
+    public List<string> Talents { get; set; } = new();
+    public List<string> Snubbed { get; set; } = new();
+    public bool MaraUsed { get; set; }
+    public bool KeepsakeTaken { get; set; }
     public int TotalEarned { get; set; }
     public bool UpgradesOpen { get; set; }
     public int MagicFound { get; set; }
@@ -110,7 +118,8 @@ public sealed class SavedCommission
 
 /// <summary>
 /// What you've done across every run, kept apart from the saved shop: runs started, debts cleared, vaults opened, the
-/// furthest week reached and the most gold held.
+/// furthest week reached and the most gold held; renown to spend and the talents it's bought; and for each of Bram's
+/// kin, the highest challenge level open and the best score.
 /// </summary>
 public sealed class Profile
 {
@@ -123,6 +132,53 @@ public sealed class Profile
     /// <summary>The fewest days it's taken to clear Bram's debt (0 until it's been cleared).</summary>
     public int FastestClear { get; set; }
 
+    /// <summary>Renown to spend on talents, and all that's ever been earned.</summary>
+    public int Renown { get; set; }
+    public int RenownEarned { get; set; }
+
+    public List<string> Talents { get; set; } = new();
+
+    /// <summary>Per character: the highest challenge level open (clearing the debt at a level opens the next).</summary>
+    public Dictionary<string, int> Challenge { get; set; } = new();
+
+    /// <summary>Per character: the best score a run of theirs has made.</summary>
+    public Dictionary<string, int> BestScore { get; set; } = new();
+
+    /// <summary>Who and what level the last run was, for the character screen.</summary>
+    public string LastCharacter { get; set; } = Characters.Kit;
+    public int LastChallenge { get; set; }
+
+    public bool Unlocked(CharacterDef character) => character.Unlocked(this);
+
+    public int MaxChallenge(string character) => Challenge.GetValueOrDefault(character);
+
+    public bool Knows(string talent) => Talents.Contains(talent);
+
+    /// <summary>A talent that's next on its branch (what it builds on is learned) and affordable.</summary>
+    public bool CanLearn(TalentDef talent) => !Knows(talent.Key) && (talent.Requires == null || Knows(talent.Requires)) && Renown >= talent.Cost;
+
+    public bool Learn(TalentDef talent)
+    {
+        if (!CanLearn(talent)) return false;
+        Renown -= talent.Cost;
+        Talents.Add(talent.Key);
+        return true;
+    }
+
+    /// <summary>The debt's been cleared at this run's level: the next level opens for this character.</summary>
+    public void ClearedAt(GameState state) =>
+        Challenge[state.Character] = Math.Max(MaxChallenge(state.Character), Math.Min(Challenges.Max, state.Challenge + 1));
+
+    /// <summary>A run is over: its renown is banked, and its score noted. Returns the renown it earned.</summary>
+    public int Bank(GameState state)
+    {
+        int renown = Score.Renown(state), score = Score.Total(state);
+        Renown += renown;
+        RenownEarned += renown;
+        BestScore[state.Character] = Math.Max(BestScore.GetValueOrDefault(state.Character), score);
+        return renown;
+    }
+
     static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
 
     public string ToJson() => JsonSerializer.Serialize(this, Options);
@@ -131,7 +187,9 @@ public sealed class Profile
     {
         try
         {
-            return JsonSerializer.Deserialize<Profile>(json) ?? new Profile();
+            var profile = JsonSerializer.Deserialize<Profile>(json) ?? new Profile();
+            profile.Talents.RemoveAll(t => !Core.Talents.Exists(t));
+            return profile;
         }
         catch (JsonException)
         {

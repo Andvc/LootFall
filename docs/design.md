@@ -16,6 +16,11 @@ week, and a hooded woman trades pieces of a map to King Aldric's lost vault for 
 Pay all eight dues, or the whole of what's left at once whenever you have it, and the stall is free (and with the whole
 map, the vault opens on your counter); fall short and the Guild takes the shop.
 
+Across runs, four of Bram's kin can mind the stall, each reading chests or running the shop their own way: Kit listens,
+Hesk weighs, Rosa haggles, Isolde collects. Clearing the debt with one opens the next of eight challenge levels for
+them, each adding one of the Guild's harsher terms. Every run ends with a score; times the challenge level's
+multiplier, it's renown, which buys talents that come along on every run.
+
 ## The puzzle: rules you'd expect from real life
 
 Three core rules, from the first day:
@@ -375,6 +380,72 @@ end:
 Every run is recorded in `user://profile.json` (runs, debts cleared, vaults opened, the furthest week), shown on the
 title screen and at the end of a run.
 
+## Across runs: Bram's kin, challenge levels and talents
+
+A run's own loop (a chest, a day, a week, eight weeks) needed a reason to play another run that isn't the same run
+again. Three things carry over, all in `scripts/Core/Meta.cs` (definitions, the score) and `Kin.cs` (what they do to a
+run, as a partial of `GameState`); the profile (`Profile` in `Save.cs`, user://profile.json) keeps renown, talents, each
+character's open levels and best score.
+
+**Bram's kin** (`Characters`). Each changes one part of how you judge a chest or run the shop, and pays for it; the rest
+of the game is the same. They're all Bram's family, so the story's lines ("your uncle") hold for each.
+
+| Who | Unlocked by | What's different |
+|---|---|---|
+| Kit, the Ear | from the start | the game as it was: every strength, the drop, and (with tips on) Bram's lessons as each seller arrives |
+| Hesk, the Scale | paying the third week's due | a bad back: no hard shake and no drop. Every chest sits on his scale, and he knows what each kind weighs (coins 4 lb, metal 6, cloth 3, bottles 3, paper 1, jewelry 1); gilded iron weighs half what gold does and a bag of sand three times a bundle of papers, so the weight left over once the heard things are counted is what he couldn't hear, what's under a false bottom, or a fake weighing short |
+| Rosa, the Tongue | clearing the debt | everybody haggles with her (fixed-price sellers ask high and hear one offer instead; a crook still names his too-good price), but they know her: they open a tenth higher and come down a tenth less; an offer too low gets a second try; a seller who walks out on her doesn't come back that week |
+| Isolde, the Collection | opening the vault | a two-place shelf from the stall on; visitors pay 1g per exhibition point every night (not more in a grander shop: that version cleared days early); her collection can't be pawned, so a short night can only take her curios |
+
+Every new judgment follows a rule people know: things weigh what they weigh, and gold is heavier than iron (the old
+test for a gilded crown). Hesk's scale shows the total and the slip shows what the ticked things would weigh; the sum
+is the player's to do. The careful player's read is `Strategy.Weigh`: the likeliest mix of cloth, paper, a false
+bottom and short-weight fakes for the leftover, given the seller's habits. Bram's lessons are Kit's (the others come
+knowing the trade, `GameState.GivesLessons`); each of the others gets a first-morning tip on their way (`kin_*` in
+`Hints.cs`). Curios a character can't use aren't in Nim's stock (`GameState.NoUse`: no padded crate for Hesk, no
+signet for Rosa, no visitors' book for Isolde).
+
+**Challenge levels** (`Challenges`). Eight, each adding one term on top of the ones below, opened one at a time per
+character by clearing the debt at the level below. Each adds a quarter to the renown a run earns (x3 at level 8).
+Terms are rules that hold every time, not hidden rolls:
+
+| Level | Term |
+|---|---|
+| 1 | Bram's stretched thin: his stash has one dip fewer, his word one time fewer |
+| 2 | Fussy sellers: everyone minds a drop (price up by half) |
+| 3 | Hurried: every seller gives you 20 seconds |
+| 4 | Sharp sellers: everyone asks, and takes, a twentieth more |
+| 5 | Forgers: one coin in twenty is a gilded slug, whoever brings it |
+| 6 | The Guild's interest: every due a tenth higher |
+| 7 | Lean start: half the starting gold |
+| 8 | Thin crowds: one customer fewer every day at the roadside stall |
+
+They're ordered mildest first by what each does on its own to the careful player with every talent (the sim's
+`Trial`, one term at a time): the stash and the word matter to people who get into trouble more than to the careful
+player, so they come first; a thin first week is the hardest, because the shop's growth compounds from it.
+
+**Score and renown** (`Score`). Points for the Guild dues paid (10 each), the debt cleared (100) and every day to
+spare (5), the vault (100) or the map pieces held (10 each), renovations (25 each), the collection (2 per find) and
+every week after the debt you kept the Guild paid (25). A foreclosed run still scores what it did, so every run moves
+you on. Renown is the score times the level's multiplier, banked when the run ends (retiring, foreclosure, or starting
+over on a saved shop); the run's end shows the lines, the renown and anything it opened.
+
+**Talents** (`Talents`). A root and three branches of four, each talent building on the one above it (13 in all,
+5,600 renown). Like curios and synergies, **no talent adds a share to what things sell for or takes one off the
+dues**: they soften a bad night, widen your choice of curios, or open the shop's name sooner.
+
+| Branch | Talents (cost) |
+|---|---|
+| (root) | Bram's Kin (50): start with 10g more |
+| Bram's Lessons | Rainy Day (100): a fourth stash dip; Pawnbroker's Friend (250): pawning at 70%; Good Word (500): Bram vouches twice; Mara's Favour (1,000): once a run, Mara pays a night nothing you own can cover (not week 8) |
+| Nim's Favour | Familiar Face (100): four curios on Nim's counter; Second Look (250): once a visit, another four; Keepsake (500): on Nim's first visit, one curio of your choice is free; Curio Cabinet (1,000): a fourth curio slot |
+| The Trade | Bram's Ledger (100): every seller's habits in the ledger from the start; Early Name (250): synergies from the village shop; Trade Secrets (500): the witchlight and the magnet at half price; Royal Favour (1,000): one more synergy slot |
+
+Two first drafts sped the run up rather than widening it, and went: Keepsake as a free common curio on the first
+morning (alone, +8 points of clears; with Early Name and Old Picks, free fine lockpicks from the start, +22), because a
+curio or 50g on day one compounds through the whole run. A curio of your choice on Nim's first visit, and the sellers'
+habits in the ledger, widen choices without moving the timeline as much.
+
 ## The shop's look
 
 Each renovation changes the shop around you: a trestle table under a striped awning outside the town walls; a
@@ -386,7 +457,9 @@ counter), shown at 2x behind the counter and dimmed behind the lockpicking, open
 
 ## Title, saves and settings
 
-The game opens on a title screen (Continue, New game, Settings, Quit) over your shop as you left it. The shop is
+The game opens on a title screen (Continue, New game, Talents once there's a run behind you, Settings, Quit) over
+your shop as you left it. New game opens the character screen (`SetupPhase`): the four of Bram's kin (locked ones say
+what unlocks them), the chosen one's rules, and the challenge level with its terms and multiplier. The shop is
 saved to `user://save.json` at the start of each day (`GameState.Save` and `Load`, plain JSON from Core), so leaving
 mid-day starts that day over; the pause menu (Esc, or Menu in the top bar) says so. Settings (`user://settings.cfg`):
 volume, fullscreen, screen shake and flashes (full, reduced or off), Uncle Bram's tips, and **item sounds**: for each
@@ -516,6 +589,23 @@ unpriced sewing), Wren, Mags and Brask pay a little blind:
 
 Every seller's lesson completes, played the careful way, with and without the tools of their shop.
 
+Bram's kin, played by the careful collector with both tools (150 runs each: debt cleared; median day cleared; mean
+score and renown a run, scored at the end of week 8 or when the shop was lost):
+
+| | No talents, level 0 | All talents, level 0 | Level 2 | Level 4 | Level 6 | Level 8 |
+|---|---|---|---|---|---|---|
+| Kit | 57%, day 36, 324 | 84%, day 34, 442 | 81%, day 35, 641 renown | 65%, day 36, 719 | 56%, day 37, 829 | 26%, day 37, 652 |
+| Hesk | 56%, day 36, 323 | 82%, day 35, 432 | 82%, day 35, 646 | 71%, day 36, 766 | 63%, day 36, 880 | 37%, day 37, 748 |
+| Rosa | 62%, day 37, 348 | 89%, day 36, 452 | 85%, day 36, 655 | 63%, day 38, 724 | 41%, day 39, 746 | 19%, day 40, 597 |
+| Isolde | 61%, day 35, 346 | 88%, day 34, 455 | 82%, day 34, 650 | 71%, day 36, 781 | 51%, day 37, 796 | 26%, day 37, 634 |
+
+The four are within a few points of each other on the usual terms (Rosa was 72% before sellers grew wary of her,
+Isolde 70% and three days early while her door money grew with the shop). A full talent tree adds about 25 points of
+clears and brings the median clear a day or two earlier, mostly by softening bad nights and widening Nim's counter;
+the challenge levels take it back down, to about a quarter at level 8, the wall. Renown a run peaks around levels 4
+to 6, so climbing pays. A careful run earns 320 to 450 renown on the usual terms, so the whole tree (5,600) takes a
+dozen or more runs; people who aren't perfect listeners will take longer.
+
 ## What was cut, and why
 
 1. **Auction (v1).** The game did the judging, and bidding against one bot had a dominant strategy.
@@ -585,5 +675,12 @@ Every seller's lesson completes, played the careful way, with and without the to
   nets; are they enough for a beginner, and too much for a good player?
 - Curios are chosen by a fixed taste in the sim: which ones do players actually pick, and do any feel useless (the
   knife, the hook)?
+- Bram's kin: is Hesk's arithmetic (the scale against the slip) a puzzle or a chore? Does Rosa's haggling feel like
+  her own game, with sellers asking her more? Does Isolde's door money make keeping things a real choice from the
+  stall on?
+- Talents: a full tree lifts the careful player's clears from 57% to 84% and the median clear from day 36 to 34. Is
+  that the right reward for a dozen runs, or should the tree be a loadout (a few talents per run) instead?
+- Challenge levels 1 to 3 barely trouble the careful player (they bite people who use the stash and the drop); is
+  that a gentle on-ramp or free renown?
 - The vault usually comes with clearing the debt for a careful player (the Hooded Woman's asks are met by volume at
   the Emporium). Should her asks be harder, or limited to their own week?

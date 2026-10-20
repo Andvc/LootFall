@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using LootFall.Core;
 using LootFall.Ui;
@@ -42,7 +43,7 @@ public partial class RunEndPhase : Phase
             : $"The Guild took the shop in week {State.Week}.";
         Add(UiKit.MakeLabel(sub, 24, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 168, 1280, 30));
 
-        var panel = Add(UiKit.MakePanel(color.Darkened(0.3f)).Place(340, 220, 600, 300));
+        var panel = Add(UiKit.MakePanel(color.Darkened(0.3f)).Place(90, 220, 540, 300));
         var rows = new List<(string, string)>
         {
             ("Debt cleared", State.ClearedDay > 0 ? $"day {State.ClearedDay}, week {State.ClearedWeek}" : "no"),
@@ -57,13 +58,11 @@ public partial class RunEndPhase : Phase
         for (int i = 0; i < rows.Count; i++)
         {
             var (label, value) = rows[i];
-            panel.AddChild(UiKit.MakeLabel(label, 16, Palette.Muted).Place(32, 24 + i * 32, 300, 20));
-            panel.AddChild(UiKit.MakeLabel(value, 16, Palette.Text, HorizontalAlignment.Right).Place(300, 24 + i * 32, 268, 20));
+            panel.AddChild(UiKit.MakeLabel(label, 16, Palette.Muted).Place(32, 24 + i * 32, 260, 20));
+            panel.AddChild(UiKit.MakeLabel(value, 16, Palette.Text, HorizontalAlignment.Right).Place(260, 24 + i * 32, 248, 20));
         }
-        var profile = Game.Profile;
-        if (profile is { Runs: > 0 })
-            Add(UiKit.MakeLabel($"All runs: {profile.Runs} started, {profile.Cleared} debts cleared, {profile.Vaults} vaults opened, " +
-                                $"best week {profile.BestWeek}.", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(0, 532, 1280, 20));
+        BuildScore(color);
+        Add(UiKit.MakeLabel(News(), 16, Palette.Good, HorizontalAlignment.Center, outline: 4).Place(0, 532, 1280, 20));
 
         if (_cleared)
         {
@@ -81,6 +80,44 @@ public partial class RunEndPhase : Phase
             Sfx.Play("lose", 0.8f, -2);
         }
         Game.Moment(_cleared ? "23_cleared" : "23_foreclosed", 0.8);
+    }
+
+    /// <summary>
+    /// The run's score, line by line, and the renown it earns at this challenge level: banked when the run ends (a
+    /// cleared run that keeps trading adds to it every week it keeps the Guild paid).
+    /// </summary>
+    void BuildScore(Color color)
+    {
+        var panel = Add(UiKit.MakePanel(Palette.Magic.Darkened(0.3f)).Place(650, 220, 540, 300));
+        panel.AddChild(UiKit.MakeLabel($"{State.Kin.Name.ToUpperInvariant()}'S SCORE{(State.Challenge > 0 ? $", LEVEL {State.Challenge}" : "")}", 16,
+            Palette.Magic).Place(32, 20, 480, 20));
+        var lines = Score.Lines(State);
+        for (int i = 0; i < lines.Count; i++)
+        {
+            var (label, points) = lines[i];
+            panel.AddChild(UiKit.MakeLabel(label, 16, Palette.Muted).Place(32, 50 + i * 26, 380, 20));
+            panel.AddChild(UiKit.MakeLabel($"{points}", 16, Palette.Text, HorizontalAlignment.Right).Place(400, 50 + i * 26, 108, 20));
+        }
+        int total = Score.Total(State), renown = Score.Renown(State);
+        string times = State.Challenge > 0 ? $"{total} x{Challenges.Multiplier(State.Challenge):0.##} = " : "";
+        panel.AddChild(UiKit.MakeLabel("Renown", 24, Palette.Gold, outline: 4).Place(32, 254, 200, 30));
+        panel.AddChild(UiKit.MakeLabel($"{times}{renown}", 24, Palette.Gold, HorizontalAlignment.Right, outline: 4).Place(200, 254, 308, 30));
+    }
+
+    /// <summary>What this run opened up: another of Bram's kin, the next challenge level; or the record across runs.</summary>
+    string News()
+    {
+        var profile = Game.Profile;
+        var news = new List<string>();
+        foreach (var kin in Characters.All.Where(c => profile.Unlocked(c) && !Game.KinAtStart.Contains(c.Key)))
+            news.Add($"{kin.Name} can mind the stall now!");
+        int levels = profile.MaxChallenge(State.Character);
+        if (levels > Game.LevelsAtStart) news.Add($"Challenge level {levels} is open for {State.Kin.Name}.");
+        if (_cleared && State.Week <= Guild.Weeks) news.Add("Keep trading and every week you keep the Guild paid adds to the score.");
+        if (news.Count > 0) return string.Join("  ", news);
+        return profile is { Runs: > 0 }
+            ? $"All runs: {profile.Runs} started, {profile.Cleared} debts cleared, {profile.Vaults} vaults opened, best week {profile.BestWeek}."
+            : "";
     }
 
     public void KeepTrading()

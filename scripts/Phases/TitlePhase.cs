@@ -57,6 +57,12 @@ public partial class TitlePhase : Phase
         Add(UiKit.MakeButton("New game", _save == null ? Palette.Gold : Palette.Text, _save == null ? 24 : 16, NewGame)
             .Place(ButtonsX, y, ButtonW, _save == null ? 56 : 44));
         y += _save == null ? 70 : 56;
+        var profile = Game.Profile;
+        if (profile != null && (profile.Runs > 0 || profile.Renown > 0))
+        {
+            Add(UiKit.MakeButton($"Talents  ({profile.Renown} renown)", Palette.Magic, 16, OpenTalents).Place(ButtonsX, y, ButtonW, 44));
+            y += 56;
+        }
         Add(UiKit.MakeButton("Settings", Palette.Text, 16, OpenSettings).Place(ButtonsX, y, ButtonW, 44));
         y += 56;
         Add(UiKit.MakeButton("Quit", Palette.Text, 16, Game.QuitGame).Place(ButtonsX, y, ButtonW, 44));
@@ -90,7 +96,7 @@ public partial class TitlePhase : Phase
     {
         if (_save == null)
         {
-            Game.NewGame();
+            Game.OpenSetup();
             return;
         }
         if (_confirm != null) return;
@@ -100,14 +106,24 @@ public partial class TitlePhase : Phase
         _confirm.AddChild(new ColorRect { Color = new Color(0, 0, 0, 0.6f), MouseFilter = Control.MouseFilterEnum.Stop }.Place(-100, -100, 1480, 920));
         _confirm.AddChild(UiKit.MakePanel(Palette.Bad).Place(390, 250, 500, 220));
         _confirm.AddChild(UiKit.MakeLabel("Start over?", 32, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(390, 272, 500, 40));
-        _confirm.AddChild(UiKit.MakeLabel($"Your shop ({_save.Summary}) will be gone for good.", 16, Palette.Muted, HorizontalAlignment.Center)
-            .Wrapped().Place(420, 320, 440, 44));
-        _confirm.AddChild(UiKit.MakeButton("Start over", Palette.Bad, 16, Game.NewGame).Place(420, 392, 200, 48));
+        _confirm.AddChild(UiKit.MakeLabel($"Your shop ({_save.Summary}) will be gone for good. Its renown so far is banked when the new run starts.",
+            16, Palette.Muted, HorizontalAlignment.Center).Wrapped().Place(420, 320, 440, 64));
+        _confirm.AddChild(UiKit.MakeButton("Start over", Palette.Bad, 16, Game.OpenSetup).Place(420, 392, 200, 48));
         _confirm.AddChild(UiKit.MakeButton("Keep my shop", Palette.Gold, 16, () =>
         {
             _confirm.QueueFree();
             _confirm = null;
         }).Place(660, 392, 200, 48));
+    }
+
+    TalentsView _talents;
+
+    void OpenTalents()
+    {
+        if (_talents != null) return;
+        _talents = Add(new TalentsView());
+        _talents.ZIndex = 30;
+        _talents.Closed += () => _talents = null;
     }
 
     void OpenSettings()

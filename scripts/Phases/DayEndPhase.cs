@@ -76,6 +76,7 @@ public partial class DayEndPhase : Phase
         };
         if (today.Commissions > 0) figures.Add(("Commissions", $"+{today.Commissions}g", Palette.Good));
         if (today.Curios > 0) figures.Add(("Curios", $"+{today.Curios}g", Palette.Magic));
+        if (today.Admission > 0) figures.Add(("Visitors", $"+{today.Admission}g", Palette.Magic));
         if (today.PerfectReads > 0) figures.Add(("Perfect reads", today.PerfectReads.ToString(), Palette.Gold));
         if (today.NewFinds > 0) figures.Add(("New finds", today.NewFinds.ToString(), Palette.Magic));
         const float w = 140, gap = 8;
@@ -130,6 +131,8 @@ public partial class DayEndPhase : Phase
         if (!State.UpgradesOpen)
         {
             _cards.AddChild(MakeGoal());
+            // Isolde's shelf is up before the stall has earned its keep.
+            BuildExhibition();
             return;
         }
         var offers = Upgrades.Available(State).OrderByDescending(u => u.IsRenovation).ThenBy(u => u.Cost).Take(6).ToList();
@@ -301,7 +304,8 @@ public partial class DayEndPhase : Phase
             slot.AddChild(sell.Place(0, 0, 50, 50));
         }
         string found = $"Collection: {State.Found.Count} of {Collection.Size} found.";
-        string book = State.HasCurio("book") && score > 0 ? $" Visitors leave {Curios.BookPerPoint * score}g a night." : "";
+        string book = State.HasCurio("book") && score > 0 ? $" Visitors leave {Curios.BookPerPoint * score}g a night."
+            : State.Admission > 0 ? $" Visitors pay {State.Admission}g a night at the door." : "";
         _cards.AddChild(UiKit.MakeLabel(found + book, 16, Palette.Muted).Place(x0, y0 + 84, 816, 20));
     }
 

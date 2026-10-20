@@ -22,12 +22,13 @@ namespace LootFall;
 /// settings, one screenshot each, then quits), --vault-demo (opens King Aldric's vault; quits after with --quit-at-end),
 /// --start-week=N (a shop as a careful player would have it by then, played
 /// through by the balance simulation; --gold=N then sets its purse). Autoplay sets --days=N to stop after that many days.
+/// --character=KEY, --challenge=N and --talents=all play one of Bram's kin, at a challenge level, with every talent.
 /// </summary>
 public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Early Access 0.12";
+    public const string Version = "Early Access 0.13";
     const string SavePath = "user://save.json", ProfilePath = "user://profile.json";
 
     public GameState State { get; private set; }
@@ -48,6 +49,13 @@ public partial class Main : Node2D
 
     /// <summary>A real game (not the bot or a debugging shortcut), so the shop is saved each day.</summary>
     bool _saving;
+
+    /// <summary>A debugging walk-through (--shell-demo): nothing is saved, banked or learned for real.</summary>
+    bool _demo;
+
+    /// <summary>Who could mind the stall, and the levels open to this run's character, when the run began: the run's end says what's new.</summary>
+    public string[] KinAtStart { get; private set; } = System.Array.Empty<string>();
+    public int LevelsAtStart { get; private set; }
 
     public override void _Ready()
     {
@@ -76,7 +84,8 @@ public partial class Main : Node2D
                       Arg(args, "--start-tier") != null || Arg(args, "--start-week") != null;
         if (direct)
         {
-            State = new GameState(_seed) { Guided = !args.Contains("--no-tutorial") };
+            State = GameState.NewRun(_seed, Arg(args, "--character") ?? Characters.Kit, int.TryParse(Arg(args, "--challenge"), out var level) ? level : 0,
+                Arg(args, "--talents") == "all" ? Talents.All.Select(t => t.Key) : null, !args.Contains("--no-tutorial"));
             if (int.TryParse(Arg(args, "--start-tier"), out var startTier))
                 State.SkipTo(Math.Clamp(startTier, 1, ShopTiers.Max), int.TryParse(Arg(args, "--gold"), out var g) ? g : 500);
             // A shop as a careful player would have it by the start of that week (tips are taken as read).
@@ -90,6 +99,7 @@ public partial class Main : Node2D
                 foreach (var key in new[] { "intro", "dayend", "colours", "slip", "ledger", "upgrades", "display", "synergy", "tier2", "tier3", "tier4" })
                     State.HintsSeen.Add(key);
             }
+            NoteStart();
         }
         GD.Print($"LootFall seed {_seed}");
 
@@ -143,10 +153,29 @@ public partial class Main : Node2D
     async void ShellDemo()
     {
         SignalAwaiter Wait(double s) => ToSignal(GetTree().CreateTimer(s, true), SceneTreeTimer.SignalName.Timeout);
+        _demo = true;
+        // A profile with some runs behind it, so the character screen and the talents have something to show.
+        Profile = new Profile { Runs = 9, Cleared = 2, Vaults = 0, BestWeek = 8, Renown = 640, LastCharacter = Characters.Hesk };
+        Profile.Talents.AddRange(new[] { "kin", "rainy", "nim4", "ledger" });
+        Profile.Challenge[Characters.Kit] = 2;
+        Profile.Challenge[Characters.Hesk] = 1;
+        Profile.BestScore[Characters.Kit] = 452;
         ToTitle();
         await Wait(2.5);
-        NewGame();
-        _saving = false;
+        OpenSetup();
+        await Wait(1.2);
+        var setup = (SetupPhase)_phase;
+        setup.SetLevel(1);
+        await Wait(0.6);
+        Moment("09_setup");
+        await Wait(0.3);
+        setup.OpenTalents();
+        await Wait(0.8);
+        Moment("09_talents");
+        await Wait(0.3);
+        setup.TalentsOpen?.Close();
+        await Wait(0.5);
+        StartRun(Characters.Hesk, 1);
         await Wait(3.5);
         Moment("10_newgame");
         await Wait(0.5);
@@ -214,17 +243,17 @@ public partial class Main : Node2D
     /// <summary>Notes the run's progress in the profile (a real game only) and writes it.</summary>
     void WriteProfile(System.Action<Profile> change = null)
     {
-        if (!_saving) return;
+        if (!_saving || _demo) return;
         change?.Invoke(Profile);
         Profile.Note(State);
         using var file = FileAccess.Open(ProfilePath, FileAccess.ModeFlags.Write);
         file?.StoreString(Profile.ToJson());
     }
 
-    /// <summary>The run is over (foreclosed, or retired): the saved shop goes, and it's back to the title.</summary>
+    /// <summary>The run is over (foreclosed, or retired): its renown is banked, the saved shop goes, and it's back to the title.</summary>
     public void EndRun()
     {
-        WriteProfile();
+        WriteProfile(p => p.Bank(State));
         if (_saving && FileAccess.FileExists(SavePath)) DirAccess.RemoveAbsolute(ProjectSettings.GlobalizePath(SavePath));
         _saving = false;
         if (_bot != null)
@@ -242,20 +271,56 @@ public partial class Main : Node2D
         SwitchTo(new TitlePhase(ReadSave()));
     }
 
-    /// <summary>A new shop, saved over any old one when its first day starts.</summary>
-    public void NewGame()
+    /// <summary>New game: who minds the stall, and on what terms.</summary>
+    public void OpenSetup()
     {
-        State = new GameState(_seed) { Guided = Settings.Tips };
+        Hud.Visible = false;
+        SwitchTo(new SetupPhase());
+    }
+
+    /// <summary>
+    /// A new shop, minded by one of Bram's kin at a challenge level, with every talent learned so far; saved over any old
+    /// one when its first day starts (an old run still banks its renown).
+    /// </summary>
+    public void StartRun(string character, int challenge)
+    {
+        if (!_demo && ReadSave() is SaveData old)
+        {
+            Profile.Bank(GameState.Load(old));
+            DirAccess.RemoveAbsolute(ProjectSettings.GlobalizePath(SavePath));
+        }
+        State = GameState.NewRun(_seed, character, challenge, Profile.Talents, Settings.Tips);
         _seed++;
-        _saving = true;
+        _saving = !_demo;
+        Profile.LastCharacter = character;
+        Profile.LastChallenge = challenge;
+        NoteStart();
         WriteProfile(p => p.Runs++);
         BeginPlaying();
+    }
+
+    /// <summary>Who could mind the stall, and what's open to this run's character, as the run begins.</summary>
+    void NoteStart()
+    {
+        KinAtStart = Characters.All.Where(Profile.Unlocked).Select(c => c.Key).ToArray();
+        LevelsAtStart = Profile.MaxChallenge(State.Character);
+    }
+
+    /// <summary>Learns a talent with renown, and keeps it in the profile.</summary>
+    public bool LearnTalent(TalentDef talent)
+    {
+        if (!Profile.Learn(talent)) return false;
+        if (_demo) return true;
+        using var file = FileAccess.Open(ProfilePath, FileAccess.ModeFlags.Write);
+        file?.StoreString(Profile.ToJson());
+        return true;
     }
 
     public void ContinueGame(SaveData save)
     {
         State = GameState.Load(save);
         _saving = true;
+        NoteStart();
         BeginPlaying();
     }
 
@@ -409,7 +474,11 @@ public partial class Main : Node2D
     /// <summary>The debt's just been cleared: Vane's last visit and Bram's joy, then the vault or the end of the run.</summary>
     void Cleared()
     {
-        WriteProfile(p => p.Cleared++);
+        WriteProfile(p =>
+        {
+            p.Cleared++;
+            p.ClearedAt(State);
+        });
         SwitchTo(new ScenePhase(Story.Cleared(State), Vault, "FREE AND CLEAR"));
     }
 
@@ -455,8 +524,11 @@ public partial class Main : Node2D
         var card = UiKit.MakePanel(Palette.Gold.Darkened(0.2f)).Place(306, 130, 500, h);
         card.MouseFilter = Control.MouseFilterEnum.Ignore;
         card.AddChild(UiKit.MakeLabel($"DAY {State.Day}", 48, Palette.Gold, HorizontalAlignment.Center, outline: 6).Place(0, 12, 500, 56));
-        card.AddChild(UiKit.MakeLabel($"Week {State.Week}, day {State.DayOfWeek} of {Guild.DaysPerWeek}  -  {ShopTiers.Name(State.Tier)}", 16,
-            Palette.Text, HorizontalAlignment.Center).Place(0, 72, 500, 20));
+        // Who's minding the stall, and at what level, unless it's Kit on the usual terms.
+        string who = State.Is(Characters.Kit) && State.Challenge == 0 ? ""
+            : $"{State.Kin.Name}{(State.Challenge > 0 ? $", level {State.Challenge}" : "")}  -  ";
+        card.AddChild(UiKit.MakeLabel($"{who}Week {State.Week}, day {State.DayOfWeek}{(who == "" ? $" of {Guild.DaysPerWeek}" : "")}  -  " +
+                                      ShopTiers.Name(State.Tier), 16, Palette.Text, HorizontalAlignment.Center).Place(0, 72, 500, 20));
         string due = State.DuesTonight ? $"The Guild comes tonight for {State.DueNow}g."
             : $"The Guild comes for {State.DueNow}g at the end of day {State.Day + State.DaysToDue}.";
         if (guild)

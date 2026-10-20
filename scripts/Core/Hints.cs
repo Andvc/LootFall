@@ -15,6 +15,12 @@ public static class Hints
         // The first day: one lesson per customer.
         ["intro"] = "Morning! The stall's yours now. Tam never shakes anything, so he can't know what's inside. " +
                     "Drag the chest slowly: a gentle shake.",
+        ["kin_hesk"] = "Your back won't take a hard shake or a drop, Hesk, but your scale doesn't lie. Weigh what you heard against " +
+                       "what's on it: what's left over is what you couldn't hear, or what's under a false bottom.",
+        ["kin_rosa"] = "Everybody haggles with you, Rosa, though they ask a bit more, knowing you. Make your offer with the slider. " +
+                       "Too low and they'll let you try again, but walk one out of the door and they won't be back this week.",
+        ["kin_isolde"] = "Your shelf's up from the first day, Isolde. Keep what you like: visitors pay at the door every night, a coin " +
+                         "a point of exhibition. But the Guild won't take your collection on a short night.",
         ["heard_Coins"] = "A jingle: coins. Light things rattle at the gentlest shake. Tick Coins on your slip, on the right.",
         ["slip"] = "The slip adds up what you've ticked, as good as the chest promises. The bar under it is your odds it's " +
                    "worth more than the price: the greener, the safer.",
@@ -47,7 +53,7 @@ public static class Hints
         // The shop opens up a step at a time.
         ["upgrades"] = $"{GameState.UpgradesAt}g earned: the stall pays its way! A Village Shop brings more customers, richer chests " +
                        "and a shelf. But village chests cost more: keep enough for tomorrow's. An orange price means wait a day.",
-        ["stash"] = "Nearly broke? I keep a little put by for days like this. Don't tell the Guild. It won't last: three times, no more.",
+        ["stash"] = "Nearly broke? I keep a little put by for days like this. Don't tell the Guild. It won't last forever: see the day card for what's left.",
         ["display"] = "A shelf behind the counter, with room for one thing! Keep something grand for display instead of selling " +
                       "it: an exhibition draws more customers, and better chests. Each cabinet adds room for one more.",
         ["synergy"] = "Town folk know a shop by what it collects. Your journal has tallied everything you've acquired: ten of a " +

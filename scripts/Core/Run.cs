@@ -43,8 +43,8 @@ public sealed partial class GameState
     /// <summary>This week's due (with the Guild's half-price deal for the map, and anything rolled over from last week).</summary>
     public int DueNow => Money.Round(DueFor(Week) * (_halfDue ? 0.5f : 1)) + Arrears;
 
-    /// <summary>A week's due.</summary>
-    public int DueFor(int week) => Guild.Due(week);
+    /// <summary>A week's due (a fifth more, under the Guild's interest).</summary>
+    public int DueFor(int week) => Under(Challenges.Interest) ? Money.Round(Guild.Due(week) * Challenges.InterestRate) : Guild.Due(week);
 
     bool _halfDue;
 
@@ -55,10 +55,12 @@ public sealed partial class GameState
     public int GraceUsed { get; private set; }
 
     /// <summary>
-    /// Bram can vouch for you once a run (twice with a guildsman's marker): a short night rolls over to next week instead
-    /// of costing the shop.
+    /// Bram can vouch for you once a run (once more with a guildsman's marker, and with Good Word; once less when he's
+    /// stretched thin): a short night rolls over to next week instead of costing the shop.
     /// </summary>
-    public bool GraceLeft => GraceUsed < 1 + (HasCurio("marker") ? 1 : 0);
+    public bool GraceLeft => GraceUsed < Graces;
+
+    public int Graces => 1 + (HasCurio("marker") ? 1 : 0) + (Knows("word") ? 1 : 0) - (Under(Challenges.Stretched) ? 1 : 0);
 
     /// <summary>The Guild's interest on a due that rolls over.</summary>
     public const float GraceInterest = 1.5f;
@@ -92,14 +94,16 @@ public sealed partial class GameState
     public int NextDue => PaidThisWeek ? DueFor(NextDueWeek) + Arrears : DueNow;
     public int DaysToNextDue => (NextDueWeek - Week) * Guild.DaysPerWeek + DaysToDue;
 
-    /// <summary>What pawning a displayed thing fetches tonight: the Guild's price (better with a pawn ticket).</summary>
-    public int PawnValue(Item item) => (int)MathF.Round(SaleValue(item) * (HasCurio("ticket") ? Curios.TicketRate : Guild.PawnRate));
+    /// <summary>What pawning a displayed thing fetches tonight: the Guild's price (better for a pawnbroker's friend, better still with a pawn ticket).</summary>
+    public int PawnValue(Item item) => (int)MathF.Round(SaleValue(item) * PawnRate);
+
+    float PawnRate => HasCurio("ticket") ? Curios.TicketRate : Knows("pawn") ? Core.Talents.PawnRate : Guild.PawnRate;
 
     /// <summary>What a curio fetches if you sell it back: half what you paid for it.</summary>
     public int CurioValue(string key) => Math.Max(1, (_curioPaid.TryGetValue(key, out int paid) ? paid : Curios.Price(Curios.Get(key), Week)) / 2);
 
     /// <summary>Everything that could be pawned to make up a due.</summary>
-    public int PawnableWorth => Display.Sum(PawnValue) + _curios.Sum(CurioValue);
+    public int PawnableWorth => Display.Where(CanPawn).Sum(PawnValue) + _curios.Sum(CurioValue);
 
     /// <summary>Whether there's any way to pay tonight, pawning everything.</summary>
     public bool CanCover => Gold + PawnableWorth >= DueNow;
@@ -107,7 +111,7 @@ public sealed partial class GameState
     /// <summary>Pawns something on display to make up the due.</summary>
     public int Pawn(Item item)
     {
-        if (!Display.Remove(item)) return 0;
+        if (!CanPawn(item) || !Display.Remove(item)) return 0;
         int value = PawnValue(item);
         Gold += value;
         return value;
@@ -172,12 +176,15 @@ public sealed partial class GameState
 
     // ---- Bram's secret stash ----
 
-    /// <summary>How many times Bram will dip into his secret stash for you in a run (once more with a rainy-day purse).</summary>
+    /// <summary>
+    /// How many times Bram will dip into his secret stash for you in a run (once more with a rainy-day purse, and with
+    /// Rainy Day; once less when he's stretched thin).
+    /// </summary>
     public const int StashTimes = 3;
 
     public int StashUsed { get; private set; }
 
-    public int StashLeft => Math.Max(0, StashTimes + (HasCurio("purse") ? 1 : 0) - StashUsed);
+    public int StashLeft => Math.Max(0, StashTimes + (HasCurio("purse") ? 1 : 0) + (Knows("rainy") ? 1 : 0) - (Under(Challenges.Stretched) ? 1 : 0) - StashUsed);
 
     /// <summary>
     /// Start a day with less than <c>Below</c> and Bram slips you <c>Gift</c> from his secret stash, while it lasts: a
@@ -305,7 +312,7 @@ public sealed partial class GameState
     public IReadOnlyList<string> CurioKeys => _curios;
     public IEnumerable<CurioDef> OwnedCurios => _curios.Select(Curios.Get);
     public bool HasCurio(string key) => _curios.Contains(key);
-    public int CurioSlots => Curios.Slots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.CurioSlots);
+    public int CurioSlots => Curios.Slots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.CurioSlots) + (Knows("curio") ? 1 : 0);
     public bool CuriosFull => _curios.Count >= CurioSlots;
 
     public bool BuyCurio(CurioDef curio, int price)
@@ -315,6 +322,7 @@ public sealed partial class GameState
         _curios.Add(curio.Key);
         _curioPaid[curio.Key] = price;
         Today.CurioSpent += price;
+        if (Keepsake) KeepsakeTaken = true;
         return true;
     }
 
@@ -464,6 +472,7 @@ public sealed partial class GameState
         WeekEvent = null;
         EventDay = 0;
         PeddlerDay = 0;
+        _snubbed.Clear();
         if (Week < 2) return;
 
         BramPiece = true;
@@ -499,9 +508,17 @@ public sealed partial class GameState
 
     // ---- Each night ----
 
-    /// <summary>What curios bring in overnight: interest on savings, visitors' coins. Paid at the end of the day.</summary>
+    /// <summary>
+    /// What comes in overnight: interest on savings and visitors' coins (curios), and the door money for Isolde's
+    /// collection. Paid at the end of the day.
+    /// </summary>
     void Overnight()
     {
+        if (Admission > 0)
+        {
+            Today.Admission = Admission;
+            Gold += Today.Admission;
+        }
         if (HasCurio("jar"))
         {
             int interest = Math.Min((int)(Gold * Curios.InterestRate), Curios.InterestPerTier * Tier);

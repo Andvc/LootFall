@@ -94,10 +94,13 @@ public static class Curios
         return Math.Max(1, Money.Round(Guild.Due(Math.Max(FirstWeek, week)) * Share(curio.Rarity)));
     }
 
-    /// <summary>What Nim lays out on a visit: three curios you don't own, rarer ones more often as the weeks go by.</summary>
-    public static List<CurioDef> Stock(Random rng, GameState state, int count = 3)
+    /// <summary>
+    /// What Nim lays out on a visit: three curios (four for a familiar face) you don't own and could use, rarer ones more
+    /// often as the weeks go by. Leaves out what he's just shown you.
+    /// </summary>
+    public static List<CurioDef> Stock(Random rng, GameState state, int count = 3, ICollection<string> shown = null)
     {
-        var pool = All.Where(c => c.MinTier <= state.Tier && !state.HasCurio(c.Key)).ToList();
+        var pool = All.Where(c => c.MinTier <= state.Tier && !state.HasCurio(c.Key) && !state.NoUse(c) && (shown == null || !shown.Contains(c.Key))).ToList();
         var stock = new List<CurioDef>();
         float rare = Math.Min(0.3f, 0.05f + 0.04f * state.Week), uncommon = 0.35f;
         while (stock.Count < count && pool.Count > 0)

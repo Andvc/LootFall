@@ -12,9 +12,11 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 
 1. `dotnet build` must report 0 warnings and 0 errors.
 2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after. Its last
-   section is the lesson test: every seller's lesson must complete when played the careful way.
+   section is the lesson test: every seller's lesson must complete when played the careful way; the one before it,
+   "Bram's kin", plays each character with no talents and with all of them at challenge levels 0 to 8.
 3. Visual changes: run the autoplay bot under Xvfb with `--shots=<dir>` and look at the PNGs.
-   Bot flags: `--seed=N --quit-at-end --days=N --no-tutorial --start-tier=N --gold=N --start-week=N`. `--start-tier`
+   Bot flags: `--seed=N --quit-at-end --days=N --no-tutorial --start-tier=N --gold=N --start-week=N --character=KEY
+   --challenge=N --talents=all` (`--quit-at-end` quits after the first opening: use `--days` for longer runs). `--start-tier`
    jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens);
    `--start-week` fast-forwards a run with the sim's careful collector (curios, commissions, exhibition and all; `--gold`
    then sets the purse, e.g. 0 to see a short night and foreclosure). The bot plays scenes, Nim, the Guild's night and
@@ -22,7 +24,8 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
    on, every seller's first visit is a lesson, so a guided run at a tier shows those lessons; the bot logs any lesson
    it couldn't finish. `--opening-demo` opens a crafted chest with every quality and two surprises (record it);
    `--vault-demo` opens King Aldric's vault, the finale's nine-thing opening.
-   `--shell-demo` walks the title screen, a new game, the pause menu and the settings.
+   `--shell-demo` walks the title screen, the character screen and talents (with a made-up profile), a new game (Hesk),
+   the pause menu and the settings.
    Keep screenshot folders named `shots*` (git- and export-ignored).
 4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear everything the rules say is
    audible at each strength (and with the magnet), with no leaks.
@@ -70,6 +73,17 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   can be paid off early (`GameState.DebtLeft`, `PayOff`) from the day end or the Guild's night; the sim's careful
   player does, and reports the week each run cleared (week 8 should stay the usual one). Surprises
   (`Categories.Odds`) are rare, with a pity counter (`GameState.DrySpell`); the sim reports their share of income.
+- Across runs (`Meta.cs` for the definitions and the score, `Kin.cs` for what they do to a run): four of Bram's kin
+  (`Characters`), each changing one part of how chests are judged or the shop is run and paying for it (Hesk: no hard
+  shake or drop, a scale; Rosa: everybody haggles, walkouts stay away a week; Isolde: a shelf and door money from day
+  one, no pawning her collection); eight cumulative challenge levels (`Challenges`, opened per character by clearing
+  at the level below, a quarter more renown each; order them by what each term does alone, the sim's `Trial`); and
+  13 talents (`Talents`) bought with renown (`Score` times the level's multiplier, banked in `Main.EndRun` or when a
+  saved run is abandoned). Talents and characters follow the curio rule: no share added to sale prices or taken off
+  dues; check the "Bram's kin" table that a full tree doesn't move the median clear day much. Bram's lessons are
+  Kit's (`GameState.GivesLessons`); a new character gets a `kin_*` tip. Route seller traits through
+  `GameState.MindsDrop`/`MindsMagnet`/`MindsHardShake`/`Impatient` and upgrade prices through `GameState.Cost`, so the
+  terms and talents apply everywhere. The profile (`Profile`) keeps renown, talents and each character's open levels.
 - The shop opens up a step at a time (`GameState.UpgradesOpen` once it has earned `UpgradesAt`, `DisplayOpen` with
   the village shop, `SynergiesOpen` with the town shop), each introduced by a Bram tip when it happens. Gate new
   systems the same way, in Core, so the sim and the bot follow them.

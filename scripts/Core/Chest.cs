@@ -106,6 +106,9 @@ public sealed class Chest
         _ => "light",
     };
 
+    /// <summary>What it all weighs on Hesk's scale, false bottom and all, in pounds.</summary>
+    public float Pounds => Everything.Sum(Characters.Pounds);
+
     /// <summary>Changes things inside without them becoming different things (a curio's luck with their quality).</summary>
     public void Improve(Func<Item, Item> change)
     {

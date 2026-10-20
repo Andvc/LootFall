@@ -78,11 +78,17 @@ PORTRAITS = {
 }
 
 # Portraits made from another with some colours changed: key -> (faceset number, rules). Each rule takes the pixels
-# whose hue is in [low, high] degrees (and that aren't grey), turns the hue, and scales saturation and brightness.
+# whose hue is in [low, high] degrees (and that aren't grey), turns the hue, and scales saturation and brightness; a
+# rule can add a [top, bottom) range of rows, for hair the same hue as the face's shading.
 RECOLOURED_PORTRAITS = {
     "wick": (4, [(250, 320, 0, 0.12, 1.12), (180, 249, -60, 0.9, 0.9)]),  # Marta's face, white hair and a green shawl
     "hood": (1, [(40, 170, 195, 0.75, 0.8)]),                             # a green hood turned plum: the Hooded Woman
     "vane": (11, [(40, 200, 0, 0.12, 0.95)]),                             # a pale, sly face over a grey collar: the Guild's man
+    # Bram's kin, who mind the stall (Characters.All in scripts/Core/Meta.cs):
+    "kit": (6, [(290, 350, 170, 0.9, 0.9), (0, 12, 22, 0.75, 0.6, 0, 15)]),  # brown hair and a green shirt
+    "hesk": (10, [(90, 190, -100, 0.55, 0.8)]),                            # a grocer's olive cap and coat
+    "rosa": (17, [(35, 65, -40, 1.15, 0.9), (230, 300, -110, 0.9, 0.9)]),  # red hair and a market green
+    "isolde": (4, [(250, 330, 100, 2.2, 1.1), (170, 249, 150, 1.0, 0.85)]),  # golden hair and a wine-red gown
 }
 
 # Curios (Curios.All in scripts/Core/Curios.cs) -> (pack, sprite). Shown in 56px slots: small sprites at 2x, big ones
@@ -184,8 +190,10 @@ def recolour(img, rules):
             if a == 0:
                 continue
             h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-            for low, high, turn, sat, val in rules:
-                if low <= h * 360 <= high and s > 0.15:
+            for rule in rules:
+                low, high, turn, sat, val = rule[:5]
+                top, bottom = rule[5:7] if len(rule) > 5 else (0, img.height)
+                if low <= h * 360 <= high and s > 0.15 and top <= y < bottom:
                     h, s, v = (h * 360 + turn) % 360 / 360, min(1, s * sat), min(1, v * val)
                     break
             r, g, b = colorsys.hsv_to_rgb(h, s, v)

@@ -14,25 +14,23 @@ public static class Strategy
 
     /// <summary>
     /// Which strengths to shake at: all three, except gently and hard when there's no time (hard hears everything
-    /// firm does), or gently and firmly when the seller won't have it shaken hard. Kid gloves and a pocket watch lift
-    /// those limits.
+    /// firm does), or gently and firmly when the seller won't have it shaken hard (or Hesk's back won't). Kid gloves
+    /// and a pocket watch lift the sellers' limits.
     /// </summary>
     public static Shake[] Levels(Visit visit, GameState state = null) =>
-        visit.Seller.HatesHardShake && !Gloved(state) ? new[] { Shake.Gentle, Shake.Firm }
+        !(state?.CanShakeHard ?? true) || (state?.MindsHardShake(visit.Seller) ?? visit.Seller.HatesHardShake) ? new[] { Shake.Gentle, Shake.Firm }
         : Rushed(visit, state) ? new[] { Shake.Gentle, Shake.Hard }
         : Every;
 
-    static bool Gloved(GameState state) => state?.KidGloves ?? false;
-
     /// <summary>An impatient seller, and no pocket watch to make the time stretch.</summary>
-    static bool Rushed(Visit visit, GameState state) => visit.Seller.Patience > 0 && !(state?.HasCurio("watch") ?? false);
+    static bool Rushed(Visit visit, GameState state) => state == null ? visit.Seller.Patience > 0 : state.Impatient(visit.Seller) && !state.HasCurio("watch");
 
     /// <summary>
     /// Drop it to listen for a false bottom, unless there's glass in there (and no padded crate) or the seller would
-    /// mind.
+    /// mind (or it's Hesk, who can't lift it).
     /// </summary>
     public static bool ShouldDrop(Visit visit, Hearing hearing, int tier, GameState state = null) =>
-        tier >= 2 && (!visit.Seller.HatesDrop || Gloved(state)) && !Rushed(visit, state) && !hearing.Dropped &&
+        tier >= 2 && (state?.CanDrop ?? true) && !(state?.MindsDrop(visit.Seller) ?? visit.Seller.HatesDrop) && !Rushed(visit, state) && !hearing.Dropped &&
         (state?.HasCurio("crate") == true || !Categories.All.Any(c => c.Fragile && hearing.HeardAny(c.Category)));
 
     /// <summary>
@@ -41,7 +39,7 @@ public static class Strategy
     /// </summary>
     public static Shake[] MagnetLevels(Visit visit, Hearing hearing, GameState state)
     {
-        if (!state.Has("magnet") || (visit.Seller.HatesMagnet && !state.KidGloves) || Rushed(visit, state)) return Array.Empty<Shake>();
+        if (!state.Has("magnet") || state.MindsMagnet(visit.Seller) || Rushed(visit, state)) return Array.Empty<Shake>();
         var gilded = Categories.All.Where(c => c.FakeName != null && c.FakeIron).Select(c => c.Category).ToArray();
         // The gentlest strength each one sounded at: where a fake would go quiet.
         return gilded.Select(c => Every.FirstOrDefault(l => hearing.HeardAt(c, l, false))).Where(l => l != Shake.Still)
@@ -54,9 +52,9 @@ public static class Strategy
     /// What a careful player ticks on faith when they couldn't shake hard enough to hear it: a soft kind the seller
     /// usually brings (Granny Wick's sewing). Their habit is in the ledger.
     /// </summary>
-    public static void OnFaith(Visit visit, Appraisal slip, Hearing hearing)
+    public static void OnFaith(Visit visit, Appraisal slip, Hearing hearing, GameState state = null)
     {
-        if (hearing.HasTried(Shake.Hard, false)) return;
+        if (hearing.HasTried(Shake.Hard, false) || (state?.Weighs ?? false)) return;
         var seller = visit.Seller;
         float total = seller.Kinds.Sum();
         foreach (var kind in Categories.UpTo(slip.Tier).Where(k => k.StirsAt == Shake.Hard && slip.Count(k.Category) == 0))
@@ -65,6 +63,72 @@ public static class Strategy
 
     /// <summary>How much of what a seller brings has to be one kind before a careful player takes it on faith.</summary>
     const float FaithShare = 0.35f;
+
+    /// <summary>
+    /// Hesk's read of his scale: once everything he heard is accounted for (and any fake he caught out), the weight left
+    /// over is what he couldn't hear (cloth and paper, which only a hard shake stirs, and whatever is under a false
+    /// bottom), less what any gilded fake he didn't catch weighs short. He puts down the likeliest explanation, given
+    /// what the seller usually brings.
+    /// </summary>
+    public static void Weigh(Appraisal slip, Hearing hearing, Visit visit, GameState state)
+    {
+        var seller = visit.Seller;
+        int tier = slip.Tier;
+        float known = Categories.UpTo(tier).Sum(k => slip.Count(k.Category) * Characters.Pounds(k.Category)) + hearing.Spotted().Sum(Characters.FakePounds);
+        float left = visit.Chest.Pounds - known;
+        float total = seller.Kinds.Sum();
+        float Unheard(Category kind) => Categories.Get(kind).Tier <= tier ? UnheardOdds * seller.Kinds[(int)kind] / total : 0;
+
+        // Under a false bottom: nothing, or one of the things people hide (a drop, if there was one, settles which).
+        var hidden = new List<(Category? Kind, float Chance)>();
+        float hiddenChance = tier >= 2 ? seller.HiddenChance + state.Boosts.Hidden : 0;
+        if (!hearing.Hollow) hidden.Add((null, hearing.Dropped ? 1 : 1 - hiddenChance));
+        if (tier >= 2 && (!hearing.Dropped || hearing.Hollow))
+            foreach (var (kind, chance) in Market.HiddenOdds(tier)) hidden.Add((kind, chance * (hearing.Hollow ? 1 : hiddenChance)));
+
+        // Gilded fakes he heard but didn't catch with the magnet: each weighs half what it should.
+        bool magnet = Every.Any(l => hearing.HasTried(l, true));
+        float Fakes(Category kind) => magnet ? 0 : (seller.Fakes.Contains(kind) ? seller.FakeChance : 0) +
+                                                   (kind == Category.Coins ? state.Boosts.Slugs : 0);
+        int coins = slip.Count(Category.Coins), jewels = slip.Count(Category.Jewels);
+        float Binomial(int n, int k, float p) => k > n || (p <= 0 && k > 0) ? 0 : Choose(n, k) * MathF.Pow(p, k) * MathF.Pow(1 - p, n - k);
+
+        (int Cloth, int Paper, Category? Hidden, int Slugs, int Paste) best = (0, 0, null, 0, 0);
+        float bestChance = 0;
+        int room = Market.MaxItems - slip.Marked.Sum(slip.Count);
+        for (int cloth = 0; cloth <= room; cloth++)
+        for (int paper = 0; cloth + paper <= room; paper++)
+        foreach (var (kind, hiddenOdds) in hidden)
+        for (int slugs = 0; slugs <= coins; slugs++)
+        for (int paste = 0; paste <= jewels; paste++)
+        {
+            float weight = cloth * Characters.Pounds(Category.Cloth) + paper * Characters.Pounds(Category.Paper) +
+                           (kind is Category k ? Characters.Pounds(k) : 0) - slugs * Characters.FakePounds(Category.Coins) -
+                           paste * Characters.FakePounds(Category.Jewels);
+            if (MathF.Abs(weight - left) > 0.01f) continue;
+            float chance = MathF.Pow(Unheard(Category.Cloth), cloth) * MathF.Pow(Unheard(Category.Paper), paper) * hiddenOdds *
+                           Binomial(coins, slugs, Fakes(Category.Coins)) * Binomial(jewels, paste, Fakes(Category.Jewels));
+            if (chance <= bestChance) continue;
+            bestChance = chance;
+            best = (cloth, paper, kind, slugs, paste);
+        }
+        if (bestChance <= 0) return;
+        slip.Set(Category.Cloth, best.Cloth);
+        if (tier >= 2) slip.Set(Category.Paper, best.Paper);
+        slip.Hidden = best.Hidden != null;
+        slip.Set(Category.Coins, coins - best.Slugs, slip.Magic(Category.Coins));
+        if (jewels > 0) slip.Set(Category.Jewels, jewels - best.Paste, slip.Magic(Category.Jewels));
+    }
+
+    /// <summary>For Hesk's read: how likely one more thing he couldn't hear is, before the seller's habits.</summary>
+    const float UnheardOdds = 0.4f;
+
+    static float Choose(int n, int k)
+    {
+        float c = 1;
+        for (int i = 0; i < k; i++) c = c * (n - i) / (i + 1);
+        return c;
+    }
 
     /// <summary>
     /// A haggler's first answer: about half their asking price, never more than the chest is worth to you. When they ask
@@ -92,7 +156,9 @@ public static class Strategy
     {
         var seller = visit.Seller;
         float worth = slip.LikelyWorth(state == null ? null : state.SaleMultiplier) + (state == null ? 0 : CommissionWorth(state, slip));
-        if (!hearing.HasTried(Shake.Hard, false))
+        // Hesk's scale has already accounted for what he couldn't hear.
+        bool weighed = state?.Weighs ?? false;
+        if (!hearing.HasTried(Shake.Hard, false) && !weighed)
         {
             float total = seller.Kinds.Sum();
             foreach (var kind in Categories.UpTo(slip.Tier).Where(k => k.StirsAt == Shake.Hard && slip.Count(k.Category) == 0))
@@ -101,7 +167,7 @@ public static class Strategy
                 worth += share * 2.5f * Categories.Expected(kind.Category, slip.Chest) * 0.8f;
             }
         }
-        if (!hearing.Dropped && !slip.Hidden && slip.Tier >= 2)
+        if (!hearing.Dropped && !slip.Hidden && slip.Tier >= 2 && !weighed)
             worth += seller.HiddenChance * Market.HiddenValue(slip.Chest, slip.Tier, expected: true);
         return (int)(worth * (1 + seller.QualityBoost * 1.2f));
     }
@@ -156,9 +222,9 @@ public static class Strategy
     /// </summary>
     public static bool Affordable(GameState state, Upgrade upgrade)
     {
-        int reserve = Reserve(state, upgrade.SetsTier);
-        if (!upgrade.IsRenovation && upgrade.Cost >= 1000) reserve += state.DueFor(state.Week + (state.PaidThisWeek ? 2 : 1));
-        return state.CanBuy(upgrade) && state.Gold - upgrade.Cost >= reserve;
+        int reserve = Reserve(state, upgrade.SetsTier), cost = state.Cost(upgrade);
+        if (!upgrade.IsRenovation && cost >= 1000) reserve += state.DueFor(state.Week + (state.PaidThisWeek ? 2 : 1));
+        return state.CanBuy(upgrade) && state.Gold - cost >= reserve;
     }
 
     /// <summary>A careful player's taste in curios, best first.</summary>
@@ -184,7 +250,7 @@ public static class Strategy
             .OrderBy(c => Rank(c.Key));
         foreach (var curio in wanted)
         {
-            int price = Curios.Price(curio, state.Week);
+            int price = state.CuriosPrice(curio);
             string sell = null;
             if (state.CuriosFull)
             {
@@ -193,7 +259,7 @@ public static class Strategy
                 sell = worst;
                 price -= state.CurioValue(worst);
             }
-            if (state.Gold - price >= Reserve(state)) return (curio, sell);
+            if (state.Gold - price >= Reserve(state) || price == 0) return (curio, sell);
         }
         return (null, null);
     }
@@ -204,7 +270,7 @@ public static class Strategy
         if (!state.CanCover) return null;
         var order = new List<object>();
         int gold = state.Gold;
-        foreach (var item in state.Display.OrderBy(i => i.Prestige).ThenBy(state.PawnValue))
+        foreach (var item in state.Display.Where(state.CanPawn).OrderBy(i => i.Prestige).ThenBy(state.PawnValue))
         {
             if (gold >= state.DueNow) break;
             order.Add(item);
@@ -236,11 +302,33 @@ public static class Strategy
     /// <returns>Whether to keep it, and what to sell from the display to make room (or null).</returns>
     public static (bool Keep, Item Replace) ShouldKeep(GameState state, Item item, int value)
     {
+        if (state.Is(Characters.Isolde)) return Collects(state, item, value);
         if (!item.Displayable || item.Prestige < 2 || state.Tier < 3 || (state.Exhibition >= GameState.ExhibitionCap && !state.HasCurio("book")) ||
             value > item.Prestige * GoldPerPoint || state.Gold - value < 20 + 15 * state.Tier)
             return (false, null);
         if (!state.DisplayFull) return (true, null);
         var plainest = state.Display.OrderBy(i => i.Prestige).First();
         return plainest.Prestige < item.Prestige ? (true, plainest) : (false, null);
+    }
+
+    /// <summary>Isolde keeps what her visitors will pay back in this many nights, while she can spare it.</summary>
+    public const int PaybackNights = 12;
+
+    /// <summary>
+    /// Isolde's collecting: keep anything whose door money (and a point's worth of drawing customers) pays back its sale
+    /// price within <see cref="PaybackNights"/>, while there's room or something plainer to sell to make room, and
+    /// enough left for tomorrow and the Guild: her collection is no help on a short night.
+    /// </summary>
+    static (bool Keep, Item Replace) Collects(GameState state, Item item, int value)
+    {
+        if (!item.Displayable || state.DisplaySlots == 0 || value > item.Prestige * Characters.AdmissionPerPoint * PaybackNights) return (false, null);
+        Item replace = null;
+        if (state.DisplayFull)
+        {
+            replace = state.Display.OrderBy(i => i.Prestige).ThenBy(i => i.Value).First();
+            if (replace.Prestige >= item.Prestige) return (false, null);
+        }
+        int back = replace == null ? 0 : state.SaleValue(replace);
+        return state.Gold + back - value >= Reserve(state) ? (true, replace) : (false, null);
     }
 }

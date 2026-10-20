@@ -180,9 +180,11 @@ public partial class DuesPhase : Phase
     void BuildPawn(int due)
     {
         Put(UiKit.MakeLabel($"SHORT BY {due - State.Gold}g", 24, Palette.Bad, outline: 4).Place(PanelX, 392, 400, 30));
-        Put(UiKit.MakeLabel("Pawn what's on display at the Guild's price, or sell a curio back:", 16, Palette.Muted).Place(PanelX, 426, PanelW, 20));
+        Put(UiKit.MakeLabel(State.Is(Characters.Isolde) ? "Isolde's collection is not for pawning. Sell a curio back:"
+            : "Pawn what's on display at the Guild's price, or sell a curio back:", 16, Palette.Muted).Place(PanelX, 426, PanelW, 20));
         // The plainest things first: what you'd miss least. Two rows at most.
-        var things = State.Display.OrderBy(i => i.Prestige).Select(i => (object)i).Concat(State.CurioKeys.Select(k => (object)k)).Take(8).ToList();
+        var things = State.Display.Where(State.CanPawn).OrderBy(i => i.Prestige).Select(i => (object)i)
+            .Concat(State.CurioKeys.Select(k => (object)k)).Take(8).ToList();
         for (int i = 0; i < things.Count; i++)
         {
             float x = PanelX + i % 4 * (PawnW + 12), y = 452 + i / 4 * (PawnH + 8);
@@ -211,12 +213,31 @@ public partial class DuesPhase : Phase
         if (State.CanAskGrace)
         {
             var grace = Put(UiKit.MakeButton("Bram vouches for you", Palette.Warn, 16, AskGrace).Place(PanelX, by, 370, 52));
-            grace.TooltipText = $"Everything you have goes to the Guild; the rest, and half as much again, is added to next week's due. Once a run.";
-            Put(UiKit.MakeLabel($"(once a run: you pay {State.Gold}g now, {(int)MathF.Ceiling((due - State.Gold) * GameState.GraceInterest)}g more next week)",
+            int left = State.Graces - State.GraceUsed;
+            string times = left == 1 ? "his last word this run" : $"{left} times left this run";
+            grace.TooltipText = $"Everything you have goes to the Guild; the rest, and half as much again, is added to next week's due. {char.ToUpperInvariant(times[0])}{times[1..]}.";
+            Put(UiKit.MakeLabel($"({times}: you pay {State.Gold}g now, {(int)MathF.Ceiling((due - State.Gold) * GameState.GraceInterest)}g more next week)",
                 16, Palette.Muted).Place(PanelX, by + 56, PanelW, 20));
         }
-        if (!State.CanCover)
+        // Mara's favour (a talent): once a run, she pays what nothing you own can cover.
+        if (State.CanAskMara)
+            Put(UiKit.MakeButton("Mara pays what's short", Palette.Magic, 16, AskMara).Place(PanelX + PanelW - 370, by, 370, 52)).TooltipText =
+                $"Once a run, Mara covers a night nothing you own can: {due - State.Gold}g, and nothing owed after.";
+        else if (!State.CanCover)
             Put(UiKit.MakeButton("Let the Guild take the shop", Palette.Bad, 16, Foreclose).Place(PanelX + PanelW - 370, by, 370, 52));
+    }
+
+    public void AskMara()
+    {
+        if (_paid || !State.CanAskMara) return;
+        int gift = State.AskMara();
+        _paid = true;
+        Sfx.PlayGroup("pay");
+        Game.Hud.SetGold(State.Gold);
+        Game.Hud.SetDue(State);
+        BuildTrack();
+        _vane.Say("The Hooded Woman pays for you? ...The Guild doesn't care whose gold it is. Paid.", Palette.Warn);
+        AfterSettled($"Mara paid {gift}g of it. She won't do it twice.");
     }
 
     public void Pawn(Item item)

@@ -8,8 +8,9 @@ the Grey Guild comes for a due that climbs from 40g to 7,000g in eight weeks. Pa
 the moment you have it) and the stall is free;
 find all four pieces of an old map on the way and King Aldric's lost vault opens on your counter.
 
-**Status:** Early Access (0.12): runs of eight weeks against the Guild's dues (then endless), with curios,
-commissions, weekly events and a story; saves, settings and a guided start. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
+**Status:** Early Access (0.13): runs of eight weeks against the Guild's dues (then endless), with curios,
+commissions, weekly events and a story; four of Bram's kin to play, eight challenge levels each, and a talent tree
+bought with the renown runs earn; saves, settings and a guided start. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
 Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam.
 Design rationale: [docs/design.md](docs/design.md).
 
@@ -47,6 +48,22 @@ Design rationale: [docs/design.md](docs/design.md).
    or the Stranger with a sealed chest that nothing rattles in. The Hooded Woman trades map pieces for the finds she
    asks for. Whenever you have all that's left of the debt, you can pay it off and finish early.
 
+**Between runs:** a run ends with a score (dues paid, the debt cleared and how early, the vault, the shop, the
+collection) that becomes **renown**, multiplied by the run's challenge level. Renown buys **talents** (a tree of 13:
+a softer bad night, more choice from Nim, the shop's name sooner; none adds a share to what things sell for), kept for
+every run. New game asks who minds the stall:
+
+| Who | Plays |
+|---|---|
+| Kit, the Ear | the game as it was, with Bram's lessons |
+| Hesk, the Scale | can't shake hard or drop a chest, but weighs every one: the weight left over is what he couldn't hear (unlocked by paying the third due) |
+| Rosa, the Tongue | everybody haggles with her (though they open higher for her), and a lowball gets a second try; whoever walks out stays away that week (unlocked by clearing the debt) |
+| Isolde, the Collection | displays from the first day and visitors pay a coin a point every night, but her collection can't be pawned (unlocked by opening the vault) |
+
+Clearing the debt with someone opens their next challenge level: each adds one of the Guild's harsher terms (Bram's
+stretched thin, fussy sellers, a hurried town, sharp sellers, forgers, the Guild's interest, a lean start, thin crowds)
+and a quarter more renown.
+
 Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each. After
 that, each seller's first visit is a lesson in their habit, and each new part of the shop (renovations, lockpicking,
 the display shelf, synergies, the Guild, curios, commissions) comes with a word from Bram when it opens up. The shop
@@ -76,6 +93,9 @@ saves at the start of every day; your best runs are kept on the title screen.
 | Reread today's event | Click it in the top bar |
 | Choose each kind's sound | Settings, Item sounds: click a kind's sound to hear the next |
 | Pause, settings, quit to title | Esc, or Menu in the top bar |
+| Choose who minds the stall, and the challenge level | New game: click a character, then - and + |
+| Learn talents | Talents, on the title or the character screen: click a gold one |
+| Ask Nim for something else | Show me something else, on Nim's screen (with Second Look) |
 
 ## Development
 
@@ -83,8 +103,8 @@ The code is split so the game rules can be tested without the engine:
 
 | Folder | What's in it |
 |---|---|
-| `scripts/Core` | Pure C# rules: kinds, qualities and the shaking rules, chests, sellers and how they judge and trade, the appraisal slip, a careful player's read and strategy, sellers' lessons, synergies, upgrades, the shop's progress and exhibition, the run (the Guild's dues, curios, commissions, events, the story), Bram's hints. No Godot types. |
-| `scripts/Phases` | The screens: title, counter, lockpicking, opening, end of day, the Guild's night, Nim's curios, story scenes, the end of a run. |
+| `scripts/Core` | Pure C# rules: kinds, qualities and the shaking rules, chests, sellers and how they judge and trade, the appraisal slip, a careful player's read and strategy, sellers' lessons, synergies, upgrades, the shop's progress and exhibition, the run (the Guild's dues, curios, commissions, events, the story), Bram's kin, challenge levels, talents and the score (`Meta.cs`, `Kin.cs`), Bram's hints. No Godot types. |
+| `scripts/Phases` | The screens: title, the character screen, counter, lockpicking, opening, end of day, the Guild's night, Nim's curios, story scenes, the end of a run. |
 | `scripts/Ui` | Visuals: the shakeable chest, the ledger, Bram, the seller, HUD, particles and styling. |
 | `scripts/Audio` | Recorded sounds, the synthesized slosh, and placeholder effects. |
 | `scripts/Debug` | Balance simulation (with the lesson test), the shake test and an autoplay bot for screenshots and recordings. |
@@ -99,8 +119,9 @@ godot --headless --path . -- --shake-test                  # check that shaking 
 xvfb-run -a godot --path . --rendering-driver opengl3 -- \
   --autoplay --days=1 --shots=$PWD/shots                   # play the guided day, save screenshots
 # add --start-tier=3 --gold=600 to jump ahead with the tools you'd have by then,
-# or --start-week=6 for a shop as a careful player would have it by then (--gold=N sets its purse)
-xvfb-run -a godot --path . -- --shell-demo --shots=$PWD/shots_shell  # title, pause and settings screenshots
+# or --start-week=6 for a shop as a careful player would have it by then (--gold=N sets its purse);
+# --character=hesk|rosa|isolde, --challenge=N and --talents=all play one of Bram's kin on those terms
+xvfb-run -a godot --path . -- --shell-demo --shots=$PWD/shots_shell  # title, character screen, talents, pause, settings
 xvfb-run -a godot --path . -- --vault-demo --quit-at-end --shots=$PWD/shots_vault  # the finale's opening
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```

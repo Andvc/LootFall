@@ -65,6 +65,9 @@ public sealed class DayStats
     /// <summary>What curios brought in (a catalogue's fees, interest, visitors' coins) and what curios cost.</summary>
     public int Curios, CurioSpent;
 
+    /// <summary>What Isolde's visitors paid at the door tonight.</summary>
+    public int Admission;
+
     public int Profit => Earned - Spent;
 }
 
@@ -119,13 +122,14 @@ public sealed partial class GameState
     /// <summary>Renovations and tools are on offer: the stall has earned <see cref="UpgradesAt"/>.</summary>
     public bool UpgradesOpen { get; private set; }
 
-    /// <summary>Keeping things for display: from the village shop, which has a shelf.</summary>
-    public bool DisplayOpen => Tier >= 2;
+    /// <summary>Keeping things for display: from the village shop, which has a shelf (Isolde brings her own).</summary>
+    public bool DisplayOpen => Tier >= 2 || Is(Characters.Isolde);
 
-    /// <summary>Synergies: from the town shop.</summary>
-    public bool SynergiesOpen => Tier >= 3;
+    /// <summary>Synergies: from the town shop (the village shop, with an early name).</summary>
+    public bool SynergiesOpen => Tier >= (Knows("early") ? 2 : 3);
 
-    public int DisplaySlots => DisplayOpen ? ShelfSlots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Slots) + (HasCurio("dome") ? 1 : 0) : 0;
+    public int DisplaySlots => DisplayOpen ? (Is(Characters.Isolde) ? Characters.IsoldeShelf : ShelfSlots) + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Slots) +
+                                             (HasCurio("dome") ? 1 : 0) : 0;
     public bool DisplayFull => Display.Count >= DisplaySlots;
 
     /// <summary>The exhibition: what your displayed things are worth to visitors' eyes, not their purses.</summary>
@@ -150,7 +154,7 @@ public sealed partial class GameState
     public HashSet<string> ActiveSynergies { get; } = new();
 
     /// <summary>One synergy at a time, more with a guild charter and a royal seal.</summary>
-    public int SynergySlots => 1 + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.SynergySlots);
+    public int SynergySlots => 1 + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.SynergySlots) + (Knows("favour") ? 1 : 0);
 
     public int SynergyLevel(string key) => Synergies.Get(key).Level(this);
 
@@ -166,11 +170,12 @@ public sealed partial class GameState
         return true;
     }
 
-    /// <summary>What the exhibition and synergies do to the chests people bring.</summary>
+    /// <summary>What the exhibition, synergies, the Guild's terms and who's at the counter do to the chests people bring.</summary>
     public Boosts Boosts => new(BetterChests + (EventIs("storm") ? 1 : 0),
         Synergies.HiddenBonus(Active("archivist")) + (HasCurio("hook") ? Curios.HookHidden : 0),
         Synergies.MagicBonus(Active("arcane")) + (HasCurio("draught") ? Curios.DraughtMagic : 0),
-        EventIs("wreck") ? Events.WreckPairs : 0, Synergies.MoneyKinds(Active("jewelry")));
+        EventIs("wreck") ? Events.WreckPairs : 0, Synergies.MoneyKinds(Active("jewelry")),
+        Under(Challenges.SharpSellers) ? Challenges.SharpPrices : 1, Under(Challenges.Forgers) ? Challenges.SlugChance : 0, HagglesAll);
 
     /// <summary>How much less likely glass is to break (a vintner's packing).</summary>
     public float Sturdier => Synergies.Sturdier(Active("vintner"));
@@ -181,8 +186,16 @@ public sealed partial class GameState
     /// <summary>A lock as you'll pick it: one pin fewer with a locksmith's oil.</summary>
     public LockTier Oiled(LockTier lockTier) => HasCurio("oil") && lockTier.Pins > 1 ? lockTier with { Pins = lockTier.Pins - 1 } : lockTier;
 
-    /// <summary>How long an impatient seller gives you, in seconds (twice as long with a pocket watch).</summary>
-    public float Patience(SellerDef seller) => seller.Patience * (HasCurio("watch") ? Curios.WatchPatience : 1);
+    /// <summary>
+    /// How long a seller gives you, in seconds (0: all day): an impatient one's patience, or everyone's when the town is
+    /// in a hurry; twice as long with a pocket watch.
+    /// </summary>
+    public float Patience(SellerDef seller)
+    {
+        float patience = seller.Patience;
+        if (Under(Challenges.Hurried)) patience = patience > 0 ? Math.Min(patience, Challenges.HurriedPatience) : Challenges.HurriedPatience;
+        return patience * (HasCurio("watch") ? Curios.WatchPatience : 1);
+    }
 
     /// <summary>In kid gloves, a seller who won't stand for a hard shake, a drop or the magnet doesn't notice.</summary>
     public bool KidGloves => HasCurio("gloves");
@@ -238,14 +251,14 @@ public sealed partial class GameState
     public bool Has(string upgrade) => _owned.Contains(upgrade);
 
     public int CustomersPerDay => Math.Max(2, 3 + Tier + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Customers) + ExhibitionCustomers +
-                                            (HasCurio("lantern") && DuesTonight ? 1 : 0) + EventCustomers);
+                                            (HasCurio("lantern") && DuesTonight ? 1 : 0) + EventCustomers - (Under(Challenges.ThinCrowds) && Tier == 1 ? 1 : 0));
 
-    public bool CanBuy(Upgrade upgrade) => UpgradesOpen && Gold >= upgrade.Cost && Upgrades.Available(this).Contains(upgrade);
+    public bool CanBuy(Upgrade upgrade) => UpgradesOpen && Gold >= Cost(upgrade) && Upgrades.Available(this).Contains(upgrade);
 
     public void BuyUpgrade(Upgrade upgrade)
     {
         if (!CanBuy(upgrade)) return;
-        Gold -= upgrade.Cost;
+        Gold -= Cost(upgrade);
         _owned.Add(upgrade.Key);
         if (upgrade.SetsTier > 0) Tier = upgrade.SetsTier;
     }
@@ -260,6 +273,8 @@ public sealed partial class GameState
         {
             SavedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
             Seed = Seed, Gold = Gold, Day = Day, Tier = Tier, Guided = Guided, TotalEarned = TotalEarned,
+            Character = Character, Challenge = Challenge, Talents = Talents.ToList(), Snubbed = _snubbed.ToList(), MaraUsed = MaraUsed,
+            KeepsakeTaken = KeepsakeTaken,
             UpgradesOpen = UpgradesOpen, MagicFound = MagicFound, PerfectStreak = PerfectStreak, BestStreak = BestStreak,
             Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
             FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
@@ -284,6 +299,10 @@ public sealed partial class GameState
     {
         var state = new GameState(data.Seed)
         {
+            Character = Characters.Exists(data.Character) ? data.Character : Characters.Kit,
+            Challenge = Math.Clamp(data.Challenge, 0, Challenges.Max),
+            Talents = new HashSet<string>(data.Talents.Where(Core.Talents.Exists)),
+            MaraUsed = data.MaraUsed, KeepsakeTaken = data.KeepsakeTaken,
             Gold = data.Gold, Day = data.Day, Tier = Math.Clamp(data.Tier, 1, ShopTiers.Max), Guided = data.Guided,
             TotalEarned = data.TotalEarned, UpgradesOpen = data.UpgradesOpen, MagicFound = data.MagicFound,
             PerfectStreak = data.PerfectStreak, BestStreak = data.BestStreak,
@@ -302,6 +321,7 @@ public sealed partial class GameState
             if (i < data.CurioPaid.Count && data.CurioPaid[i] > 0) state._curioPaid[key] = data.CurioPaid[i];
         }
         state._eventsSeen.AddRange(data.EventsSeen);
+        state._snubbed.UnionWith(data.Snubbed);
         state.Commissions.AddRange(data.Commissions.Select(c => new Commission
         {
             Patron = c.Patron, Kind = c.Kind, Category = c.Category, Quality = c.Quality, Needed = c.Needed, Delivered = c.Delivered,
@@ -338,12 +358,13 @@ public sealed partial class GameState
         Queue.Clear();
         Current = null;
         Today = new DayStats();
+        PeddlerRerolled = false;
         DipIntoStash();
         if (DayOfWeek == 1) StartWeek();
         PeddlerStock.Clear();
-        if (PeddlerToday) PeddlerStock.AddRange(Curios.Stock(new Random(unchecked(Seed * 6151 + Day)), this));
+        if (PeddlerToday) PeddlerStock.AddRange(Curios.Stock(new Random(unchecked(Seed * 6151 + Day)), this, PeddlerCount));
 
-        if (Day == 1 && Guided && Tier == 1)
+        if (Day == 1 && GivesLessons && Tier == 1)
         {
             Queue.AddRange(FirstDay(Rng));
             return;
@@ -351,8 +372,10 @@ public sealed partial class GameState
 
         // Each renovation brings its own crowd; the old regulars still drop by now and then. Nobody comes twice in a
         // day unless everyone else already has. A smithing name draws smiths and soldiers. With tips on, no more than
-        // a few newcomers (each a lesson) a day: the rest of a new shop's crowd comes in over the next days.
+        // a few newcomers (each a lesson) a day: the rest of a new shop's crowd comes in over the next days. Anyone who
+        // walked out on Rosa this week stays away, while there's anyone else.
         var sellers = Sellers.All.Where(s => s.Tier <= Tier).ToArray();
+        if (sellers.Count(s => !_snubbed.Contains(s.Key)) >= 2) sellers = sellers.Where(s => !_snubbed.Contains(s.Key)).ToArray();
         float smiths = Synergies.SmithVisits(Active("smith"));
         while (Queue.Count < CustomersPerDay)
         {
@@ -373,21 +396,21 @@ public sealed partial class GameState
     public const int LessonsPerDay = 3;
 
     /// <summary>Their next visit would be a lesson.</summary>
-    bool Teaches(SellerDef seller) => Guided && Lessons.For(seller.Key) != null && !Tutored.Contains(seller.Key);
+    bool Teaches(SellerDef seller) => GivesLessons && Lessons.For(seller.Key) != null && !Tutored.Contains(seller.Key);
 
     /// <summary>A seller's visit: the first time (with tips on), the lesson that introduces their habit.</summary>
     Visit NewVisit(SellerDef seller)
     {
         var lesson = Lessons.For(seller.Key);
-        if (Guided && lesson != null && Tutored.Add(seller.Key))
+        if (GivesLessons && lesson != null && Tutored.Add(seller.Key))
         {
             var visit = lesson.Make(Rng, Tier);
             visit.Lesson = lesson;
             return visit;
         }
         var fresh = Market.CreateVisit(Rng, seller, Tier, Boosts);
-        // A merchant's signet: hagglers hear out an offer that's too low, instead of storming off.
-        fresh.HearsOut = HasCurio("signet");
+        // A merchant's signet (or Rosa's charm): hagglers hear out an offer that's too low, instead of storming off.
+        fresh.HearsOut = HasCurio("signet") || HagglesAll;
         return fresh;
     }
 
@@ -412,6 +435,7 @@ public sealed partial class GameState
     /// <summary>Calls in the next customer, if anyone is waiting.</summary>
     public bool NextCustomer()
     {
+        if (Current != null) NoteWalkout(Current);
         Current = null;
         if (Queue.Count == 0) return false;
         Current = Queue[0];

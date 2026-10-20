@@ -22,6 +22,9 @@ public partial class CounterPhase : Phase
     static readonly Rect2 DragBounds = new(452, 130, 232, 286);
     const float PanelX = 844, PanelW = 384, RowH = 36, RowStep = 40, RowsY = 150;
 
+    /// <summary>How high Hesk can lift a chest: not high enough to drop it.</summary>
+    const float LiftLimit = ShakeBox.DropHeight * 0.6f;
+
     /// <summary>Shaking at a strength this long counts as having tried it.</summary>
     const double TryTime = 0.5;
 
@@ -49,7 +52,7 @@ public partial class CounterPhase : Phase
     static readonly Core.Shake[] Levels = { Core.Shake.Gentle, Core.Shake.Firm, Core.Shake.Hard };
     readonly Label[] _strengthWords = new Label[3];
     Node2D _strength;
-    Label _hint, _notes, _worth, _askLabel, _ask, _chanceText, _footer, _timer;
+    Label _hint, _notes, _worth, _askLabel, _ask, _chanceText, _footer, _timer, _scale, _slipWeight;
     Painter _chance;
     float _chanceShown;
     Button _buy, _pass, _offer, _magnetButton, _ledgerButton;
@@ -85,7 +88,7 @@ public partial class CounterPhase : Phase
     public void SkipLesson() => EndLesson();
 
     /// <summary>Seconds an impatient seller will still wait, or 0 if they'll wait all day.</summary>
-    public double TimeLeft => _visit.Seller.Patience > 0 ? _patience : 0;
+    public double TimeLeft => State.Impatient(_visit.Seller) ? _patience : 0;
 
     public override void _Ready()
     {
@@ -96,7 +99,9 @@ public partial class CounterPhase : Phase
         BuildShelf();
 
         _seller = Add(new SellerView(_visit.Seller) { Position = new Vector2(150, 196) });
-        _shake = Add(new ShakeBox(_visit.Chest, DragBounds) { Position = ChestRest });
+        // Hesk can't lift a chest high enough to drop it, or shake it hard.
+        var bounds = State.CanDrop ? DragBounds : new Rect2(DragBounds.Position.X, ChestRest.Y - LiftLimit, DragBounds.Size.X, LiftLimit);
+        _shake = Add(new ShakeBox(_visit.Chest, bounds) { Position = ChestRest, MaxLevel = State.CanShakeHard ? Core.Shake.Hard : Core.Shake.Firm });
         _shake.View.LockColor = Palette.Lock(_visit.Chest.Lock);
         _shake.Heard += OnHeard;
         _shake.Landed += OnLanded;
@@ -106,6 +111,7 @@ public partial class CounterPhase : Phase
         _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(316, 478, 484, 20));
         _hint.ZIndex = 10;
         BuildStrength();
+        if (State.Weighs) BuildScale();
         _notes = Add(UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(316, 500, 484, 84));
         _notes.ZIndex = 10;
         _timer = Add(UiKit.MakeLabel("", 32, Palette.Warn, HorizontalAlignment.Center, outline: 6).Place(206, 92, 64, 40));
@@ -145,7 +151,28 @@ public partial class CounterPhase : Phase
                 .Place(-120 + i * 80, 0, 80, 20);
             _strength.AddChild(_strengthWords[i]);
         }
+        if (!State.CanShakeHard) _strengthWords[2].Text = "(back)";
     }
+
+    /// <summary>
+    /// Hesk's scale, beside the chest: what everything in it weighs, and what the things ticked on the slip would. The
+    /// difference is what he couldn't hear (or a fake that weighs short).
+    /// </summary>
+    void BuildScale()
+    {
+        var scale = Add(UiKit.MakePanel(Palette.Gold.Darkened(0.35f)).Place(318, 360, 128, 92));
+        scale.ZIndex = 10;
+        scale.TooltipText = $"Hesk's scale. {State.Kin.Rules[2]}";
+        scale.MouseFilter = Control.MouseFilterEnum.Pass;
+        scale.AddChild(UiKit.MakeLabel("ON THE SCALE", 16, Palette.Gold.Darkened(0.15f), HorizontalAlignment.Center).Place(0, 6, 128, 20));
+        _scale = UiKit.MakeLabel(Characters.Weight(_visit.Chest.Pounds), 24, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 28, 128, 30);
+        scale.AddChild(_scale);
+        _slipWeight = UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 62, 128, 20);
+        scale.AddChild(_slipWeight);
+    }
+
+    /// <summary>What the slip's ticked things would weigh (a false bottom aside: there's no telling what's in one).</summary>
+    float SlipPounds => Categories.UpTo(State.Tier).Sum(k => _slip.Count(k.Category) * Characters.Pounds(k.Category));
 
     void UpdateStrength()
     {
@@ -165,7 +192,7 @@ public partial class CounterPhase : Phase
         var tried = Levels.Where(level => _hearing.HasTried(level, _magnet)).ToList();
         if (tried.Count == 0) return "";
         // Not a nudge to shake a chest hard when its seller won't have it.
-        var untried = Levels.Where(level => !tried.Contains(level) && !(level == Core.Shake.Hard && _visit.Seller.HatesHardShake && !State.KidGloves))
+        var untried = Levels.Where(level => !tried.Contains(level) && !(level == Core.Shake.Hard && (State.MindsHardShake(_visit.Seller) || !State.CanShakeHard)))
             .ToList();
         string done = $"Shaken {string.Join(" and ", tried.Select(Categories.Adverb))}.";
         return untried.Count == 0 ? done : $"{done} Not {string.Join(" or ", untried.Select(Categories.Adverb))} yet.";
@@ -243,11 +270,13 @@ public partial class CounterPhase : Phase
     {
         bool firstOfDay = State.Today.Bought + State.Today.Passed == 0;
         bool met = State.Meet(_visit.Seller);
-        if (State.Day == 1 && State.Tier == 1 && State.Guided)
+        if (State.Day == 1 && State.Tier == 1 && State.GivesLessons)
         {
             Teach(_visit.Seller.Key == "tam" ? "intro" : $"first_{_visit.Seller.Key}");
             return;
         }
+        // Everyone else gets a word about their own way with a chest, the first morning.
+        if (!State.Is(Characters.Kit)) Teach($"kin_{State.Character}");
         if (firstOfDay && State.Day == 2) Teach("colours");
         if (!firstOfDay && State.Day >= 2) Teach("ledger");
         if (firstOfDay && State.Tier > 1) Teach($"tier{State.Tier}");
@@ -282,7 +311,7 @@ public partial class CounterPhase : Phase
             _shaken[key] = before + delta;
             if (before < TryTime && _shaken[key] >= TryTime) _hearing.Tried(level, _magnet);
             // Some sellers won't have their chest shaken hard: a moment of it (not a stray flick) and up goes the price.
-            if (level == Core.Shake.Hard && _visit.Seller.HatesHardShake && !State.KidGloves && _shaken[key] >= HardShakeTolerance && !Concluded &&
+            if (level == Core.Shake.Hard && State.MindsHardShake(_visit.Seller) && _shaken[key] >= HardShakeTolerance && !Concluded &&
                 !_busy)
                 Angered(_visit.Anger(_rng));
         }
@@ -290,20 +319,20 @@ public partial class CounterPhase : Phase
         UpdateStrength();
         string tried = TriedSoFar();
         _hint.Text = Busy || Concluded || _shake.Dragging ? ""
-            : _shake.Hover && tried == "" ? "Drag to shake it. Lift it high and let go to drop it."
+            : _shake.Hover && tried == "" ? State.CanDrop ? "Drag to shake it. Lift it high and let go to drop it." : "Drag to shake it, gently or firmly: mind your back."
             : _magnet ? "Magnet on: iron can't move"
             : tried != "" ? tried
             : _lamp ? "Drag the chest to shake it. The witchlight's lit." : "Drag the chest to shake it";
 
         // An impatient seller's clock runs while you're deciding (not while Bram is talking, but while he waits for you).
-        if (_visit.Seller.Patience > 0 && !Concluded && !_busy && (!_mentor.Showing || _mentor.WaitingForAction))
+        if (State.Impatient(_visit.Seller) && !Concluded && !_busy && (!_mentor.Showing || _mentor.WaitingForAction))
         {
             _patience -= delta;
             if ((int)Math.Ceiling(_patience) != (int)Math.Ceiling(_patience + delta) && _patience > 0 && _patience <= 5)
                 Sfx.Play("tick", 1.2f, -2);
             if (_patience <= 0) RanOutOfPatience();
         }
-        _timer.Text = _visit.Seller.Patience > 0 && !Concluded ? $"{Math.Max(0, Math.Ceiling(_patience)):0}" : "";
+        _timer.Text = State.Impatient(_visit.Seller) && !Concluded ? $"{Math.Max(0, Math.Ceiling(_patience)):0}" : "";
         _timer.Modulate = _patience <= 5 ? new Color(1, 1, 1, 0.6f + 0.4f * MathF.Sin((float)_patience * 12f)) : Colors.White;
     }
 
@@ -525,6 +554,7 @@ public partial class CounterPhase : Phase
     void Refresh()
     {
         bool open = !Concluded && !Busy;
+        if (_slipWeight != null) _slipWeight.Text = $"slip: {Characters.Weight(SlipPounds)}";
         foreach (var row in _rows)
         {
             int count = CountOf(row.Category);
@@ -548,7 +578,8 @@ public partial class CounterPhase : Phase
         {
             _ when bought => "You paid",
             Trade.Offer when _visit.Ask == 0 => $"{who} wants you to name a price",
-            Trade.Haggle when _visit.OffersMade > 0 => $"{who}'s final price",
+            // A haggler who heard you out (another try) hasn't named a final price yet.
+            Trade.Haggle when _visit.OffersMade > 0 && !offering => $"{who}'s final price",
             Trade.Haggle => $"{who} asks (make an offer?)",
             _ => $"{who} asks",
         };
@@ -685,7 +716,7 @@ public partial class CounterPhase : Phase
             Teach("broke");
         }
         Teach("dropped");
-        if (_visit.Seller.HatesDrop && !State.KidGloves) Angered(_visit.Anger(_rng));
+        if (State.MindsDrop(_visit.Seller)) Angered(_visit.Anger(_rng));
         else _seller.Say(_rng.PickOne(new[] { "Oi! Careful with that.", "Mind the floor!", "Easy!" }));
         Refresh();
         Game.Moment("05_drop", 0.3);
@@ -745,7 +776,7 @@ public partial class CounterPhase : Phase
     /// <summary>Lifts the chest and lets it fall (the bot uses this).</summary>
     public void DropChest()
     {
-        if (Busy || Concluded) return;
+        if (Busy || Concluded || !State.CanDrop) return;
         _shake.LiftAndDrop();
     }
 
@@ -757,7 +788,7 @@ public partial class CounterPhase : Phase
         Sfx.PlayGroup("clack", _magnet ? 1.2f : 0.9f, -2);
         _shake.View.Wobble(0.4f);
         if (_magnet) Teach("magnet");
-        if (_magnet && _visit.Seller.HatesMagnet && !State.KidGloves) Angered(_visit.Anger(_rng));
+        if (_magnet && State.MindsMagnet(_visit.Seller)) Angered(_visit.Anger(_rng));
         Refresh();
         Game.Moment("05_magnet", 0.6);
     }
@@ -846,6 +877,8 @@ public partial class CounterPhase : Phase
     void Leave()
     {
         State.Pass();
+        // Word gets round the market: whoever walks out on Rosa stays away for the rest of the week.
+        if (State.HagglesAll && _visit.OffersMade > 0) Note($"{_visit.Seller.Short} won't be back this week. Word gets round.");
         ShowGut(1.6);
     }
 

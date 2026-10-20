@@ -12,7 +12,11 @@ namespace LootFall.Phases;
 /// </summary>
 public partial class PeddlerPhase : Phase
 {
-    const float CardW = 260, CardH = 316, CardsX = 400, CardsY = 96, CardGap = 20;
+    const float CardH = 316, CardsY = 96, CardGap = 20, CardsRight = 1260;
+
+    // Three cards to the right of Nim; four (a familiar face) start nearer him and are a little narrower.
+    float CardW => State.PeddlerCount > 3 ? 225 : 260;
+    float CardsX => CardsRight - State.PeddlerCount * (CardW + CardGap) + CardGap;
 
     SellerView _nim;
     MentorView _mentor;
@@ -32,7 +36,7 @@ public partial class PeddlerPhase : Phase
         _nim.Enter();
         _nim.Say(Peddler.Greetings[(State.Week - 2 + Peddler.Greetings.Length) % Peddler.Greetings.Length]);
         Sfx.PlayGroup("door_open", 1.2f, -6);
-        Add(UiKit.MakeLabel("NIM'S CURIOS", 32, Palette.Magic, HorizontalAlignment.Center, outline: 6).Place(CardsX, 58, 3 * CardW + 2 * CardGap, 40));
+        Add(UiKit.MakeLabel("NIM'S CURIOS", 32, Palette.Magic, HorizontalAlignment.Center, outline: 6).Place(CardsX, 58, CardsRight - CardsX, 40));
         _board = Add(new Node2D());
         _mentor = Add(new MentorView { Position = new Vector2(24, 560), ZIndex = 20 });
         Build();
@@ -48,7 +52,13 @@ public partial class PeddlerPhase : Phase
         for (int i = 0; i < stock.Count; i++) _board.AddChild(MakeCard(stock[i], CardsX + i * (CardW + CardGap), CardsY));
         if (stock.Count == 0)
             _board.AddChild(UiKit.MakeLabel("Nim's sold out: you own everything Nim carries!", 24, Palette.Muted, HorizontalAlignment.Center)
-                .Place(CardsX, 220, 3 * CardW + 2 * CardGap, 30));
+                .Place(CardsX, 220, CardsRight - CardsX, 30));
+        if (State.Keepsake && stock.Count > 0)
+            _board.AddChild(UiKit.MakeLabel("Keepsake: one of these is a gift, whichever you like.", 16, Palette.Good, HorizontalAlignment.Center, outline: 4)
+                .Place(CardsX, CardsY + CardH + 6, CardsRight - CardsX, 20));
+        // Second Look (a talent): once a visit, Nim packs these away and lays out something else.
+        if (State.CanRerollPeddler)
+            _board.AddChild(UiKit.MakeButton("Show me something else", Palette.Magic, 16, Reroll).Place(660, 610, 300, 64));
 
         // Your curios: click one to sell it back for half.
         const float y = 440;
@@ -76,7 +86,7 @@ public partial class PeddlerPhase : Phase
     Control MakeCard(CurioDef curio, float x, float y)
     {
         bool owned = State.HasCurio(curio.Key);
-        int price = Curios.Price(curio, State.Week);
+        int price = State.CuriosPrice(curio);
         var color = RarityColor(curio.Rarity);
         var card = UiKit.MakePanel(owned ? Palette.PanelBorder : color).Place(x, y, CardW, CardH);
         var shine = new Painter(p =>
@@ -85,16 +95,21 @@ public partial class PeddlerPhase : Phase
         });
         card.AddChild(shine);
         card.AddChild(UiKit.MakeCurioIcon(curio, new Vector2(CardW / 2, 62)));
-        card.AddChild(UiKit.MakeLabel(curio.Name, 24, owned ? Palette.Muted : Palette.Text, HorizontalAlignment.Center, outline: 4)
-            .Wrapped().Place(10, 100, CardW - 20, 60));
-        card.AddChild(UiKit.MakeLabel(Curios.RarityName(curio.Rarity), 16, color, HorizontalAlignment.Center).Place(0, 160, CardW, 20));
-        card.AddChild(UiKit.MakeLabel(curio.Blurb, 16, Palette.Muted, HorizontalAlignment.Center).Wrapped().Place(14, 184, CardW - 28, 80));
+        // Four narrower cards: the name in the small size, so the blurb has room.
+        bool narrow = State.PeddlerCount > 3;
+        float nameH = narrow ? 40 : 60;
+        card.AddChild(UiKit.MakeLabel(curio.Name, narrow ? 16 : 24, owned ? Palette.Muted : Palette.Text, HorizontalAlignment.Center, outline: 4)
+            .Wrapped().Place(10, 100, CardW - 20, nameH));
+        card.AddChild(UiKit.MakeLabel(Curios.RarityName(curio.Rarity), 16, color, HorizontalAlignment.Center).Place(0, 100 + nameH, CardW, 20));
+        card.AddChild(UiKit.MakeLabel(curio.Blurb, 16, Palette.Muted, HorizontalAlignment.Center).Wrapped()
+            .Place(14, 124 + nameH, CardW - 28, CardH - 60 - 124 - nameH));
         if (owned)
         {
             card.AddChild(UiKit.MakeLabel("Yours", 24, Palette.Good, HorizontalAlignment.Center, outline: 4).Place(0, CardH - 50, CardW, 30));
             return card;
         }
-        var buy = UiKit.MakeButton(State.CuriosFull ? "No room" : $"Buy {price}g", Palette.Gold, 16, () => Buy(curio)).Place(30, CardH - 56, CardW - 60, 44);
+        var buy = UiKit.MakeButton(State.CuriosFull ? "No room" : price == 0 ? "Take it, free" : $"Buy {price}g", price == 0 ? Palette.Good : Palette.Gold, 16,
+            () => Buy(curio)).Place(30, CardH - 56, CardW - 60, 44);
         buy.Disabled = State.CuriosFull || State.Gold < price;
         if (State.CuriosFull) buy.TooltipText = "Sell a curio back to Nim first to make room.";
         card.AddChild(buy);
@@ -110,7 +125,7 @@ public partial class PeddlerPhase : Phase
 
     public bool Buy(CurioDef curio)
     {
-        int price = Curios.Price(curio, State.Week);
+        int price = State.CuriosPrice(curio);
         if (!State.BuyCurio(curio, price)) return false;
         Sfx.PlayGroup("pay");
         Sfx.Play("sting", 1.2f, -4);
@@ -121,6 +136,15 @@ public partial class PeddlerPhase : Phase
         Build();
         Game.Moment("22_bought", 0.4);
         return true;
+    }
+
+    public void Reroll()
+    {
+        if (!State.CanRerollPeddler) return;
+        State.RerollPeddler();
+        Sfx.PlayGroup("clack", 1.1f, -4);
+        _nim.Say("Not to your taste? Nim has more. Nim always has more.");
+        Build();
     }
 
     public void SellBack(string key)

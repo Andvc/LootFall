@@ -74,6 +74,10 @@ public sealed class Hearing
         return first != Shake.Still && first < Categories.Get(_kinds[item]).StirsAt;
     }
 
+    /// <summary>The kinds of the fakes you've caught out: gilded iron gone quiet under the magnet, sand pouring too soon.</summary>
+    public IEnumerable<Category> Spotted() =>
+        _heard.Select(h => h.Item).Distinct().Where(id => (Silenced(id) || TooSoon(id)) && !_broke.Contains(id)).Select(id => _kinds[id]);
+
     /// <summary>
     /// A careful read: every separate thing that made a sound is in there, counted kind by kind; anything that glowed is
     /// enchanted; a jingle or tinkle that goes quiet once the magnet is on is gilded iron, and a rustle at a gentle shake is
