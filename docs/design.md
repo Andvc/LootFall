@@ -10,7 +10,7 @@ way each customer trades: pay their price, haggle, or name your own. Pass, and y
 right; buy, and the chest bursts open on the spot: each thing's true quality, a tick or a cross against your slip,
 and now and then something far better than the chest promised. What you acquire builds the shop's name (synergies)
 and its exhibition, which draw more and better customers. The stall comes with Bram's old debt to the Grey Guild:
-every fifth evening Mister Vane collects a due that climbs from 40g to 7,000g over eight weeks. Curios from Nim the
+every fifth evening Mister Vane collects a due that climbs from 40g to 12,000g over eight weeks. Curios from Nim the
 peddler bend the rules in your favour, regulars pay well for commissions, something different happens in town once a
 week, and a hooded woman trades pieces of a map to King Aldric's lost vault for the finds only a good ear turns up.
 Pay all eight dues, or the whole of what's left at once whenever you have it, and the stall is free (and with the whole
@@ -249,9 +249,21 @@ half as much again each week, for as long as you last (endless).
 |---|---|---|---|---|---|---|---|---|---|
 | Due | 40g | 100g | 300g | 800g | 1,400g | 2,400g | 3,800g | 7,000g | x1.5 a week |
 
-These follow what a careful shop earns on its own judgment, now that no curio or synergy adds a share to sales (v10
-and v11 climbed to 26,000g, which only the +50% curios made payable). The last week is the wall: twice the week
-before, so the debt's last two weeks (10,800g) are rarely in hand before week 8.
+(v13; v14's are below.) These follow what a careful shop earns on its own judgment, now that no curio or synergy adds
+a share to sales (v10 and v11 climbed to 26,000g, which only the +50% curios made payable). The last week is the wall:
+twice the week before, so the debt's last two weeks (10,800g) are rarely in hand before week 8.
+
+**v14: dues for a career, not a run.** With characters, challenge levels and talents, the question changed from "does
+a careful player clear the debt?" to "how does a player get from their first run to their first clear, and on up the
+levels?" (see *Balance across a career*). The dues now start lighter and finish steeper:
+
+| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | then |
+|---|---|---|---|---|---|---|---|---|---|
+| Due | 40g | 100g | 200g | 500g | 1,300g | 2,800g | 6,000g | 12,000g | x1.5 a week |
+
+The first four weeks ask for little: a first-timer's purse grows and they get through them (v13's 300g in week 3 sent a
+third of them to Bram's word, whose interest then sank them in week 4). From week 5 the dues climb faster than a
+learner's shop grows; week 8 is the wall that only good judgment with some talents behind it gets over.
 
 **Paying it off early.** Whenever you have all that's left of the debt (`GameState.DebtLeft`: this week's due if it's
 unpaid, and every week's after it to the eighth), you can pay it at once: from the day-end screen's Guild panel, which
@@ -394,7 +406,7 @@ of the game is the same. They're all Bram's family, so the story's lines ("your 
 |---|---|---|
 | Kit, the Ear | from the start | the game as it was: every strength, the drop, and (with tips on) Bram's lessons as each seller arrives |
 | Hesk, the Scale | paying the third week's due | a bad back: no hard shake and no drop. Every chest sits on his scale, and he knows what each kind weighs (coins 4 lb, metal 6, cloth 3, bottles 3, paper 1, jewelry 1); gilded iron weighs half what gold does and a bag of sand three times a bundle of papers, so the weight left over once the heard things are counted is what he couldn't hear, what's under a false bottom, or a fake weighing short |
-| Rosa, the Tongue | clearing the debt | everybody haggles with her (fixed-price sellers ask high and hear one offer instead; a crook still names his too-good price), but they know her: they open a tenth higher and come down a tenth less; an offer too low gets a second try; a seller who walks out on her doesn't come back that week |
+| Rosa, the Tongue | clearing the debt | everybody haggles with her (fixed-price sellers ask high and hear one offer instead; a crook still names his too-good price), but they know her: they open a twentieth higher and come down a twentieth less; an offer too low gets a second try; a seller who walks out on her doesn't come back that week |
 | Isolde, the Collection | opening the vault | a two-place shelf from the stall on; visitors pay 1g per exhibition point every night (not more in a grander shop: that version cleared days early); her collection can't be pawned, so a short night can only take her curios |
 
 Every new judgment follows a rule people know: things weigh what they weigh, and gold is heavier than iron (the old
@@ -413,16 +425,17 @@ Terms are rules that hold every time, not hidden rolls:
 |---|---|
 | 1 | Bram's stretched thin: his stash has one dip fewer, his word one time fewer |
 | 2 | Fussy sellers: everyone minds a drop (price up by half) |
-| 3 | Hurried: every seller gives you 20 seconds |
-| 4 | Sharp sellers: everyone asks, and takes, a twentieth more |
-| 5 | Forgers: one coin in twenty is a gilded slug, whoever brings it |
-| 6 | The Guild's interest: every due a tenth higher |
-| 7 | Lean start: half the starting gold |
-| 8 | Thin crowds: one customer fewer every day at the roadside stall |
+| 3 | Forgers: one coin in twenty is a gilded slug, whoever brings it |
+| 4 | Lean start: half the starting gold |
+| 5 | Thin crowds: one customer fewer every day at the roadside stall |
+| 6 | Hurried: every seller gives you 20 seconds |
+| 7 | The Guild's interest: every due a tenth higher |
+| 8 | Sharp sellers: everyone asks, and takes, a twentieth more |
 
 They're ordered mildest first by what each does on its own to the careful player with every talent (the sim's
-`Trial`, one term at a time): the stash and the word matter to people who get into trouble more than to the careful
-player, so they come first; a thin first week is the hardest, because the shop's growth compounds from it.
+`Trial`, one term at a time; v14's figures are in *Balance across a career*): the stash and the word matter to people
+who get into trouble more than to the careful player, so they come first; a thinner margin on every chest is the
+hardest, because the last weeks need every coin the shop's growth can compound.
 
 **Score and renown** (`Score`). Points for the Guild dues paid (10 each), the debt cleared (100) and every day to
 spare (5), the vault (100) or the map pieces held (10 each), renovations (25 each), the collection (2 per find) and
@@ -525,55 +538,51 @@ and the slip; a hard shake for cloth; listening past a clank; passing when they 
 
 ## Evidence (`godot --headless --path . -- --sim`, 300 runs per style, up to 12 weeks)
 
-Each style plays whole runs: buying chests, curios (a careful player's taste, keeping enough back for the Guild) and
-upgrades (keeping Bram's working purse), delivering commissions, paying the Guild (pawning, or Bram's word, when
-short), taking Bram's stash when a day starts nearly broke, and paying off the whole debt as soon as it can.
+Each style plays whole runs as Kit at level 0 with no talents: buying chests, curios (a careful player's taste,
+keeping enough back for the Guild) and upgrades (keeping Bram's working purse), delivering commissions, paying the
+Guild (pawning, or Bram's word, when short), taking Bram's stash when a day starts nearly broke, and paying off the
+whole debt as soon as it can. These are the perfect listeners; how real players get there is in *Balance across a
+career*, below.
 
 | Style | Still trading after each due, weeks 1-8 | Debt cleared | Vault | Foreclosed (median week) | Village | Town | Emporium |
 |---|---|---|---|---|---|---|---|
-| Pays their price, every chest | 100 95 74 33 10 5 1 0% | 0% | 0% | all (week 4) | day 7 | never | never |
-| One hard shake, keeps the seller's marks | 100 100 94 52 20 15 13 0% | 0% | 0% | all (week 5) | day 7 | never | never |
-| Every strength, drops when safe | 100 100 100 96 86 80 78 37% | 37% | 37% | all (week 8) | day 3 | day 10 | day 19 |
-| + Witchlight and Magnet | 100 100 100 96 87 81 79 58% | 58% | 58% | all (week 10) | day 3 | day 10 | day 19 |
-| + keeps grand things | 100 100 100 96 78 64 63 59% | 59% | 59% | all (week 10) | day 3 | day 12 | day 23 |
+| Pays their price, every chest | 100 95 77 45 16 7 3 0% | 0% | 0% | all (week 4) | day 7 | never | never |
+| One hard shake, keeps the seller's marks | 100 100 95 74 38 22 17 0% | 0% | 0% | all (week 5) | day 7 | never | never |
+| Every strength, drops when safe | 100 100 100 100 95 90 87 6% | 6% | 6% | all (week 8) | day 3 | day 10 | day 17 |
+| + Witchlight and Magnet | 100 100 100 100 96 91 89 21% | 21% | 21% | all (week 8) | day 3 | day 10 | day 17 |
+| + keeps grand things | 100 100 100 100 94 82 81 44% | 44% | 44% | all (week 8) | day 3 | day 12 | day 21 |
 
-("Foreclosed" counts the Guild's endless interest after the debt, which catches every shop by week 12.)
+("Foreclosed" counts the Guild's endless interest after the debt, which catches every shop by week 10.)
 
-When the debt was cleared, as a share of all runs:
+With no talents, even a perfect ear clears the debt less than half the time, and only with an exhibition: what you
+keep draws the customers and the better chests that the last two weeks need. Week 8 is the wall (12,000g, twice
+week 7); a careful player who sells everything has a median 7,162g on that night, a collector 9,645g. Clearing a week
+early is now rare (3% of collectors; 18,000g in hand by week 7), and comes with talents and luck.
 
-| Style | Week 6 | Week 7 (paid off early) | Week 8 |
-|---|---|---|---|
-| Every strength, drops when safe | 0% | 8% | 29% |
-| + Witchlight and Magnet | 0% | 19% | 38% |
-| + keeps grand things | 1% | 24% | 35% |
+Week by week for the careful collector (gold on the Guild's night, before paying):
 
-Week by week for the careful player with both tools (gold on the Guild's night, before paying):
+| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Due | 40 | 100 | 200 | 500 | 1,300 | 2,800 | 6,000 | 12,000 | 18,000 | 27,000 |
+| Gold, 10th percentile | 81 | 178 | 319 | 611 | 746 | 767 | 6,011 | 5,366 | 10,528 | 6,613 |
+| Gold, median | 129 | 336 | 683 | 1,598 | 3,678 | 7,169 | 10,157 | 9,645 | 16,724 | 12,692 |
+| Paid | 100% | 100% | 100% | 100% | 94% | 87% | 99% | 39% | 49% | 0% |
+| At the Emporium | 0% | 0% | 5% | 39% | 66% | 79% | 91% | 92% | 99% | 100% |
 
-| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| Due | 40 | 100 | 300 | 800 | 1,400 | 2,400 | 3,800 | 7,000 | 10,500 | 15,750 | 23,600 |
-| Gold, 10th percentile | 81 | 199 | 464 | 644 | 688 | 2,117 | 4,214 | 3,878 | 11,317 | 6,085 | 4,257 |
-| Gold, median | 133 | 446 | 1,127 | 2,135 | 3,599 | 6,062 | 7,590 | 8,468 | 15,202 | 10,609 | 6,352 |
-| Paid | 100% | 100% | 100% | 96% | 91% | 93% | 98% | 71% | 95% | 23% | 0% |
-| At the Emporium | 0% | 1% | 18% | 52% | 70% | 83% | 90% | 90% | 99% | 100% | 100% |
+A careful collector fills about 21 commissions a run (some 7,200g), Bram vouches in a quarter of runs (usually week 5,
+for collectors who spent on cabinets), and his stash opens about once in two runs.
 
-The weeks that end runs are week 5 (shops still in the village when the due reaches 1,400) and week 8, the 7,000
-wall. A careful player fills about 22 commissions a run (some 8,400g), Bram vouches in about a quarter of runs
-(usually week 4), his stash opens about once in two runs, and endless lasts a week or two more. Careless play loses
-the shop in week 4 or 5.
-
-What curios and synergies are worth, to the careful player with both tools:
+What curios and synergies are worth, to the careful player with both tools who sells everything:
 
 | | Debt cleared | Median day cleared | Median gold on the night, week 4 / 6 / 8 |
 |---|---|---|---|
-| With both | 58% | 36 | 2,135 / 6,062 / 8,468 |
-| No curios | 39% | 37 | 1,840 / 5,183 / 6,928 |
-| No synergies | 41% | 37 | 2,076 / 5,288 / 6,601 |
-| Neither | 18% | 37 | 1,924 / 4,352 / 4,598 |
+| With both | 21% | 39 | 2,021 / 6,667 / 7,162 |
+| No curios | 3% | 40 | 1,745 / 5,484 / 4,914 |
+| No synergies | 4% | 40 | 1,787 / 5,637 / 5,295 |
+| Neither | 0% | 40 | 1,635 / 4,405 / 3,411 |
 
-They matter (a careful player who ignores them clears the debt less than a third as often), but they don't run the
-game: those who clear it with them do so about a day sooner, not weeks. Before v12 the same table read 69% with both
-and 0% with neither.
+On a steeper curve every edge matters more; they still don't add a share to sales, and those who clear with them do
+so on the eighth night, not weeks sooner.
 
 Surprises: a careful player sees 8% of things come out a step better than their chest and 0.6% two or more, worth 15%
 of what the chests held.
@@ -589,22 +598,72 @@ unpriced sewing), Wren, Mags and Brask pay a little blind:
 
 Every seller's lesson completes, played the careful way, with and without the tools of their shop.
 
-Bram's kin, played by the careful collector with both tools (150 runs each: debt cleared; median day cleared; mean
-score and renown a run, scored at the end of week 8 or when the shop was lost):
+## Balance across a career
 
-| | No talents, level 0 | All talents, level 0 | Level 2 | Level 4 | Level 6 | Level 8 |
+v13 gave runs a meta-progression; v14 sets the balance for a career, not a run. The goal, in the owner's words: no
+pressure before players have learned the puzzles, no easy win in the first few runs, a purse that keeps growing but not
+steeply enough for the middle and late dues, and judgment and talents together pushing the curve up until a run
+clears; then the challenge levels.
+
+**Learners.** The sim's careful player is a perfect listener. A learner (`Style.Skill`, 0 to 1) plays the same way
+with a learner's mistakes, each shrinking as skill grows: at skill 0 they skip each strength 40% of the time, count a
+pair as one half the time, believe a seller's claim a third of the time, forget the drop half the time (and drop
+glass a quarter of the time), forget the magnet, miss a glow or a boom on the slip, judge a chest's worth with a 45%
+spread either way, pick locks worse, and buy curios on a whim. Skill 0 is a first-timer who has had Bram's lessons:
+they know the rules but don't yet apply them every time.
+
+| Skill (Kit, level 0) | No talents: cleared, still trading after weeks 4 / 5 / 6 / 7 | Every talent |
+|---|---|---|
+| 0.15 (a first run) | 0%; 89 / 56 / 34 / 28%, lost in week 6 | 3% |
+| 0.5 | 5%; 95 / 77 / 54 / 47% | 15% |
+| 0.75 | 19%; 98 / 87 / 70 / 69% | 44% |
+| 1 (the careful collector) | 41%; 99 / 92 / 79 / 78% | 79% |
+
+**Careers.** Each simulated player starts at skill 0 to 0.3 and improves toward their own best (0.75 to 1) at their
+own pace (a tenth to three tenths of the way each run); every run is Kit's at the highest level open, scored at the
+end of week 8 or when the shop is lost, and its renown spent on the cheapest talent going. The pace of learning is a
+guess; what the sim shows is the shape (`--sim`, 40 players over 30 runs):
+
+| Run | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 12 | 16 | 20 | 24 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Skill | 0.15 | 0.29 | 0.41 | 0.50 | 0.57 | 0.63 | 0.68 | 0.71 | 0.74 | 0.77 | 0.80 | 0.84 | 0.86 | 0.87 |
+| Cleared | 0% | 0% | 3% | 5% | 5% | 13% | 28% | 23% | 38% | 28% | 28% | 50% | 35% | 18% |
+| Lost in week (median) | 5 | 6 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 |
+| Challenge level | 0 | 0 | 0 | 0 | 0 | 0.1 | 0.3 | 0.5 | 0.8 | 1.1 | 2.0 | 3.3 | 4.9 | 5.9 |
+| Talents (of 13) | 1.3 | 2.9 | 4.0 | 4.9 | 5.8 | 6.6 | 7.1 | 7.8 | 8.4 | 9.1 | 10.1 | 12.0 | 12.9 | 13 |
+| Renown | 139 | 161 | 185 | 223 | 215 | 228 | 286 | 283 | 356 | 351 | 388 | 564 | 573 | 559 |
+
+The first run gets through the first four weeks and loses in week 5 or 6 with a growing purse that wasn't growing
+fast enough; the next few get to the last week and lose there; the debt is first cleared around the eighth or ninth
+run (a quarter of players by run 7, half by 9, three quarters by 11), with about eight talents learned. Then the
+levels: level 1 around run 11, 2 around 13, 4 around 18, 6 around 26 (for three quarters of players by run 30); level 8
+is cleared by an eighth of them by run 30. The whole talent tree is learned around run 21, as the climb starts in
+earnest; renown keeps the score of how far a run got. A new talent comes after nearly every run early on.
+
+Getting there: v13's dues (40, 100, 300, 800, 1,400, 2,400, 3,800, 7,000) let the careful player with no talents
+clear 61% of the time and half of all careers clear by their fifth run, with a third of first-timers already short in
+week 3 (Bram's word then, his interest sinking them in week 4). Raising the late dues alone (to 10,000) made it harder
+without making it gentler; making week 7 heavy did nothing (anyone short in week 7 leans on Bram's word, and its
+interest lands on week 8). Lighter early dues with a heavier last week did both.
+
+**The challenge levels**, reordered for the new curve by what each term does alone to the careful player with every
+talent (80% on the usual terms): Bram stretched thin (80%), fussy sellers (77%), forgers (77%), a lean start (73%),
+thin crowds at the stall (66%), a hurried town (65%), the Guild's interest (62%), sharp sellers (60%). All together,
+level by level: 80, 80, 77, 71, 61, 48, 35, 24, 11%. The first levels are an on-ramp for a careful player and bite a
+learner who still leans on Bram's stash and word and drops glass.
+
+**Bram's kin** on the new curve (the careful collector, 150 runs each; cleared %):
+
+| | No talents | All, level 0 | Level 2 | Level 4 | Level 6 | Level 8 |
 |---|---|---|---|---|---|---|
-| Kit | 57%, day 36, 324 | 84%, day 34, 442 | 81%, day 35, 641 renown | 65%, day 36, 719 | 56%, day 37, 829 | 26%, day 37, 652 |
-| Hesk | 56%, day 36, 323 | 82%, day 35, 432 | 82%, day 35, 646 | 71%, day 36, 766 | 63%, day 36, 880 | 37%, day 37, 748 |
-| Rosa | 62%, day 37, 348 | 89%, day 36, 452 | 85%, day 36, 655 | 63%, day 38, 724 | 41%, day 39, 746 | 19%, day 40, 597 |
-| Isolde | 61%, day 35, 346 | 88%, day 34, 455 | 82%, day 34, 650 | 71%, day 36, 781 | 51%, day 37, 796 | 26%, day 37, 634 |
+| Kit | 41% | 79% | 73% | 64% | 39% | 12% |
+| Hesk | 41% | 77% | 77% | 67% | 51% | 24% |
+| Rosa | 42% | 72% | 72% | 54% | 27% | 11% |
+| Isolde | 44% | 81% | 76% | 67% | 38% | 7% |
 
-The four are within a few points of each other on the usual terms (Rosa was 72% before sellers grew wary of her,
-Isolde 70% and three days early while her door money grew with the shop). A full talent tree adds about 25 points of
-clears and brings the median clear a day or two earlier, mostly by softening bad nights and widening Nim's counter;
-the challenge levels take it back down, to about a quarter at level 8, the wall. Renown a run peaks around levels 4
-to 6, so climbing pays. A careful run earns 320 to 450 renown on the usual terms, so the whole tree (5,600) takes a
-dozen or more runs; people who aren't perfect listeners will take longer.
+Rosa's wariness came down to a twentieth (at a tenth she cleared 26% on the new curve). At the top the four part ways:
+Hesk shrugs off two of the terms (he never drops, and his scale catches gilded slugs), Isolde's door money starts
+slower on a lean start at a thin stall.
 
 ## What was cut, and why
 
@@ -670,7 +729,7 @@ dozen or more runs; people who aren't perfect listeners will take longer.
 - Enchantment is now x2 instead of x4: still exciting enough to hunt with the witchlight?
 - The shop saves at the start of each day only, and sellers don't remember you.
 - Three days at the stall before the first renovation: long enough to learn the three rules, or too long?
-- The sim's careful player is a perfect listener: real players will clear the debt less often. Is 7,000g in week 8
+- The sim's careful player is a perfect listener: real players will clear the debt less often. Is 12,000g in week 8
   a wall people want to climb again, or a cliff? Bram's word (once a run) and his stash (three times) are the safety
   nets; are they enough for a beginner, and too much for a good player?
 - Curios are chosen by a fixed taste in the sim: which ones do players actually pick, and do any feel useless (the
@@ -678,8 +737,11 @@ dozen or more runs; people who aren't perfect listeners will take longer.
 - Bram's kin: is Hesk's arithmetic (the scale against the slip) a puzzle or a chore? Does Rosa's haggling feel like
   her own game, with sellers asking her more? Does Isolde's door money make keeping things a real choice from the
   stall on?
-- Talents: a full tree lifts the careful player's clears from 57% to 84% and the median clear from day 36 to 34. Is
-  that the right reward for a dozen runs, or should the tree be a loadout (a few talents per run) instead?
+- Careers: the learner model's mistakes and its pace of learning are guesses. Playtest how many runs a first clear
+  takes (the sim says about eight or nine) and whether losing in week 8 several runs running feels like "nearly" or
+  like a wall. The talents lift the careful player from 41% to 79%; should the tree be a loadout instead?
+- With the steeper late dues, the exhibition matters: a careful player who sells everything clears 21%, one who keeps
+  grand things 44%. Is keeping things taught early enough (Bram's "keep" tip) for that to be fair?
 - Challenge levels 1 to 3 barely trouble the careful player (they bite people who use the stash and the drop); is
   that a gentle on-ramp or free renown?
 - The vault usually comes with clearing the debt for a careful player (the Hooded Woman's asks are met by volume at

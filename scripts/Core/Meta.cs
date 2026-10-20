@@ -38,7 +38,7 @@ public static class Characters
             new[]
             {
                 "Everybody haggles with Rosa: sellers who'd name a fixed price ask high and hear an offer instead.",
-                "They know her: they open a tenth higher and come down a tenth less. An offer too low gets a second try.",
+                "They know her: they open a twentieth higher and come down a twentieth less. An offer too low gets a second try.",
                 "But word gets round: a seller who walks out on her won't come back that week.",
             }, "Clear Bram's debt to unlock.", p => p.Cleared >= 1),
         new(Isolde, "Isolde", "The Collection", "Bram's niece by marriage, a lady who has never sold a thing she liked.",
@@ -118,12 +118,12 @@ public static class Challenges
     {
         new(Stretched, "Bram's stretched thin", "Bram's secret stash has one dip fewer, and his word is good one time fewer."),
         new(FussySellers, "Fussy sellers", "Every seller minds a drop, and puts the price up by half."),
-        new(Hurried, "Hurried", $"Every seller gives you {HurriedPatience:0} seconds."),
-        new(SharpSellers, "Sharp sellers", "Every seller asks a twentieth more, and takes a twentieth more."),
         new(Forgers, "Forgers", "One coin in twenty is a gilded slug, whoever brings it."),
-        new(Interest, "The Guild's interest", "Every week's due is a tenth higher."),
         new(LeanStart, "Lean start", "You start with half the gold."),
         new(ThinCrowds, "Thin crowds", "One customer fewer every day at the roadside stall."),
+        new(Hurried, "Hurried", $"Every seller gives you {HurriedPatience:0} seconds."),
+        new(Interest, "The Guild's interest", "Every week's due is a tenth higher."),
+        new(SharpSellers, "Sharp sellers", "Every seller asks a twentieth more, and takes a twentieth more."),
     };
 
     public static ChallengeDef Get(int level) => All[Math.Clamp(level, 1, Max) - 1];

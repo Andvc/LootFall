@@ -17,11 +17,12 @@ public static class Guild
     public const int Weeks = 8;
 
     /// <summary>
-    /// Each week's due: small while you learn the stall, then climbing with what a careful shop can earn on its own
-    /// judgment (no curio or synergy adds a share to what things sell for), with the last week the wall. A lucky run can
-    /// have all of it a week early, and pay it off.
+    /// Each week's due: small for the first four weeks, while you learn the stall and a growing purse is all you need,
+    /// then climbing faster than a learner's shop grows, with the last week the wall. A first run usually falls in the
+    /// middle weeks; better judgment and talents push that later, until the debt is cleared (the sim's careers: usually
+    /// around the eighth run). A lucky run can have all of it a week early, and pay it off.
     /// </summary>
-    static readonly int[] Dues = { 40, 100, 300, 800, 1400, 2400, 3800, 7000 };
+    static readonly int[] Dues = { 40, 100, 200, 500, 1300, 2800, 6000, 12000 };
 
     /// <summary>After the debt: each week half as much again, for as long as you last.</summary>
     const float EndlessGrowth = 1.5f;
@@ -47,10 +48,10 @@ public static class Guild
     {
         "Evening. The Guild's due, if you please.",
         "Week two. You're still here. Good: the Guild hates to waste a shop.",
-        "Three hundred. Your uncle never made it past week three, you know.",
+        "Two hundred. Your uncle never made it past week three, you know.",
         "I hear you've been buying up chests. The Guild notices things like that.",
         "My masters are curious about you. That's rarely good news.",
-        "Two thousand four hundred. The Guild is starting to take you seriously.",
+        "Two thousand eight hundred. The Guild is starting to take you seriously.",
         "One more week after this. Then the debt's paid. Unless you'd like to sell us the shop now?",
         "The last of it. Every coin, mind.",
     };

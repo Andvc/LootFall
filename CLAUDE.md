@@ -64,9 +64,13 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   each bend one rule, never reveal what's in a chest and never add a share to sale prices (nor do synergies: a few
   percent on every sale compounds into weeks; the sim's "what curios and synergies are worth" lines show it), and are
   priced as a share of the week's due (commons 1g on Nim's first visit); commissions (`Commissions.cs`) pay for delivering finds;
-  one event a week (`Events.cs`); the story's scenes and the map to the vault (`Story.cs`). The sim's report must show
-  careful players usually clear the debt (week 8 the real wall), careless ones foreclosed within a few weeks, and early
-  foreclosures rare for careful play. Anything added to the run goes in `SaveData` too; the profile across runs is
+  one event a week (`Events.cs`); the story's scenes and the map to the vault (`Story.cs`). Balance is set for a career, not
+  a run (the sim's "Learners" and "Careers" sections; learners are the careful player with mistakes that shrink as
+  `Style.Skill` goes from 0 to 1): a first-timer gets through the first weeks and loses in the middle ones; better
+  judgment and talents each push that later; only the two together clear the debt more often than not (the careful
+  player with no talents about half the time, with every talent about four in five); careers first clear around the
+  eighth run, open level 4 around the twentieth, and level 8 stays a wall. Careless styles (buying blind, one shake)
+  are foreclosed within a few weeks, and no early week sends careful players to Bram's word. Anything added to the run goes in `SaveData` too; the profile across runs is
   `Profile` (user://profile.json). Bram's stash (`GameState.Stash`, three times a run) tops up a day that starts
   nearly broke. Bram's working purse (`ShopTiers.Working`) is both the day-end advice (orange prices) and what
   `Strategy.Reserve` keeps, so the advice is what the sim's careful player does: tune them together. The whole debt

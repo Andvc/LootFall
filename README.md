@@ -4,11 +4,11 @@ A small game about the satisfaction of opening treasure chests. You inherit a ro
 chests and price them their own way: by what they heard, by weight, by the chest's colour, or by a dream. Shake each
 one yourself, gently, firmly and hard, find what they missed or misjudged, trade for it, and open it on the spot.
 Grow the stall into the finest shop in the kingdom, because it comes with Uncle Bram's old debt: every fifth evening
-the Grey Guild comes for a due that climbs from 40g to 7,000g in eight weeks. Pay them all (or the whole debt at once,
+the Grey Guild comes for a due that climbs from 40g to 12,000g in eight weeks. Pay them all (or the whole debt at once,
 the moment you have it) and the stall is free;
 find all four pieces of an old map on the way and King Aldric's lost vault opens on your counter.
 
-**Status:** Early Access (0.13): runs of eight weeks against the Guild's dues (then endless), with curios,
+**Status:** Early Access (0.14): runs of eight weeks against the Guild's dues (then endless), with curios,
 commissions, weekly events and a story; four of Bram's kin to play, eight challenge levels each, and a talent tree
 bought with the renown runs earn; saves, settings and a guided start. Pixel art from Pixel-boy's CC0 Superpowers asset packs and recorded sounds from
 Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam.
@@ -60,8 +60,10 @@ every run. New game asks who minds the stall:
 | Rosa, the Tongue | everybody haggles with her (though they open higher for her), and a lowball gets a second try; whoever walks out stays away that week (unlocked by clearing the debt) |
 | Isolde, the Collection | displays from the first day and visitors pay a coin a point every night, but her collection can't be pawned (unlocked by opening the vault) |
 
-Clearing the debt with someone opens their next challenge level: each adds one of the Guild's harsher terms (Bram's
-stretched thin, fussy sellers, a hurried town, sharp sellers, forgers, the Guild's interest, a lean start, thin crowds)
+The first weeks are gentle and a first run usually falls in the middle ones, with a purse that grew, just not fast
+enough; it takes a few runs of sharper judgment and a few talents to clear the debt. Clearing it with someone opens
+their next challenge level: each adds one of the Guild's harsher terms (Bram's
+stretched thin, fussy sellers, forgers, a lean start, thin crowds, a hurried town, the Guild's interest, sharp sellers)
 and a quarter more renown.
 
 Day one is guided: Uncle Bram, who's handing you the stall, brings in four customers with one lesson each. After

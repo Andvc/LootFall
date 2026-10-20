@@ -29,10 +29,10 @@ public static class Market
     public const float PhantomChance = 0.6f;
 
     /// <summary>
-    /// Hagglers who know they're dealing with Rosa open this much higher and come down this much less (without it she
-    /// cleared the debt 72% of the time against Kit's 57%).
+    /// Hagglers who know they're dealing with Rosa open this much higher and come down this much less (without it the
+    /// careful player cleared the debt 55% of the time as Rosa, against Kit's 44%).
     /// </summary>
-    public const float RosaWary = 1.1f;
+    public const float RosaWary = 1.05f;
 
     /// <summary>Angry sellers put the price up by this much.</summary>
     public const float AngerMarkup = 1.5f;
