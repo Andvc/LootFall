@@ -72,14 +72,14 @@ public partial class DuesPhase : Phase
                 HorizontalAlignment.Center, outline: 4).Place(0, 28, w, 20));
             _track.AddChild(box);
         }
-        // The map: Bram's piece and the Hooded Woman's three.
+        // The Aldric Key: Bram's shard and the Hooded Woman's three.
         if (State.Week < 2) return;
         float mx = 40 + 8 * (w + gap) + 12;
-        _track.AddChild(UiKit.MakeLabel(State.MapGiven ? "MAP: THE GUILD'S" : $"MAP {State.MapPieces}/{Story.Pieces}", 16, Palette.Magic)
+        _track.AddChild(UiKit.MakeLabel(State.MapGiven ? "KEY: THE GUILD'S" : $"KEY {State.MapPieces}/{Story.Pieces}", 16, Palette.Magic)
             .Place(mx, y - 2, 220, 20));
         for (int i = 0; i < Story.Pieces; i++)
         {
-            var piece = UiKit.MakeSprite("res://assets/sprites/items/icons/treasure_map.png", new Vector2(mx + 16 + i * 34, y + 36), 1);
+            var piece = UiKit.MakeSprite("res://assets/ui/key.png", new Vector2(mx + 16 + i * 34, y + 36), 1);
             if (i >= State.MapPieces) piece.Modulate = new Color(0.25f, 0.22f, 0.3f);
             _track.AddChild(piece);
         }
@@ -96,7 +96,7 @@ public partial class DuesPhase : Phase
         return node;
     }
 
-    /// <summary>The Guild's offer for the map: half tonight's due, and no vault.</summary>
+    /// <summary>The Guild's offer for the Key's shards: half tonight's due, and no Crown Chest.</summary>
     void ShowOffer()
     {
         _offerOpen = true;
@@ -104,13 +104,13 @@ public partial class DuesPhase : Phase
         _vane.Say(lines[0].Text + " " + lines[1].Text, Palette.Warn);
         var panel = Put(UiKit.MakePanel(Palette.Warn.Darkened(0.2f)).Place(PanelX, 180, PanelW, 260));
         panel.AddChild(UiKit.MakeLabel("THE GUILD'S OFFER", 24, Palette.Warn, HorizontalAlignment.Center, outline: 4).Place(0, 16, PanelW, 30));
-        panel.AddChild(UiKit.MakeLabel($"Hand over your {State.MapPieces} map piece{(State.MapPieces == 1 ? "" : "s")} and tonight's due is " +
-                                       $"halved, from {State.DueNow}g to {Money.Round(State.DueNow / 2f)}g. Without the map there's no vault.",
+        panel.AddChild(UiKit.MakeLabel($"Hand over your {State.MapPieces} shard{(State.MapPieces == 1 ? "" : "s")} of the Aldric Key and tonight's due is " +
+                                       $"halved, from {State.DueNow}g to {Money.Round(State.DueNow / 2f)}g. Without the Key there's no Crown Chest.",
             16, Palette.Text, HorizontalAlignment.Center).Wrapped().Place(40, 60, PanelW - 80, 60));
         panel.AddChild(UiKit.MakeLabel($"You have {State.Gold}g.", 16, State.Gold >= State.DueNow ? Palette.Good : Palette.Bad,
             HorizontalAlignment.Center).Place(0, 130, PanelW, 20));
-        panel.AddChild(UiKit.MakeButton("Give him the map", Palette.Warn, 16, () => AnswerOffer(true)).Place(80, 180, 280, 52));
-        panel.AddChild(UiKit.MakeButton("Keep the map", Palette.Gold, 16, () => AnswerOffer(false)).Place(PanelW - 360, 180, 280, 52));
+        panel.AddChild(UiKit.MakeButton("Give him the shards", Palette.Warn, 16, () => AnswerOffer(true)).Place(80, 180, 280, 52));
+        panel.AddChild(UiKit.MakeButton("Keep the shards", Palette.Gold, 16, () => AnswerOffer(false)).Place(PanelW - 360, 180, 280, 52));
         Game.Moment("21_offer", 0.6);
     }
 

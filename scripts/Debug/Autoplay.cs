@@ -192,8 +192,10 @@ public partial class Autoplay : Node
 
         // Every strength, but only gently and hard for an impatient seller, and never hard for one who'd mind.
         bool hurried = State.Impatient(visit.Seller) && !State.HasCurio("watch");
+        // A rotten chest: one short shake, well inside what it stands.
+        double seconds = visit.Seller.ShakeLimit > 0 ? Math.Min(ShakeSeconds, visit.Seller.ShakeLimit - 0.6) : hurried ? 1.2 : ShakeSeconds;
         foreach (var level in Strategy.Levels(visit, State))
-            if (!await Shake(counter, level, hurried ? 1.2 : ShakeSeconds)) return;
+            if (!await Shake(counter, level, seconds)) return;
         // A jingle or tinkle that goes quiet under the magnet is gilded iron: check at the strength it sounded at.
         var magnetLevels = Strategy.MagnetLevels(visit, counter.Hearing, State);
         if (magnetLevels.Length > 0)
@@ -220,8 +222,9 @@ public partial class Autoplay : Node
             _ledgerShown = true;
             counter.OpenLedger();
             await Wait(2.0);
-            for (int page = 1; page <= 3 && IsInstanceValid(counter); page++)
+            foreach (int page in new[] { 1, 4, 3 })
             {
+                if (!IsInstanceValid(counter)) break;
                 counter.LedgerPage(page);
                 Main.Instance.Moment($"02_ledger_{page}", 0.3);
                 await Wait(1.5);
@@ -278,7 +281,7 @@ public partial class Autoplay : Node
         switch (visit.Trade)
         {
             case Trade.Fixed:
-                if (worth > visit.Ask && State.Gold >= visit.Ask)
+                if (Strategy.WorthBuying(visit, worth, State, counter.Hearing) && State.Gold >= visit.Ask)
                 {
                     counter.Buy();
                     return;

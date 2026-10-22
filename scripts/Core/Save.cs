@@ -40,6 +40,10 @@ public sealed class SaveData
     public List<string> Found { get; set; } = new();
     public List<string> FoundEnchanted { get; set; } = new();
     public List<string> Tutored { get; set; } = new();
+
+    /// <summary>Places heard of, and each seller's stories checked: [told, true].</summary>
+    public List<string> Places { get; set; } = new();
+    public Dictionary<string, int[]> Stories { get; set; } = new();
     public List<string> ActiveSynergies { get; set; } = new();
     public List<SavedItem> Display { get; set; } = new();
 
@@ -207,7 +211,7 @@ public sealed class Profile
 
     /// <summary>A line for the title screen, or null before the first run.</summary>
     public string Summary => Runs == 0 ? null
-        : $"Best: week {BestWeek}   Debts cleared: {Cleared}{(FastestClear > 0 ? $" (fastest: day {FastestClear})" : "")}   Vaults opened: {Vaults}";
+        : $"Best: week {BestWeek}   Debts cleared: {Cleared}{(FastestClear > 0 ? $" (fastest: day {FastestClear})" : "")}   Crown Chests opened: {Vaults}";
 }
 
 /// <summary>Something on display, as it's saved.</summary>

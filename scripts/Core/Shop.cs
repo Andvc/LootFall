@@ -11,10 +11,10 @@ public static class ShopTiers
 
     public static string Name(int tier) => tier switch
     {
-        1 => "Roadside Stall",
-        2 => "Village Shop",
-        3 => "Town Shop",
-        _ => "The Emporium",
+        1 => "Bram's Stall",
+        2 => "Thornwick Market",
+        3 => "Crownhold",
+        _ => "The Royal Emporium",
     };
 
     /// <summary>Gold to keep for a day's chests at a shop of this tier: Bram's advice before spending on the shop.</summary>
@@ -41,6 +41,13 @@ public sealed class Purchase
     /// <summary>A curio whose luck improved things inside when you bought it, and how many.</summary>
     public string Luck { get; init; }
     public int Improved { get; init; }
+
+    /// <summary>What the seller claims of what's inside (an heirloom, the dearest thing), and what they pay you for it.</summary>
+    public Item Claimed { get; init; }
+    public int ClaimPays { get; init; }
+
+    /// <summary>Whether this thing is the seller's, not yours to sell.</summary>
+    public bool IsClaimed(Item item) => Claimed != null && item.Id == Claimed.Id;
 
     public Purchase(Visit visit, Appraisal slip, string luck = null, int improved = 0)
     {
@@ -112,6 +119,29 @@ public sealed partial class GameState
 
     /// <summary>Sellers whose first-visit lesson has been given.</summary>
     public HashSet<string> Tutored { get; } = new();
+
+    /// <summary>Places chests come from that you've heard of (a story told true, or a chest of theirs opened): the ledger's Places page.</summary>
+    public HashSet<string> Places { get; } = new();
+
+    /// <summary>Each seller's stories, checked against what came out of their chests: how many, and how many were true.</summary>
+    readonly Dictionary<string, (int Told, int True)> _stories = new();
+
+    public (int Told, int True) StoriesChecked(string seller) => _stories.GetValueOrDefault(seller);
+
+    /// <summary>A seller's told you where their chest came from: if it's true, that's a place you've heard of.</summary>
+    public void HeardStory(Visit visit)
+    {
+        if (visit.Origin != null && visit.ToldTruth && visit.Seller.Stories.ContainsKey(visit.Origin.Key)) Places.Add(visit.Origin.Key);
+    }
+
+    /// <summary>A chest's open: where it really came from, and whether its seller said so.</summary>
+    void CheckStory(Visit visit)
+    {
+        if (visit.Origin == null || visit.Seller == Story.VaultSeller) return;
+        Places.Add(visit.Origin.Key);
+        var (told, truths) = _stories.GetValueOrDefault(visit.Seller.Key);
+        _stories[visit.Seller.Key] = (told + 1, truths + (visit.ToldTruth ? 1 : 0));
+    }
 
     // The shop opens up a step at a time: renovations once the stall has earned its keep, a shelf to display things
     // with the village shop, synergies with the town shop, where people start to know you by what you collect.
@@ -278,6 +308,7 @@ public sealed partial class GameState
             UpgradesOpen = UpgradesOpen, MagicFound = MagicFound, PerfectStreak = PerfectStreak, BestStreak = BestStreak,
             Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
             FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
+            Places = Places.ToList(), Stories = _stories.ToDictionary(s => s.Key, s => new[] { s.Value.Told, s.Value.True }),
             Display = Display.Select(i => new SavedItem { Category = i.Category, Quality = i.Quality, Magic = i.Magic }).ToList(),
             WeeksPaid = WeeksPaid, Arrears = Arrears, GraceUsed = GraceUsed > 0, GraceCount = GraceUsed, BramPiece = BramPiece, StashUsed = StashUsed, ClearedDay = ClearedDay, CloverWeek = CloverWeek,
             CurioPaid = _curios.Select(key => _curioPaid.GetValueOrDefault(key)).ToList(),
@@ -333,6 +364,9 @@ public sealed partial class GameState
         state.Found.UnionWith(data.Found);
         state.FoundEnchanted.UnionWith(data.FoundEnchanted);
         state.Tutored.UnionWith(data.Tutored);
+        state.Places.UnionWith(data.Places.Where(key => Origins.All.Any(o => o.Key == key)));
+        foreach (var (seller, tally) in data.Stories)
+            if (tally.Length == 2) state._stories[seller] = (tally[0], tally[1]);
         state.ActiveSynergies.UnionWith(data.ActiveSynergies.Where(key => Synergies.All.Any(s => s.Key == key)));
         state.Display.AddRange(data.Display.Select(i => new Item(i.Category, i.Quality, i.Magic)));
         int kinds = state._acquired.GetLength(0), qualities = state._acquired.GetLength(1);
@@ -374,7 +408,8 @@ public sealed partial class GameState
         // day unless everyone else already has. A smithing name draws smiths and soldiers. With tips on, no more than
         // a few newcomers (each a lesson) a day: the rest of a new shop's crowd comes in over the next days. Anyone who
         // walked out on Rosa this week stays away, while there's anyone else.
-        var sellers = Sellers.All.Where(s => s.Tier <= Tier).ToArray();
+        // Some come in only some days (a delver between barrows, the King, the Maw).
+        var sellers = Sellers.All.Where(s => s.Tier <= Tier && (s.Visits >= 1 || Rng.NextFloat() < s.Visits)).ToArray();
         if (sellers.Count(s => !_snubbed.Contains(s.Key)) >= 2) sellers = sellers.Where(s => !_snubbed.Contains(s.Key)).ToArray();
         float smiths = Synergies.SmithVisits(Active("smith"));
         while (Queue.Count < CustomersPerDay)
@@ -426,10 +461,10 @@ public sealed partial class GameState
 
         // Tam names a price today, so the first lesson is only about listening; from tomorrow he asks you to name one.
         yield return Market.Price(rng, Sellers.Get("tam"), new Chest(new[] { new Item(Category.Coins, Rarity.Common) }), 1, 4, Trade.Fixed,
-            "Found it by the river. I didn't shake it, it might break! Is {price} okay?");
-        yield return Scripted("penn", 3, Category.Cloth);
-        yield return Scripted("hob", 7, Category.Coins, Category.Metal);
-        yield return Scripted("mags", 7, Category.Metal);
+            "Fished it out of the millpond this morning. I didn't shake it, it might break! Is {price} okay?");
+        yield return Scripted("penn", 3, Category.Garb);
+        yield return Scripted("hob", 7, Category.Coins, Category.Arms);
+        yield return Scripted("mags", 7, Category.Arms);
     }
 
     /// <summary>Calls in the next customer, if anyone is waiting.</summary>
@@ -454,7 +489,44 @@ public sealed partial class GameState
         var (luck, changed) = Luck(visit.Chest);
         Pity(visit.Chest);
         Steady(visit.Chest);
-        return new Purchase(visit, slip, luck, changed);
+        var (claimed, pays) = Claim(visit);
+        CheckStory(visit);
+        // The Maw's gaze: everyone still waiting today wants a little more.
+        if (visit.Seller.Gaze > 0)
+            foreach (var waiting in Queue) waiting.Raise(visit.Seller.Gaze);
+        return new Purchase(visit, slip, luck, changed) { Claimed = claimed, ClaimPays = pays };
+    }
+
+    /// <summary>
+    /// What the seller claims of what's inside, once it's yours: a knight's family arms (the best of them, for the fee
+    /// he named), or a devil's due (the dearest thing, for nothing).
+    /// </summary>
+    static (Item Item, int Pays) Claim(Visit visit)
+    {
+        var seller = visit.Seller;
+        if (seller.Heirloom is Category kind)
+        {
+            var best = visit.Chest.Everything.Where(i => i.Category == kind && !i.Fake).OrderByDescending(i => i.Value).FirstOrDefault();
+            return best == null ? (null, 0) : (best, visit.Fee);
+        }
+        if (seller.TakesDearest) return (visit.Chest.Everything.OrderByDescending(i => i.Value).FirstOrDefault(), 0);
+        return (null, 0);
+    }
+
+    /// <summary>
+    /// What the seller's terms come to once the chest is open (<paramref name="held"/>: what came out, as sold): a won
+    /// wager's share of the price back, or the King's game settled (a quarter back for a perfect read; a wrong one pays
+    /// what it truly held and a quarter more, as far as your purse goes). Added to (or taken from) your gold with the
+    /// chest's takings.
+    /// </summary>
+    public int Settle(Purchase purchase, bool perfect, int held)
+    {
+        var seller = purchase.Visit.Seller;
+        if (seller.Wager > 0) return perfect ? Money.Round(purchase.Paid * seller.Wager) : 0;
+        if (seller.SlipPrice)
+            return perfect ? Money.Round(purchase.Paid * Market.SlipRefund)
+                : -Math.Min(Gold + held, Math.Max(0, Money.Round(held * Market.SlipFine) - purchase.Paid));
+        return 0;
     }
 
     /// <summary>Notes a find in the collection and the journal. True the first time this thing turns up.</summary>

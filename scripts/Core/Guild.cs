@@ -4,8 +4,9 @@ using System.Linq;
 namespace LootFall.Core;
 
 /// <summary>
-/// The Grey Guild: moneylenders who lent Uncle Bram more than he could pay, and want it back. Their man, Mister Vane,
-/// comes for the week's due at the end of every fifth day, and each week's due is bigger than the last. Pay all eight
+/// The Gilded Guild: it licenses Keywrights and takes a weekly tithe "to keep the Gate" (and sends it through the Gate,
+/// to the Maw). Bram opened chests unlicensed for twenty years, and the back-tithe comes with the stall. Its Collector,
+/// Mister Vane, comes for the week's due at the end of every fifth day, and each week's due is bigger than the last. Pay all eight
 /// and Bram's debt is cleared; the Guild keeps coming after that, for whatever more it can squeeze (endless). Fall
 /// short and you can pawn what's on display and your curios; if that's still not enough, the Guild takes the shop.
 /// </summary>
@@ -46,21 +47,21 @@ public static class Guild
     /// <summary>What Vane says when he comes for a week's due, week by week (the last line repeats).</summary>
     static readonly string[] Arrivals =
     {
-        "Evening. The Guild's due, if you please.",
-        "Week two. You're still here. Good: the Guild hates to waste a shop.",
+        "Evening. The Guild's tithe, if you please. In gold.",
+        "Week two. You're still here. Good: the Guild hates to waste a Keywright.",
         "Two hundred. Your uncle never made it past week three, you know.",
-        "I hear you've been buying up chests. The Guild notices things like that.",
+        "I hear you've been opening a great many chests. The Guild approves. Keep opening.",
         "My masters are curious about you. That's rarely good news.",
-        "Two thousand eight hundred. The Guild is starting to take you seriously.",
-        "One more week after this. Then the debt's paid. Unless you'd like to sell us the shop now?",
-        "The last of it. Every coin, mind.",
+        "Two thousand eight hundred. The Guild is starting to take you seriously. So is its master.",
+        "One more week after this. Then the tithe's paid. Unless you'd like to sell us the shop now?",
+        "The last of it. Every coin, mind. Gold you can see.",
     };
 
     static readonly string[] Endless =
     {
         "Debts are funny things. They grow when you're not looking.",
-        "The Guild has decided you owe us for our patience.",
-        "Interest, you understand. Nothing personal.",
+        "The Gate is hungry this week. The Guild has decided you owe us for our patience.",
+        "Interest, you understand. Nothing personal. My master is very fond of interest.",
     };
 
     public static string Arrival(int week) => week <= Weeks ? Arrivals[Math.Min(week, Arrivals.Length) - 1] : Endless[(week - Weeks - 1) % Endless.Length];
@@ -74,5 +75,5 @@ public static class Guild
 
     public const string Short = "Short? Then the Guild will take what's on your shelves. What you've got, at our price.";
 
-    public const string Foreclosed = "Not enough. The shop belongs to the Guild now. Your uncle would be so disappointed.";
+    public const string Foreclosed = "Not enough. The Guild seals this shop, and your licence with it. Your uncle would be so disappointed.";
 }

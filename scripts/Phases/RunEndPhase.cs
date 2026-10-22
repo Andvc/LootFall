@@ -27,7 +27,7 @@ public partial class RunEndPhase : Phase
     {
         Add(UiKit.MakeShop(State.Tier, _cleared ? 0.55f : 0.25f));
         var color = _cleared ? Palette.Gold : Palette.Bad;
-        string title = _cleared ? (State.VaultOpened ? "THE VAULT IS YOURS" : "DEBT CLEARED") : "FORECLOSED";
+        string title = _cleared ? (State.VaultOpened ? "THE LOCKING HOLDS" : "DEBT CLEARED") : "FORECLOSED";
         var logo = Add(UiKit.MakeLabel(title, 64, color, HorizontalAlignment.Center, outline: 8).Place(0, 80, 1280, 80));
         logo.PivotOffset = new Vector2(640, 40);
         logo.Scale = Vector2.One * 1.3f;
@@ -35,10 +35,10 @@ public partial class RunEndPhase : Phase
         int early = State.ClearedWeek > 0 ? Guild.Weeks - State.ClearedWeek : 0;
         string paid = early > 0 ? $"Bram's debt is paid, {early} week{(early == 1 ? "" : "s")} early" : "Bram's debt is paid";
         string sub = _cleared
-            ? State.VaultOpened ? $"{paid}, and King Aldric's hoard sits on your counter."
-            : State.MapGiven ? $"{paid}. The Guild has the map; let them dig."
-            : State.Week < Guild.Weeks && State.MapPieces > 0 ? $"{paid}. Keep trading, and the map may still lead to the vault."
-            : $"{paid}. The vault will have to wait."
+            ? State.VaultOpened ? $"{paid}, the Crown Chest opened, and the Gate gone quiet."
+            : State.MapGiven ? $"{paid}. The Guild has the Key's shards; let them look for the Chest."
+            : State.Week < Guild.Weeks && State.MapPieces > 0 ? $"{paid}. Keep trading, and the Key may yet be whole."
+            : $"{paid}. The Crown Chest will have to wait."
             : State.DebtCleared ? $"Bram's debt was paid, but the Guild's interest caught up with you in week {State.Week}."
             : $"The Guild took the shop in week {State.Week}.";
         Add(UiKit.MakeLabel(sub, 24, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 168, 1280, 30));
@@ -52,7 +52,7 @@ public partial class RunEndPhase : Phase
             ("The chests brought in", $"{State.TotalEarned}g"),
             ("Gold in hand", $"{State.Gold}g"),
             ("Collection", $"{State.Found.Count} of {Collection.Size}"),
-            ("Map pieces", State.MapGiven ? "given to the Guild" : $"{State.MapPieces} of {Story.Pieces}"),
+            ("Key shards", State.MapGiven ? "given to the Guild" : $"{State.MapPieces} of {Story.Pieces}"),
             ("Curios", $"{State.CurioKeys.Count}"),
         };
         for (int i = 0; i < rows.Count; i++)
@@ -116,7 +116,7 @@ public partial class RunEndPhase : Phase
         if (_cleared && State.Week <= Guild.Weeks) news.Add("Keep trading and every week you keep the Guild paid adds to the score.");
         if (news.Count > 0) return string.Join("  ", news);
         return profile is { Runs: > 0 }
-            ? $"All runs: {profile.Runs} started, {profile.Cleared} debts cleared, {profile.Vaults} vaults opened, best week {profile.BestWeek}."
+            ? $"All runs: {profile.Runs} started, {profile.Cleared} debts cleared, {profile.Vaults} Crown Chests opened, best week {profile.BestWeek}."
             : "";
     }
 

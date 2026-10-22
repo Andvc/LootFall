@@ -5,8 +5,8 @@ using System.Threading;
 
 namespace LootFall.Core;
 
-/// <summary>What kind of thing it is. Each kind has one sound, the one you'd expect in real life.</summary>
-public enum Category { Coins, Metal, Cloth, Bottles, Paper, Jewels }
+/// <summary>What kind of thing it is: coin, arms, garb, potions, scrolls, gems. Each has one sound, the one you'd expect.</summary>
+public enum Category { Coins, Arms, Garb, Potions, Scrolls, Gems }
 
 /// <summary>How hard the chest is being shaken. Things only make a sound once the shake is strong enough to move them.</summary>
 public enum Shake { Still = 0, Gentle = 1, Firm = 2, Hard = 3 }
@@ -15,9 +15,10 @@ public enum Shake { Still = 0, Gentle = 1, Firm = 2, Hard = 3 }
 public enum Rarity { Common, Uncommon, Rare, Epic, Legendary }
 
 /// <summary>
-/// A kind of thing and its rules, which match everyday experience: light, hard things (coins, bottles, jewelry)
-/// rattle at the gentlest shake; heavy metal only moves when you shake firmly, and its clanking drowns out anything
-/// delicate; soft things (cloth, paper) only make a sound when you shake hard.
+/// A kind of thing and its rules, which match everyday experience: light, hard things (coin, potions, gems) rattle at
+/// the gentlest shake; arms and armour only move when you shake firmly, and their clanking drowns out anything
+/// delicate; soft things (garb, scrolls) only make a sound when you shake hard. The Locking's ward lets sound through
+/// and nothing else (see docs/world.md).
 /// </summary>
 /// <param name="StirsAt">The gentlest shake that makes it move and sound.</param>
 /// <param name="Delicate">Quiet enough that clanking drowns it out.</param>
@@ -103,27 +104,27 @@ public static class Categories
 
     public static readonly CategoryDef[] All =
     {
-        new(Category.Coins, "Coins", "jingle", "jingle", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, 12, 1,
-            new[] { "Pouch of Copper", "Silver Crowns", "Gold Doubloons", "Royal Gold", "Dragon's Hoard" },
-            new[] { "copper_pouch", "silver_crowns", "gold_doubloons", "royal_gold", "dragon_hoard" },
-            "Gilded Slugs", "gilded_slugs"),
-        new(Category.Metal, "Metal", "clank", "clank", 1f, Shake.Firm, Delicate: false, Loud: true, Iron: true, Fragile: false, 5, 1,
-            new[] { "Rusty Knife", "Soldier's Helm", "Steel Sword", "Knight's Gauntlet", "Royal Rapier" },
-            new[] { "rusty_knife", "soldiers_helm", "steel_sword", "knights_gauntlet", "royal_rapier" }),
-        new(Category.Cloth, "Cloth", "flump", "flump", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, 6, 1,
-            new[] { "Moth-Eaten Cloak", "Wool Coat", "Silk Cloak", "Golden Mantle", "Royal Robe" },
-            new[] { "moth_eaten_cloak", "wool_coat", "silk_cloak", "golden_mantle", "royal_robe" }),
-        new(Category.Bottles, "Bottles", "slosh", "slosh", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: true, 8, 2,
-            new[] { "Bottle of Ale", "Jar of Honey", "Vintage Brandy", "Elven Wine", "Ambrosia" },
-            new[] { "ale_bottle", "honey_jar", "vintage_brandy", "elven_wine", "ambrosia" }),
-        new(Category.Paper, "Paper", "rustle", "rustle", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, 5, 2,
-            new[] { "Bundle of Letters", "Merchant's Ledger", "Treasure Map", "Illuminated Codex", "Royal Charter" },
-            new[] { "love_letters", "merchants_ledger", "treasure_map", "illuminated_codex", "royal_charter" },
-            "Bag of Sand", "sand_bag", FakeIron: false, FakeStirsAt: Shake.Gentle),
-        new(Category.Jewels, "Jewelry", "tinkle", "tinkle", 1.1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, 20, 3,
-            new[] { "Brass Ring", "Silver Locket", "Gold Ring", "Sunfire Diamond", "Jeweled Chalice" },
-            new[] { "brass_ring", "silver_locket", "gold_ring", "sunfire_diamond", "jeweled_chalice" },
-            "Paste Diamond", "paste_diamond"),
+        new(Category.Coins, "Coin", "jingle", "jingle", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, 12, 1,
+            new[] { "Copper Pennies", "Silver Marks", "Gold Crowns", "Old Sovereigns", "Dragon Gold" },
+            new[] { "copper_pennies", "silver_marks", "gold_crowns", "old_sovereigns", "dragon_gold" },
+            "Demon Gold", "demon_gold"),
+        new(Category.Arms, "Arms", "clank", "clank", 1f, Shake.Firm, Delicate: false, Loud: true, Iron: true, Fragile: false, 5, 1,
+            new[] { "Rusty Dagger", "Soldier's Helm", "Steel Longsword", "Knight's Gauntlet", "Runeblade" },
+            new[] { "rusty_dagger", "soldiers_helm", "steel_longsword", "knights_gauntlet", "runeblade" }),
+        new(Category.Garb, "Garb", "flump", "flump", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, 6, 1,
+            new[] { "Moth-Eaten Cloak", "Hunter's Coat", "Silk Robe", "Archmage's Mantle", "Royal Ermine" },
+            new[] { "moth_eaten_cloak", "hunters_coat", "silk_robe", "archmages_mantle", "royal_ermine" }),
+        new(Category.Potions, "Potions", "slosh", "slosh", 1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: true, 8, 2,
+            new[] { "Swamp Tonic", "Healing Draught", "Elixir of Vigour", "Phoenix Tears", "Ambrosia" },
+            new[] { "swamp_tonic", "healing_draught", "elixir_of_vigour", "phoenix_tears", "ambrosia" }),
+        new(Category.Scrolls, "Scrolls", "rustle", "rustle", 1f, Shake.Hard, Delicate: false, Loud: false, Iron: false, Fragile: false, 5, 2,
+            new[] { "Tattered Map", "Spell Scroll", "Bestiary", "Grimoire", "Locking Codex" },
+            new[] { "tattered_map", "spell_scroll", "bestiary", "grimoire", "codex_of_the_locking" },
+            "Scroll Case of Sand", "sand_case", FakeIron: false, FakeStirsAt: Shake.Gentle),
+        new(Category.Gems, "Gems", "tinkle", "tinkle", 1.1f, Shake.Gentle, Delicate: true, Loud: false, Iron: false, Fragile: false, 20, 3,
+            new[] { "Brass Ring", "Silver Amulet", "Ruby Ring", "Starstone", "Dragon's Eye" },
+            new[] { "brass_ring", "silver_amulet", "ruby_ring", "starstone", "dragons_eye" },
+            "Paste Gem", "paste_gem"),
     };
 
     public static CategoryDef Get(Category category) => All[(int)category];
@@ -165,14 +166,14 @@ public static class Categories
     /// <summary>Kinds of things that turn up at a shop (or seller) tier.</summary>
     public static IEnumerable<CategoryDef> UpTo(int tier) => All.Where(c => c.Tier <= tier);
 
-    /// <summary>How heavy one is: metal and coins weigh a lot, paper and jewelry next to nothing.</summary>
+    /// <summary>How heavy one is: arms and coin weigh a lot, scrolls and gems next to nothing.</summary>
     public static float Heft(Category category) => category switch
     {
-        Category.Metal => 3f,
+        Category.Arms => 3f,
         Category.Coins => 2f,
-        Category.Bottles => 1.5f,
-        Category.Cloth => 1.5f,
-        Category.Paper => 0.5f,
+        Category.Potions => 1.5f,
+        Category.Garb => 1.5f,
+        Category.Scrolls => 0.5f,
         _ => 0.3f,
     };
 

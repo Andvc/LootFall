@@ -17,7 +17,7 @@ public enum CommissionKind
 /// <summary>
 /// Someone wants something, and will pay well over its price for it: a regular's commission, good until the Guild's
 /// next visit. Anything that comes out of a chest you open can go to it instead of being sold. The Hooded Woman's pay
-/// in map pieces, and she asks again the next week if you miss one.
+/// in shards of the Aldric Key, and she asks again the next week if you miss one.
 /// </summary>
 public sealed class Commission
 {
@@ -33,7 +33,7 @@ public sealed class Commission
     /// <summary>What it pays, before any curio.</summary>
     public int Reward { get; init; }
 
-    /// <summary>The Hooded Woman's: it pays a map piece as well.</summary>
+    /// <summary>The Hooded Woman's: it pays a shard of the Aldric Key as well.</summary>
     public bool Story { get; init; }
 
     public bool Done => Delivered >= Needed;
@@ -46,7 +46,7 @@ public sealed class Commission
         ? item.Magic
         : item.Category == Category && item.Quality >= Quality - leeway);
 
-    /// <summary>What's wanted, in a few words: "a rare or better metal thing", "3 cloth, uncommon or better".</summary>
+    /// <summary>What's wanted, in a few words: "arms, rare or better", "3 garb, uncommon or better".</summary>
     public string What => Kind switch
     {
         CommissionKind.Enchanted => "anything enchanted",
@@ -54,22 +54,22 @@ public sealed class Commission
         _ => $"{Categories.Get(Category).Name.ToLowerInvariant()}, {Better}",
     };
 
-    /// <summary>What's wanted, as someone would say it: "a piece of jewelry (epic or better)".</summary>
+    /// <summary>What's wanted, as someone would say it: "a gem (epic or better)".</summary>
     public string Phrase => Kind == CommissionKind.Enchanted ? "something enchanted" : $"{Noun(Category, Needed)} ({Better})";
 
     static string Noun(Category kind, int n) => (kind, n > 1) switch
     {
-        (Category.Coins, _) => n > 1 ? $"{Sellers.Number(n)} purses of coins" : "a purse of coins",
-        (Category.Metal, false) => "a piece of metalwork",
-        (Category.Cloth, false) => "a piece of cloth",
-        (Category.Bottles, false) => "a bottle",
-        (Category.Paper, false) => "some old papers",
-        (Category.Jewels, false) => "a piece of jewelry",
-        (Category.Metal, true) => $"{Sellers.Number(n)} pieces of metalwork",
-        (Category.Cloth, true) => $"{Sellers.Number(n)} pieces of cloth",
-        (Category.Bottles, true) => $"{Sellers.Number(n)} bottles",
-        (Category.Paper, true) => $"{Sellers.Number(n)} lots of papers",
-        _ => $"{Sellers.Number(n)} pieces of jewelry",
+        (Category.Coins, _) => n > 1 ? $"{Sellers.Number(n)} purses of coin" : "a purse of coin",
+        (Category.Arms, false) => "a blade or a bit of armour",
+        (Category.Garb, false) => "a cloak or a coat",
+        (Category.Potions, false) => "a potion",
+        (Category.Scrolls, false) => "a scroll",
+        (Category.Gems, false) => "a gem",
+        (Category.Arms, true) => $"{Sellers.Number(n)} pieces of arms",
+        (Category.Garb, true) => $"{Sellers.Number(n)} cloaks or coats",
+        (Category.Potions, true) => $"{Sellers.Number(n)} potions",
+        (Category.Scrolls, true) => $"{Sellers.Number(n)} scrolls",
+        _ => $"{Sellers.Number(n)} gems",
     };
 
     string Better => Quality == Rarity.Common ? "any quality" : Quality == Rarity.Legendary ? "legendary" : $"{Categories.QualityName(Quality)} or better";
@@ -142,16 +142,16 @@ public static class Patrons
     }
 
     /// <summary>
-    /// The Hooded Woman's request for her next map piece: papers first (she's after the old king's records), then a
-    /// ring, then something enchanted, a step better than the regulars ask for; something simpler if your shop is small.
+    /// The Hooded Woman's request for her next shard of the Aldric Key: scrolls first (the Keyhold's records of where
+    /// it hid them), then a gem (the Key was set with them), then something enchanted, a step better than the regulars ask for; something simpler if your shop is small.
     /// </summary>
     public static Commission Hood(int piece, int tier)
     {
         var (kind, enchanted) = piece switch
         {
-            1 => (tier >= 2 ? Category.Paper : Category.Coins, false),
-            2 => (tier >= 3 ? Category.Jewels : Category.Coins, false),
-            _ => (Category.Metal, tier >= 3),
+            1 => (tier >= 2 ? Category.Scrolls : Category.Coins, false),
+            2 => (tier >= 3 ? Category.Gems : Category.Coins, false),
+            _ => (Category.Arms, tier >= 3),
         };
         // A step better than the regulars ask, but never legendary: with surprises as rare as they are, that's luck, not an eye.
         var quality = (Rarity)Math.Min((int)Rarity.Epic, (int)Asked(tier) + 1);

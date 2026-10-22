@@ -20,26 +20,26 @@ public static class SoundSets
             new("A: a purse of coins", "jingle"), new("B: clinking chips", "jingle_chips"), new("C: a handful of chips", "jingle_handle"),
             new("D: bright coins (synth)", "jingle_bright"),
         },
-        [Category.Metal] = new Option[]
+        [Category.Arms] = new Option[]
         {
             new("A: tin", "clank"), new("B: light metal", "clank_light"), new("C: pots and pans", "clank_pot"),
             new("D: metal plate", "clank_plate"),
         },
-        [Category.Cloth] = new Option[]
+        [Category.Garb] = new Option[]
         {
             new("A: cloth", "flump"), new("B: soft thump", "flump_soft"), new("C: heavy thump", "flump_heavy"),
             new("D: leather", "flump_leather"),
         },
-        [Category.Bottles] = new Option[]
+        [Category.Potions] = new Option[]
         {
             new("A: slosh (synth)", "slosh"), new("B: glug (synth)", "slosh_glug"), new("C: glass clink", "slosh_clink"),
         },
-        [Category.Paper] = new Option[]
+        [Category.Scrolls] = new Option[]
         {
             new("A: shoved cards", "rustle"), new("B: book pages", "rustle_book"), new("C: sliding cards", "rustle_slide"),
             new("D: shuffled cards", "rustle_shuffle"),
         },
-        [Category.Jewels] = new Option[]
+        [Category.Gems] = new Option[]
         {
             new("A: glass tinkle", "tinkle"), new("B: other glass", "tinkle_glass"), new("C: little bells (synth)", "tinkle_bell"),
             new("D: light plate", "tinkle_plate"),

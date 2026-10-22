@@ -13,7 +13,7 @@ public static class Fx
 
     /// <summary>A hard 2x2 square: scaled up, particles read as chunky pixels rather than soft dots.</summary>
     public static Texture2D Pixel => _pixel ??= MakeSquare(2);
-    public static Texture2D Coin => _coin ??= GD.Load<Texture2D>("res://assets/sprites/items/gold_doubloons.png");
+    public static Texture2D Coin => _coin ??= GD.Load<Texture2D>("res://assets/sprites/items/gold_crowns.png");
 
     public static CanvasItemMaterial Additive() => new() { BlendMode = CanvasItemMaterial.BlendModeEnum.Add };
 

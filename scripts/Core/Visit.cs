@@ -23,8 +23,14 @@ public sealed class Visit
     /// <summary>The kinds of things the seller says are inside (what they heard, or what they packed).</summary>
     public IReadOnlyList<Category> Claim { get; }
 
-    /// <summary>The seller swears there's a false bottom.</summary>
-    public bool ClaimsHidden => Seller.ClaimsHidden;
+    /// <summary>Where the chest really came from (null for the vault and the Stranger).</summary>
+    public OriginDef Origin { get; init; }
+
+    /// <summary>Whether their story told the truth about where it came from.</summary>
+    public bool ToldTruth { get; init; } = true;
+
+    /// <summary>What an heirloom-hunter pays for the best thing of theirs inside (0 if they don't).</summary>
+    public int Fee { get; init; }
 
     public Trade Trade { get; }
 
@@ -113,6 +119,35 @@ public sealed class Visit
     /// <summary>They ran out of patience and took their chest home.</summary>
     public string TimeUp(Random rng) => Leave(rng).Line;
 
+    readonly HashSet<Shake> _shook = new();
+
+    /// <summary>
+    /// You've tried another strength. A seller who charges for shaking puts the price up for every strength after the
+    /// first. Returns what they say about it (null if the price didn't change).
+    /// </summary>
+    public string Shook(Shake level, Random rng)
+    {
+        if (Seller.ShakeFee <= 0 || !Deciding || level == Shake.Still || !_shook.Add(level) || _shook.Count < 2) return null;
+        Raise(1 + Seller.ShakeFee);
+        return rng.PickOne(Seller.PriceUp).Replace("{price}", $"{Price}g");
+    }
+
+    /// <summary>The King's game: the price is what your slip says it holds.</summary>
+    public void SetSlipPrice(int worth)
+    {
+        if (!Seller.SlipPrice || !Deciding) return;
+        Ask = Math.Max(1, worth);
+        Floor = Ask;
+    }
+
+    /// <summary>Puts the price up (the Maw's gaze, a goblin's fee).</summary>
+    public void Raise(float factor)
+    {
+        if (!Deciding) return;
+        if (Ask > 0) Ask = Money.Round(Ask * factor);
+        Floor = Money.Round(Floor * factor);
+    }
+
     /// <summary>Doing what they asked you not to: up goes the price, once.</summary>
     public string Anger(Random rng)
     {
@@ -132,74 +167,73 @@ public sealed class Visit
 
     /// <summary>
     /// Why this chest was a good or bad deal, in a sentence or two, in terms of the seller's habit: what they missed,
-    /// made up, misjudged or faked, and what nobody could have heard.
+    /// misjudged or faked, what nobody could have heard, and whether their story about where it came from was true.
     /// </summary>
     public string Explain()
     {
-        if (Seller == Story.VaultSeller) return "King Aldric's own hoard, sealed since the war. Every bit of it is yours.";
+        if (Seller == Story.VaultSeller) return "King Aldric's own chest, sealed since the Locking. The Gate's gone quiet. Every bit of it is yours.";
         string name = Seller.Short;
         var lines = new List<string>();
+        if (Origin != null && !ToldTruth) lines.Add($"{Capital(name)}'s story was a tall one: it came from {Origin.Name}.");
         if (Chest.Items.Count == 0 && Chest.Hidden == null)
-            return "Empty! Nothing rattled because there was nothing there.";
-
+        {
+            lines.Add("Empty! Nothing rattled because there was nothing there.");
+            return string.Join(" ", lines);
+        }
         var gilded = Chest.Items.Where(i => i.Fake && i.Def.FakeIron).ToList();
         var sand = Chest.Items.Where(i => i.Fake && !i.Def.FakeIron).ToList();
         if (gilded.Count > 0)
-            lines.Add($"{Join(gilded.Select(i => i.Name))}: gilded iron. A magnet would have silenced {(gilded.Count == 1 ? "it" : "them")}.");
+            lines.Add($"{Join(gilded.Select(i => i.Name))}: gilded iron from the Maw's hoard. A lodestone would have silenced {(gilded.Count == 1 ? "it" : "them")}.");
         else if (Seller.Judge == Judgment.Crook)
-            lines.Add($"All genuine this time, and {name} sold it for half.");
+            lines.Add($"All genuine this time, and {name} sold it cheap.");
         if (sand.Count > 0)
-            lines.Add($"The {(sand.Count == 1 ? "rustle was" : "rustles were")} sand: it pours at a gentle shake, where paper never rustles.");
-
+            lines.Add($"The {(sand.Count == 1 ? "rustle was" : "rustles were")} sand: it pours at a gentle shake, where parchment never rustles.");
         switch (Seller.Judge)
         {
             case Judgment.Counter:
-                lines.Add($"{name} charged the same for every rattle she heard: {Claim.Count} of them, " +
-                          $"whatever they were.");
+                lines.Add($"{Capital(name)} charged the same for every rattle she heard: {Claim.Count} of them, whatever they were.");
                 break;
             case Judgment.Weight:
             {
                 var heavy = Chest.Items.Where(i => Categories.Heft(i.Category) >= 2).ToList();
                 var light = Chest.Items.Where(i => Categories.Heft(i.Category) <= 0.5f).ToList();
-                if (heavy.Count > 0) lines.Add($"{name} went by weight: the {Join(heavy.Select(i => i.Word))} made it heavy.");
+                if (heavy.Count > 0) lines.Add($"{Capital(name)} went by weight: the {Join(heavy.Select(i => i.Word))} made it heavy.");
                 if (light.Count > 0) lines.Add($"The {Join(light.Select(i => i.Word))} weighed next to nothing to {name}.");
                 break;
             }
+            case Judgment.Colour when Seller.Gaze > 0:
+                lines.Add($"One coin for a {Categories.ChestSkin(Chest.Quality)} chest. The price comes later, from everyone after.");
+                break;
             case Judgment.Colour:
-                lines.Add($"{name} priced it as an ordinary {Categories.ChestSkin(Chest.Quality)} chest" +
+                lines.Add($"{Capital(name)} priced it as an ordinary {Categories.ChestSkin(Chest.Quality)} chest" +
                           (Seller.SensesMagic ? ", and felt for magic." : ", without looking inside."));
                 break;
             case Judgment.Dreamer:
-                lines.Add($"{name}'s price came from a dream. Only the chest could tell you what it was worth.");
+                lines.Add($"{Capital(name)}'s price came from a dream. Only the chest could tell you what it was worth.");
                 break;
             case Judgment.MagicSense:
                 lines.Add(Chest.Items.Any(i => i.Magic)
-                    ? $"{name} felt the magic and wanted its price; the rest she couldn't tell."
-                    : $"{name} felt no magic, so she took what you offered.");
+                    ? $"{Capital(name)} felt the magic and wanted its price; the rest she couldn't tell."
+                    : $"{Capital(name)} felt no magic, so she took what you offered.");
                 break;
             case Judgment.Jeweller:
-                lines.Add($"{name} priced her jewelry at what she paid for it; everything else came free.");
+                lines.Add($"{Capital(name)} priced her gems at what she paid for them; everything else came free.");
                 break;
             case Judgment.Miner:
             {
-                var jewels = Chest.Get(Category.Jewels);
-                if (jewels != null && Claim.Contains(Category.Jewels)) lines.Add($"{name} priced the {jewels.Name} like a diamond fit for a crown.");
-                var junk = Chest.Items.Where(i => Claim.Contains(i.Category) && i.Category is not (Category.Metal or Category.Jewels)).ToList();
+                var gems = Chest.Get(Category.Gems);
+                if (gems != null && Claim.Contains(Category.Gems)) lines.Add($"{Capital(name)} priced the {gems.Name} like a diamond fit for a crown.");
+                var junk = Chest.Items.Where(i => Claim.Contains(i.Category) && i.Category is not (Category.Arms or Category.Gems)).ToList();
                 if (junk.Count > 0) lines.Add($"He priced the {Join(junk.Select(i => i.Word))} at half.");
                 break;
             }
+            case Judgment.Clueless when Seller.SlipPrice:
+                lines.Add($"{Capital(name)} let your slip set the price.");
+                break;
             case Judgment.Clueless:
-                lines.Add($"{name} had no idea what was inside.");
+                lines.Add($"{Capital(name)} had no idea what was inside.");
                 break;
         }
-
-        var phantoms = Claim.Where(c => !Chest.Has(c)).ToList();
-        if (phantoms.Count > 0)
-        {
-            string kind = Categories.Get(phantoms[0]).Name.ToLowerInvariant();
-            lines.Add($"{name} made up the {Categories.Get(phantoms[0]).Word}: there {(kind.EndsWith('s') ? "were" : "was")} no {kind}.");
-        }
-
         // What a listener couldn't hear, and why; and what they heard but never counted.
         if (Seller.Judge is Judgment.Ear or Judgment.Counter or Judgment.Miner)
         {
@@ -209,28 +243,27 @@ public sealed class Visit
             {
                 string words = Join(unheard.Select(i => i.Word).Distinct());
                 string why = unheard.All(i => i.Def.Delicate && Chest.Clanks(Seller.Shakes)) ? $"The clank drowned out the {words} for {name}"
-                    : unheard.All(i => i.StirsAt > Seller.Shakes) ? $"{name} didn't shake hard enough to stir the {words}"
-                    : $"{name} shook {Categories.Adverb(Seller.Shakes)} and missed the {words}";
+                    : unheard.All(i => i.StirsAt > Seller.Shakes) ? $"{Capital(name)} didn't shake hard enough to stir the {words}"
+                    : $"{Capital(name)} shook {Categories.Adverb(Seller.Shakes)} and missed the {words}";
                 lines.Add($"{why}: {Join(unheard.Select(i => i.Name))}, unpriced.");
             }
             if (!Seller.Counts)
                 foreach (var group in noticed.Where(i => !i.Fake).GroupBy(i => i.Category).Where(g => g.Count() > 1))
-                    lines.Add($"{name} heard the {group.First().Word} but never counted: {Sellers.Number(group.Count())} for the price of one.");
+                    lines.Add($"{Capital(name)} heard the {group.First().Word} but never counted: {Sellers.Number(group.Count())} for the price of one.");
         }
-
-        if (Seller.ClaimsHidden)
-            lines.Add(Chest.Hidden != null ? "The false bottom was real." : $"There was no false bottom: {name} charged for one anyway.");
-        else if (Chest.Hidden != null)
+        if (Chest.Hidden != null)
             lines.Add($"A false bottom nobody knew about: {Chest.Hidden.Name}.");
         var magic = Chest.Everything.Where(i => i.Magic).ToList();
         if (magic.Count > 0 && !Seller.SensesMagic)
             lines.Add($"Nobody can hear enchantment: the {Join(magic.Select(i => i.Name))} went for the price of plain goods.");
         if (lines.Count == 0)
             lines.Add(Trade == Trade.Fixed
-                ? $"{name} heard everything, and always asks a bit more than it's worth."
-                : $"{name} heard everything. The deal was in the price you agreed.");
+                ? $"{Capital(name)} heard everything, and always asks a bit more than it's worth."
+                : $"{Capital(name)} heard everything. The deal was in the price you agreed.");
         return string.Join(" ", lines);
     }
+
+    static string Capital(string word) => char.ToUpperInvariant(word[0]) + word[1..];
 
     static string Join(IEnumerable<string> parts) => Sellers.Join(parts.ToList());
 }

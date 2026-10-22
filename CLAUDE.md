@@ -23,31 +23,36 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
    deliveries, and quits when a run ends. With tips
    on, every seller's first visit is a lesson, so a guided run at a tier shows those lessons; the bot logs any lesson
    it couldn't finish. `--opening-demo` opens a crafted chest with every quality and two surprises (record it);
-   `--vault-demo` opens King Aldric's vault, the finale's nine-thing opening.
+   `--vault-demo` opens the Crown Chest, the finale's nine-thing opening.
    `--shell-demo` walks the title screen, the character screen and talents (with a made-up profile), a new game (Hesk),
    the pause menu and the settings.
    Keep screenshot folders named `shots*` (git- and export-ignored).
 4. Shaking or physics changes: `godot --headless --path . -- --shake-test` should hear everything the rules say is
-   audible at each strength (and with the magnet), with no leaks.
+   audible at each strength (and with the magnet, the lodestone in game), with no leaks.
 5. For feel/timing, record with `--write-movie movies/lot.avi --fixed-fps 60` and convert with ffmpeg.
 
 ## Conventions
 
+- The world comes first (`docs/world.md`): the Locking, the Key-mark, the Gilded Guild, the Maw, the four places. Any
+  new seller, thing, event or line belongs to a place and has a reason you could tell a stranger in a tavern; check it
+  against the world doc and add to it there.
 - `scripts/Core` stays engine-free (no `using Godot`) so it can be simulated headlessly.
 - Design rules (see `docs/design.md`): the puzzle is three rules (a thing only sounds once the shake stirs it;
   clanks drown out delicate things; sellers price only what they think is there). Never show the player what a chest
   is worth before purchase: the slip only adds up what the player ticked, and its odds bar only says how likely that
   is to beat the price (`Appraisal.ChanceAbove`); each item's real quality is rolled around the chest's colour
   (`Categories.Odds`) so openings still surprise. Clues are
-  perceptual (which sounds come at which strength, what glows, what the magnet silences, a hollow drop) or stated
-  (what the seller says they heard). Any new way to judge a chest must follow a rule people know from real life.
+  perceptual (which sounds come at which strength, what glows, what the lodestone silences, a hollow drop) or stated
+  (what the seller says they heard, and where they say it came from). Any new way to judge a chest must follow a rule
+  people know from real life.
   The slip values things as good as the chest's colour promises (`Categories.Nominal`); sellers price by the average
   (`Categories.Expected`); `Strategy` buys when the odds bar is on its side (`Appraisal.LikelyWorth`), like a player
-  would. Layers of deduction (false bottoms, counting, sound-alikes like sand and gilded iron) arrive one shop at a
+  would. Layers of deduction (false bottoms, counting, sound-alikes like sand and demon gold) arrive one shop at a
   time, each taught by the seller it belongs to. Rules apply every time or not at all: a hidden roll that makes a rule
   work only sometimes reads as a bug, and a rule people can't reason about from real life (v7's cloth padding) goes. Enchantment (`Item.Magic`) is something any
   thing can be: x2 value and exhibition, same quality, colour and sprite.
-- One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`; alternatives for each
+- Six kinds of thing a sword-and-sorcery realm would lock away (`Category`: Coins, Arms, Garb, Potions, Scrolls, Gems;
+  the fakes are demon gold, paste gems and scroll cases of sand). One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`; alternatives for each
   kind, chosen in Settings > Item sounds, are in `Audio.SoundSets`: play `SoundSets.Group(kind)`); kinds differ in how
   hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
   Introduce new things one at a time: by shop tier (`CategoryDef.Tier`, `SellerDef.Tier`) and with a Bram hint
@@ -59,12 +64,13 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   it makes redundant. Read a guided `--autoplay` run's `[Bram ...]` lines to check the tutorial reads in order.
 - Synergies (`Synergies.cs`) come from what's been acquired (ten of a kind at a quality per level) or achieved; only
   active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
-- The run (`Run.cs`, a partial of `GameState`): five-day weeks; the Grey Guild's due every fifth evening (`Guild.Due`,
+- The run (`Run.cs`, a partial of `GameState`): five-day weeks; the Gilded Guild's tithe every fifth evening (`Guild.Due`,
   eight weeks then endless x1.5); pawning, Bram's word once a run, foreclosure. Curios (`Curios.cs`, from Nim weekly)
   each bend one rule, never reveal what's in a chest and never add a share to sale prices (nor do synergies: a few
   percent on every sale compounds into weeks; the sim's "what curios and synergies are worth" lines show it), and are
   priced as a share of the week's due (commons 1g on Nim's first visit); commissions (`Commissions.cs`) pay for delivering finds;
-  one event a week (`Events.cs`); the story's scenes and the map to the vault (`Story.cs`). Balance is set for a career, not
+  one event a week (`Events.cs`); the story's scenes and the shards of the Aldric Key that open the Crown Chest
+  (`Story.cs`; in code still `MapPieces` and the vault, so saves carry over). Balance is set for a career, not
   a run (the sim's "Learners" and "Careers" sections; learners are the careful player with mistakes that shrink as
   `Style.Skill` goes from 0 to 1): a first-timer gets through the first weeks and loses in the middle ones; better
   judgment and talents each push that later; only the two together clear the debt more often than not (the careful
@@ -88,8 +94,9 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   Kit's (`GameState.GivesLessons`); a new character gets a `kin_*` tip. Route seller traits through
   `GameState.MindsDrop`/`MindsMagnet`/`MindsHardShake`/`Impatient` and upgrade prices through `GameState.Cost`, so the
   terms and talents apply everywhere. The profile (`Profile`) keeps renown, talents and each character's open levels.
-- The shop opens up a step at a time (`GameState.UpgradesOpen` once it has earned `UpgradesAt`, `DisplayOpen` with
-  the village shop, `SynergiesOpen` with the town shop), each introduced by a Bram tip when it happens. Gate new
+- The shop opens up a step at a time, moving inward (`ShopTiers.Name`: Bram's Stall, Thornwick Market, Crownhold, the
+  Royal Emporium; `GameState.UpgradesOpen` once it has earned `UpgradesAt`, `DisplayOpen` with Thornwick,
+  `SynergiesOpen` with Crownhold), each introduced by a Bram tip when it happens. Gate new
   systems the same way, in Core, so the sim and the bot follow them.
 - Each shop tier has its own picture (`assets/backgrounds/shop{tier}.png`, drawn by `build_shops` in
   `tools/import_art.py`, shown with `UiKit.MakeShop`); keep the counter top at y 476 and the shelf at y 196.
@@ -100,10 +107,17 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   a day boundary goes in `SaveData` too.
 - Every seller has one way of judging a chest (`Judgment`: listening, counting rattles, weight, colour, a dream, a
   trade they know, a sense for magic, no idea) with a blind spot a careful player can see through, one way to trade,
-  and maybe one thing they won't stand for, with a reward for putting up with it (`SellerDef` traits like `Patience`,
-  `HatesDrop`, `HatesMagnet`, `HatesHardShake`). `Market` rolls and prices their chests; `Visit` trades, and its
-  `Explain` says on the results and pass screens why a deal went the way it did. The sim's per-seller table must show
-  a careful player profits from each, and buying blind shouldn't (Tam, who takes a few coins, is the exception).
+  places their chests come from (`From`, `Origins.cs`: the place decides what a chest tends to hold) with a story for
+  each (`Stories`, told true as often as `Honesty`, else a tall tale from `Tales`), and maybe one rule of their own that
+  changes what you can do or what the deal is (`Patience`, `HatesDrop`, `HatesMagnet`, `HatesHardShake`, `ShakeLimit`,
+  `ShakeFee`, `Wager`, `Heirloom`, `TakesDearest`, `SlipPrice`, `Gaze`), worded under the chest by `GameState.Terms`.
+  `Visits` sets how often they come (the Maw rarely). `Market` rolls and prices their chests; `Visit` trades, and its
+  `Explain` says on the results and pass screens why a deal went the way it did (and whether the story was true);
+  `Shop.Buy` takes a seller's claim and `Shop.Settle` a wager or the King's game. A new rule needs the sim, the bot
+  (`Strategy.Levels`, `Worth`, `WorthBuying`) and a lesson. The sim's per-seller table must show a careful player
+  profits from each, and buying blind shouldn't (Tam, who takes a few coins, and the Maw, whose coin costs the rest of
+  the day, are the exceptions). Stories name what was heard (`{heard}`, `{count}`, `{heft}`, `{colour}`, `{magic}`,
+  `{price}`, `{fee}`) and must fit the speech bubble (about 170 characters with the price filled in).
 - `ShakeBox` gates sounds with the same rules as `Chest.Audible`: change both together (the shake test checks them).
 - UI is built in code with `UiKit` and `Painter` (absolute positions on a 1280x720 canvas), not in .tscn files.
 - Buttons use `FocusMode.None`: Space is reserved for lockpicking and holding the chest open. L opens the ledger.

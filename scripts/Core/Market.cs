@@ -20,19 +20,26 @@ public static class Market
     public const float CrookMin = 0.5f, CrookMax = 0.7f;
 
     /// <summary>A dreamer's price, against what a chest of that colour usually holds.</summary>
-    public const float DreamMin = 0.5f, DreamMax = 2.8f;
+    public const float DreamMin = 0.4f, DreamMax = 1.6f;
+
+    /// <summary>The King's game: a perfect read takes this share off; a wrong one pays what it held, times this.</summary>
+    public const float SlipRefund = 0.25f, SlipFine = 1.25f;
 
     /// <summary>A jeweller prices her jewels at what she paid: more than they're worth on average.</summary>
     public const float JewellerPaid = 1.3f;
 
-    /// <summary>How often a talker claims a sound that isn't there.</summary>
-    public const float PhantomChance = 0.6f;
+    /// <summary>
+    /// Hagglers who know they're dealing with Rosa open this much higher and come down this much less (v14: without it
+    /// the careful player cleared the debt 55% of the time as Rosa, against Kit's 44%; v15, with sellers who'd have named
+    /// a price never holding out for more than it, a twentieth left her six points behind Kit).
+    /// </summary>
+    public const float RosaWary = 1.03f;
 
     /// <summary>
-    /// Hagglers who know they're dealing with Rosa open this much higher and come down this much less (without it the
-    /// careful player cleared the debt 55% of the time as Rosa, against Kit's 44%).
+    /// A seller who'd name a price, haggling with Rosa: they ask no more than this much over it, and hold out for no more
+    /// than this much of it (a cheap seller doesn't get dearer for being haggled with).
     /// </summary>
-    public const float RosaWary = 1.05f;
+    public const float ConvertedAsk = 1.3f, ConvertedFloor = 0.95f;
 
     /// <summary>Angry sellers put the price up by this much.</summary>
     public const float AngerMarkup = 1.5f;
@@ -57,21 +64,26 @@ public static class Market
     public static Visit CreateVisit(Random rng, SellerDef seller, int shopTier, Boosts boosts = null)
     {
         boosts ??= Boosts.None;
+        var origin = PickOrigin(rng, seller);
         var colour = (Rarity)rng.PickWeighted(Enumerable.Range(0, 4).ToArray(), i => seller.Colours[i]);
         if (colour < Rarity.Epic && rng.NextFloat() < boosts.BetterChests) colour++;
 
         // For sellers who listen, whether this one holds something they can't hear is rolled first, so each one's
         // blind spot turns up about as often as their MissRate: often enough to pay for listening, not so often that
         // buying blind pays.
-        var chest = Roll(rng, seller, shopTier, colour, boosts);
+        var chest = Roll(rng, seller, shopTier, colour, boosts, origin);
         if (seller.Listens)
         {
             bool missing = rng.NextFloat() < seller.MissRate;
             for (int attempt = 0; attempt < 40 && Misses(seller, chest) != missing; attempt++)
-                chest = Roll(rng, seller, shopTier, colour, boosts);
+                chest = Roll(rng, seller, shopTier, colour, boosts, origin);
         }
-        return Price(rng, seller, chest, shopTier, boosts: boosts);
+        return Price(rng, seller, chest, shopTier, boosts: boosts, origin: origin);
     }
+
+    /// <summary>Where this seller's chest came from this time.</summary>
+    public static OriginDef PickOrigin(Random rng, SellerDef seller) =>
+        seller.From.Length == 0 ? null : Origins.Get(rng.PickWeighted(seller.From, f => f.Weight).Origin);
 
     /// <summary>Whether the seller's own listening leaves something unpriced: unheard, or one of several they didn't count.</summary>
     static bool Misses(SellerDef seller, Chest chest)
@@ -81,8 +93,10 @@ public static class Market
         return !seller.Counts && noticed.GroupBy(i => i.Category).Any(g => g.Count() > 1);
     }
 
-    static Chest Roll(Random rng, SellerDef seller, int shopTier, Rarity colour, Boosts boosts)
+    /// <summary>A chest from this place (or the seller's usual places), its colour already chosen.</summary>
+    static Chest Roll(Random rng, SellerDef seller, int shopTier, Rarity colour, Boosts boosts, OriginDef origin)
     {
+        var likely = origin?.Kinds ?? seller.Kinds;
         var lockTier = shopTier >= 2 && rng.NextFloat() < seller.LockChance ? LockTiers.For(colour) : null;
         if (rng.NextFloat() < seller.EmptyChance) return new Chest(Array.Empty<Item>(), colour, null, lockTier);
 
@@ -91,10 +105,10 @@ public static class Market
         var picked = new List<Category>();
         // A crook always has something to fake; a lady always has her jewels.
         var fakeable = kinds.Where(seller.Fakes.Contains).ToArray();
-        if (seller.Judge == Judgment.Crook && fakeable.Length > 0) picked.Add(rng.PickWeighted(fakeable, c => seller.Kinds[(int)c]));
+        if (seller.Judge == Judgment.Crook && fakeable.Length > 0) picked.Add(rng.PickWeighted(fakeable, c => likely[(int)c]));
         if (seller.Always is Category always && kinds.Contains(always)) picked.Add(always);
         while (picked.Count < count)
-            picked.Add(rng.PickWeighted(kinds.Except(picked).ToArray(), c => seller.Kinds[(int)c] * boosts.Weight(c)));
+            picked.Add(rng.PickWeighted(kinds.Except(picked).ToArray(), c => likely[(int)c] * boosts.Weight(c)));
 
         // From the town shop on, a lot can hold two or three of a kind.
         var all = new List<Category>();
@@ -130,7 +144,7 @@ public static class Market
     }
 
     static readonly (Category Kind, float Weight)[] HiddenKinds =
-        { (Category.Coins, 3f), (Category.Jewels, 3f), (Category.Paper, 2f) };
+        { (Category.Coins, 3f), (Category.Gems, 3f), (Category.Scrolls, 2f) };
 
     /// <summary>What a false bottom might hold at this shop, and how likely each kind is.</summary>
     public static IEnumerable<(Category Kind, float Chance)> HiddenOdds(int shopTier)
@@ -194,8 +208,8 @@ public static class Market
             Judgment.Dreamer => TypicalChest(seller, colour, shopTier) * rng.Between(DreamMin, DreamMax),
             Judgment.Miner => claim.Sum(c => c switch
             {
-                Category.Metal => plain(c),
-                Category.Jewels => Categories.Value(c, Rarity.Legendary, false),
+                Category.Arms => plain(c),
+                Category.Gems => Categories.Value(c, Rarity.Legendary, false),
                 _ => plain(c) / 2,
             }),
             Judgment.Jeweller => claim.Sum(c => plain(c) * JewellerPaid),
@@ -203,7 +217,6 @@ public static class Market
             Judgment.Clueless => 0,
             _ => claim.Sum(plain),
         };
-        if (seller.ClaimsHidden) estimate += HiddenValue(colour, shopTier, expected: true);
         return estimate;
     }
 
@@ -218,41 +231,62 @@ public static class Market
     /// <param name="claim">A scripted claim (a lesson's made-up sound).</param>
     /// <param name="floor">A scripted least they'll take (a lesson's).</param>
     /// <param name="boosts">The shop's terms: sharp sellers' prices, and whether everybody haggles (with Rosa).</param>
+    /// <param name="origin">Where the chest came from (one of the seller's places, if not given).</param>
+    /// <param name="truth">A scripted answer to whether they tell the truth about where it came from.</param>
     public static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, int? ask = null, Trade? trade = null, string pitch = null,
-        IEnumerable<Category> claim = null, int? floor = null, Boosts boosts = null)
+        IEnumerable<Category> claim = null, int? floor = null, Boosts boosts = null, OriginDef origin = null, bool? truth = null)
     {
         var said = claim?.ToList() ?? Claim(rng, seller, chest, shopTier);
         said.Sort();
-        var visit = Price(rng, seller, chest, shopTier, said, ask, trade, pitch, boosts ?? Boosts.None);
+        origin ??= PickOrigin(rng, seller);
+        var visit = Price(rng, seller, chest, shopTier, said, ask, trade, pitch, boosts ?? Boosts.None, origin,
+            truth ?? (seller.Tales.Length == 0 || rng.NextFloat() < seller.Honesty));
         if (floor is int least) visit.SetFloor(least);
         return visit;
     }
 
-    /// <summary>
-    /// What they say is in it: what they noticed (once per kind, unless they count), and a talker sometimes adds a
-    /// sound that wasn't there.
-    /// </summary>
+    /// <summary>What they say is in it: what they noticed (once per kind, unless they count).</summary>
     static List<Category> Claim(Random rng, SellerDef seller, Chest chest, int shopTier)
     {
         var noticed = seller.Notices(chest).Select(i => i.Category);
-        var claim = (seller.Counts ? noticed : noticed.Distinct()).ToList();
-        if (seller.Talker && rng.NextFloat() < PhantomChance)
-        {
-            var absent = Categories.UpTo(shopTier).Select(c => c.Category).Where(c => !chest.Has(c) && !claim.Contains(c)).ToArray();
-            if (absent.Length > 0) claim.Add(rng.PickWeighted(absent, c => seller.Kinds[(int)c]));
-        }
-        return claim;
+        return (seller.Counts ? noticed : noticed.Distinct()).ToList();
     }
 
-    static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, List<Category> claim, int? ask, Trade? trade, string pitch, Boosts boosts)
+    /// <summary>What an heirloom-hunter pays for the best thing of theirs inside: three-quarters of what it's worth as promised.</summary>
+    public const float HeirloomShare = 0.75f;
+
+    /// <summary>
+    /// What they tell you about the chest: a story about where it came from (the truth), or a tall tale; a seller with
+    /// no stories says one of their lines.
+    /// </summary>
+    static string Story(Random rng, SellerDef seller, OriginDef origin, bool truth)
+    {
+        if (!truth && seller.Tales.Length > 0) return rng.PickOne(seller.Tales);
+        if (origin != null && seller.Stories.TryGetValue(origin.Key, out var lines)) return rng.PickOne(lines);
+        return seller.Pitches.Length > 0 ? rng.PickOne(seller.Pitches) : rng.PickOne(seller.Tales);
+    }
+
+    static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, List<Category> claim, int? ask, Trade? trade, string pitch, Boosts boosts,
+        OriginDef origin, bool truth)
     {
         float estimate = Estimate(rng, seller, chest, claim, shopTier) * boosts.Dearer;
         var format = trade ?? seller.Trade;
-        // Everybody haggles with Rosa: a fixed price becomes an opening ask (a crook still wants rid of his fakes quick).
-        if (trade == null && boosts.Haggles && format == Trade.Fixed && seller.Judge != Judgment.Crook) format = Trade.Haggle;
+        // Everybody haggles with Rosa: a fixed price becomes an opening ask (a crook still wants rid of his fakes quick,
+        // and nobody haggles with the King, or the Maw).
+        bool converted = trade == null && boosts.Haggles && format == Trade.Fixed && seller.Judge != Judgment.Crook && !seller.SlipPrice && seller.Gaze <= 0;
+        if (converted) format = Trade.Haggle;
         float price, floor;
         switch (format)
         {
+            case Trade.Haggle when estimate > 0 && converted:
+            {
+                // Someone who'd have named a price haggles like anyone else with Rosa, but never asks more than a bit
+                // over that price, or holds out for more than it (a devil's bargain stays cheap).
+                float named = estimate * rng.Between(seller.Markup.Min, seller.Markup.Max);
+                price = Math.Min(estimate * rng.Between(HaggleAskMin, HaggleAskMax), named * ConvertedAsk) * RosaWary;
+                floor = Math.Min(estimate * rng.Between(seller.Bottom.Min, seller.Bottom.Max), named * ConvertedFloor) * RosaWary;
+                break;
+            }
             case Trade.Haggle when estimate > 0:
                 // Everybody knows Rosa haggles: they open higher, and come down less.
                 float wary = boosts.Haggles ? RosaWary : 1f;
@@ -271,15 +305,22 @@ public static class Market
                     : seller.Tier * rng.Between(2f, 6f);
                 break;
             default:
-                price = seller.Judge == Judgment.Crook ? estimate * rng.Between(CrookMin, CrookMax)
+                // The King's price waits on your slip; the Maw's is a single coin.
+                price = seller.SlipPrice || seller.Gaze > 0 ? 1
+                    : seller.Judge == Judgment.Crook ? estimate * rng.Between(CrookMin, CrookMax)
                     : estimate == 0 ? seller.Tier * rng.Between(2f, 4f)
                     : estimate * rng.Between(seller.Markup.Min, seller.Markup.Max);
                 floor = price;
                 break;
         }
         int asking = ask ?? Money.Round(price);
-        string line = Fill(pitch ?? rng.PickOne(seller.Pitches), seller, chest, claim, shopTier).Replace("{price}", $"{asking}g");
-        return new Visit(seller, chest, claim, format, format == Trade.Offer ? 0 : asking, Money.Round(floor), line);
+        int fee = seller.Heirloom is Category heirloom ? Money.Round(Categories.Nominal(heirloom, chest.Quality) * HeirloomShare) : 0;
+        string line = Fill(pitch ?? Story(rng, seller, origin, truth), seller, chest, claim, shopTier)
+            .Replace("{price}", seller.SlipPrice ? "your slip's worth" : $"{asking}g").Replace("{fee}", $"{fee}g").Replace("{origin}", origin?.Name ?? "somewhere");
+        return new Visit(seller, chest, claim, format, format == Trade.Offer ? 0 : asking, Money.Round(floor), line)
+        {
+            Origin = origin, ToldTruth = truth, Fee = fee,
+        };
     }
 
     static string Fill(string line, SellerDef seller, Chest chest, IReadOnlyList<Category> claim, int shopTier)
@@ -308,5 +349,5 @@ public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magi
     public static readonly Boosts None = new();
 
     /// <summary>How likely a seller is to have put a thing of this kind in, against what they usually bring.</summary>
-    public float Weight(Category category) => category is Category.Coins or Category.Jewels ? 1 + MoneyKinds : 1;
+    public float Weight(Category category) => category is Category.Coins or Category.Gems ? 1 + MoneyKinds : 1;
 }

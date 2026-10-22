@@ -82,7 +82,6 @@ public sealed class Appraisal
 
     public Appraisal(Visit visit, int tier) : this(visit.Chest.Quality, tier, visit.Claim)
     {
-        Hidden = visit.ClaimsHidden;
     }
 
     public int Count(Category category) => _count[(int)category];

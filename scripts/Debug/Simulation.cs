@@ -10,7 +10,7 @@ namespace LootFall.Debug;
 /// Headless balance report: `godot --headless --path . -- --sim [--n=200]`. Plays whole runs with simple player styles:
 /// buying chests, curios and upgrades, filling commissions, paying the Guild each week (pawning when short) until the
 /// shop is foreclosed or <see cref="MaxWeeks"/> weeks have gone. The design works if careful listening usually clears
-/// the debt (with the map, now and then the vault), careless play is foreclosed within a few weeks, and every seller's
+/// the debt (with the Key whole, now and then the Crown Chest), careless play is foreclosed within a few weeks, and every seller's
 /// quirk is worth putting up with.
 /// </summary>
 public static class Simulation
@@ -43,7 +43,7 @@ public static class Simulation
         new("buys at their price", Care.Blind, false),
         new("one hard shake", Care.OneShake, false),
         new("every strength, drops", Care.Listens, false),
-        new("+ witchlight, magnet", Care.Tools, false),
+        new("+ light and lodestone", Care.Tools, false),
         new("+ keeps grand things", Care.Tools, true),
     };
 
@@ -83,6 +83,9 @@ public static class Simulation
         public readonly HashSet<string> Curios = new();
         public readonly float[] ProfitByTier = new float[5];
         public readonly int[] CustomersByTier = new int[5];
+
+        /// <summary>Per seller, at the shop where they're new: customers, and the profit on what was bought from them.</summary>
+        public readonly Dictionary<string, (int Visits, float Profit)> BySeller = new();
     }
 
     public static void Run(int campaigns)
@@ -90,7 +93,7 @@ public static class Simulation
         GD.Print($"=== LootFall balance report ({campaigns} runs per style, up to {MaxWeeks} weeks of {Guild.DaysPerWeek} days) ===");
         var all = Styles.ToDictionary(s => s, s => Enumerable.Range(0, campaigns).Select(i => Play(s, 1000 + i).Log).ToList());
 
-        GD.Print("\nStyle                   % still trading at each due (week 1..8)        cleared  vault  lost (median wk)  " +
+        GD.Print("\nStyle                   % still trading at each due (week 1..8)        cleared  crown  lost (median wk)  " +
                  "tier 2  tier 3  tier 4   good buys  perfect");
         foreach (var style in Styles)
         {
@@ -103,7 +106,7 @@ public static class Simulation
                      $"{100f * logs.Count(l => l.VaultDay > 0) / logs.Count,5:0}%  {(lost.Count == 0 ? "-" : $"{lost.Count * 100 / logs.Count}%, wk {lost[lost.Count / 2]}"),16}  " +
                      $"{Reach(2),6}  {Reach(3),6}  {Reach(4),6}   {100f * logs.Sum(l => l.GoodBuys) / bought,8:0}%  {100f * logs.Sum(l => l.Perfect) / bought,6:0}%");
         }
-        GD.Print("(cleared: all eight dues paid; vault: opened King Aldric's vault; lost: share of runs foreclosed, and the median week;");
+        GD.Print("(cleared: all eight dues paid; crown: opened the Crown Chest; lost: share of runs foreclosed, and the median week;");
         GD.Print(" tier columns: median day the renovation was bought, '-' if fewer than half got there)");
 
         foreach (var style in Styles.Skip(2))
@@ -126,7 +129,7 @@ public static class Simulation
                      $"(paid off early: {100f * logs.Count(l => l.PaidOffWeek > 0 && l.PaidOffWeek <= Guild.Weeks) / logs.Count:0}% of runs)");
             GD.Print($"per run: {logs.Average(l => l.Commissions):0.0} commissions ({logs.Average(l => l.CommissionGold):0}g), curios earned " +
                      $"{logs.Average(l => l.CurioGold):0}g for {logs.Average(l => l.CurioSpent):0}g, pawned on {logs.Average(l => l.Short):0.0} nights, " +
-                     $"map pieces {logs.Average(l => l.Pieces):0.0}, map given {100f * logs.Count(l => l.MapGiven > 0) / logs.Count:0}%, " +
+                     $"key shards {logs.Average(l => l.Pieces):0.0}, shards given {100f * logs.Count(l => l.MapGiven > 0) / logs.Count:0}%, " +
                      $"Bram's stash opened {logs.Average(l => l.Stash):0.0} times, " +
                      $"Bram vouched in {100f * logs.Count(l => l.Grace > 0) / logs.Count:0}% (median week " +
                      $"{logs.Where(l => l.Grace > 0).Select(l => l.Grace).DefaultIfEmpty(0).OrderBy(w => w).ElementAt(logs.Count(l => l.Grace > 0) / 2)})");
@@ -225,7 +228,7 @@ public static class Simulation
     }
 
     /// <summary>Per seller, at their own shop: how often a careful player with every tool buys, and the profit, against buying blind.</summary>
-    static void PrintSellers()
+    public static void PrintSellers()
     {
         GD.Print("\nSeller                 trade    buys   profit/buy   profit/visit   blind buyer/visit");
         var rng = new Random(5);
@@ -242,10 +245,10 @@ public static class Simulation
                 var visit = Market.CreateVisit(rng, seller, seller.Tier);
                 blind += BlindValue(visit, state, rng);
                 visit = Market.CreateVisit(rng, seller, seller.Tier);
-                int? paid = Deal(visit, state, rng, Care.Tools, out _);
+                int? paid = Deal(visit, state, rng, Care.Tools, out var slip);
                 if (paid is not int price) continue;
                 buys++;
-                profit += Open(visit, state, rng, Care.Tools) - price;
+                profit += Open(visit, state, rng, Care.Tools, slip) - price;
             }
             GD.Print($"{seller.Name,-22} {seller.Trade,-7} {100f * buys / n,5:0}%   {profit / Math.Max(1, buys),9:0}   {profit / n,11:0}   {blind / n,14:0}");
         }
@@ -293,6 +296,8 @@ public static class Simulation
             if (skill >= 1 || rng.NextFloat() < skill) Strategy.OnFaith(visit, slip, hearing, state);
             if (skill < 1) Slip(visit, slip, rng, 1 - skill);
         }
+        // The King's price is whatever the slip says.
+        visit.SetSlipPrice(slip.Worth);
 
         int worth = Strategy.Worth(visit, slip, hearing, state);
         // A learner's sense of what it's worth wanders, more the less they know.
@@ -300,7 +305,7 @@ public static class Simulation
         switch (visit.Trade)
         {
             case Trade.Fixed:
-                return worth > visit.Ask && state.Gold >= visit.Ask ? Paid(visit, rng) : null;
+                return Strategy.WorthBuying(visit, worth, state, hearing) && state.Gold >= visit.Ask ? Paid(visit, rng) : null;
             case Trade.Haggle:
             {
                 int offer = Math.Min(state.Gold, Strategy.FirstOffer(visit, worth));
@@ -347,6 +352,8 @@ public static class Simulation
             levels = kept.Length > 0 ? kept : new[] { levels[^1] };
         }
         var hearing = Hearing.Simulate(chest, levels, lamp);
+        // A goblin's fee for every strength after the first.
+        foreach (var level in levels) visit.Shook(level, rng);
         if (tools && (e <= 0 || rng.NextFloat() < skill)) hearing.Listen(chest, Strategy.MagnetLevels(visit, hearing, state), lamp, magnet: true);
         bool drop = Strategy.ShouldDrop(visit, hearing, state.Tier, state);
         if (e > 0)
@@ -381,11 +388,20 @@ public static class Simulation
     /// <summary>A standard normal draw.</summary>
     static float Normal(Random rng) => MathF.Sqrt(-2 * MathF.Log(1 - rng.NextFloat())) * MathF.Cos(2 * MathF.PI * rng.NextFloat());
 
-    /// <summary>Picks the lock (careful players are better at it) and adds up what came out, at what it sells for.</summary>
-    static int Open(Visit visit, GameState state, Random rng, Care care)
+    /// <summary>
+    /// Buys it, picks the lock (careful players are better at it) and adds up what came out, at what it sells for: the
+    /// seller's claim at what they pay for it, and their terms settled (a wager, the King's game).
+    /// </summary>
+    static int Open(Visit visit, GameState state, Random rng, Care care, Appraisal slip = null)
     {
+        slip ??= new Appraisal(visit, state.Tier);
+        // The table's purse never runs dry: it's the chest that's being measured.
+        int gold = state.Gold;
+        var purchase = state.Buy(visit, slip);
+        state.Gold = gold;
         var grade = Pick(visit, state, rng, care);
-        return visit.Chest.Everything.Sum(i => state.SaleValue(i, grade));
+        int held = visit.Chest.Everything.Sum(i => purchase.IsClaimed(i) ? purchase.ClaimPays : state.SaleValue(i, grade));
+        return held + state.Settle(purchase, slip.Check(visit.Chest).Perfect, held);
     }
 
     /// <summary>How the lock comes open: careful players are better at picking; with a burglar's knife, anyone just forces it.</summary>
@@ -436,9 +452,9 @@ public static class Simulation
     /// Week by week for a learner of this skill (Kit, level 0, no talents): gold on the Guild's night against the due,
     /// how many pawned or leaned on Bram's word that night, the shop they had, and what they'd bought by then.
     /// </summary>
-    public static void Diagnose(float skill, int campaigns, string[] talents = null)
+    public static void Diagnose(float skill, int campaigns, string[] talents = null, string character = Characters.Kit)
     {
-        var logs = Enumerable.Range(0, campaigns).Select(i => Play(Learner(skill, talents: talents), 1000 + i)).ToList();
+        var logs = Enumerable.Range(0, campaigns).Select(i => Play(Learner(skill, character, talents: talents), 1000 + i)).ToList();
         GD.Print($"\nskill {skill:0.00}: week, due, gold on the night (25th / median), paid, pawned, Bram's word, at tier 1 2 3 4 (%)");
         for (int w = 1; w <= Guild.Weeks; w++)
         {
@@ -452,6 +468,13 @@ public static class Simulation
         }
         GD.Print($"stash opened {logs.Average(l => l.State.StashUsed):0.0} times; bought {logs.Average(l => l.Log.Bought):0} chests, " +
                  $"{100f * logs.Sum(l => l.Log.GoodBuys) / Math.Max(1, logs.Sum(l => l.Log.Bought)):0}% good; curios {logs.Average(l => l.Log.Curios.Count):0.0}");
+        GD.Print("profit per customer at each shop: " + string.Join("  ", Enumerable.Range(1, 4).Select(t =>
+            $"{t}: {logs.Sum(l => l.Log.ProfitByTier[t]) / Math.Max(1, logs.Sum(l => l.Log.CustomersByTier[t])):0.0}g")));
+        GD.Print("in a run, at their own shop (profit per visit, visits a run): " + string.Join("  ", Sellers.All.Select(s =>
+        {
+            int visits = logs.Sum(l => l.Log.BySeller.GetValueOrDefault(s.Key).Visits);
+            return $"{s.Short} {logs.Sum(l => l.Log.BySeller.GetValueOrDefault(s.Key).Profit) / Math.Max(1, visits):0} ({(float)visits / logs.Count:0.0})";
+        })));
     }
 
     /// <summary>A learner of this skill: the careful collector's way of playing, with a learner's mistakes.</summary>
@@ -510,9 +533,9 @@ public static class Simulation
                      $"{(lost.Count == 0 ? "-" : $"{100 * lost.Count / run.Count()}%, wk {lost[lost.Count / 2]}"),-16}   {run.Average(x => x.Level),5:0.0}   " +
                      $"{run.Average(x => x.Talents),7:0.0}   {run.Average(x => x.Renown),6:0}   {run.Average(x => x.Score),5:0}");
         }
-        string When(List<int> runsTo) => runsTo.Count(r => r < int.MaxValue) * 2 < runsTo.Count ? $"half not by run {runs}"
+        string When(List<int> runsTo) => runsTo.Count(r => r < int.MaxValue) * 2 <= runsTo.Count ? $"half not by run {runs}"
             : $"run {runsTo.OrderBy(r => r).ElementAt(runsTo.Count / 4)} / {runsTo.OrderBy(r => r).ElementAt(runsTo.Count / 2)} / " +
-              (runsTo.Count(r => r < int.MaxValue) * 4 < runsTo.Count * 3 ? "-" : $"{runsTo.OrderBy(r => r).ElementAt(runsTo.Count * 3 / 4)}");
+              (runsTo.Count(r => r < int.MaxValue) * 4 <= runsTo.Count * 3 ? "-" : $"{runsTo.OrderBy(r => r).ElementAt(runsTo.Count * 3 / 4)}");
         GD.Print("first cleared the debt (quarter / half / three quarters of players):");
         foreach (int l in new[] { 0, 1, 2, 4, 6, 8 })
             GD.Print($"  level {l}: {When(firstClear[l])}   ({100f * firstClear[l].Count(r => r < int.MaxValue) / careers:0}% by run {runs})");
@@ -547,6 +570,8 @@ public static class Simulation
             var visit = state.Current;
             int tier = state.Tier;
             log.CustomersByTier[tier]++;
+            bool home = visit.Seller.Tier == tier;
+            if (home) log.BySeller[visit.Seller.Key] = (log.BySeller.GetValueOrDefault(visit.Seller.Key).Visits + 1, log.BySeller.GetValueOrDefault(visit.Seller.Key).Profit);
             int? paid = Deal(visit, state, rng, style.Care, out var slip, style.Skill);
             if (paid is not int price)
             {
@@ -554,13 +579,13 @@ public static class Simulation
                 state.Pass();
                 continue;
             }
-            state.Buy(visit, slip);
+            var purchase = state.Buy(visit, slip);
             bool perfect = slip.Check(visit.Chest).Perfect;
             var grade = Pick(visit, state, rng, style.Care, style.Skill);
             int value = 0, earned = 0;
             foreach (var item in visit.Chest.Everything)
             {
-                int sale = state.SaleValue(item, grade);
+                int sale = purchase.IsClaimed(item) ? purchase.ClaimPays : state.SaleValue(item, grade);
                 value += sale;
                 if (!item.Fake && !item.Broken)
                 {
@@ -572,6 +597,12 @@ public static class Simulation
                     if (steps > 0) log.SurpriseGold += item.Value - Categories.Value(item.Category, visit.Chest.Quality, item.Magic);
                 }
                 state.Collect(item);
+                // The seller's claim: an heirloom paid for, or a devil's due.
+                if (purchase.IsClaimed(item))
+                {
+                    earned += sale;
+                    continue;
+                }
                 var commission = Strategy.ShouldDeliver(state, item, sale);
                 if (commission != null)
                 {
@@ -596,6 +627,9 @@ public static class Simulation
                 }
                 earned += sale;
             }
+            int settled = state.Settle(purchase, perfect, value);
+            earned += settled;
+            value += settled;
             if (perfect) earned += state.KeenFee(value);
             state.RecordRead(perfect);
             state.Earn(earned);
@@ -603,6 +637,7 @@ public static class Simulation
             if (value > price) log.GoodBuys++;
             if (perfect) log.Perfect++;
             log.ProfitByTier[tier] += value - price;
+            if (home) log.BySeller[visit.Seller.Key] = (log.BySeller[visit.Seller.Key].Visits, log.BySeller[visit.Seller.Key].Profit + value - price);
         }
         state.EndDay();
         log.CurioGold += state.Today.Curios;
@@ -791,7 +826,7 @@ public static class Simulation
     static string Median(List<int> days)
     {
         var reached = days.Where(d => d > 0).OrderBy(d => d).ToList();
-        if (reached.Count < days.Count / 2) return "-";
+        if (reached.Count * 2 <= days.Count) return "-";
         return $"day {days.Select(d => d == 0 ? int.MaxValue : d).OrderBy(d => d).ElementAt(days.Count / 2)}";
     }
 }

@@ -70,7 +70,7 @@ public partial class OpeningPhase : Phase
         // The tally stays put while the camera leans in.
         var tally = Add(new CanvasLayer { Layer = 1 });
         bool vault = _purchase.Visit.Seller == Story.VaultSeller;
-        tally.AddChild(UiKit.MakeLabel(vault ? "King Aldric's vault" : $"Paid {_purchase.Visit.Seller.Short}", 16, Palette.Muted).Place(40, 80, 200, 20));
+        tally.AddChild(UiKit.MakeLabel(vault ? "The Crown Chest" : $"Paid {_purchase.Visit.Seller.Short}", 16, Palette.Muted).Place(40, 80, 200, 20));
         tally.AddChild(UiKit.MakeLabel($"{_purchase.Paid}g", 24, Palette.Text, HorizontalAlignment.Right, outline: 4).Place(200, 74, 120, 30));
         tally.AddChild(UiKit.MakeLabel("Worth", 16, Palette.Muted).Place(40, 114, 200, 20));
         _worthLabel = UiKit.MakeLabel("0g", 24, Palette.Gold, HorizontalAlignment.Right, outline: 4).Place(200, 108, 120, 30);
@@ -415,8 +415,15 @@ public partial class OpeningPhase : Phase
             sprite.Modulate = new Color(0.5f, 0.45f, 0.5f);
         }
         bool isNew = State.Collect(item);
-        int worth = State.SaleValue(item, _purchase.Grade);
+        // The seller's claim (a knight's heirloom, a devil's due) goes back to them, for what they pay for it.
+        bool claimed = _purchase.IsClaimed(item);
+        int worth = claimed ? _purchase.ClaimPays : State.SaleValue(item, _purchase.Grade);
         _landed.Add((item, at, worth));
+        if (claimed)
+        {
+            FloatText($"{_purchase.Visit.Seller.Short.ToUpperInvariant()}'S!", at + new Vector2(0, -96), Palette.Warn, 24);
+            sprite.CreateTween().TweenProperty(sprite, "modulate", new Color(0.7f, 0.6f, 0.6f), 0.6f).SetDelay(0.6f);
+        }
 
         float w = Math.Min(220f, spacing - 6f);
         // Tight for room (a big lot, the vault): an enchanted thing's aura and note say it's enchanted, so its name needn't.
@@ -544,6 +551,9 @@ public partial class OpeningPhase : Phase
         _step = Step.Done;
         var visit = _purchase.Visit;
         bool perfect = _report.Perfect;
+        // The seller's terms, settled: a wager won, or the King's game.
+        int settle = State.Settle(_purchase, perfect, _worth);
+        _worth += settle;
         // A keen eye's fee for a perfect read.
         int fee = perfect ? State.KeenFee(_worth) : 0;
         int held = _worth;
@@ -602,6 +612,7 @@ public partial class OpeningPhase : Phase
             PickGrade.Forced => " Forced open: everything -10%.",
             _ => "",
         };
+        grade += Terms(visit, perfect, settle);
         if (fee > 0) grade += $" Keen Eye: a valuer's fee of {fee}g.";
         Add(UiKit.MakeLabel(visit.Explain() + grade, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(160, 246, 800, 64));
         bool last = State.Queue.Count == 0;
@@ -625,6 +636,25 @@ public partial class OpeningPhase : Phase
         Game.Moment("08_verdict", 1.2);
     }
 
+    /// <summary>What the seller's terms came to: what they took, and what a wager or the King's game settled.</summary>
+    string Terms(Visit visit, bool perfect, int settle)
+    {
+        string name = visit.Seller.Short, text = "";
+        var claimed = _landed.Select(l => l.Item).FirstOrDefault(_purchase.IsClaimed);
+        if (claimed != null)
+            text += _purchase.ClaimPays > 0 ? $" {Capital(name)} took the {claimed.Name}, and paid {_purchase.ClaimPays}g for it."
+                : $" {Capital(name)} took the {claimed.Name}, as agreed.";
+        if (visit.Seller.Wager > 0)
+            text += perfect ? $" Read exactly: {name} hands back {settle}g, as wagered." : $" Not quite right: {name} keeps the whole price.";
+        if (visit.Seller.SlipPrice)
+            text += perfect ? $" Read exactly: {name} takes a quarter off, {settle}g back."
+                : settle < 0 ? $" A wrong read: you pay {name} what it truly held, and a quarter more: {-settle}g."
+                : " A wrong read, but you'd already paid more than it held.";
+        return text;
+    }
+
+    static string Capital(string word) => char.ToUpperInvariant(word[0]) + word[1..];
+
     /// <summary>
     /// A button under something grand enough to show: keep it for display instead of selling it. You give up its price;
     /// the exhibition draws more and better customers, and the Crown wants to see one. Enchanted things count double. With
@@ -632,7 +662,7 @@ public partial class OpeningPhase : Phase
     /// </summary>
     void AddKeepButton(Item item, Vector2 at, int worth)
     {
-        if (!item.Displayable) return;
+        if (!item.Displayable || _purchase.IsClaimed(item)) return;
         var button = UiKit.MakeButton("", Palette.Magic.Darkened(0.3f), 16).Place(at.X - ButtonW / 2, 644, ButtonW, 34);
         button.Pressed += () =>
         {
@@ -656,11 +686,11 @@ public partial class OpeningPhase : Phase
 
     /// <summary>
     /// A button under something a commission wants: hand it over instead of selling it. A piece pays at once; a lot pays
-    /// when the last of it comes in. The Hooded Woman's pays a map piece too.
+    /// when the last of it comes in. The Hooded Woman's pays a shard of the Aldric Key too.
     /// </summary>
     void AddDeliverButton(Item item, Vector2 at, int worth)
     {
-        if (State.WantedBy(item) == null) return;
+        if (State.WantedBy(item) == null || _purchase.IsClaimed(item)) return;
         var button = UiKit.MakeButton("", Palette.Good.Darkened(0.35f), 16).Place(at.X - ButtonW / 2, 682, ButtonW, 32);
         button.Pressed += () => Deliver(item);
         _deliverButtons.Add((button, item, worth));
@@ -687,8 +717,8 @@ public partial class OpeningPhase : Phase
                 continue;
             }
             int reward = State.CommissionReward(c);
-            button.Text = Narrow ? $"+{reward}g" : c.Needed > 1 ? $"Deliver {c.Delivered + 1}/{c.Needed}" : c.Story ? "Deliver: map!" : $"Deliver +{reward}g";
-            button.TooltipText = $"{c.PatronName} wants {c.Phrase}: {reward}g{(c.Story ? " and a map piece" : "")}, instead of {worth}g for selling it.";
+            button.Text = Narrow ? $"+{reward}g" : c.Needed > 1 ? $"Deliver {c.Delivered + 1}/{c.Needed}" : c.Story ? "Deliver: shard!" : $"Deliver +{reward}g";
+            button.TooltipText = $"{c.PatronName} wants {c.Phrase}: {reward}g{(c.Story ? " and a shard of the Aldric Key" : "")}, instead of {worth}g for selling it.";
         }
     }
 
@@ -712,7 +742,7 @@ public partial class OpeningPhase : Phase
             if (State.MapPieces > pieces)
             {
                 Fx.Confetti(this, new Vector2(640, 200), 100);
-                FloatText($"MAP PIECE {State.MapPieces} OF {Story.Pieces}!", new Vector2(640, 200), Palette.Magic, 40);
+                FloatText($"KEY SHARD {State.MapPieces} OF {Story.Pieces}!", new Vector2(640, 200), Palette.Magic, 40);
                 _mentor?.Say(Story.HoodThanks(State.HoodPieces));
                 Game.Moment("08_map", 0.4);
             }
@@ -838,7 +868,7 @@ public partial class OpeningPhase : Phase
         if (_swap != null && entry.Button != null) Swap(item, entry.Worth, at, replace);
     }
 
-    public IEnumerable<(Item Item, int Worth)> Revealed => _landed.Select(l => (l.Item, l.Value));
+    public IEnumerable<(Item Item, int Worth)> Revealed => _landed.Where(l => !_purchase.IsClaimed(l.Item)).Select(l => (l.Item, l.Value));
 
     void Teach(string key)
     {

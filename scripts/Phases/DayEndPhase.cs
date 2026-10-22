@@ -161,7 +161,7 @@ public partial class DayEndPhase : Phase
             _side.AddChild(watcher);
             watcher.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/guild.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
                 .Place(14, 14, 44, 48));
-            watcher.AddChild(UiKit.MakeLabel("A man in a grey coat has been watching the stall all day. He's still outside.", 16, Palette.Muted)
+            watcher.AddChild(UiKit.MakeLabel("A pale man with a gilded chain has been watching the stall all day. He's still outside.", 16, Palette.Muted)
                 .Wrapped().Place(70, 12, SideW - 84, 88));
         }
 
@@ -180,8 +180,8 @@ public partial class DayEndPhase : Phase
             var c = State.Commissions[i];
             float y = 36 + i * 39;
             var color = c.Done ? Palette.Good : c.Story ? Palette.Magic : Palette.Text;
-            string patron = c.Story ? "The Hooded Woman" : Sellers.All.FirstOrDefault(s => s.Key == c.Patron)?.Short ?? c.Patron;
-            string reward = c.Done ? "DONE" : c.Story ? $"{State.CommissionReward(c)}g + map" : $"{State.CommissionReward(c)}g";
+            string patron = c.Story ? "The Hooded Woman" : Sellers.All.FirstOrDefault(s => s.Key == c.Patron)?.Who ?? c.Patron;
+            string reward = c.Done ? "DONE" : c.Story ? $"{State.CommissionReward(c)}g + shard" : $"{State.CommissionReward(c)}g";
             board.AddChild(UiKit.MakeLabel(patron, 16, color).Place(14, y, 220, 20));
             board.AddChild(UiKit.MakeLabel(reward, 16, c.Done ? Palette.Good : Palette.Gold, HorizontalAlignment.Right).Place(180, y, 174, 20));
             board.AddChild(UiKit.MakeLabel($"{c.What} {c.Progress}", 16, Palette.Muted).Place(14, y + 18, SideW - 28, 20));
@@ -326,8 +326,8 @@ public partial class DayEndPhase : Phase
         card.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/icons/shop.png"), MouseFilter = Control.MouseFilterEnum.Ignore }
             .Place(20, 20, 48, 48));
         card.AddChild(UiKit.MakeLabel("Earn your keep", 24, Palette.Gold).Place(84, 16, 600, 30));
-        card.AddChild(UiKit.MakeLabel($"Once the stall has earned {GameState.UpgradesAt}g, all told, Uncle Bram will help you fix it up: " +
-                                      "a Village Shop brings more customers, richer chests and a shelf for your best finds.", 16, Palette.Muted)
+        card.AddChild(UiKit.MakeLabel($"Once the stall has earned {GameState.UpgradesAt}g, all told, you can move on to Thornwick Market: " +
+                                      "more customers, richer chests and a shelf for your best finds.", 16, Palette.Muted)
             .Wrapped().Place(84, 50, w - 110, 44));
         int earned = Math.Clamp(State.TotalEarned, 0, GameState.UpgradesAt);
         float fill = earned / (float)GameState.UpgradesAt;

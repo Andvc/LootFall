@@ -102,6 +102,29 @@ public sealed partial class GameState
     /// <summary>A seller who won't wait all day (everyone, when the town's in a hurry).</summary>
     public bool Impatient(SellerDef seller) => Patience(seller) > 0;
 
+    /// <summary>
+    /// A seller's terms, as Bram would put them under the chest: their rule, and anything they won't stand for (with the
+    /// Guild's terms and kid gloves taken into account). Null if they have none.
+    /// </summary>
+    public string Terms(Visit visit)
+    {
+        var seller = visit.Seller;
+        var terms = new List<string>();
+        if (seller.ShakeLimit > 0) terms.Add($"Rotten: {seller.ShakeLimit:0} seconds of shaking, all told.");
+        if (seller.ShakeFee > 0) terms.Add($"Each strength after your first: price +{Synergies.Pct(seller.ShakeFee)}.");
+        if (seller.Wager > 0) terms.Add("Read it exactly: a third of the price back.");
+        if (seller.Heirloom is Category heirloom) terms.Add($"The best {Categories.Get(heirloom).Name.ToLowerInvariant()} inside are his, for {visit.Fee}g.");
+        if (seller.TakesDearest) terms.Add("The dearest thing inside is his.");
+        if (seller.SlipPrice) terms.Add("Price: your slip. Exact: 25% off. Wrong: its worth +25%.");
+        if (seller.Gaze > 0) terms.Add($"Buy, and everyone after him today asks x{seller.Gaze:0.#}.");
+        var minds = new List<string>();
+        if (MindsHardShake(seller)) minds.Add("a hard shake");
+        if (MindsDrop(seller)) minds.Add("a drop");
+        if (MindsMagnet(seller)) minds.Add("the lodestone");
+        if (minds.Count > 0) terms.Add($"Minds {Sellers.Join(minds)}: half again.");
+        return terms.Count == 0 ? null : string.Join(" ", terms);
+    }
+
     /// <summary>What an upgrade costs this run: its price, but the witchlight and the magnet at half with Trade Secrets.</summary>
     public int Cost(Upgrade upgrade) => Knows("tools") && upgrade.Key is "lamp" or "magnet" ? upgrade.Cost / 2 : upgrade.Cost;
 

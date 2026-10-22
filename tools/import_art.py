@@ -31,64 +31,78 @@ KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
 ])
 
 # Item sprite -> rpg-battle-system/item sprite number. Names match the sprites in scripts/Core/Items.cs: one per kind of
-# thing per quality, and (for coins, paper and jewelry) a fake. Enchanted things use their plain sprite with a glow.
+# thing per quality, and (for coin, scrolls and gems) a fake. Enchanted things use their plain sprite with a glow.
 ITEMS = {
-    # Coins
-    "copper_pouch": 21, "silver_crowns": 20, "gold_doubloons": 19,
-    # Metal
-    "rusty_knife": 31, "soldiers_helm": 1, "steel_sword": 78, "knights_gauntlet": 59, "royal_rapier": 53,
-    # Cloth
-    "wool_coat": 43, "golden_mantle": 76, "royal_robe": 50,
-    # Bottles
-    "ale_bottle": 61, "honey_jar": 63, "ambrosia": 47,
-    # Paper
-    "love_letters": 25, "merchants_ledger": 62, "treasure_map": 22, "illuminated_codex": 42,
-    # Jewelry
-    "brass_ring": 38, "silver_locket": 36, "gold_ring": 68, "sunfire_diamond": 57, "jeweled_chalice": 26,
+    # Coin
+    "copper_pennies": 21, "silver_marks": 20, "gold_crowns": 19,
+    # Arms
+    "rusty_dagger": 31, "soldiers_helm": 1, "steel_longsword": 32, "knights_gauntlet": 59, "runeblade": 33,
+    # Garb
+    "royal_ermine": 50,
+    # Potions
+    "swamp_tonic": 11, "healing_draught": 10, "elixir_of_vigour": 12, "phoenix_tears": 47, "ambrosia": 13,
+    # Scrolls
+    "tattered_map": 22, "spell_scroll": 23, "bestiary": 40, "grimoire": 62, "codex_of_the_locking": 42,
+    # Gems
+    "brass_ring": 38, "silver_amulet": 36, "ruby_ring": 68, "starstone": 57, "dragons_eye": 39,
 }
 
 # Sprites greyed toward iron or dust: key -> (sprite number, how much grey, 0..1).
-# The crook's fakes are the real thing with the gilt worn thin; the moth-eaten cloak is a faded cape.
-WORN_ITEMS = {"gilded_slugs": (19, 0.55), "paste_diamond": (57, 0.6), "moth_eaten_cloak": (81, 0.6)}
+# Demon gold and paste are the real thing with the gilt worn thin; the moth-eaten cloak is a faded cape.
+WORN_ITEMS = {"demon_gold": (19, 0.55), "paste_gem": (57, 0.6), "moth_eaten_cloak": (81, 0.6)}
 
 # Sprites with their hue turned: key -> (sprite number, hue shift in degrees, saturation multiplier).
 TINTED_ITEMS = {
-    "silk_cloak": (81, 180, 0.8), "vintage_brandy": (61, -25, 1.3),
-    "elven_wine": (63, 200, 1.1), "royal_charter": (24, 15, 1.4),
-    "sand_bag": (21, 22, 0.45),  # a sack of sand, the beachcomber's "letters"
+    "hunters_coat": (43, 110, 0.7),          # a red coat in Lincoln green
+    "silk_robe": (81, 180, 0.8),
+    "archmages_mantle": (76, 200, 1.1),      # a golden cape turned the Arcanum's blue
+    "sand_case": (24, 22, 0.45),             # a scroll case gone the colour of river sand: the mudlark's "maps"
 }
 
 # Sprites made of a few copies of another, for "a lot of it": key -> (sprite number, [(x, y) offsets]).
 PILED_ITEMS = {
-    "royal_gold": (19, [(0, 6), (9, 6), (4, 0)]),
-    "dragon_hoard": (19, [(0, 12), (9, 12), (18, 12), (4, 6), (13, 6), (9, 0)]),
+    "old_sovereigns": (19, [(0, 6), (9, 6), (4, 0)]),
+    "dragon_gold": (19, [(0, 12), (9, 12), (18, 12), (4, 6), (13, 6), (9, 0)]),
 }
 
 BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
 
 # Seller key -> Ninja Adventure faceset number. Keys match SellerDef.Key in scripts/Core/Sellers.cs, plus Uncle Bram.
 PORTRAITS = {
-    "hob": 22, "penn": 19, "mags": 5, "tam": 25,           # tier 1: the village
-    "brask": 18, "tobias": 10, "marta": 4,                 # tier 2: soldiers and merchants
-    "wren": 6, "orrin": 9, "grit": 8, "zara": 24,          # tier 3: mages, a miner and a fortune-teller,
-    "pell": 2, "shelly": 12,                               #         a pawnbroker and a beachcomber
-    "vex": 3, "gull": 14, "silas": 13, "pip": 17, "ermine": 21,  # tier 4: nobles, adventurers, crooks
-    "bram": 16,                                            # Uncle Bram, who hands you the shop
-    "nim": 20, "stranger": 7,                              # the peddler; the stranger with the sealed chest
+    "tam": 25, "penn": 19, "hob": 22, "mags": 5, "dorrin": 14,  # Brindle Crossroads: villagers and a young delver
+    "fennick": 13,                                               # Thornwick Market: a smuggler
+    "wren": 6, "orrin": 9, "grit": 8, "corisande": 4,            # Crownhold: an apprentice, an archmage, a dwarf, a lady,
+    "pell": 10, "aldous": 18,                                    #            a pawnbroker and a knight
+    "malbranche": 23, "silas": 3,                                # the Royal Emporium: a skeletal devil and a fence
+    "bram": 16,                                                  # Uncle Bram, who hands you the stall
+    "nim": 20, "stranger": 7,                                    # the horned peddler; the stranger with the chained chest
 }
 
 # Portraits made from another with some colours changed: key -> (faceset number, rules). Each rule takes the pixels
 # whose hue is in [low, high] degrees (and that aren't grey), turns the hue, and scales saturation and brightness; a
 # rule can add a [top, bottom) range of rows, for hair the same hue as the face's shading.
 RECOLOURED_PORTRAITS = {
-    "wick": (4, [(250, 320, 0, 0.12, 1.12), (180, 249, -60, 0.9, 0.9)]),  # Marta's face, white hair and a green shawl
-    "hood": (1, [(40, 170, 195, 0.75, 0.8)]),                             # a green hood turned plum: the Hooded Woman
-    "vane": (11, [(40, 200, 0, 0.12, 0.95)]),                             # a pale, sly face over a grey collar: the Guild's man
+    "snikkit": (12, [(0, 45, 85, 0.9, 1.0), (330, 360, 115, 0.9, 1.0), (250, 300, -230, 0.5, 0.7)]),  # green skin, brown rags: a goblin
+    "wenna": (17, [(180, 260, -120, 0.7, 0.7), (35, 65, -15, 0.8, 0.6)]),   # brown hair and hunting green
+    "bramble": (19, [(180, 260, -110, 0.7, 0.75)]),                          # Penn's hood in the Old Wood's moss
+    "shelly": (17, [(180, 260, -175, 0.6, 0.75)]),                           # clothes the colour of river mud
+    "vexis": (20, [(30, 70, -45, 1.1, 0.9)]),                                # Nim's horns, in imp red
+    "ermine": (4, [(250, 330, 0, 0.12, 1.15), (170, 249, 120, 1.0, 0.85)]),  # white hair and a court gown
+    "aldo": (9, [(330, 360, 30, 0.3, 0.7), (0, 20, 30, 0.3, 0.7)]),          # an old man in a plain grey cloak: the King
+    "hood": (1, [(40, 170, 195, 0.75, 0.8)]),                                # a green hood turned plum: the Hooded Woman
+    "vane": (11, [(40, 200, 0, 0.12, 0.95)]),                                # a pale, sly face over a grey collar: the Guild's man
     # Bram's kin, who mind the stall (Characters.All in scripts/Core/Meta.cs):
     "kit": (6, [(290, 350, 170, 0.9, 0.9), (0, 12, 22, 0.75, 0.6, 0, 15)]),  # brown hair and a green shirt
     "hesk": (10, [(90, 190, -100, 0.55, 0.8)]),                            # a grocer's olive cap and coat
     "rosa": (17, [(35, 65, -40, 1.15, 0.9), (230, 300, -110, 0.9, 0.9)]),  # red hair and a market green
     "isolde": (4, [(250, 330, 100, 2.2, 1.1), (170, 249, 150, 1.0, 0.85)]),  # golden hair and a wine-red gown
+}
+
+# Portraits washed in one colour, greys and all: key -> (faceset number, colour, strength 0..1). For the demons.
+TINTED_PORTRAITS = {
+    "ansel": (2, "#a07850", 0.25),   # a tonsured monk in a brown habit
+    "skrae": (7, "#a01828", 0.55),   # a shadow with red eyes and bat's ears
+    "maw": (21, "#f8c838", 0.65),    # a borrowed body, gilded all over: the Gilded Maw
 }
 
 # Curios (Curios.All in scripts/Core/Curios.cs) -> (pack, sprite). Shown in 56px slots: small sprites at 2x, big ones
@@ -104,7 +118,7 @@ CURIOS = {
 }
 CURIO_SLOT = 56
 
-# The Grey Guild's sign: a medieval-fantasy emblem, greyed, at 2x.
+# The Gilded Guild's sign: a medieval-fantasy emblem, gilded, at 2x.
 GUILD_EMBLEM = 4
 
 # Group -> Kenney source files (pack folder, file stem).
@@ -198,6 +212,22 @@ def recolour(img, rules):
                     break
             r, g, b = colorsys.hsv_to_rgb(h, s, v)
             px[x, y] = (round(r * 255), round(g * 255), round(b * 255), a)
+    return img
+
+
+def wash(img, colour, strength):
+    """Washes every pixel toward one colour at its own brightness: see TINTED_PORTRAITS."""
+    img = img.copy()
+    px = img.load()
+    cr, cg, cb = hex_rgb(colour)
+    for y in range(img.height):
+        for x in range(img.width):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            k = 0.25 + 1.1 * (0.3 * r + 0.59 * g + 0.11 * b) / 255
+            t = (min(255, cr * k), min(255, cg * k), min(255, cb * k))
+            px[x, y] = (round(r + (t[0] - r) * strength), round(g + (t[1] - g) * strength), round(b + (t[2] - b) * strength), a)
     return img
 
 
@@ -509,7 +539,7 @@ KIND_ICONS = {
         "..kkkkkkkkkkkk..",
         "................",
     ],
-    "metal": [
+    "arms": [
         "................",
         ".............kk.",
         "............kwk.",
@@ -527,25 +557,25 @@ KIND_ICONS = {
         ".kk.............",
         "................",
     ],
-    "cloth": [
+    "garb": [
         "................",
-        "................",
-        "....kkkkkkkk....",
+        "......kkkk......",
+        ".....kgggGk.....",
+        "....krrrrrrk....",
         "...krrrrrrrrk...",
-        "..krrrrrrrrrrk..",
-        "..krrkrrrrkrrk..",
-        "..krrkrrrrkrrk..",
-        "..krrkrrrrkrrk..",
-        "..krrkrrrrkrrk..",
-        "..krkrrrrrrkrk..",
-        "..krkrrrrrrkrk..",
-        "..kkrrrrrrrrkk..",
-        "..krrrrrrrrrrk..",
-        "..kkkkkkkkkkkk..",
+        "...krrkrrkrrk...",
+        "..krrrkrrkrrrk..",
+        "..krrrkrrkrrrk..",
+        "..krrrkrrkrrrk..",
+        ".krrrrkrrkrrrrk.",
+        ".krrrrkrrkrrrrk.",
+        ".krrrrkrrkrrrrk.",
+        ".kkkkkkkkkkkkkk.",
+        "................",
         "................",
         "................",
     ],
-    "bottles": [
+    "potions": [
         "................",
         "......kkkk......",
         "......kbbk......",
@@ -563,21 +593,21 @@ KIND_ICONS = {
         "................",
         "................",
     ],
-    "paper": [
+    "scrolls": [
         "................",
-        "................",
-        "..kkkkkkkkkkk...",
-        ".kwwwwwwwwwwwk..",
-        ".kwkkkkkkkwwwk..",
-        "..kwwwwwwwwwwk..",
-        "..kwkkkkkkkwwk..",
-        "..kwwwwwwwwwwk..",
-        "..kwkkkkkkwwwk..",
-        "..kwwwwwwwwwwk..",
-        "..kwkkkkkkkwwk..",
-        "..kwwwwwwwwwwwk.",
-        "...kkkkkkkkkkkk.",
-        "................",
+        "...kkkkkkkkkk...",
+        "..kbbbbbbbbbbk..",
+        "...kkkkkkkkkk...",
+        "....kwwwwwwk....",
+        "....kwkkkkwk....",
+        "....kwwwwwwk....",
+        "....kwkkkwwk....",
+        "....kwwwwwwk....",
+        "....kwkkkkwk....",
+        "....kwwwwwwk....",
+        "...kkkkkkkkkk...",
+        "..kbbbbbbbbbbk..",
+        "...kkkkkkkkkk...",
         "................",
         "................",
     ],
@@ -599,7 +629,7 @@ KIND_ICONS = {
         "................",
         "................",
     ],
-    "jewels": [
+    "gems": [
         "................",
         "................",
         ".....kkkkkk.....",
@@ -882,7 +912,7 @@ def build_curios(sp):
         save(slot, "ui", "curios", f"{key}.png")
 
     emblem = Image.open(os.path.join(sp, f"medieval-fantasy/items/emblem/{GUILD_EMBLEM}.png")).convert("RGBA")
-    emblem = recolour(emblem, [(0, 360, 0, 0.1, 0.95)])
+    emblem = wash(recolour(emblem, [(0, 360, 0, 0.1, 0.95)]), "#e0b040", 0.5)
     save(emblem.resize((emblem.width * 2, emblem.height * 2), Image.NEAREST), "ui", "guild.png")
 
 
@@ -963,12 +993,19 @@ def main():
     for key, (number, rules) in RECOLOURED_PORTRAITS.items():
         img = Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA")
         save(recolour(img, rules), "sprites", "sellers", f"{key}.png")
+    for key, (number, colour, strength) in TINTED_PORTRAITS.items():
+        img = Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA")
+        save(wash(img, colour, strength), "sprites", "sellers", f"{key}.png")
 
     for group, files in SOUNDS.items():
         out = os.path.join(ASSETS, "audio", group)
         os.makedirs(out, exist_ok=True)
         for i, (pack, stem) in enumerate(files):
             shutil.copy(os.path.join(kenney, pack, "Audio", f"{stem}.ogg"), os.path.join(out, f"{i}.ogg"))
+
+    # A shard of the Aldric Key (the story's four), at 2x.
+    key = Image.open(os.path.join(sp, "ninja-adventure/items/gold-key.png")).convert("RGBA")
+    save(key.resize((key.width * 2, key.height * 2), Image.NEAREST), "ui", "key.png")
 
     build_chests(sp)
     build_curios(sp)

@@ -7,7 +7,7 @@ namespace LootFall.Core;
 public enum CurioRarity { Common, Uncommon, Rare }
 
 /// <summary>
-/// A curio: a trinket from Nim the peddler that bends one of the shop's rules for as long as you own it. You have room
+/// A curio: an oddment from the Locking, from Nim the peddler, that bends one of the shop's rules for as long as you own it. You have room
 /// for a few (more with a curio case), so which ones you keep shapes how you trade: what to buy, who to haggle with,
 /// whether to gamble or play safe. None of them tells you what's in a chest before you buy it, and none adds a share to
 /// what things sell for: the shop grows by your judgment, and a few percent on every sale would grow it for you.
@@ -51,16 +51,16 @@ public static class Curios
         new("crescent", "Cursed Crescent", "No surprises: everything comes out exactly as its chest promised.",
             CurioRarity.Uncommon, "crescent"),
         new("marker", "Guildsman's Marker", "Bram's word is good twice a run, not once.", CurioRarity.Uncommon, "marker"),
-        new("gauntlet", "Smith's Glove", "You mend metal: it never comes out worse than its chest promised.", CurioRarity.Uncommon, "gauntlet"),
-        new("cap", "Hatter's Cap", "You mend cloth: it never comes out worse than its chest promised.", CurioRarity.Uncommon, "cap"),
-        new("loupe", "Jeweller's Loupe", "Paste and gilded fakes sell as costume pieces: a quarter of the real thing.",
+        new("gauntlet", "Smith's Glove", "You mend arms: they never come out worse than their chest promised.", CurioRarity.Uncommon, "gauntlet"),
+        new("cap", "Hatter's Cap", "You mend garb: it never comes out worse than its chest promised.", CurioRarity.Uncommon, "cap"),
+        new("loupe", "Jeweller's Loupe", "Paste gems and demon gold sell as costume pieces: a quarter of the real thing.",
             CurioRarity.Uncommon, "loupe", MinTier: 4),
 
         new("clover", "Four-Leaf Clover", "The first chest you open each week: everything in it is a step better.",
             CurioRarity.Rare, "clover"),
         new("book", "Visitors' Book", $"Every night, visitors leave {BookPerPoint}g for each point of your exhibition.", CurioRarity.Rare, "book",
             MinTier: 2),
-        new("gloves", "Kid Gloves", "Nobody minds a hard shake, a drop or the magnet on their chest.",
+        new("gloves", "Kid Gloves", "Nobody minds a hard shake, a drop or the lodestone on their chest.",
             CurioRarity.Rare, "gloves", MinTier: 2),
         new("dome", "Bell Jar", "Room to display one more thing.", CurioRarity.Rare, "dome", MinTier: 2),
     };

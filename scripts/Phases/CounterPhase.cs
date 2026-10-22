@@ -52,7 +52,7 @@ public partial class CounterPhase : Phase
     static readonly Core.Shake[] Levels = { Core.Shake.Gentle, Core.Shake.Firm, Core.Shake.Hard };
     readonly Label[] _strengthWords = new Label[3];
     Node2D _strength;
-    Label _hint, _notes, _worth, _askLabel, _ask, _chanceText, _footer, _timer, _scale, _slipWeight;
+    Label _hint, _notes, _worth, _askLabel, _ask, _chanceText, _footer, _timer, _scale, _slipWeight, _rot;
     Painter _chance;
     float _chanceShown;
     Button _buy, _pass, _offer, _magnetButton, _ledgerButton;
@@ -62,6 +62,8 @@ public partial class CounterPhase : Phase
     IReadOnlyList<LessonStep> _steps;
     int _step;
     double _patience;
+    /// <summary>Seconds of shaking a rotten chest has taken so far.</summary>
+    double _rotten;
     readonly List<string> _noteLines = new();
 
     public Visit Visit => _visit;
@@ -116,6 +118,12 @@ public partial class CounterPhase : Phase
         _notes.ZIndex = 10;
         _timer = Add(UiKit.MakeLabel("", 32, Palette.Warn, HorizontalAlignment.Center, outline: 6).Place(206, 92, 64, 40));
         _timer.ZIndex = 10;
+        // A rotten chest stands so much shaking, and no more: what's left, above it.
+        if (_visit.Seller.ShakeLimit > 0)
+        {
+            _rot = Add(UiKit.MakeLabel("", 16, Palette.Warn, HorizontalAlignment.Center, outline: 4).Place(316, 104, 484, 20));
+            _rot.ZIndex = 10;
+        }
 
         BuildQueue();
         BuildBoard();
@@ -127,6 +135,7 @@ public partial class CounterPhase : Phase
         Sfx.PlayGroup("door_open", 1f, -6);
         _seller.Enter();
         _seller.Say(_visit.Pitch);
+        State.HeardStory(_visit);
         Game.Hud.SetDay(State.Day, State.Tier);
         Game.Hud.SetGold(State.Gold, animate: false);
         // What a lesson teaches, Bram needn't also tip about.
@@ -134,6 +143,7 @@ public partial class CounterPhase : Phase
         GreetingHints();
         if (_visit.Lesson != null) StartLesson();
         Note(ChestNote());
+        if (State.Terms(_visit) is string terms) Note(terms);
         Refresh();
         Game.Moment("01_counter", 1.0);
     }
@@ -195,7 +205,9 @@ public partial class CounterPhase : Phase
         var untried = Levels.Where(level => !tried.Contains(level) && !(level == Core.Shake.Hard && (State.MindsHardShake(_visit.Seller) || !State.CanShakeHard)))
             .ToList();
         string done = $"Shaken {string.Join(" and ", tried.Select(Categories.Adverb))}.";
-        return untried.Count == 0 ? done : $"{done} Not {string.Join(" or ", untried.Select(Categories.Adverb))} yet.";
+        // A rotten chest that's had all the shaking it stands won't be shaken again.
+        bool spent = _visit.Seller.ShakeLimit > 0 && _rotten >= _visit.Seller.ShakeLimit;
+        return untried.Count == 0 || spent ? done : $"{done} Not {string.Join(" or ", untried.Select(Categories.Adverb))} yet.";
     }
 
     void StartLesson()
@@ -258,9 +270,9 @@ public partial class CounterPhase : Phase
     string ChestNote()
     {
         var chest = _visit.Chest;
-        if (chest.Sealed) return "A black chest, packed tight with straw: nothing inside can move. Drop it to feel how heavy it is.";
+        if (chest.Sealed) return "A black chest wrapped in iron chains: nothing inside can move. Drop it to feel how heavy it is.";
         string colour = chest.Gilded
-            ? $"Gilded! An old royal chest, a colour better than its seller thinks: expect {Categories.QualityName(chest.Quality)} things."
+            ? $"Gilded, with the royal seal! A colour better than its seller thinks: expect {Categories.QualityName(chest.Quality)} things."
             : $"A {Categories.ChestSkin(chest.Quality)} chest: expect {Categories.QualityName(chest.Quality)} things.";
         return chest.Lock.Locked ? $"{colour} Locked: {chest.Lock.Name}, {State.Oiled(chest.Lock).Pins} pins." : colour;
     }
@@ -279,6 +291,7 @@ public partial class CounterPhase : Phase
         if (!State.Is(Characters.Kit)) Teach($"kin_{State.Character}");
         if (firstOfDay && State.Day == 2) Teach("colours");
         if (!firstOfDay && State.Day >= 2) Teach("ledger");
+        if (State.Day >= 2 && _visit.Origin != null && _visit.Seller.Stories.Count > 0) Teach("story");
         if (firstOfDay && State.Tier > 1) Teach($"tier{State.Tier}");
         // A seller's first visit is a lesson; one without a lesson gets Bram's tip.
         if (met && _visit.Lesson == null) Teach($"seller_{_visit.Seller.Key}");
@@ -309,7 +322,24 @@ public partial class CounterPhase : Phase
             var key = (level, _magnet);
             double before = _shaken.GetValueOrDefault(key);
             _shaken[key] = before + delta;
-            if (before < TryTime && _shaken[key] >= TryTime) _hearing.Tried(level, _magnet);
+            if (before < TryTime && _shaken[key] >= TryTime)
+            {
+                _hearing.Tried(level, _magnet);
+                // A goblin charges for every strength after the first.
+                if (_visit.Shook(level, _rng) is string up && !Concluded)
+                {
+                    _seller.Say(up, Palette.Warn);
+                    FloatText($"Price +{Synergies.Pct(_visit.Seller.ShakeFee)}", new Vector2(1036, 520), Palette.Warn, 24);
+                    Sfx.Play("bid", 1.3f, -4);
+                    Refresh();
+                }
+            }
+            // A rotten chest takes so much shaking, then comes apart in your hands.
+            if (_visit.Seller.ShakeLimit > 0 && _rotten < _visit.Seller.ShakeLimit && !Concluded)
+            {
+                _rotten += delta;
+                if (_rotten >= _visit.Seller.ShakeLimit) Rot();
+            }
             // Some sellers won't have their chest shaken hard: a moment of it (not a stray flick) and up goes the price.
             if (level == Core.Shake.Hard && State.MindsHardShake(_visit.Seller) && _shaken[key] >= HardShakeTolerance && !Concluded &&
                 !_busy)
@@ -317,10 +347,13 @@ public partial class CounterPhase : Phase
         }
         CheckLesson();
         UpdateStrength();
+        if (_rot != null)
+            _rot.Text = Concluded ? "" : _rotten >= _visit.Seller.ShakeLimit ? "Coming apart: no more shaking"
+                : $"Rotten: {_visit.Seller.ShakeLimit - _rotten:0.0}s of shaking left";
         string tried = TriedSoFar();
         _hint.Text = Busy || Concluded || _shake.Dragging ? ""
             : _shake.Hover && tried == "" ? State.CanDrop ? "Drag to shake it. Lift it high and let go to drop it." : "Drag to shake it, gently or firmly: mind your back."
-            : _magnet ? "Magnet on: iron can't move"
+            : _magnet ? "Lodestone on: iron can't move"
             : tried != "" ? tried
             : _lamp ? "Drag the chest to shake it. The witchlight's lit." : "Drag the chest to shake it";
 
@@ -386,9 +419,9 @@ public partial class CounterPhase : Phase
             var color = c.Story ? Palette.Magic : Palette.Text;
             var line = UiKit.MakeLabel(what, 16, color).Place(12, 28 + i * 24, 180, 20);
             line.MouseFilter = Control.MouseFilterEnum.Pass;
-            line.TooltipText = $"{c.PatronName} wants {c.Phrase}: {State.CommissionReward(c)}g{(c.Story ? " and a map piece" : "")}.";
+            line.TooltipText = $"{c.PatronName} wants {c.Phrase}: {State.CommissionReward(c)}g{(c.Story ? " and a shard of the Aldric Key" : "")}.";
             board.AddChild(line);
-            board.AddChild(UiKit.MakeLabel(c.Story ? "map" : $"{State.CommissionReward(c)}g", 16, c.Story ? Palette.Magic : Palette.Gold,
+            board.AddChild(UiKit.MakeLabel(c.Story ? "shard" : $"{State.CommissionReward(c)}g", 16, c.Story ? Palette.Magic : Palette.Gold,
                 HorizontalAlignment.Right).Place(180, 28 + i * 24, 100, 20));
         }
     }
@@ -405,7 +438,7 @@ public partial class CounterPhase : Phase
         panel.AddChild(_ledgerButton);
         var seller = _visit.Seller;
         string who = _visit.Claim.Count == 0
-            ? seller.Listens ? $"{seller.Short} heard nothing, so nothing's ticked." : $"{seller.Short} didn't listen, so nothing's ticked."
+            ? seller.Listens ? $"{seller.Who} heard nothing, so nothing's ticked." : $"{seller.Who} didn't listen, so nothing's ticked."
             : seller.Listens ? $"Ticked: what {seller.Short} heard." : $"Ticked: what {seller.Short} says is inside.";
         string values = _visit.Chest.Sealed ? "Sealed: nothing to hear. Go by its weight."
             : $"Values: as good as a {(_visit.Chest.Gilded ? "gilded" : Categories.ChestSkin(_visit.Chest.Quality))} chest promises.";
@@ -511,7 +544,7 @@ public partial class CounterPhase : Phase
         button.AddChild(UiKit.MakeLabel(name, 16, Palette.Text).Place(80, 8, 120, 20));
         // Just a reminder of each kind's sound: the slip doesn't keep track of what you've heard.
         button.AddChild(UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(192, 8, 60, 20));
-        if (category is Category claimed ? _visit.Claim.Contains(claimed) : _visit.ClaimsHidden)
+        if (category is Category claimed && _visit.Claim.Contains(claimed))
             button.AddChild(UiKit.MakeLabel("said", 16, Palette.Muted).Place(250, 8, 40, 20));
         if (category is Category magicKind && _lamp)
         {
@@ -570,13 +603,16 @@ public partial class CounterPhase : Phase
         }
 
         int worth = _slip.Worth;
+        // The King's game: whatever the slip says, that's the price.
+        if (!Concluded) _visit.SetSlipPrice(worth);
         _worth.Text = $"{worth}g";
-        string who = _visit.Seller.Short;
+        string who = _visit.Seller.Who;
         bool offering = _visit.CanOffer;
         bool bought = _visit.Outcome == VisitOutcome.Bought;
         _askLabel.Text = _visit.Trade switch
         {
             _ when bought => "You paid",
+            _ when _visit.Seller.SlipPrice => $"{who} asks what your slip says",
             Trade.Offer when _visit.Ask == 0 => $"{who} wants you to name a price",
             // A haggler who heard you out (another try) hasn't named a final price yet.
             Trade.Haggle when _visit.OffersMade > 0 && !offering => $"{who}'s final price",
@@ -612,8 +648,14 @@ public partial class CounterPhase : Phase
 
         int price = bought ? _visit.PricePaid : offering ? offer : _visit.Ask;
         bool priced = price > 0 && worth > 0;
-        _chanceShown = priced ? _slip.ChanceAbove(price, State.SaleMultiplier) : -1;
-        _chanceText.Text = worth == 0 && !_shake.HeardAnything && _hearing.HasTried(Core.Shake.Hard, false) && _hearing.HasTried(Core.Shake.Gentle, false)
+        // The King's price is the slip: the odds are about your read, not the price. The Maw's is a coin: it's the rest of
+        // the day that pays.
+        bool odds = priced && !_visit.Seller.SlipPrice && _visit.Seller.Gaze <= 0;
+        _chanceShown = odds ? _slip.ChanceAbove(price, State.SaleMultiplier) : -1;
+        int waiting = State.Queue.Count;
+        _chanceText.Text = _visit.Seller.SlipPrice && !bought ? "Exactly right: a quarter off. Wrong: a quarter more."
+            : _visit.Seller.Gaze > 0 && !bought ? waiting == 0 ? "One coin, and nobody's waiting." : $"One coin. And {waiting} still waiting, at x{_visit.Seller.Gaze:0.#}."
+            : worth == 0 && !_shake.HeardAnything && _hearing.HasTried(Core.Shake.Hard, false) && _hearing.HasTried(Core.Shake.Gentle, false)
                 ? "Not a sound: empty, as far as you can tell."
             : worth == 0 ? "Tick what you think is inside."
             : !priced ? "Name a price: the bar shows your odds."
@@ -623,7 +665,7 @@ public partial class CounterPhase : Phase
         if (_magnetButton != null)
         {
             // Short, so it fits beside the witchlight's sign; the hint under the chest says what it does.
-            _magnetButton.Text = _magnet ? "On" : "Magnet";
+            _magnetButton.Text = _magnet ? "On" : "Lodestone";
             _magnetButton.Disabled = !open;
         }
 
@@ -679,7 +721,7 @@ public partial class CounterPhase : Phase
         if (height < ShakeBox.DropHeight || Concluded || Busy) return;
         if (_visit.Chest.Sealed)
         {
-            // Packed in straw: no boom, nothing breaks. All it tells you is how heavy it is.
+            // Chained tight: no boom, nothing breaks. All it tells you is how heavy it is.
             _hearing.HeardDrop(false, new List<Item>());
             Game.Shake(0.3f);
             Sfx.Play("thud", 0.8f, 2);
@@ -720,6 +762,18 @@ public partial class CounterPhase : Phase
         else _seller.Say(_rng.PickOne(new[] { "Oi! Careful with that.", "Mind the floor!", "Easy!" }));
         Refresh();
         Game.Moment("05_drop", 0.3);
+    }
+
+    /// <summary>The rotten chest has had all the shaking it can take: it creaks, and won't be shaken again.</summary>
+    void Rot()
+    {
+        _shake.MaxLevel = Core.Shake.Still;
+        _shake.Say("CREAK", Palette.Warn, 32);
+        Sfx.Play("thud", 0.6f, -6);
+        _shake.View.Wobble(0.6f);
+        Note("It's coming apart in your hands: no more shaking. Go by what you heard.");
+        Teach("shake_limit");
+        Game.Moment("05_rotten", 0.3);
     }
 
     void Angered(string line)
@@ -878,7 +932,7 @@ public partial class CounterPhase : Phase
     {
         State.Pass();
         // Word gets round the market: whoever walks out on Rosa stays away for the rest of the week.
-        if (State.HagglesAll && _visit.OffersMade > 0) Note($"{_visit.Seller.Short} won't be back this week. Word gets round.");
+        if (State.HagglesAll && _visit.OffersMade > 0) Note($"{_visit.Seller.Who} won't be back this week. Word gets round.");
         ShowGut(1.6);
     }
 

@@ -20,34 +20,34 @@ public static class Characters
 
     public static readonly CharacterDef[] All =
     {
-        new(Kit, "Kit", "The Ear", "Bram's niece, who grew up behind his counter. She shakes a chest the way he does.",
+        new(Kit, "Kit", "The Ear", "Bram's niece, who grew up behind his counter, with the Key-mark and his ear for a chest.",
             new[]
             {
                 "Shakes at every strength and drops a chest to hear what's under the floor.",
                 "With tips on, Uncle Bram teaches the trade as each new seller arrives.",
             }, null, _ => true),
-        new(Hesk, "Hesk", "The Scale", "Bram's nephew, a grocer from the river towns, with a bad back and an honest scale.",
+        new(Hesk, "Hesk", "The Scale", "Bram's nephew, a grocer from the river towns, with the Key-mark, a bad back and an honest scale.",
             new[]
             {
                 "A bad back: he can't shake a chest hard, or lift it to drop it.",
                 "Every chest sits on his scale: he knows what everything in it weighs, to the half pound.",
-                $"Coins {Pounds(Category.Coins)} lb, metal {Pounds(Category.Metal)}, cloth {Pounds(Category.Cloth)}, bottles {Pounds(Category.Bottles)}, " +
-                $"paper {Pounds(Category.Paper)}, jewelry {Pounds(Category.Jewels)}. Gilded iron weighs half what gold does; sand is heavier than paper.",
+                $"Coin {Pounds(Category.Coins)} lb, arms {Pounds(Category.Arms)}, garb {Pounds(Category.Garb)}, potions {Pounds(Category.Potions)}, " +
+                $"scrolls {Pounds(Category.Scrolls)}, gems {Pounds(Category.Gems)}. Demon gold weighs half what gold does; sand is heavier than a scroll.",
             }, "Pay the Guild's third due to unlock.", p => p.BestWeek >= 4),
-        new(Rosa, "Rosa", "The Tongue", "Bram's niece from the city markets. She'd haggle with a statue, and win.",
+        new(Rosa, "Rosa", "The Tongue", "Bram's niece from the Crownhold markets. She'd haggle with a statue, and win.",
             new[]
             {
                 "Everybody haggles with Rosa: sellers who'd name a fixed price ask high and hear an offer instead.",
-                "They know her: they open a twentieth higher and come down a twentieth less. An offer too low gets a second try.",
+                "They know her: they open a little higher and come down a little less. An offer too low gets a second try.",
                 "But word gets round: a seller who walks out on her won't come back that week.",
             }, "Clear Bram's debt to unlock.", p => p.Cleared >= 1),
         new(Isolde, "Isolde", "The Collection", "Bram's niece by marriage, a lady who has never sold a thing she liked.",
             new[]
             {
-                $"A shelf from the start: she can display {IsoldeShelf} things at the roadside stall.",
+                $"A shelf from the start: she can display {IsoldeShelf} things at Bram's stall.",
                 $"Visitors pay to see her collection: every night, {AdmissionPerPoint}g per point of exhibition.",
                 "Her collection is not for pawning: on a short night, the Guild can only take her curios.",
-            }, "Open King Aldric's vault to unlock.", p => p.Vaults >= 1),
+            }, "Open the Crown Chest to unlock.", p => p.Vaults >= 1),
     };
 
     public static CharacterDef Get(string key) => All.FirstOrDefault(c => c.Key == key) ?? All[0];
@@ -66,10 +66,10 @@ public static class Characters
     /// <summary>What one thing of this kind weighs on Hesk's scale, in pounds.</summary>
     public static float Pounds(Category kind) => kind switch
     {
-        Category.Metal => 6,
+        Category.Arms => 6,
         Category.Coins => 4,
-        Category.Cloth => 3,
-        Category.Bottles => 3,
+        Category.Garb => 3,
+        Category.Potions => 3,
         _ => 1,
     };
 
@@ -77,7 +77,7 @@ public static class Characters
     /// What a fake weighs: gilded iron half what the gold it apes does (gold is heavy, iron isn't), a bag of sand three
     /// times a bundle of papers.
     /// </summary>
-    public static float FakePounds(Category kind) => kind == Category.Paper ? 3 : Pounds(kind) / 2;
+    public static float FakePounds(Category kind) => kind == Category.Scrolls ? 3 : Pounds(kind) / 2;
 
     public static float Pounds(Item item) => item.Fake ? FakePounds(item.Category) : Pounds(item.Category);
 
@@ -108,7 +108,7 @@ public static class Challenges
     /// <summary>The Guild's interest on every due.</summary>
     public const float InterestRate = 1.1f;
 
-    /// <summary>With forgers about: the chance any coin from any seller is a gilded slug.</summary>
+    /// <summary>With demon gold about: the chance any coin from any seller is gilded iron.</summary>
     public const float SlugChance = 0.05f;
 
     /// <summary>When everyone's in a hurry: seconds each seller gives you.</summary>
@@ -118,12 +118,12 @@ public static class Challenges
     {
         new(Stretched, "Bram's stretched thin", "Bram's secret stash has one dip fewer, and his word is good one time fewer."),
         new(FussySellers, "Fussy sellers", "Every seller minds a drop, and puts the price up by half."),
-        new(Forgers, "Forgers", "One coin in twenty is a gilded slug, whoever brings it."),
+        new(Forgers, "Demon gold about", "One coin in twenty is demon gold, whoever brings it."),
         new(LeanStart, "Lean start", "You start with half the gold."),
-        new(ThinCrowds, "Thin crowds", "One customer fewer every day at the roadside stall."),
-        new(Hurried, "Hurried", $"Every seller gives you {HurriedPatience:0} seconds."),
+        new(ThinCrowds, "Thin crowds", "One customer fewer every day at Bram's stall."),
         new(Interest, "The Guild's interest", "Every week's due is a tenth higher."),
         new(SharpSellers, "Sharp sellers", "Every seller asks a twentieth more, and takes a twentieth more."),
+        new(Hurried, "Hurried", $"Every seller gives you {HurriedPatience:0} seconds."),
     };
 
     public static ChallengeDef Get(int level) => All[Math.Clamp(level, 1, Max) - 1];
@@ -169,8 +169,8 @@ public static class Talents
         new("curio", "Curio Cabinet", "Room for one more curio.", 1000, Favour, "keepsake"),
 
         new("ledger", "Bram's Ledger", "Every seller's habits are in your ledger before you meet them.", 100, Trade, "kin"),
-        new("early", "Early Name", "Synergies open with the village shop, not the town shop.", 250, Trade, "ledger"),
-        new("tools", "Trade Secrets", "The witchlight and the magnet cost half.", 500, Trade, "early"),
+        new("early", "Early Name", "Synergies open at Thornwick, not Crownhold.", 250, Trade, "ledger"),
+        new("tools", "Trade Secrets", "The witchlight and the lodestone cost half.", 500, Trade, "early"),
         new("favour", "Royal Favour", "One more synergy active at once.", 1000, Trade, "tools"),
     };
 
@@ -213,9 +213,9 @@ public static class Score
             int spare = Math.Max(0, Guild.Weeks * Guild.DaysPerWeek - state.ClearedDay);
             Add($"Days to spare ({spare})", spare * PerDaySpare);
         }
-        if (state.VaultOpened) Add("King Aldric's vault", Vault);
-        else Add($"Map pieces ({state.MapPieces})", state.MapPieces * PerPiece);
-        Add($"Renovations ({state.Tier - 1})", (state.Tier - 1) * PerRenovation);
+        if (state.VaultOpened) Add("The Crown Chest", Vault);
+        else Add($"Key shards ({state.MapPieces})", state.MapPieces * PerPiece);
+        Add($"Moves ({state.Tier - 1})", (state.Tier - 1) * PerRenovation);
         Add($"Collection ({state.Found.Count} of {Collection.Size})", state.Found.Count * PerFind);
         int endless = Math.Max(0, state.WeeksPaid - Guild.Weeks);
         Add($"Weeks after the debt ({endless})", endless * PerEndlessWeek);

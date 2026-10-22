@@ -8,8 +8,9 @@ namespace LootFall.Ui;
 /// <summary>
 /// The shop's ledger. Sounds: one row per kind of thing your shop sees (its sound, how hard you must shake to hear it,
 /// how heavy it is, and what one is worth if it's as good as each colour of chest promises; click a row to hear it),
-/// and the rules of listening. Regulars: how each seller you've met judges a chest, trades and behaves, shop by shop.
-/// Collection: everything you've found so far. Synergies: what the shop could be known for, how far along each is, and
+/// and the rules of listening. Regulars: how each seller you've met judges a chest, trades and behaves, and how far
+/// their stories hold up, place by place. Places: where chests come from, and what each tends to hold. Collection:
+/// everything you've found so far. Synergies: what the shop could be known for, how far along each is, and
 /// (at the end of a day) which are active.
 /// </summary>
 public partial class LedgerView : Node2D
@@ -50,10 +51,11 @@ public partial class LedgerView : Node2D
         AddChild(UiKit.MakeLabel("LEDGER", 32, Palette.Gold, outline: 4).Place(PanelX + 24, PanelY + 10, 200, 40));
         AddChild(UiKit.MakeButton("Sounds", Palette.Text, 16, () => ShowPage(0)).Place(PanelX + 220, PanelY + 14, 120, 36));
         AddChild(UiKit.MakeButton("Regulars", Palette.Text, 16, () => ShowPage(1)).Place(PanelX + 348, PanelY + 14, 140, 36));
-        AddChild(UiKit.MakeButton("Collection", Palette.Text, 16, () => ShowPage(2)).Place(PanelX + 496, PanelY + 14, 160, 36));
-        // Synergies come with the town shop: before that, the journal just keeps its tally.
+        AddChild(UiKit.MakeButton("Places", Palette.Text, 16, () => ShowPage(4)).Place(PanelX + 496, PanelY + 14, 120, 36));
+        AddChild(UiKit.MakeButton("Collection", Palette.Text, 16, () => ShowPage(2)).Place(PanelX + 624, PanelY + 14, 160, 36));
+        // Synergies come with Crownhold: before that, the journal just keeps its tally.
         if (_state.SynergiesOpen)
-            AddChild(UiKit.MakeButton("Synergies", Palette.Text, 16, () => ShowPage(3)).Place(PanelX + 664, PanelY + 14, 152, 36));
+            AddChild(UiKit.MakeButton("Synergies", Palette.Text, 16, () => ShowPage(3)).Place(PanelX + 792, PanelY + 14, 152, 36));
         AddChild(UiKit.MakeButton("Close  [L]", Palette.Text, 16, Close).Place(PanelX + PanelW - 168, PanelY + 12, 144, 40));
         _page = new Node2D();
         AddChild(_page);
@@ -64,12 +66,13 @@ public partial class LedgerView : Node2D
         CreateTween().TweenProperty(this, "modulate", Colors.White, 0.15f);
     }
 
-    /// <summary>0: sounds, 1: regulars, 2: collection, 3: synergies.</summary>
+    /// <summary>0: sounds, 1: regulars, 2: collection, 3: synergies, 4: places.</summary>
     public void ShowPage(int page)
     {
         foreach (var child in _page.GetChildren()) child.QueueFree();
         if (page == 1) BuildRegulars(Spread(_state.Tier));
         else if (page == 2) BuildCollection();
+        else if (page == 4) BuildPlaces();
         else if (page == 3 && _state.SynergiesOpen) BuildSynergies();
         else BuildSounds();
     }
@@ -82,7 +85,7 @@ public partial class LedgerView : Node2D
     {
         int slots = _state.SynergySlots, active = _state.ActiveSynergies.Count;
         string intro = _choosing
-            ? $"Active: {active} of {slots}. Switch one on to put it to work; more slots come with a Guild Charter and a Royal Seal."
+            ? $"Active: {active} of {slots}. Switch one on to put it to work; more slots come with a Crownhold Charter and a Royal Seal."
             : $"Active: {active} of {slots}. You choose at the end of a day.";
         _page.AddChild(UiKit.MakeLabel(intro, 16, Palette.Muted).Place(TableX, PanelY + 60, PanelW - 48, 20));
         const float rowH = 58;
@@ -196,12 +199,12 @@ public partial class LedgerView : Node2D
 
         var rules = new[]
         {
-            "Light things rattle at a gentle shake, metal at a firm one, soft things only at a hard one. Click a row to hear it.",
-            "While metal clanks, delicate things go unheard: shake gently to hear past it.",
+            "Light things rattle at a gentle shake, arms at a firm one, soft things only at a hard one. Click a row to hear it.",
+            "While arms clank, delicate things go unheard: shake gently to hear past it.",
             tier >= 2 ? "Dropped, a chest with a false bottom booms hollow. Glass may break." : null,
-            tier >= 3 ? "Two or three of a kind each sound from their own spot: count them. Sand rustles like paper, but pours at a gentle shake." : null,
+            tier >= 3 ? "Two or three of a kind each sound from their own spot: count them. Sand rustles like a scroll, but pours at a gentle shake." : null,
             tier >= 3 ? $"Anything can be enchanted: it sounds the same, but glows under a witchlight. Worth x{Categories.MagicMultiplier}." +
-                        (tier >= 4 ? " Gilded fakes are iron: a magnet silences them." : "") : null,
+                        (tier >= 4 ? " Demon gold is iron under the gilt: a lodestone silences it." : "") : null,
         }.Where(r => r != null).ToArray();
         _page.AddChild(UiKit.MakeLabel(string.Join("\n", rules.Select(r => "- " + r)), 16, Palette.Text)
             .Place(TableX, y + 34 + kinds.Count * RowH, PanelW - 48, 140));
@@ -219,7 +222,7 @@ public partial class LedgerView : Node2D
         row.AddChild(UiKit.MakeLabel(Categories.LevelName(kind.StirsAt), 16, Palette.Level(kind.StirsAt)).Place(338, 8, 100, 20));
         row.AddChild(UiKit.MakeLabel(Categories.HeftWord(kind.Category), 16, Palette.Text).Place(428, 8, 100, 20));
         string note = kind.Loud ? "loud: drowns delicate" : kind.Delicate ? "delicate: clanks drown it" : "soft: hard shake only";
-        if (kind.FakeName != null && kind.FakeIron && tier >= 4) note = "delicate; Silas fakes it";
+        if (kind.FakeName != null && kind.FakeIron && tier >= 4) note = "delicate; demon gold apes it";
         else if (kind.FakeName != null && !kind.FakeIron && tier >= 3) note = "soft; sand sounds alike";
         row.AddChild(UiKit.MakeLabel(note, 16, Palette.Muted).Place(528, 8, 236, 20));
         for (int c = 0; c < 4; c++)
@@ -236,23 +239,21 @@ public partial class LedgerView : Node2D
         return row;
     }
 
-    /// <summary>Which spread of the regulars a shop tier's sellers are on: the stall and village share one.</summary>
-    static int Spread(int tier) => Math.Max(0, tier - 2);
+    /// <summary>Which spread of the regulars a shop tier's sellers are on: one per place.</summary>
+    static int Spread(int tier) => Math.Clamp(tier, 1, ShopTiers.Max) - 1;
 
-    static readonly string[] SpreadNames = { "Stall and village", "Town", "Emporium" };
-
-    /// <summary>The regulars, a spread per shop (the stall and village share one), with buttons along the bottom.</summary>
+    /// <summary>The regulars, a spread per place, with buttons along the bottom.</summary>
     void BuildRegulars(int spread)
     {
         int total = Sellers.All.Count(s => s.Tier <= _state.Tier);
         int metCount = Sellers.All.Count(s => s.Tier <= _state.Tier && _state.Met.Contains(s.Key));
         _page.AddChild(UiKit.MakeLabel($"{metCount} of {total} met", 16, Palette.Muted, HorizontalAlignment.Right)
             .Place(PanelX + PanelW - 224, PanelY + PanelH - 32, 200, 20));
-        for (int i = 0; i <= Spread(_state.Tier) && _state.Tier >= 3; i++)
+        for (int i = 0; i <= Spread(_state.Tier) && _state.Tier >= 2; i++)
         {
             int which = i;
-            _page.AddChild(UiKit.MakeButton(SpreadNames[i], spread == i ? Palette.Gold : Palette.Text, 16, () => ShowRegulars(which))
-                .Place(TableX + i * 200, PanelY + PanelH - 44, 192, 34));
+            _page.AddChild(UiKit.MakeButton(ShopTiers.Name(i + 1), spread == i ? Palette.Gold : Palette.Text, 16, () => ShowRegulars(which))
+                .Place(TableX + i * 216, PanelY + PanelH - 44, 208, 34));
         }
 
         var met = Sellers.All.Where(s => s.Tier <= _state.Tier && Spread(s.Tier) == spread && _state.Met.Contains(s.Key)).ToList();
@@ -263,13 +264,65 @@ public partial class LedgerView : Node2D
         }
         for (int i = 0; i < met.Count; i++)
         {
-            float x = TableX + i % 2 * 580, y = PanelY + 62 + i / 2 * 86;
-            _page.AddChild(UiKit.MakeSprite($"res://assets/sprites/sellers/{met[i].Key}.png", new Vector2(x + 20, y + 24), 1));
-            string trade = met[i].Trade switch { Trade.Haggle => "haggles", Trade.Offer => "you name the price", _ => "fixed price" };
-            _page.AddChild(UiKit.MakeLabel($"{met[i].Name}: {met[i].JudgeWord}, {trade}", 16, Palette.Gold).Place(x + 52, y + 2, 520, 20));
-            _page.AddChild(UiKit.MakeLabel(met[i].Habit, 16, Palette.Text).Wrapped().Place(x + 52, y + 22, 510, 64));
+            var seller = met[i];
+            float x = TableX + i % 2 * 580, y = PanelY + 58 + i / 2 * 98;
+            _page.AddChild(UiKit.MakeSprite($"res://assets/sprites/sellers/{seller.Key}.png", new Vector2(x + 20, y + 24), 1));
+            string trade = seller.Trade switch { Trade.Haggle => "haggles", Trade.Offer => "you name the price", _ => "fixed price" };
+            var name = UiKit.MakeLabel(seller.Name, 16, Palette.Gold).Place(x + 52, y + 2, 260, 20);
+            name.TooltipText = $"{seller.Name} {seller.JudgeWord}; {trade}.";
+            name.MouseFilter = Control.MouseFilterEnum.Pass;
+            _page.AddChild(name);
+            var (story, trusted) = StoryLine(seller);
+            _page.AddChild(UiKit.MakeLabel(story, 16, trusted ? Palette.Good : Palette.Warn, HorizontalAlignment.Right).Place(x + 252, y + 2, 300, 20));
+            _page.AddChild(UiKit.MakeLabel(seller.Habit, 16, Palette.Text).Wrapped().Place(x + 52, y + 22, 510, 70));
         }
     }
+
+    /// <summary>How far to trust what they say about where a chest came from (Bram's word), and your own tally of it.</summary>
+    (string Text, bool Trusted) StoryLine(SellerDef seller)
+    {
+        if (seller.Stories.Count == 0 && seller.Tales.Length == 0) return ("", true);
+        var (told, truths) = _state.StoriesChecked(seller.Key);
+        string word = seller.Honesty >= 1 ? "Stories: true" : seller.Honesty <= 0 ? "Stories: lies" : seller.Honesty >= 0.6f ? "Stories: mostly true"
+            : "Stories: often tall";
+        return (told == 0 ? word : $"{word} ({truths}/{told} true)", seller.Honesty >= 0.6f);
+    }
+
+    /// <summary>
+    /// Where chests come from, two columns of them: what each place tends to hold, and the kinds you'd mostly hear. Only
+    /// places you've heard of (a story told true, or a chest of theirs opened) are filled in.
+    /// </summary>
+    void BuildPlaces()
+    {
+        var kinds = Categories.UpTo(_state.Tier).ToList();
+        var places = Origins.All.Where(o => _state.Places.Contains(o.Key)).ToList();
+        _page.AddChild(UiKit.MakeLabel($"{places.Count} of {Origins.All.Length} places heard of. Where a chest came from says what it " +
+                                       "tends to hold; not every seller says so truthfully.", 16, Palette.Muted).Place(TableX, PanelY + 60, PanelW - 48, 20));
+        if (places.Count == 0)
+        {
+            _page.AddChild(UiKit.MakeLabel("Nobody's told you where their chest came from yet.", 24, Palette.Muted, HorizontalAlignment.Center)
+                .Place(PanelX, 300, PanelW, 30));
+            return;
+        }
+        const float rowH = 42;
+        for (int i = 0; i < places.Count; i++)
+        {
+            var place = places[i];
+            float x = TableX + i / 10 * 580, y = PanelY + 88 + i % 10 * rowH;
+            _page.AddChild(UiKit.MakeLabel(Capital(place.Name), 16, Palette.Gold).Place(x, y, 300, 20));
+            _page.AddChild(UiKit.MakeLabel(place.Holds, 16, Palette.Text).Place(x, y + 18, 400, 20));
+            // The kinds you'd mostly hear in a chest from there (at this shop): the likeliest first.
+            float total = kinds.Sum(k => place.Kinds[(int)k.Category]);
+            var mostly = kinds.Where(k => place.Kinds[(int)k.Category] / total >= 0.2f).OrderByDescending(k => place.Kinds[(int)k.Category]).Take(3).ToList();
+            for (int k = 0; k < mostly.Count; k++)
+            {
+                var icon = UiKit.MakeKindIcon(mostly[k].Category, new Vector2(x + 440 + k * 36, y + 18));
+                _page.AddChild(icon);
+            }
+        }
+    }
+
+    static string Capital(string text) => char.ToUpperInvariant(text[0]) + text[1..];
 
     void ShowRegulars(int spread)
     {

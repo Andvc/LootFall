@@ -28,7 +28,7 @@ public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Early Access 0.14";
+    public const string Version = "Early Access 0.15";
     const string SavePath = "user://save.json", ProfilePath = "user://profile.json";
 
     public GameState State { get; private set; }
@@ -366,10 +366,10 @@ public partial class Main : Node2D
         Hud.SetGold(State.Gold, animate: false);
         var chest = new Chest(new[]
         {
-            new Item(Category.Metal, Rarity.Common), new Item(Category.Cloth, Rarity.Uncommon), new Item(Category.Bottles, Rarity.Rare),
-            new Item(Category.Coins, Rarity.Epic), new Item(Category.Jewels, Rarity.Legendary),
-        }, Rarity.Rare, new Item(Category.Paper, Rarity.Rare, Magic: true));
-        var visit = Market.Price(State.Rng, Sellers.Get("vex"), chest, ShopTiers.Max, ask: 300);
+            new Item(Category.Arms, Rarity.Common), new Item(Category.Garb, Rarity.Uncommon), new Item(Category.Potions, Rarity.Rare),
+            new Item(Category.Coins, Rarity.Epic), new Item(Category.Gems, Rarity.Legendary),
+        }, Rarity.Rare, new Item(Category.Scrolls, Rarity.Rare, Magic: true));
+        var visit = Market.Price(State.Rng, Sellers.Get("vexis"), chest, ShopTiers.Max, ask: 300);
         visit.Buy(State.Rng);
         State.Opening = State.Buy(visit, new Appraisal(chest.Quality, ShopTiers.Max, chest.Items.Select(i => i.Category)));
         var opening = new Phases.OpeningPhase();
@@ -435,10 +435,10 @@ public partial class Main : Node2D
     /// <summary>After the day's end: the Guild's introduction (the first evening), its due (the fifth), or the next morning.</summary>
     public void CloseDay()
     {
-        if (!State.GuildIntroduced) SwitchTo(new ScenePhase(Story.Intro(), StartDay, "THE GREY GUILD"));
+        if (!State.GuildIntroduced) SwitchTo(new ScenePhase(Story.Intro(), StartDay, "THE GILDED GUILD"));
         else if (State.DuesTonight && !State.PaidThisWeek) SwitchTo(new DuesPhase());
         // The debt was paid off early and the last piece of the map has just come: the vault, tonight.
-        else if (State.VaultDue) SwitchTo(new ScenePhase(Story.MapWhole(), Vault, "THE WHOLE MAP"));
+        else if (State.VaultDue) SwitchTo(new ScenePhase(Story.MapWhole(), Vault, "THE ALDRIC KEY"));
         else StartDay();
     }
 
@@ -502,7 +502,7 @@ public partial class Main : Node2D
     {
         if (State.Opening?.Visit.Seller == Story.VaultSeller)
         {
-            SwitchTo(new ScenePhase(Story.VaultEpilogue(), () => SwitchTo(new RunEndPhase(cleared: true)), "KING ALDRIC'S VAULT"));
+            SwitchTo(new ScenePhase(Story.VaultEpilogue(), () => SwitchTo(new RunEndPhase(cleared: true)), "THE CROWN CHEST"));
             return;
         }
         NextCustomer();

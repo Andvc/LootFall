@@ -19,34 +19,37 @@ public sealed record Upgrade(string Key, string Name, string Blurb, int Cost, in
 }
 
 /// <summary>
-/// What you can spend your earnings on. Renovations bring richer customers and new things to learn; tools each answer
+/// What you can spend your earnings on. Moves (renovations) bring richer customers and new things to learn; tools each answer
 /// one question your ears can't; cabinets show off what you keep, which draws more and better customers.
 /// </summary>
 public static class Upgrades
 {
     public static readonly Upgrade[] All =
     {
-        new("shop2", "Village Shop", "5 customers a day, better chests, locks, and two new sounds: slosh and rustle.", 60, 1, "shop", SetsTier: 2),
+        new("shop2", "Move to Thornwick", "A shop at Thornwick Market: 5 customers a day, better chests, locks, and two new sounds: potions and scrolls.",
+            60, 1, "shop", SetsTier: 2),
 
         new("sign", "Painted Sign", "One more customer every day.", 40, 2, "sign", Customers: 1),
         new("cabinet1", "Oak Cabinet", "Room to display one more thing. Displays draw customers.", 60, 2, "cabinet", Slots: 1),
         new("picks", "Fine Lockpicks", "A wider sweet spot when you pick a lock.", 50, 2, "picks"),
         new("cabinet2", "Oak Dresser", "Room to display one more thing.", 120, 2, "cabinet", Slots: 1, Requires: "cabinet1"),
-        new("shop3", "Town Shop", "6 customers a day: mages with enchanted things, a miner, and jewelry.", 300, 2, "shop", SetsTier: 3),
+        new("shop3", "Move to Crownhold", "A shop in the capital: 6 customers a day, archmages with enchanted things, a dwarf, and gems.",
+            300, 2, "shop", SetsTier: 3),
 
         new("lamp", "Witchlight", "Always lit: anything enchanted glows when it makes a sound. Nobody else can see it.", 200, 3, "lamp"),
         new("cabinet3", "Glass Cabinet", "Room to display one more thing.", 250, 3, "cabinet", Slots: 1, Requires: "cabinet2"),
-        new("charter", "Guild Charter", "Two synergies at once.", 300, 3, "charter", SynergySlots: 1),
+        new("charter", "Crownhold Charter", "Two synergies at once.", 300, 3, "charter", SynergySlots: 1),
         new("case", "Curio Case", "Room for one more curio.", 250, 3, "case", CurioSlots: 1),
         new("cabinet4", "Glass Case", "Room to display one more thing.", 400, 3, "cabinet", Slots: 1, Requires: "cabinet3"),
-        new("shop4", "The Emporium", "7 customers a day: nobles, adventurers and a crook.", 2000, 3, "shop", SetsTier: 4),
+        new("shop4", "The Royal Emporium", "By the Gilded Gate: 7 customers a day, the court, demons, and a fence for the Maw.", 2000, 3, "shop",
+            SetsTier: 4),
 
-        new("magnet", "Magnet", "Iron can't move: no clanking, and gilded fakes go quiet.", 400, 4, "magnet"),
+        new("magnet", "Lodestone", "Iron can't move near it: no clanking, and demon gold goes quiet.", 400, 4, "magnet"),
         new("cabinet5", "Gilded Cabinet", "Room to display one more thing.", 700, 4, "cabinet", Slots: 1, Requires: "cabinet4"),
         new("seal", "Royal Seal", "Three synergies at once.", 900, 4, "seal", SynergySlots: 1, Requires: "charter"),
         new("cabinet6", "Gilded Case", "Room to display one more thing.", 1100, 4, "cabinet", Slots: 1, Requires: "cabinet5"),
 
-        // The Emporium's own: big sums to grow into while the Guild's dues climb.
+        // The Royal Emporium's own: big sums to grow into while the Guild's dues climb.
         new("night", "Night Market", "Open after dark: two more customers every day.", 2500, 4, "night", Customers: 2),
         new("patrons", "Patrons' Book", "The regulars post four commissions a week, not three.", 4000, 4, "patrons", Commissions: 1),
         new("velvet", "Velvet Case", "Room for one more curio.", 6000, 4, "case", CurioSlots: 1, Requires: "case"),

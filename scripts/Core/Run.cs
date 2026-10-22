@@ -294,12 +294,12 @@ public sealed partial class GameState
     {
         var items = new[]
         {
-            new Item(Category.Coins, Rarity.Legendary, Magic: true), new Item(Category.Jewels, Rarity.Legendary, Magic: true),
-            new Item(Category.Metal, Rarity.Legendary), new Item(Category.Cloth, Rarity.Legendary), new Item(Category.Bottles, Rarity.Epic, Magic: true),
-            new Item(Category.Paper, Rarity.Legendary), new Item(Category.Jewels, Rarity.Epic), new Item(Category.Coins, Rarity.Epic),
+            new Item(Category.Coins, Rarity.Legendary, Magic: true), new Item(Category.Gems, Rarity.Legendary, Magic: true),
+            new Item(Category.Arms, Rarity.Legendary), new Item(Category.Garb, Rarity.Legendary), new Item(Category.Potions, Rarity.Epic, Magic: true),
+            new Item(Category.Scrolls, Rarity.Legendary), new Item(Category.Gems, Rarity.Epic), new Item(Category.Coins, Rarity.Epic),
         };
-        var chest = new Chest(items, Rarity.Legendary, new Item(Category.Jewels, Rarity.Legendary), LockTiers.All[3], gilded: true);
-        return new Visit(Story.VaultSeller, chest, Array.Empty<Category>(), Trade.Fixed, 0, 1, "King Aldric's vault.");
+        var chest = new Chest(items, Rarity.Legendary, new Item(Category.Gems, Rarity.Legendary), LockTiers.All[3], gilded: true);
+        return new Visit(Story.VaultSeller, chest, Array.Empty<Category>(), Trade.Fixed, 0, 1, "The Crown Chest.");
     }
 
     // ---- Curios ----
@@ -370,8 +370,8 @@ public sealed partial class GameState
         // A gambler's luck: some of what came out as promised swings, better or (more often) worse.
         Apply("token", i => i.Quality == chest.Quality && Rng.NextFloat() < Curios.TokenSwing ? i with { Quality = Categories.Swing(Rng, i.Quality) } : i);
         // A smith or a hatter mends what came out worse than the chest promised.
-        Apply("gauntlet", i => i.Category == Category.Metal && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
-        Apply("cap", i => i.Category == Category.Cloth && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
+        Apply("gauntlet", i => i.Category == Category.Arms && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
+        Apply("cap", i => i.Category == Category.Garb && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
         return (curio, changed);
     }
 
@@ -396,7 +396,7 @@ public sealed partial class GameState
                                        (EventIs("buyer") && kind == BuyerKind ? Events.BuyerSales : 1);
 
     /// <summary>What a fake sells for: nothing much, unless a jeweller's loupe knows good paste from a bag of sand.</summary>
-    float FakeValue(Item item) => HasCurio("loupe") && item.Category is Category.Coins or Category.Jewels
+    float FakeValue(Item item) => HasCurio("loupe") && item.Category is Category.Coins or Category.Gems
         ? Categories.Value(item.Category, item.Quality, false) * Curios.LoupeFakes
         : item.Value;
 

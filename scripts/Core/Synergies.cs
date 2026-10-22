@@ -76,28 +76,28 @@ public static class Synergies
     {
         new()
         {
-            Key = "jewelry", Name = "Jewelry Tycoon", Blurb = "Coins and jewelry", Kinds = new[] { Category.Coins, Category.Jewels }, Tier = 3,
-            Effect = l => $"Moneychangers and jewellers come your way: coins and jewelry turn up in chests {Pct(MoneyKinds(l))} more often.",
+            Key = "jewelry", Name = "Goldsmith", Blurb = "Coin and gems", Kinds = new[] { Category.Coins, Category.Gems }, Tier = 3,
+            Effect = l => $"Moneychangers and jewellers come your way: coin and gems turn up in chests {Pct(MoneyKinds(l))} more often.",
         },
         new()
         {
-            Key = "smith", Name = "Smithing Tycoon", Blurb = "Metal", Kinds = new[] { Category.Metal },
-            Effect = l => $"Smiths and soldiers, who bring plenty of metal, come {Pct(SmithVisits(l) - 1)} more often.",
+            Key = "smith", Name = "Armourer", Blurb = "Arms", Kinds = new[] { Category.Arms },
+            Effect = l => $"Soldiers, knights and dwarves, who bring plenty of arms, come {Pct(SmithVisits(l) - 1)} more often.",
         },
         new()
         {
-            Key = "vintner", Name = "Vintner", Blurb = "Bottles", Kinds = new[] { Category.Bottles }, Tier = 2,
-            Effect = l => l >= SynergyDef.MaxLevel ? "Packed like a vintner: glass never breaks, dropped or forced."
-                : $"Packed like a vintner: glass is {Pct(Sturdier(l))} less likely to break, dropped or forced.",
+            Key = "vintner", Name = "Apothecary", Blurb = "Potions", Kinds = new[] { Category.Potions }, Tier = 2,
+            Effect = l => l >= SynergyDef.MaxLevel ? "Packed like an apothecary's: glass never breaks, dropped or forced."
+                : $"Packed like an apothecary's: glass is {Pct(Sturdier(l))} less likely to break, dropped or forced.",
         },
         new()
         {
-            Key = "archivist", Name = "Archivist", Blurb = "Paper", Kinds = new[] { Category.Paper }, Tier = 2,
+            Key = "archivist", Name = "Archivist", Blurb = "Scrolls", Kinds = new[] { Category.Scrolls }, Tier = 2,
             Effect = l => $"People trust you with their secrets: chests are {Pct(HiddenBonus(l))} likelier to have a false bottom.",
         },
         new()
         {
-            Key = "tailor", Name = "Tailor", Blurb = "Cloth", Kinds = new[] { Category.Cloth },
+            Key = "tailor", Name = "Clothier", Blurb = "Garb", Kinds = new[] { Category.Garb },
             Effect = l => $"Fine drapery: your exhibition counts +{Pct(ShowBonus(l))}.",
         },
         new()
@@ -126,6 +126,6 @@ public static class Synergies
     public static int KeenFee(int level) => level;
     public static float MagicBonus(int level) => 0.01f * level;
 
-    /// <summary>How much more often smiths and soldiers (who bring a lot of metal) come in.</summary>
+    /// <summary>How much more often soldiers, knights and dwarves (who bring a lot of arms) come in.</summary>
     public static float SmithVisits(int level) => 1f + 0.2f * level;
 }

@@ -9,8 +9,8 @@ namespace LootFall.Core;
 public sealed record EventDef(string Key, string Name, string Blurb, int MinTier = 1);
 
 /// <summary>
-/// Once a week, from the second, something happens in town for a day: a crowd, a festival, a buyer for one kind of
-/// thing, a gilded chest, a stranger with a sealed chest, a storm, a shipwreck. Each changes what a good day looks like.
+/// Once a week, from the second, something happens in town for a day: a fair, Locking Day, the Crown's buyer, a
+/// royal chest, the Stranger with a chained chest, a storm, a barge aground. Each changes what a good day looks like.
 /// </summary>
 public static class Events
 {
@@ -21,13 +21,13 @@ public static class Events
 
     public static readonly EventDef[] All =
     {
-        new("market", "Market Day", "The whole county's in town: three more customers today."),
-        new("festival", "Harvest Festival", "Everyone's in a spending mood: everything sells for a quarter more today."),
-        new("buyer", "The Royal Buyer", "The Crown's buyer is in town, paying double for {kind} today."),
-        new("gilded", "A Gilded Chest", "Someone's bringing in one of the old royal chests. They think the gold is paint."),
-        new("stranger", "The Stranger", "A stranger in black is coming by with a sealed chest. Nothing in it can rattle."),
+        new("market", "Fair Day", "The whole county's in town for the fair: three more customers today."),
+        new("festival", "Locking Day", "Three hundred years since the Locking, and everyone's celebrating: everything sells for a quarter more today."),
+        new("buyer", "The Crown's Buyer", "The Crown's buyer is in town, paying double for {kind} today."),
+        new("gilded", "A Royal Chest", "Someone's bringing in one of King Aldric's own chests, gilded, with the royal seal. They think the gold is paint."),
+        new("stranger", "The Stranger", "A stranger in black is coming by with a chest wrapped in iron chains. Nothing in it can rattle."),
         new("storm", "A Storm", "Few will brave the rain, but those who do bring their best: chests come in a colour better."),
-        new("wreck", "A Shipwreck", "A merchantman ran aground: today's lots come in twos and threes.", MinTier: 3),
+        new("wreck", "A Barge Aground", "A treasure barge ran aground on the Aldwater: today's lots come in twos and threes.", MinTier: 3),
     };
 
     public static EventDef Get(string key) => All.First(e => e.Key == key);
@@ -35,13 +35,13 @@ public static class Events
     /// <summary>The event in a few words, for the top bar (click it for the whole story).</summary>
     public static string Tag(EventDef e, Category kind) => e.Key switch
     {
-        "market" => "Market Day: +3 customers",
-        "festival" => "Festival: sales +25%",
-        "buyer" => $"Royal Buyer: {Categories.Get(kind).Name.ToLowerInvariant()} x2",
-        "gilded" => "A gilded chest today",
+        "market" => "Fair Day: +3 customers",
+        "festival" => "Locking Day: sales +25%",
+        "buyer" => $"Crown's Buyer: {Categories.Get(kind).Name.ToLowerInvariant()} x2",
+        "gilded" => "A royal chest today",
         "stranger" => "The Stranger's in town",
         "storm" => "Storm: better chests",
-        "wreck" => "Shipwreck: lots of pairs",
+        "wreck" => "Barge aground: lots of pairs",
         _ => e.Name,
     };
 
@@ -64,15 +64,16 @@ public static class Events
     }
 
     /// <summary>
-    /// The Stranger: never says where it's from, never lets you open it first. It's packed tight in straw, so nothing
-    /// inside can move; all you can tell is how heavy it is. Mostly junk, sometimes a fair lot, now and then a fortune.
+    /// The Stranger: never says where it's from, never lets you open it first. It's wrapped tight in iron chains, so
+    /// nothing inside can move; all you can tell is how heavy it is. Mostly junk, sometimes a fair lot, now and then a fortune.
     /// </summary>
     public static readonly SellerDef Stranger = new()
     {
         Key = "stranger", Name = "The Stranger", Tier = 1, Judge = Judgment.Clueless,
         Kinds = new[] { 1f, 1, 1, 1, 1, 1 }, Colours = new[] { 1f, 0, 0, 0 },
-        Habit = "Sells sealed chests packed tight in straw: nothing rattles. Heavy ones hold more.",
-        Pitches = new[] { "Packed tight. No rattles, no questions. {price}.", "Sealed. You'll know when you open it. {price}." },
+        Habit = "Sells chests wrapped in iron chains: nothing inside can move, so nothing rattles. Heavy ones hold more.",
+        Pitches = new[] { "Chained tight. No rattles, no questions. {price}.", "Where from? Somewhere that wanted it kept shut. {price}.",
+                          "Some chests are better left shut. Not this one. {price}." },
         Accepts = new[] { "Wise.", "We'll meet again." },
         Leaves = new[] { "Another time." },
     };
@@ -111,7 +112,7 @@ public static class Events
     }
 
     /// <summary>
-    /// Gilds a visit: the chest is one of the old royal ones, a colour better than its seller thinks (gold, if it was
+    /// Gilds a visit: the chest is one of King Aldric's own, a colour better than its seller thinks (gold, if it was
     /// purple), with something enchanted in it. The seller's price stays what it was.
     /// </summary>
     public static Visit Gild(Random rng, Visit visit)
@@ -123,6 +124,9 @@ public static class Events
         int magic = rng.Next(items.Count);
         items[magic] = items[magic] with { Magic = true, Fake = false };
         var chest = new Chest(items, colour, old.Hidden, old.Lock, gilded: true);
-        return new Visit(visit.Seller, chest, visit.Claim, visit.Trade, visit.Ask, visit.Floor, visit.Pitch);
+        return new Visit(visit.Seller, chest, visit.Claim, visit.Trade, visit.Ask, visit.Floor, visit.Pitch)
+        {
+            Origin = visit.Origin, ToldTruth = visit.ToldTruth, Fee = visit.Fee,
+        };
     }
 }

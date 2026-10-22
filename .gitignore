@@ -13,3 +13,4 @@ obj/
 build/
 shots*/
 movies/
+__pycache__/

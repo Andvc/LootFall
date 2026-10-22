@@ -27,7 +27,7 @@ public partial class Hud : CanvasLayer
             p.DrawRect(new Rect2(0, 54, 1280, 3), Palette.PanelBorder);
             p.DrawRect(new Rect2(0, 57, 1280, 3), new Color(0, 0, 0, 0.6f));
         }));
-        AddChild(UiKit.MakeSprite("res://assets/sprites/items/gold_doubloons.png", Purse, 2));
+        AddChild(UiKit.MakeSprite("res://assets/sprites/items/gold_crowns.png", Purse, 2));
         AddChild(UiKit.MakeLabel("LOOTFALL", 32, Palette.Gold, outline: 4).Place(24, 8, 300, 40));
         _earlyAccess = UiKit.MakeLabel("early access", 16, Palette.Muted).Place(196, 20, 160, 20);
         AddChild(_earlyAccess);
@@ -40,7 +40,7 @@ public partial class Hud : CanvasLayer
         AddChild(_lot);
         // The Guild's next due, and when: it turns orange when you haven't got it yet.
         _dueChip = UiKit.MakePanel(Palette.PanelBorder).Place(760, 5, 200, 46);
-        _dueChip.TooltipText = "The Grey Guild's next due. Pay it when Mister Vane comes, or lose the shop.";
+        _dueChip.TooltipText = "The Gilded Guild's next tithe. Pay it when Mister Vane comes, or the Guild seals the shop.";
         var emblem = UiKit.MakeSprite("res://assets/ui/guild.png", new Vector2(24, 23), 1);
         emblem.Scale = Vector2.One * 0.5f;
         _dueChip.AddChild(emblem);
