@@ -99,8 +99,10 @@ BACKGROUNDS = {
     "ruins": ("15", 104),
     "frostpeak": ("7", 40),
     "roost": ("1-night", 84),
-    "title": ("19", 40),
 }
+
+# The title screen's backdrop: a 640x360 window of a picture (shown at 2x, the whole screen).
+TITLE = ("19", 60)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Items: one picture per slot and rarity (Common, Uncommon, Rare, Epic, Legendary, Mythic). An entry is a sprite
@@ -320,10 +322,24 @@ def build_actors(src):
         json.dump(meta, f, indent=1, sort_keys=True)
 
 
+def key_out(img, colour):
+    """Makes every pixel of exactly this colour transparent (the effects' GIFs are drawn on an opaque grey)."""
+    img = img.copy()
+    px = img.load()
+    for y in range(img.height):
+        for x in range(img.width):
+            if px[x, y][:3] == colour:
+                px[x, y] = (0, 0, 0, 0)
+    return img
+
+
+FX_BACKGROUND = (151, 151, 151)
+
+
 def build_fx(src):
     meta = {}
     for name, number in FX.items():
-        frames = gif_frames(os.path.join(src, BATTLE, "fx", f"{number}.gif"))
+        frames = [(key_out(f, FX_BACKGROUND), d) for f, d in gif_frames(os.path.join(src, BATTLE, "fx", f"{number}.gif"))]
         box = union_box([f for f, _ in frames])
         cropped = [f.crop(box) for f, _ in frames]
         save(strip(cropped), "sprites", "fx", f"{name}.png")
@@ -336,9 +352,15 @@ def build_backgrounds(src):
     for name, (number, top) in BACKGROUNDS.items():
         img = Image.open(os.path.join(src, BATTLE, "backgrounds", f"{number}.png")).convert("RGBA")
         save(img.crop((0, top, 640, top + BACKGROUND_H)), "backgrounds", f"{name}.png")
+    number, top = TITLE
+    img = Image.open(os.path.join(src, BATTLE, "backgrounds", f"{number}.png")).convert("RGBA")
+    save(img.crop((0, top, 640, top + 360)), "backgrounds", "title.png")
 
 
 def build_items(src):
+    # The coin that flies to the gold counter.
+    coin = Image.open(os.path.join(src, BATTLE, "item", "19.png")).convert("RGBA")
+    save(coin.crop(coin.getbbox()), "sprites", "coin.png")
     for slot, entries in ITEMS.items():
         for rarity, entry in enumerate(entries):
             number, turn, sat, val = (entry, 0, 1, 1) if isinstance(entry, int) else entry

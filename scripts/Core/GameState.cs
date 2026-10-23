@@ -387,6 +387,22 @@ public sealed class GameState
         return Pending;
     }
 
+    /// <summary>
+    /// For the opening demo: opens a chest of <paramref name="kind"/> (it needn't be in the pile) that comes out
+    /// <paramref name="rarity"/>, rolled a step lower and bumped by luck if <paramref name="lucky"/>.
+    /// </summary>
+    public Opening OpenAs(Rarity rarity, ChestKind kind = ChestKind.Wooden, bool lucky = false)
+    {
+        if (Pending != null) return null;
+        var slot = (Slot)Rng.Range(0, Slots.Count);
+        var item = ItemGen.Roll(Rng, slot, rarity, Balance.ItemLevel(ChestLevel, kind, MaxStage));
+        var with = (Item[])Equipped.Clone();
+        with[(int)slot] = item;
+        var rolled = lucky && rarity > Rarity.Common ? (Rarity)((int)rarity - 1) : rarity;
+        Pending = new Opening(kind, item, rolled, Worn(slot), Power, HeroStats.Compute(with, Training).Power(MaxStage));
+        return Pending;
+    }
+
     /// <summary>Puts the waiting item on; whatever it replaces is sold. Returns the gold from that sale.</summary>
     public double Equip()
     {
