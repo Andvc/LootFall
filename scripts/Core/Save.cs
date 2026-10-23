@@ -117,7 +117,7 @@ public sealed class SaveData
         g.HasAutoOpen = HasAutoOpen;
         g.AutoBoss = AutoBoss;
         g.AutoOpen = AutoOpen;
-        g.AutoStopAt = (Rarity)Math.Clamp(AutoStopAt, 0, Rarities.Count - 1);
+        g.AutoStopAt = (Rarity)Math.Clamp(AutoStopAt, (int)Rarity.Rare, (int)Rarity.Mythic);
         g.PlayTime = PlayTime;
         g.TotalKills = TotalKills;
         g.ChestsOpened = ChestsOpened;

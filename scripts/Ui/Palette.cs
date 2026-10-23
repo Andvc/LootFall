@@ -44,11 +44,11 @@ public static class Palette
         _ => new Color("#ff7a8f"),
     };
 
-    /// <summary>The colour of the knight's cape and plume for armour of this rarity (worn brown with none).</summary>
+    /// <summary>The colour of the knight's cape and plume for armour of this rarity (a dull grey with none).</summary>
     public static Color Cape(Rarity? rarity) => rarity switch
     {
-        null => new Color("#7a5a44"),
-        Rarity.Common => new Color("#a08060"),
+        null => new Color("#5c5866"),
+        Rarity.Common => new Color("#b85c3a"),
         Rarity.Uncommon => new Color("#3fa45a"),
         Rarity.Rare => new Color("#3a74d0"),
         Rarity.Epic => new Color("#8a46d8"),

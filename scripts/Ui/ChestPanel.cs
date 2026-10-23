@@ -31,7 +31,7 @@ public partial class ChestPanel : Node2D
     Node2D _layer;
     ChestKind _shown = ChestKind.Wooden;
     bool _hurry;
-    Button _auto;
+    Button _auto, _stop;
 
     /// <summary>The player took the item (or sold it): the screen does the flying.</summary>
     public event Action<Opening, double, Vector2> Equipped;
@@ -118,6 +118,15 @@ public partial class ChestPanel : Node2D
             Refresh();
         }).Place(W - 92, 6, 82, 28);
         AddChild(_auto);
+        // What auto-open stops for: click to step through rare, epic, legendary and mythic.
+        _stop = UiKit.MakeButton("", new Color("#4a4458"), 16, () =>
+        {
+            _g.AutoStopAt = _g.AutoStopAt >= Rarity.Mythic ? Rarity.Rare : (Rarity)((int)_g.AutoStopAt + 1);
+            Main.Instance.Sfx.PlayGroup("toggle");
+            Refresh();
+        }).Place(W - 196, 6, 100, 28);
+        _stop.TooltipText = "Auto-open stops and shows you anything this rare or better";
+        AddChild(_stop);
 
         _layer = new Node2D { ZIndex = 30 };
         AddChild(_layer);
@@ -272,6 +281,7 @@ public partial class ChestPanel : Node2D
         _hint.Visible = false;
         _pile.Visible = false;
         _auto.Visible = false;
+        _stop.Visible = false;
     }
 
     void DoEquip()
@@ -342,6 +352,9 @@ public partial class ChestPanel : Node2D
         _auto.Visible = _g.HasAutoOpen && _state == State.Idle;
         _auto.Text = _g.AutoOpen ? "AUTO ON" : "AUTO OFF";
         UiKit.StyleButton(_auto, _g.AutoOpen ? new Color("#2f8a6a") : new Color("#4a4458"));
+        _stop.Visible = _auto.Visible && _g.AutoOpen;
+        _stop.Text = "STOP " + _g.AutoStopAt switch { Rarity.Rare => "RARE+", Rarity.Epic => "EPIC+", Rarity.Legendary => "LEG+", _ => "MYTHIC" };
+        UiKit.StyleButton(_stop, Palette.Of(_g.AutoStopAt).Darkened(0.45f));
 
         // The pile: one icon per kind there is, with how many.
         int shown = 0;

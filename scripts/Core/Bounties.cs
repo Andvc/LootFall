@@ -43,10 +43,8 @@ public sealed class Bounty
         _ => $"Reach {World.StageName((int)Target)}",
     };
 
-    /// <summary>"12/30", or for gold "1.2K/3K".</summary>
-    public string Tally(GameState g) => Kind == BountyKind.Stage
-        ? $"{World.StageInZone(Math.Min(g.MaxStage, (int)Target))}/{World.StageInZone((int)Target)}"
-        : $"{Num.Short(Math.Floor(Progress(g)))}/{Num.Short(Target)}";
+    /// <summary>"12/30", "1.2K/3K" for gold, and for a stage the furthest one against the one to reach ("9/11").</summary>
+    public string Tally(GameState g) => $"{Num.Short(Math.Floor(Progress(g)))}/{Num.Short(Target)}";
 
     public string Icon => Kind switch
     {

@@ -27,7 +27,7 @@ C#), targeting PC. Pixel art and music from Pixel-boy's CC0 Superpowers packs, s
 4. **Equip or sell.** Equip (E) puts it on and sells the old one; Sell (S) turns it into gold. Space takes whichever
    the card recommends.
 5. **Spend the gold.** Chest Level makes new loot stronger and rarer; Might, Vigor and Haste train the knight; from the
-   second zone, Auto-Open handles the small stuff.
+   second zone, Auto-Open handles the small stuff and stops for anything as rare as you choose.
 6. **Bounties.** Three goals at a time (slay, open, beat bosses, find rares...), each paying a chest when done.
 
 Close the game and the knight keeps fighting: on Continue, the time away (up to 8 hours) is paid in gold and chests.
@@ -39,7 +39,7 @@ Close the game and the knight keeps fighting: on Continue, the time away (up to 
 | Open a chest / hurry an opening / take the recommended choice | Click the chest, or Space / Enter (hold to keep opening) |
 | Equip / Sell the item on the card | E / S, or the card's buttons |
 | Fight the boss now | B, or the boss button (when it's ready) |
-| Auto-Boss, Auto-Open | Their switches (under the boss button; on the chest) |
+| Auto-Boss, Auto-Open | Their switches (under the boss button; on the chest, beside the rarity it stops for) |
 | Buy an upgrade | Its button, on the right |
 | See an item's stats | Hover its slot |
 | Pause, settings, title, quit | Esc, or Menu |

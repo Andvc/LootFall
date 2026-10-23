@@ -149,10 +149,10 @@ more but can't snowball.
 | Might | +5% attack per level | 10 × 1.16^level |
 | Vigor | +5% health per level | 10 × 1.16^level |
 | Haste | +2% attack speed per level (up to 30) | 40 × 1.35^level |
-| Auto-Open | from stage 10: opens a chest every 0.8 s, equips upgrades, sells the rest, and stops for anything Epic or better | 2,500 |
+| Auto-Open | from stage 10: opens a chest every 0.8 s, equips upgrades, sells the rest, and stops for anything Epic or better (the switch beside it on the chest picks Rare, Epic, Legendary or Mythic) | 2,500 |
 
 Auto-Open is there for when chests pile up (and for coming back to a pile), but it hands the big moments back to the
-player: anything epic or better waits on the counter and gets the full show.
+player: anything at the stop rarity or better (epic, unless changed) waits on the counter and gets the full show.
 
 **Time away** (`ApplyOffline`): on Continue, a 90-second trial fight at the current stage measures the kill rate, and
 the time away (up to 8 hours) pays out at three quarters of it, in gold and chests, which wait to be opened.

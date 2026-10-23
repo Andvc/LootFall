@@ -142,7 +142,7 @@ public partial class UpgradePanel : Node2D
                     break;
                 case Upgrade.AutoOpen:
                     row.Name.Text = "AUTO-OPEN";
-                    row.Detail.Text = _g.HasAutoOpen ? $"Stops for {Rarities.Get(_g.AutoStopAt).Name}+" : "Opens chests for you";
+                    row.Detail.Text = _g.HasAutoOpen ? $"Stops for {Rarities.Get(_g.AutoStopAt).Name}{(_g.AutoStopAt < Rarity.Mythic ? "+" : "")} (on the chest)" : "Opens chests for you";
                     break;
             }
             bool affordable = open && _g.Gold >= cost;
