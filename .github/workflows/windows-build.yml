@@ -1,0 +1,58 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main, "prototype/**"]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      GODOT_VERSION: 4.7.2
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Godot (.NET) and Windows export templates
+        shell: pwsh
+        run: |
+          $base = "https://github.com/godotengine/godot/releases/download/$env:GODOT_VERSION-stable"
+          Invoke-WebRequest "$base/Godot_v$($env:GODOT_VERSION)-stable_mono_win64.zip" -OutFile godot.zip
+          Expand-Archive godot.zip -DestinationPath "$env:RUNNER_TEMP\godot"
+          $exe = Get-ChildItem "$env:RUNNER_TEMP\godot" -Recurse -Filter "*_console.exe" | Select-Object -First 1
+          "GODOT=$($exe.FullName)" | Out-File $env:GITHUB_ENV -Append
+
+          Invoke-WebRequest "$base/Godot_v$($env:GODOT_VERSION)-stable_mono_export_templates.tpz" -OutFile templates.zip
+          Expand-Archive templates.zip -DestinationPath "$env:RUNNER_TEMP\tpl"
+          $dest = "$env:APPDATA\Godot\export_templates\$($env:GODOT_VERSION).stable.mono"
+          New-Item -ItemType Directory -Force $dest | Out-Null
+          Copy-Item "$env:RUNNER_TEMP\tpl\templates\version.txt", "$env:RUNNER_TEMP\tpl\templates\windows_*x86_64*" $dest
+
+      - name: Export
+        shell: pwsh
+        run: |
+          & $env:GODOT --headless --path . --import
+          New-Item -ItemType Directory -Force build/windows | Out-Null
+          & $env:GODOT --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
+          if (-not (Test-Path build/windows/LootFall.exe)) { throw "Export failed" }
+
+      - name: Smoke test (bot plays the guided day and a random one)
+        shell: pwsh
+        run: |
+          $log = Join-Path $pwd "smoke.log"
+          $game = Start-Process build/windows/LootFall.exe -PassThru -ArgumentList `
+            "--headless", "--log-file", "`"$log`"", "--", "--autoplay", "--seed=4306", "--days=2"
+          if (-not $game.WaitForExit(840000)) { $game.Kill(); throw "Game did not finish within 14 minutes" }
+          Get-Content $log
+          if (-not (Select-String -Path $log -Pattern "Autoplay finished 2 days" -Quiet)) { throw "Smoke test failed" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LootFall-windows-x64
+          path: build/windows/
+          retention-days: 30

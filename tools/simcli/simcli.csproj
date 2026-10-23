@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The balance simulation without the engine: the same Core rules and report as the game's sim flag, faster to iterate on. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <Nullable>disable</Nullable>
+    <RootNamespace>LootFall</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../scripts/Core/**/*.cs" />
+    <Compile Include="../../scripts/Debug/Simulation.cs" />
+  </ItemGroup>
+</Project>

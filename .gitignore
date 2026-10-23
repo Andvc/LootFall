@@ -1,0 +1,16 @@
+# Godot
+.godot/
+.import/
+export_credentials.cfg
+
+# .NET
+.mono/
+bin/
+obj/
+*.user
+
+# Build and capture output
+build/
+shots*/
+movies/
+__pycache__/
