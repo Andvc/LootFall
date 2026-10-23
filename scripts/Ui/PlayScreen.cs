@@ -19,6 +19,7 @@ public partial class PlayScreen : Screen
     public ChestPanel Chest { get; private set; }
     public UpgradePanel Upgrades { get; private set; }
     public Hud Hud { get; private set; }
+    public BountyBoard Board { get; private set; }
 
     Node2D _flyLayer;
     double _refreshTimer;
@@ -48,6 +49,8 @@ public partial class PlayScreen : Screen
         AddChild(Upgrades);
         Hud = new Hud(G);
         AddChild(Hud);
+        Board = new BountyBoard(G) { Position = new Vector2(8, 50) };
+        AddChild(Board);
         _flyLayer = new Node2D { ZIndex = 80 };
         AddChild(_flyLayer);
 
@@ -88,6 +91,7 @@ public partial class PlayScreen : Screen
             _refreshTimer = 0.2;
             Upgrades.Refresh();
             Hud.Refresh();
+            Board.Refresh();
             if (G.ChestLevel == 1 && G.Gold >= Core.Upgrades.Cost(G, Upgrade.ChestLevel))
                 Tip("chestlevel", "You can afford CHEST LEVEL 2: stronger, rarer loot from every chest.  (Upgrades, right)", 5);
         }
@@ -175,6 +179,9 @@ public partial class PlayScreen : Screen
             case AutoHeld h:
                 Chest.PresentHeld(h.Opening);
                 break;
+            case BountyDone d:
+                OnBounty(d);
+                break;
             case HeroDown:
                 Game.Moment("knight_down", 0.5);
                 break;
@@ -210,6 +217,33 @@ public partial class PlayScreen : Screen
             Fx.Dust(_flyLayer, to, 0.6f);
             Sfx.PlayGroup("chest_land", 1f, -12, 0.08f);
         }, spin: (float)(_rng.NextDouble() - 0.5) * 6)));
+    }
+
+    /// <summary>A bounty paid out: its row flashes and its chests fly from the board down to the pile.</summary>
+    void OnBounty(BountyDone d)
+    {
+        Board.Completed(d.Slot);
+        Sfx.PlayGroup("unlock", 1.1f, -6);
+        Tip("bounty", "Bounties pay chests.  There are always three.", 4);
+        Game.Moment("bounty", 0.3);
+        for (int i = 0; i < d.Bounty.Count; i++)
+        {
+            var kind = d.Bounty.Reward;
+            var from = Board.RewardSpot(d.Slot);
+            var chest = new Sprite2D { Texture = GD.Load<Texture2D>($"res://assets/ui/chests/{Chests.Get(kind).Skin}.png"), Position = from, Scale = Vector2.One * 1.5f };
+            _flyLayer.AddChild(chest);
+            Chest.Falling[(int)kind]++;
+            Fx.Burst(_flyLayer, from, Palette.OfChest(kind), 24, 240);
+            var to = Chest.PileSpot + new Vector2((float)_rng.NextDouble() * 40 - 20, 0);
+            Fx.Fly(chest, to, 0.8f, 60, () =>
+            {
+                Chest.Falling[(int)kind] = Math.Max(0, Chest.Falling[(int)kind] - 1);
+                Chest.ChestArrived(kind);
+                Hud.ChestsChanged();
+                Fx.Dust(_flyLayer, to, 0.7f);
+                Sfx.PlayGroup("chest_land", 1f, -10, 0.08f);
+            }, spin: 6.28f);
+        }
     }
 
     void DropGold(double amount, Vector2 from)
@@ -332,7 +366,7 @@ public partial class PlayScreen : Screen
     public void Hint(string text, float seconds)
     {
         _hints.RemoveAll(h => !IsInstanceValid(h));
-        var label = UiKit.MakeLabel(text, 16, Palette.Text, HorizontalAlignment.Center, outline: 6).Place(140, 120 + 26 * _hints.Count, 1000, 24);
+        var label = UiKit.MakeLabel(text, 16, Palette.Text, HorizontalAlignment.Center, outline: 6).Place(140, 150 + 26 * _hints.Count, 1000, 24);
         label.ZIndex = 70;
         AddChild(label);
         _hints.Add(label);

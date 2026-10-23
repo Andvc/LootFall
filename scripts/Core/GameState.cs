@@ -19,6 +19,9 @@ public sealed record MimicAppeared(Fighter Mimic) : GameEvent;
 public sealed record FeatureUnlocked(string Key) : GameEvent;
 public sealed record AutoOpened(Opening Opening, bool Equipped) : GameEvent;
 
+/// <summary>A bounty was finished (its chests are in the pile) and <paramref name="Next"/> took its place on the board.</summary>
+public sealed record BountyDone(Bounty Bounty, int Slot, Bounty Next) : GameEvent;
+
 /// <summary>Auto-open found something at least as rare as its stop setting, and left it waiting for the player.</summary>
 public sealed record AutoHeld(Opening Opening) : GameEvent;
 
@@ -76,7 +79,14 @@ public sealed class GameState
 
     // Records, for the title screen and the simulation.
     public double PlayTime;
-    public long TotalKills, ChestsOpened, BossesBeaten, BossFails, BossTimeouts, Deaths;
+    public long TotalKills, ChestsOpened, BossesBeaten, BossFails, BossTimeouts, Deaths, UpgradesEquipped;
+
+    /// <summary>Things found that were rare or better.</summary>
+    public long RareFinds => Found[(int)Rarity.Rare] + Found[(int)Rarity.Epic] + Found[(int)Rarity.Legendary] + Found[(int)Rarity.Mythic];
+
+    /// <summary>The bounty board (see <see cref="Bounties"/>), and how many bounties have been posted so far.</summary>
+    public readonly List<Bounty> Board = new();
+    public int BountiesPosted, BountiesDone;
     public readonly long[] Found = new long[Rarities.Count];
     public double GoldEarned;
 
@@ -96,6 +106,7 @@ public sealed class GameState
         var g = new GameState { Rng = new Rng(seed), Seed = seed };
         g.Chests[(int)ChestKind.Wooden] = Balance.StartChests;
         g.Begin();
+        g.FillBoard();
         return g;
     }
 
@@ -177,6 +188,8 @@ public sealed class GameState
                 NextWave();
             }
         }
+
+        CheckBounties();
 
         if (HasAutoOpen && AutoOpen && Pending == null && ChestTotal > 0)
         {
@@ -368,6 +381,30 @@ public sealed class GameState
         }
     }
 
+    // ------------------------------------------------------------------------------------------------- bounties
+
+    /// <summary>Posts bounties until the board is full.</summary>
+    internal void FillBoard()
+    {
+        while (Board.Count < Bounties.Active) Board.Add(Bounties.Make(this, BountiesPosted++, Board));
+    }
+
+    /// <summary>Pays out any bounty that's done and posts the next in its place.</summary>
+    void CheckBounties()
+    {
+        for (int i = 0; i < Board.Count; i++)
+        {
+            var b = Board[i];
+            if (!b.Done(this)) continue;
+            BountiesDone++;
+            for (int c = 0; c < b.Count; c++) GiveChest(b.Reward, null);
+            var rest = Board.Where((_, j) => j != i).ToList();
+            var next = Bounties.Make(this, BountiesPosted++, rest);
+            Board[i] = next;
+            Emit(new BountyDone(b, i, next));
+        }
+    }
+
     // ------------------------------------------------------------------------------------------------- chests and gear
 
     /// <summary>Opens the best chest waiting (or one of <paramref name="kind"/>); null if none, or one is still waiting for a decision.</summary>
@@ -416,6 +453,7 @@ public sealed class GameState
         if (Pending == null) return 0;
         var item = Pending.Item;
         var old = Worn(item.Slot);
+        if (Pending.Upgrade) UpgradesEquipped++;
         Equipped[(int)item.Slot] = item;
         Pending = null;
         Recompute();
@@ -540,6 +578,7 @@ public sealed class GameState
         var g = new GameState { Rng = new Rng(data.Seed + (int)(data.ChestsOpened % 100000)), Seed = data.Seed };
         data.ApplyTo(g);
         g.Begin();
+        g.FillBoard();
         if (data.Pending != null) g.RestorePending(data.Pending.ToItem(), (ChestKind)data.PendingKind);
         return g;
     }

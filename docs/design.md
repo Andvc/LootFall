@@ -128,6 +128,15 @@ the screen animates and the game state pays out on; the simulation runs the same
 - **The mimic**: one wave in a hundred from stage 3 is a lone mimic; it drops a Royal and a Golden chest.
 - Past the sixth zone the places come round again, darker and harder ("Greenwood II").
 
+## Bounties
+
+Three short goals are always on the board (`Bounties.cs`), each paying a chest: slay N monsters, open N chests, beat
+N bosses, find N rare-or-better things, equip N upgrades, earn N gold, reach a stage. Kinds rotate so the three always
+ask for different things, targets grow with each one posted (and gold's with the stage), and every fifth pays a
+golden chest, every fifteenth a royal one, the rest iron ones. They finish themselves: the row fills, flashes and
+its chest flies down into the pile. The simulation's sensible player finishes about 19 in the first ten minutes,
+then one every two or three minutes; they add chests (and moments) without moving the pacing much.
+
 ## Gold and upgrades
 
 Gold comes from kills (1.5 × 1.089^(stage−1), bosses 8×, guardians 20×, the mimic 15×) and from selling (0.6 × 1.13^level

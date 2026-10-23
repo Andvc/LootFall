@@ -30,6 +30,27 @@ public sealed class ItemData
     };
 }
 
+/// <summary>A bounty as saved.</summary>
+public sealed class BountyData
+{
+    public int Number { get; set; }
+    public int Kind { get; set; }
+    public double Target { get; set; }
+    public double Start { get; set; }
+    public int Reward { get; set; }
+    public int Count { get; set; }
+
+    public static BountyData From(Bounty b) => new()
+    {
+        Number = b.Number, Kind = (int)b.Kind, Target = b.Target, Start = b.Start, Reward = (int)b.Reward, Count = b.Count,
+    };
+
+    public Bounty ToBounty() => new()
+    {
+        Number = Number, Kind = (BountyKind)Kind, Target = Target, Start = Start, Reward = (ChestKind)Reward, Count = Count,
+    };
+}
+
 /// <summary>Everything that survives closing the game, as JSON (user://save.json).</summary>
 public sealed class SaveData
 {
@@ -58,6 +79,10 @@ public sealed class SaveData
     public long[] Found { get; set; } = new long[Rarities.Count];
     public double GoldEarned { get; set; }
     public string[] TipsSeen { get; set; } = Array.Empty<string>();
+    public long UpgradesEquipped { get; set; }
+    public BountyData[] Board { get; set; } = Array.Empty<BountyData>();
+    public int BountiesPosted { get; set; }
+    public int BountiesDone { get; set; }
     public ItemData Pending { get; set; }
     public int PendingKind { get; set; }
 
@@ -72,6 +97,8 @@ public sealed class SaveData
         AutoBoss = g.AutoBoss, AutoOpen = g.AutoOpen, AutoStopAt = (int)g.AutoStopAt,
         PlayTime = g.PlayTime, TotalKills = g.TotalKills, ChestsOpened = g.ChestsOpened, BossesBeaten = g.BossesBeaten,
         Found = (long[])g.Found.Clone(), GoldEarned = g.GoldEarned, TipsSeen = g.TipsSeen.ToArray(),
+        UpgradesEquipped = g.UpgradesEquipped, Board = g.Board.Select(BountyData.From).ToArray(),
+        BountiesPosted = g.BountiesPosted, BountiesDone = g.BountiesDone,
         Pending = ItemData.From(g.Pending?.Item), PendingKind = (int)(g.Pending?.Kind ?? ChestKind.Wooden),
     };
 
@@ -98,6 +125,10 @@ public sealed class SaveData
         for (int i = 0; i < g.Found.Length && i < Found.Length; i++) g.Found[i] = Found[i];
         g.GoldEarned = GoldEarned;
         foreach (var tip in TipsSeen ?? Array.Empty<string>()) g.TipsSeen.Add(tip);
+        g.UpgradesEquipped = UpgradesEquipped;
+        g.BountiesPosted = BountiesPosted;
+        g.BountiesDone = BountiesDone;
+        foreach (var b in Board ?? Array.Empty<BountyData>()) g.Board.Add(b.ToBounty());
     }
 
     static readonly JsonSerializerOptions Options = new() { WriteIndented = false };

@@ -28,6 +28,7 @@ C#), targeting PC. Pixel art and music from Pixel-boy's CC0 Superpowers packs, s
    the card recommends.
 5. **Spend the gold.** Chest Level makes new loot stronger and rarer; Might, Vigor and Haste train the knight; from the
    second zone, Auto-Open handles the small stuff.
+6. **Bounties.** Three goals at a time (slay, open, beat bosses, find rares...), each paying a chest when done.
 
 Close the game and the knight keeps fighting: on Continue, the time away (up to 8 hours) is paid in gold and chests.
 

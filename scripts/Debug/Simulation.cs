@@ -26,6 +26,7 @@ public static class Simulation
         public readonly List<(double T, bool Upgrade, Rarity R)> Opened = new();
         public readonly List<(double T, int Stage, double Power, int ChestLevel, int Might, int Vigor, int Haste, string Gear)> Samples = new();
         public int BossTries, BossFails, Deaths, Retreats, Mimics;
+        public readonly List<double> BountiesAt = new();
         public double LongestWall;
         public int LongestWallStage;
         public GameState Final;
@@ -88,7 +89,14 @@ public static class Simulation
                       $"retreats {M(r => r.Retreats):0}; mimics {M(r => r.Mimics):0}");
         var finals = runs.Select(r => r.Final).ToList();
         sb.AppendLine($"  at the end: stage {Q(finals.Select(f => (double)f.MaxStage).ToList(), 0.5):0}, chest level {Q(finals.Select(f => (double)f.ChestLevel).ToList(), 0.5):0}, " +
-                      $"chests opened {Q(finals.Select(f => (double)f.ChestsOpened).ToList(), 0.5):0}, kills {Q(finals.Select(f => (double)f.TotalKills).ToList(), 0.5):0}, gold earned {Num.Short(Q(finals.Select(f => f.GoldEarned).ToList(), 0.5))}");
+                      $"chests opened {Q(finals.Select(f => (double)f.ChestsOpened).ToList(), 0.5):0}, kills {Q(finals.Select(f => (double)f.TotalKills).ToList(), 0.5):0}, gold earned {Num.Short(Q(finals.Select(f => f.GoldEarned).ToList(), 0.5))}, " +
+                      $"bounties {Q(finals.Select(f => (double)f.BountiesDone).ToList(), 0.5):0}");
+        foreach (var minutes in new[] { 10, 30, 60, 120 })
+        {
+            var at = runs.Select(r => (double)r.BountiesAt.Count(t => t <= minutes * 60)).ToList();
+            sb.Append($"  bounties by {minutes}m: {Q(at, 0.5):0}");
+        }
+        sb.AppendLine();
 
         output.Write(sb.ToString());
         output.Flush();
@@ -121,6 +129,7 @@ public static class Simulation
                         break;
                     case Retreated: run.Retreats++; break;
                     case MimicAppeared: run.Mimics++; break;
+                    case BountyDone: run.BountiesAt.Add(t); break;
                 }
             }
             g.Events.Clear();
