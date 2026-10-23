@@ -13,12 +13,13 @@ eight weeks. Pay them all (or the whole debt at once, the moment you have it) an
 shards of the Aldric Key on the way and the Crown Chest opens on your counter. The world is in
 [docs/world.md](docs/world.md).
 
-**Status:** Early Access (0.15): a rebuilt world (four places, 24 sellers with their own stories and rules, six kinds
-of things a sword-and-sorcery realm would lock away), runs of eight weeks against the Guild's dues (then endless), with
-curios, commissions, weekly events and a story; four of Bram's kin to play, eight challenge levels each, and a talent
-tree bought with the renown runs earn; saves, settings and a guided start. Pixel art from Pixel-boy's CC0 Superpowers
-asset packs and recorded sounds from Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET /
-C#), targeting PC on Steam. Design rationale: [docs/design.md](docs/design.md).
+**Status:** Early Access (0.16): a rebuilt world (four places, 24 sellers with their own stories and rules, six kinds
+of things a sword-and-sorcery realm would lock away), runs of eight weeks against the Guild's dues (then endless),
+with curios, commissions, weekly events and a story; four of Bram's kin to play, eight challenge levels each, and a
+talent tree bought with the renown runs earn; saves, settings and a guided start. 0.16 draws all of it in the game's
+own pixel art, made in code (`tools/custom_art.py`); recorded sounds and the font from Kenney's CC0 packs (see
+[CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam. Design rationale:
+[docs/design.md](docs/design.md).
 
 ## The loop
 

@@ -2,19 +2,17 @@
 
 ## Art
 
-**Superpowers Asset Packs** by [Pixel-boy](https://twitter.com/2pblog1) / Sparklin Labs, released under
-[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
-Source: https://github.com/sparklinlabs/superpowers-asset-packs
+The pictures are LootFall's own, drawn for this game as pixel art in code, so anyone can rebuild them with
+`python3 tools/import_art.py`:
 
-- Chest: Ninja Adventure pack (`ninja-adventure/items/big-treasure-chest.png`), recolored per lot origin.
-- Items, backgrounds and the burst effect: RPG Battle System pack (`rpg-battle-system/item`, `backgrounds`, `fx`).
-- Seller portraits, Uncle Bram, Mister Vane, Nim, the Stranger and the Hooded Woman: Ninja Adventure pack
-  (`ninja-adventure/characters/faceset`); Snikkit, Wenna, Mother Bramble, Shelly, Vexis, Lady Ermine, Old Aldo, Vane,
-  the Hooded Woman and Bram's kin are recoloured, and Brother Ansel, Skrae and the Gilded Maw are washed in one colour.
-- Curios: RPG Battle System and Ninja Adventure items. The Gilded Guild's sign: a Medieval Fantasy emblem
-  (`medieval-fantasy/items/emblem`), gilded. The shards of the Aldric Key: the Ninja Adventure gold key.
-- Shop backgrounds: RPG Battle System backgrounds and Western FPS 2D props, with architecture drawn in
-  `tools/import_art.py`.
+- `tools/custom_art.py`: the 33 things in chests (six kinds, five qualities, three fakes), the portraits of every
+  seller, Bram, his kin, Mister Vane, Nim, the Hooded Woman and the Stranger, each against the place they come from;
+  the chest (recoloured per lot origin), the shards of the Aldric Key, the Gilded Guild's sign, the 25 curios, the
+  four places behind the counter (the Brindle crossroads at dusk, Thornwick's stone wall onto the Old Wood,
+  Crownhold's roofs and palace, the Royal Emporium's colonnade and the Gilded Gate), the props on the counters, and
+  the burst a chest opens with.
+- `tools/import_art.py`: the 9-slice frames, the tool, upgrade and kind icons, and the shops' architecture (awning,
+  beams, panelling, drapes, shelves and counters).
 
 ## Font and sound
 
@@ -24,10 +22,8 @@ By [Kenney](https://kenney.nl), released under [CC0 1.0](https://creativecommons
 - Impact Sounds, RPG Audio, Casino Audio and Interface Sounds: the sound each kind of thing makes when you shake a
   chest (coins, tin, cloth, cards, glass), the chest landing, coins, doors and latches.
 
-The tool and kind icons are drawn as 16x16 pixel art in `tools/import_art.py`; a few item sprites there are recolored
-or combined from the pack's own (the hunter's coat, silk robe and archmage's mantle, old sovereigns, dragon gold, demon
-gold, the paste gem and the scroll case of sand), and the small icons in
-`assets/sprites/items/icons/` are the big sprites halved.
+The license doesn't require attribution; it's given here because Kenney made the game sound good.
+`tools/import_art.py` records exactly which source file each sound in `assets/audio/` came from.
 
-Neither license requires attribution; it's given here because these artists made the game look and sound good.
-`tools/import_art.py` records exactly which source file each asset in `assets/` came from.
+Earlier versions (up to 0.15) used pixel art from Pixel-boy's CC0
+[Superpowers Asset Packs](https://github.com/sparklinlabs/superpowers-asset-packs); thanks to them for the start.

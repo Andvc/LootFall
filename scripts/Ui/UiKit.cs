@@ -124,8 +124,8 @@ public static class UiKit
     }
 
     /// <summary>
-    /// A thing's own sprite for a small slot, the same picture it had when it came out of the chest: its icon (the sprite,
-    /// halved if it's big) at the largest integer scale that fits a <paramref name="box"/>-pixel square, centered on
+    /// A thing's own sprite for a small slot, the same picture it had when it came out of the chest: its icon at the
+    /// largest integer scale that fits a <paramref name="box"/>-pixel square, centered on
     /// <paramref name="center"/> (or standing on it). Something enchanted glows behind it; fakes and broken things look dull.
     /// </summary>
     public static Node2D MakeItemIcon(Core.Item item, Vector2 center, float box, bool standing = false)
@@ -220,21 +220,6 @@ public static class UiKit
         slider.AddThemeStyleboxOverride("grabber_area_highlight", fill);
         slider.AddThemeIconOverride("grabber", coin);
         slider.AddThemeIconOverride("grabber_highlight", coin);
-    }
-
-    /// <summary>A full-screen pixel-art backdrop (640x480 source at 2x), dimmed so UI and effects stand out.</summary>
-    public static Node2D MakeBackdrop(string name, float brightness = 0.6f)
-    {
-        var root = new Node2D();
-        root.AddChild(new Sprite2D
-        {
-            Texture = GD.Load<Texture2D>($"res://assets/backgrounds/{name}.png"),
-            Position = new Vector2(640, 360),
-            Scale = Vector2.One * 2,
-            Modulate = new Color(brightness, brightness, brightness * 1.05f),
-        });
-        root.AddChild(Vignette(0.12f));
-        return root;
     }
 
     /// <summary>

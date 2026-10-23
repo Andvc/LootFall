@@ -103,7 +103,7 @@ public static class Fx
         parent.GetTree().CreateTimer(1.0).Timeout += dust.QueueFree;
     }
 
-    /// <summary>The pixel explosion ring (Superpowers fx #1), played once and freed.</summary>
+    /// <summary>The pixel explosion ring (drawn in tools/custom_art.py), played once and freed.</summary>
     public static void Explosion(Node parent, Vector2 position, int scale, Color tint)
     {
         var sprite = new AnimatedSprite2D

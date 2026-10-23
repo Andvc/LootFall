@@ -538,13 +538,21 @@ habits in the ledger, widen choices without moving the timeline as much.
 
 ## The shop's look
 
-Each move changes the shop around you: Bram's trestle table under a striped awning at the Brindle crossroads; a
-plastered shop at Thornwick Market with timber beams and oil lamps; a panelled shop in Crownhold whose display window
-looks over the square at sunset; the Royal Emporium's colonnade, crimson drapes and marble counter, in the palace's
-shadow. Each is one 640x360 picture made by
-`tools/import_art.py` (a backdrop from the pack, architecture drawn as pixel art, a few of the pack's props, and the
-counter), shown at 2x behind the counter and dimmed behind the lockpicking, opening and day-end screens
-(`UiKit.MakeShop`). What you keep stands on the shelf (the window sill in town).
+Each move changes the shop around you: Bram's trestle table under a striped awning at the Brindle crossroads, with
+the mill, the river and the Barrow's stones behind it at dusk; a stone-walled shop at Thornwick Market with timber
+beams, oil lamps and a window onto the Old Wood; a panelled shop in Crownhold whose display window looks over the
+roofs to the palace at sunset; the Royal Emporium's colonnade, crimson drapes and marble counter, with the Gilded Gate
+glowing down the avenue. Each is one 640x360 picture made by `tools/import_art.py` (a backdrop drawn in
+`tools/custom_art.py`, the architecture, a few props, and the counter), shown at 2x behind the counter and dimmed
+behind the lockpicking, opening and day-end screens (`UiKit.MakeShop`). What you keep stands on the shelf (the window
+sill in town).
+
+All the pictures are the game's own, drawn in code so they follow the world rather than a pack's: every portrait
+stands against its place (the crossroads' dusk, the Old Wood's green, Crownhold's blue, the Emporium's crimson, the
+story's night), the Maw is a borrowed body gilded all over, demon gold is the real thing gone dull and greenish, the
+paste gem is a cut stone with no fire in it, and a scroll case of sand looks like the mudlark's "maps" it is. Things
+are 24px with one light (top left), one dark outline and one palette of materials, so a coin from Brindle and a
+crown from the vault sit together on a shelf.
 
 ## Title, saves and settings
 

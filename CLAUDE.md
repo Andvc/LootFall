@@ -131,16 +131,20 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 
 ## Art direction (pixel art)
 
-- All art comes from CC0 packs via `tools/import_art.py` (needs Pillow); edit its mappings and re-run rather than
-  hand-editing `assets/`. Only GitHub is reachable from cloud sessions, so new sources must be GitHub-hosted.
-  Credit sources in `CREDITS.md`.
+- The art is the game's own, drawn in code: things, portraits, chest, curios, backdrops and effects in
+  `tools/custom_art.py` (materials with a shadow/mid/light ramp, lit from the top left, a 1px dark outline; things
+  24px, portraits 38px over their place's backdrop, curios 24px), frames, icons and shop architecture in
+  `tools/import_art.py`, which builds `assets/` from both (needs Pillow). Draw or edit there and re-run rather than
+  hand-editing `assets/`; a new seller, thing or curio needs its drawing (the importer writes what the dicts name).
+  Sounds and the font are Kenney's CC0 packs (only GitHub is reachable from cloud sessions, so new sources must be
+  GitHub-hosted); credit them in `CREDITS.md`.
 - Keep pixels square: integer scales only (chest 12-14x, items 1-2x, backgrounds 2x, UI frames 3x), nearest
   filtering (project default), and Kenney Mini at multiples of 8px (`UiKit.MakeLabel` snaps sizes; min 16).
 - Kenney Mini has no fallback font: stick to ASCII in UI strings.
 - Panels and buttons use the 9-slice frames from `UiKit` (`MakePanel`, `MakeFrame`, `MakeButton`), not StyleBoxFlat.
-- Item sprites vary in size (up to 89px). To show a particular thing in a slot (collection, shelf, exhibition,
-  chooser) use `UiKit.MakeItemIcon`, its own sprite from `assets/sprites/items/icons/` (halved by `tools/import_art.py`
-  when over 48px), so it looks the same everywhere. Kind icons (`UiKit.MakeKindIcon`, 16x16 art like the tool icons)
+- Item sprites are at most 24px (trimmed to what's drawn). To show a particular thing in a slot (collection, shelf,
+  exhibition, chooser) use `UiKit.MakeItemIcon`, its own sprite from `assets/sprites/items/icons/`, so it looks the
+  same everywhere. Kind icons (`UiKit.MakeKindIcon`, 16x16 art like the tool icons)
   stand for a kind, not a thing. Tool icons are 16px art at 3x; draw them at 2/3 scale for exact 2x.
 
 ## Known gaps

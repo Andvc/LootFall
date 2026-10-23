@@ -4,7 +4,7 @@ using Godot;
 namespace LootFall.Ui;
 
 /// <summary>
-/// The chest, built from the Ninja Adventure sprite split into lid and body (see tools/import_art.py),
+/// The chest, drawn in tools/custom_art.py and split into lid and body by tools/import_art.py,
 /// plus the light that leaks from the seam. The node's origin is the centre of the lid seam.
 /// </summary>
 public partial class ChestView : Node2D

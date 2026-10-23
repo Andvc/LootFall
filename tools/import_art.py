@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Builds assets/ from the open-licensed source packs. Re-run after changing a mapping below.
+"""Builds assets/ from the art drawn in tools/custom_art.py and the Kenney font and sounds. Re-run after changing a
+drawing there or a mapping below.
 
-Sources (all CC0, see CREDITS.md):
-  - Superpowers Asset Packs by Pixel-boy / Sparklin Labs  https://github.com/sparklinlabs/superpowers-asset-packs
-  - Kenney Font Package, Impact Sounds, RPG Audio, Casino Audio, Interface Sounds
+Sources:
+  - The pictures (things, portraits, chests, curios, backdrops, effects): drawn in code by tools/custom_art.py for
+    LootFall; the UI frames and icons below are drawn here.
+  - Kenney Font Package, Impact Sounds, RPG Audio, Casino Audio, Interface Sounds (CC0, see CREDITS.md)
     https://kenney.nl (mirror: github.com/ETdoFresh/kenney.nl)
 
 Usage: python3 tools/import_art.py [--cache DIR]
-Requires Pillow. Sources are cloned (partially) into the cache on first run.
+Requires Pillow. Kenney's packs are cloned (partially) into the cache on first run.
 """
 import argparse
-import colorsys
 import os
 import shutil
 import subprocess
@@ -18,108 +19,17 @@ import sys
 
 from PIL import Image
 
+import custom_art
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "assets")
 
-SUPERPOWERS = ("https://github.com/sparklinlabs/superpowers-asset-packs", [
-    "rpg-battle-system/item", "rpg-battle-system/backgrounds", "rpg-battle-system/fx",
-    "ninja-adventure/items", "ninja-adventure/characters/faceset", "western-fps-2d/background-elements", "medieval-fantasy/items/emblem",
-    "LICENSE.txt",
-])
 KENNEY = ("https://github.com/ETdoFresh/kenney.nl", [
     "kenney_fontpackage", "kenney_impactsounds", "kenney_rpgaudio", "kenney_casinoaudio", "kenney_interfacesounds",
 ])
 
-# Item sprite -> rpg-battle-system/item sprite number. Names match the sprites in scripts/Core/Items.cs: one per kind of
-# thing per quality, and (for coin, scrolls and gems) a fake. Enchanted things use their plain sprite with a glow.
-ITEMS = {
-    # Coin
-    "copper_pennies": 21, "silver_marks": 20, "gold_crowns": 19,
-    # Arms
-    "rusty_dagger": 31, "soldiers_helm": 1, "steel_longsword": 32, "knights_gauntlet": 59, "runeblade": 33,
-    # Garb
-    "royal_ermine": 50,
-    # Potions
-    "swamp_tonic": 11, "healing_draught": 10, "elixir_of_vigour": 12, "phoenix_tears": 47, "ambrosia": 13,
-    # Scrolls
-    "tattered_map": 22, "spell_scroll": 23, "bestiary": 40, "grimoire": 62, "codex_of_the_locking": 42,
-    # Gems
-    "brass_ring": 38, "silver_amulet": 36, "ruby_ring": 68, "starstone": 57, "dragons_eye": 39,
-}
-
-# Sprites greyed toward iron or dust: key -> (sprite number, how much grey, 0..1).
-# Demon gold and paste are the real thing with the gilt worn thin; the moth-eaten cloak is a faded cape.
-WORN_ITEMS = {"demon_gold": (19, 0.55), "paste_gem": (57, 0.6), "moth_eaten_cloak": (81, 0.6)}
-
-# Sprites with their hue turned: key -> (sprite number, hue shift in degrees, saturation multiplier).
-TINTED_ITEMS = {
-    "hunters_coat": (43, 110, 0.7),          # a red coat in Lincoln green
-    "silk_robe": (81, 180, 0.8),
-    "archmages_mantle": (76, 200, 1.1),      # a golden cape turned the Arcanum's blue
-    "sand_case": (24, 22, 0.45),             # a scroll case gone the colour of river sand: the mudlark's "maps"
-}
-
-# Sprites made of a few copies of another, for "a lot of it": key -> (sprite number, [(x, y) offsets]).
-PILED_ITEMS = {
-    "old_sovereigns": (19, [(0, 6), (9, 6), (4, 0)]),
-    "dragon_gold": (19, [(0, 12), (9, 12), (18, 12), (4, 6), (13, 6), (9, 0)]),
-}
-
-BACKGROUNDS = {"courtyard_night": "24", "cellar_night": "10"}
-
-# Seller key -> Ninja Adventure faceset number. Keys match SellerDef.Key in scripts/Core/Sellers.cs, plus Uncle Bram.
-PORTRAITS = {
-    "tam": 25, "penn": 19, "hob": 22, "mags": 5, "dorrin": 14,  # Brindle Crossroads: villagers and a young delver
-    "fennick": 13,                                               # Thornwick Market: a smuggler
-    "wren": 6, "orrin": 9, "grit": 8, "corisande": 4,            # Crownhold: an apprentice, an archmage, a dwarf, a lady,
-    "pell": 10, "aldous": 18,                                    #            a pawnbroker and a knight
-    "malbranche": 23, "silas": 3,                                # the Royal Emporium: a skeletal devil and a fence
-    "bram": 16,                                                  # Uncle Bram, who hands you the stall
-    "nim": 20, "stranger": 7,                                    # the horned peddler; the stranger with the chained chest
-}
-
-# Portraits made from another with some colours changed: key -> (faceset number, rules). Each rule takes the pixels
-# whose hue is in [low, high] degrees (and that aren't grey), turns the hue, and scales saturation and brightness; a
-# rule can add a [top, bottom) range of rows, for hair the same hue as the face's shading.
-RECOLOURED_PORTRAITS = {
-    "snikkit": (12, [(0, 45, 85, 0.9, 1.0), (330, 360, 115, 0.9, 1.0), (250, 300, -230, 0.5, 0.7)]),  # green skin, brown rags: a goblin
-    "wenna": (17, [(180, 260, -120, 0.7, 0.7), (35, 65, -15, 0.8, 0.6)]),   # brown hair and hunting green
-    "bramble": (19, [(180, 260, -110, 0.7, 0.75)]),                          # Penn's hood in the Old Wood's moss
-    "shelly": (17, [(180, 260, -175, 0.6, 0.75)]),                           # clothes the colour of river mud
-    "vexis": (20, [(30, 70, -45, 1.1, 0.9)]),                                # Nim's horns, in imp red
-    "ermine": (4, [(250, 330, 0, 0.12, 1.15), (170, 249, 120, 1.0, 0.85)]),  # white hair and a court gown
-    "aldo": (9, [(330, 360, 30, 0.3, 0.7), (0, 20, 30, 0.3, 0.7)]),          # an old man in a plain grey cloak: the King
-    "hood": (1, [(40, 170, 195, 0.75, 0.8)]),                                # a green hood turned plum: the Hooded Woman
-    "vane": (11, [(40, 200, 0, 0.12, 0.95)]),                                # a pale, sly face over a grey collar: the Guild's man
-    # Bram's kin, who mind the stall (Characters.All in scripts/Core/Meta.cs):
-    "kit": (6, [(290, 350, 170, 0.9, 0.9), (0, 12, 22, 0.75, 0.6, 0, 15)]),  # brown hair and a green shirt
-    "hesk": (10, [(90, 190, -100, 0.55, 0.8)]),                            # a grocer's olive cap and coat
-    "rosa": (17, [(35, 65, -40, 1.15, 0.9), (230, 300, -110, 0.9, 0.9)]),  # red hair and a market green
-    "isolde": (4, [(250, 330, 100, 2.2, 1.1), (170, 249, 150, 1.0, 0.85)]),  # golden hair and a wine-red gown
-}
-
-# Portraits washed in one colour, greys and all: key -> (faceset number, colour, strength 0..1). For the demons.
-TINTED_PORTRAITS = {
-    "ansel": (2, "#a07850", 0.25),   # a tonsured monk in a brown habit
-    "skrae": (7, "#a01828", 0.55),   # a shadow with red eyes and bat's ears
-    "maw": (21, "#f8c838", 0.65),    # a borrowed body, gilded all over: the Gilded Maw
-}
-
-# Curios (Curios.All in scripts/Core/Curios.cs) -> (pack, sprite). Shown in 56px slots: small sprites at 2x, big ones
-# halved, centred.
-CURIOS = {
-    "coin": ("item", 30), "shell": ("item", 58), "loupe": ("item", 79), "gauntlet": ("item", 18), "cap": ("item", 60),
-    "lantern": ("item", 17), "catalogue": ("item", 41), "signet": ("item", 37), "jar": ("ninja", "jar.png", (0, 0, 16, 16)),
-    "letter": ("item", 23), "knife": ("item", 32), "hook": ("item", 55), "draught": ("item", 11), "clover": ("item", 65),
-    "book": ("item", 40), "crescent": ("item", 49),
-    "crate": ("medieval", "crate.png", None), "oil": ("item", 61), "purse": ("item", 21), "ticket": ("ninja", "scroll-empty.png", None),
-    "watch": ("item", 29), "token": ("item", 20), "marker": ("item", 25), "gloves": ("item", 52),
-    "dome": ("ninja", "empty-pot.png", None),
-}
+# Curios (Curios.All in scripts/Core/Curios.cs) are drawn 24px and shown at 2x in 56px slots.
 CURIO_SLOT = 56
-
-# The Gilded Guild's sign: a medieval-fantasy emblem, gilded, at 2x.
-GUILD_EMBLEM = 4
 
 # Group -> Kenney source files (pack folder, file stem).
 def _variants(pack, stem, indices, digits=3, sep="_"):
@@ -162,8 +72,8 @@ SOUNDS = {
     "book": [(RPG, "bookOpen")],
 }
 
-# The Ninja Adventure chest is 2 frames of 16x14: closed, then open. Its body palette (dark, main,
-# highlight, shade) is swapped per lot provenance; the gold rim and orange fittings stay.
+# The chest (custom_art.chest) is two 16x14 frames, closed and open, drawn in the red skin. Its body palette (dark,
+# main, highlight, shade) is swapped per lot provenance; the gold rim and orange fittings stay.
 CHEST_BASE = ["#711335", "#dc2728", "#ff5733", "#c03a24"]
 CHEST_SKINS = {
     "red": CHEST_BASE,
@@ -194,41 +104,8 @@ def fetch(url, paths, cache):
     return dest
 
 
-def recolour(img, rules):
-    """Turns the hue of (and rescales) the pixels in each rule's hue range: see RECOLOURED_PORTRAITS."""
-    img = img.copy()
-    px = img.load()
-    for y in range(img.height):
-        for x in range(img.width):
-            r, g, b, a = px[x, y]
-            if a == 0:
-                continue
-            h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-            for rule in rules:
-                low, high, turn, sat, val = rule[:5]
-                top, bottom = rule[5:7] if len(rule) > 5 else (0, img.height)
-                if low <= h * 360 <= high and s > 0.15 and top <= y < bottom:
-                    h, s, v = (h * 360 + turn) % 360 / 360, min(1, s * sat), min(1, v * val)
-                    break
-            r, g, b = colorsys.hsv_to_rgb(h, s, v)
-            px[x, y] = (round(r * 255), round(g * 255), round(b * 255), a)
-    return img
-
-
-def wash(img, colour, strength):
-    """Washes every pixel toward one colour at its own brightness: see TINTED_PORTRAITS."""
-    img = img.copy()
-    px = img.load()
-    cr, cg, cb = hex_rgb(colour)
-    for y in range(img.height):
-        for x in range(img.width):
-            r, g, b, a = px[x, y]
-            if a == 0:
-                continue
-            k = 0.25 + 1.1 * (0.3 * r + 0.59 * g + 0.11 * b) / 255
-            t = (min(255, cr * k), min(255, cg * k), min(255, cb * k))
-            px[x, y] = (round(r + (t[0] - r) * strength), round(g + (t[1] - g) * strength), round(b + (t[2] - b) * strength), a)
-    return img
+def walk(folder):
+    return [os.path.join(here, f) for here, _, files in os.walk(folder) for f in files]
 
 
 def save(image, *parts):
@@ -238,9 +115,8 @@ def save(image, *parts):
     return path
 
 
-def build_chests(src):
-    sheet = Image.open(os.path.join(src, "ninja-adventure/items/big-treasure-chest.png")).convert("RGBA")
-    closed, opened = sheet.crop((0, 0, 16, 14)), sheet.crop((16, 0, 32, 14))
+def build_chests():
+    closed, opened = custom_art.chest()
     base = [hex_rgb(c) for c in CHEST_BASE]
     for skin, colors in CHEST_SKINS.items():
         swap = dict(zip(base, [hex_rgb(c) for c in colors]))
@@ -651,27 +527,24 @@ KIND_ICONS = {
 
 
 # The shop at each tier, as one 640x360 picture shown at 2x behind the counter (and, dimmed, behind the other screens):
-# a backdrop from the pack, the architecture drawn here as pixel art, a few props from the pack, and the counter. The
+# a backdrop from custom_art (the place outside or the wall behind), the architecture drawn here, a few props, and the
+# counter. The
 # counter's top edge is at y 238 (476 on screen); the HUD covers the top 28 rows; on the counter screen the appraisal
 # panel covers x 410 and up. The display shelf (from the village shop) is at y 98, where the game stands what you keep.
 SHOP_W, SHOP_H, COUNTER_Y, SHELF_Y = 640, 360, 238, 98
 
 
-def build_shops(src):
+def build_shops():
     from PIL import ImageDraw
-    bgs = os.path.join(src, "rpg-battle-system/backgrounds")
-    props = os.path.join(src, "western-fps-2d/background-elements")
+    props = custom_art.props()
 
-    def backdrop(number, box=(0, 0, SHOP_W, SHOP_H), shade=1.0):
-        img = Image.open(os.path.join(bgs, f"{number}.png")).convert("RGBA").crop(box)
-        if img.size != (SHOP_W, SHOP_H):
-            img = img.resize((SHOP_W, SHOP_H), Image.NEAREST)
+    def backdrop(img, shade=1.0):
         if shade != 1.0:
             img = Image.eval(img.convert("RGB"), lambda v: int(v * shade)).convert("RGBA")
         return img
 
     def prop(img, name, x, bottom):
-        p = Image.open(os.path.join(props, f"{name}.png")).convert("RGBA")
+        p = props[name]
         img.alpha_composite(p, (x, bottom - p.height))
 
     def shadow(img, box, alpha):
@@ -708,8 +581,8 @@ def build_shops(src):
 
     shops = {}
 
-    # The roadside stall: a trestle table under a striped awning, outside the town walls.
-    img = backdrop(21)
+    # The roadside stall: a trestle table under a striped awning at the Brindle crossroads.
+    img = backdrop(custom_art.crossroads())
     d = ImageDraw.Draw(img)
     shadow(img, (0, 58, SHOP_W, 74), 70)
     d = ImageDraw.Draw(img)
@@ -723,7 +596,7 @@ def build_shops(src):
         d.rectangle((x, 30, x + 7, COUNTER_Y), fill=(110, 72, 38, 255), outline=(52, 32, 18, 255))
     lamp(img, d, 120, 66, 10)
     d = ImageDraw.Draw(img)
-    prop(img, "crate-2", 560, COUNTER_Y)
+    prop(img, "crate", 560, COUNTER_Y)
     prop(img, "barrel", 520, COUNTER_Y)
     d.rectangle((0, COUNTER_Y, SHOP_W, COUNTER_Y + 11), fill=(160, 112, 60, 255))
     d.line((0, COUNTER_Y, SHOP_W, COUNTER_Y), fill=(196, 140, 84, 255))
@@ -744,8 +617,9 @@ def build_shops(src):
         d.polygon([(x, 326), (x + 8, 326), (x + 4, 331 + (x // 8) % 3)], fill=(176, 148, 104, 255))
     shops[1] = img
 
-    # The village shop: a plastered wall, timber beams, oil lamps, and a shelf for what you keep.
-    img = backdrop(9, shade=0.92)
+    # The village shop: an old stone wall with a window onto the Old Wood, timber beams, oil lamps, and a shelf for what
+    # you keep.
+    img = backdrop(custom_art.thornwick_wall(), shade=0.92)
     d = ImageDraw.Draw(img)
     shadow(img, (0, 40, SHOP_W, 48), 60)
     d = ImageDraw.Draw(img)
@@ -767,7 +641,7 @@ def build_shops(src):
     d = ImageDraw.Draw(img)
     shelf(d, SHELF_Y, (78, 44, 18, 255), (147, 96, 47, 255), (176, 122, 64, 255), (78, 44, 18, 255))
     # Counter props stay in the corner by the appraisal panel, clear of the hints under the chest.
-    prop(img, "jar-2", 394, COUNTER_Y)
+    prop(img, "jar", 394, COUNTER_Y)
     prop(img, "barrel", 470, COUNTER_Y)
     d = ImageDraw.Draw(img)
     planks(d, COUNTER_Y + 12, SHOP_H, (138, 90, 44, 255), (104, 66, 32, 255), 40)
@@ -785,8 +659,7 @@ def build_shops(src):
     for y in range(26, 116, 3):
         for x in range((y * 7) % 11, SHOP_W, 11):
             d.point((x, y), fill=(156, 130, 100, 255))
-    view = Image.open(os.path.join(bgs, "15.png")).convert("RGBA").crop((60, 40, 60 + 380, 40 + 72))
-    img.alpha_composite(view, (140, 26))
+    img.alpha_composite(custom_art.crownhold_view(380, 72), (140, 26))
     d = ImageDraw.Draw(img)
     d.rectangle((134, 24, 526, 29), fill=(52, 32, 20, 255))
     for x in (134, 200, 266, 332, 398, 464, 522):
@@ -810,10 +683,10 @@ def build_shops(src):
     lamp(img, d, 110, 30, 30)
     lamp(img, d, 562, 30, 22)
     d = ImageDraw.Draw(img)
-    prop(img, "jar-2", 556, 84)
-    prop(img, "bottle-1", 580, 84)
-    prop(img, "jar-1", 598, 84)
-    prop(img, "bottle-1", 398, COUNTER_Y)
+    prop(img, "jar", 556, 84)
+    prop(img, "flask", 578, 84)
+    prop(img, "small_jar", 598, 84)
+    prop(img, "flask", 398, COUNTER_Y)
     d = ImageDraw.Draw(img)
     d.rectangle((0, COUNTER_Y + 12, SHOP_W, SHOP_H), fill=(74, 46, 28, 255))
     for x in range(0, SHOP_W, 80):
@@ -825,8 +698,9 @@ def build_shops(src):
     d.line((0, COUNTER_Y + 10, SHOP_W, COUNTER_Y + 10), fill=(240, 208, 112, 255))
     shops[3] = img
 
-    # The Emporium: a colonnade in daylight, crimson drapes with gold, a marble ledge and a marble counter.
-    img = backdrop(23)
+    # The Emporium: a colonnade in daylight with the Gilded Gate down the avenue, crimson drapes with gold, a marble
+    # ledge and a marble counter.
+    img = backdrop(custom_art.emporium_hall())
     d = ImageDraw.Draw(img)
     crimson = [(106, 20, 26, 255), (138, 28, 36, 255), (168, 36, 46, 255), (138, 28, 36, 255)]
     for x0, x1 in ((0, 46), (SHOP_W - 46, SHOP_W)):
@@ -841,7 +715,7 @@ def build_shops(src):
             d.line((fx, 52, fx, 55), fill=(240, 200, 90, 255))
     d.line((0, 27, SHOP_W, 27), fill=(212, 168, 56, 255))
     shelf(d, SHELF_Y, (150, 140, 130, 255), (232, 228, 220, 255), (255, 255, 255, 255), (212, 168, 56, 255))
-    prop(img, "jar-2", 394, COUNTER_Y)
+    prop(img, "jar", 394, COUNTER_Y)
     d = ImageDraw.Draw(img)
     d.rectangle((0, COUNTER_Y + 16, SHOP_W, SHOP_H), fill=(52, 44, 60, 255))
     for x in range(0, SHOP_W, 96):
@@ -858,62 +732,28 @@ def build_shops(src):
         save(img, "backgrounds", f"shop{tier}.png")
 
 
-# Small slots (the collection, the exhibition, the keep chooser) show each item's own sprite at 1x; one that's too big
-# is halved, each 2x2 block becoming its most common colour so the result stays crisp pixel art.
-ICON_MAX = 48
-
-
-def build_item_icons():
-    items = os.path.join(ASSETS, "sprites", "items")
-    for name in sorted(os.listdir(items)):
-        if not name.endswith(".png"):
-            continue
-        img = Image.open(os.path.join(items, name)).convert("RGBA")
-        if max(img.size) > ICON_MAX:
-            img = halve(img)
-        save(img, "sprites", "items", "icons", name)
-
-
-def halve(img):
-    w, h = (img.width + 1) // 2, (img.height + 1) // 2
-    src = img.load()
-    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    px = out.load()
-    for y in range(h):
-        for x in range(w):
-            block = [src[x * 2 + dx, y * 2 + dy] for dy in (0, 1) for dx in (0, 1)
-                     if x * 2 + dx < img.width and y * 2 + dy < img.height]
-            solid = [c for c in block if c[3] >= 128]
-            if len(solid) * 2 >= len(block):
-                # The darkest colour wins a tie, so outlines survive.
-                px[x, y] = max(solid, key=lambda c: (solid.count(c), -sum(c[:3])))
-    return out
-
-
-def build_curios(sp):
-    for key, source in CURIOS.items():
-        if source[0] == "item":
-            img = Image.open(os.path.join(sp, f"rpg-battle-system/item/{source[1]}.png")).convert("RGBA")
-        else:
-            folder = "ninja-adventure/items" if source[0] == "ninja" else "medieval-fantasy/items"
-            img = Image.open(os.path.join(sp, folder, source[1])).convert("RGBA")
-            if source[2]:
-                img = img.crop(source[2])
+def build_items():
+    """Each thing's sprite, for the opening (shown 2x) and, the same picture, for the small slots (the collection, the
+    exhibition, the keep chooser), so a thing looks the same everywhere."""
+    for key, img in custom_art.items().items():
         img = img.crop(img.getbbox())
-        # Tiny sprites (a 9px jar) at 3x, small ones at 2x, big ones halved: all about the same size in a slot.
-        if max(img.size) <= 12:
-            img = img.resize((img.width * 3, img.height * 3), Image.NEAREST)
-        elif max(img.size) <= CURIO_SLOT // 2:
-            img = img.resize((img.width * 2, img.height * 2), Image.NEAREST)
-        elif max(img.size) > CURIO_SLOT:
-            img = halve(img)
+        save(img, "sprites", "items", f"{key}.png")
+        save(img, "sprites", "items", "icons", f"{key}.png")
+
+
+def build_curios():
+    for key, img in custom_art.curios().items():
+        img = img.crop(img.getbbox())
+        img = img.resize((img.width * 2, img.height * 2), Image.NEAREST)
         slot = Image.new("RGBA", (CURIO_SLOT, CURIO_SLOT), (0, 0, 0, 0))
         slot.alpha_composite(img, ((CURIO_SLOT - img.width) // 2, (CURIO_SLOT - img.height) // 2))
         save(slot, "ui", "curios", f"{key}.png")
 
-    emblem = Image.open(os.path.join(sp, f"medieval-fantasy/items/emblem/{GUILD_EMBLEM}.png")).convert("RGBA")
-    emblem = wash(recolour(emblem, [(0, 360, 0, 0.1, 0.95)]), "#e0b040", 0.5)
-    save(emblem.resize((emblem.width * 2, emblem.height * 2), Image.NEAREST), "ui", "guild.png")
+
+def build_signs():
+    """The Gilded Guild's sign and a shard of the Aldric Key (the story's four), at 2x."""
+    for name, img in (("guild", custom_art.guild_sign()), ("key", custom_art.key_shard())):
+        save(img.resize((img.width * 2, img.height * 2), Image.NEAREST), "ui", f"{name}.png")
 
 
 def build_icons():
@@ -940,62 +780,26 @@ def main():
     args = parser.parse_args()
     os.makedirs(args.cache, exist_ok=True)
 
-    sp = fetch(*SUPERPOWERS, args.cache)
     kenney = fetch(*KENNEY, args.cache)
 
-    def item_sprite(number):
-        img = Image.open(os.path.join(sp, f"rpg-battle-system/item/{number}.png")).convert("RGBA")
-        return img.crop(img.getbbox())
+    # Rebuilt from scratch so renamed or dropped pictures and sounds don't linger. Godot's .import files stay (they
+    # keep each file's uid) unless what they import is gone.
+    folders = [os.path.join(ASSETS, f) for f in ("sprites", "audio", "backgrounds", "ui")]
+    for folder in folders:
+        for path in walk(folder):
+            if not path.endswith(".import"):
+                os.remove(path)
 
-    # Rebuilt from scratch so renamed or dropped items and sounds don't linger.
-    for folder in (os.path.join(ASSETS, "sprites", "items"), os.path.join(ASSETS, "audio"), os.path.join(ASSETS, "ui", "icons"),
-                   os.path.join(ASSETS, "ui", "kinds"), os.path.join(ASSETS, "ui", "curios")):
-        shutil.rmtree(folder, ignore_errors=True)
-
-    for key, number in ITEMS.items():
-        save(item_sprite(number), "sprites", "items", f"{key}.png")
-    for key, (number, grey) in WORN_ITEMS.items():
-        img = item_sprite(number)
-        px = img.load()
-        for y in range(img.height):
-            for x in range(img.width):
-                r, g, b, a = px[x, y]
-                lum = (r * 3 + g * 6 + b) // 10
-                px[x, y] = (round(r + (lum - r) * grey), round(g + (lum - g) * grey), round(b + (lum - b) * grey), a)
-        save(img, "sprites", "items", f"{key}.png")
-
-    for key, (number, hue, sat) in TINTED_ITEMS.items():
-        img = item_sprite(number)
-        h, sv, v = img.convert("RGB").convert("HSV").split()
-        h = h.point(lambda x: (x + round(hue * 255 / 360)) % 256)
-        sv = sv.point(lambda x: min(255, round(x * sat)))
-        tinted = Image.merge("HSV", (h, sv, v)).convert("RGBA")
-        tinted.putalpha(img.getchannel("A"))
-        save(tinted, "sprites", "items", f"{key}.png")
-    for key, (number, offsets) in PILED_ITEMS.items():
-        img = item_sprite(number)
-        w = max(x for x, _ in offsets) + img.width
-        h = max(y for _, y in offsets) + img.height
-        pile = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        for x, y in offsets:
-            pile.alpha_composite(img, (x, y))
-        save(pile, "sprites", "items", f"{key}.png")
-
-    build_item_icons()
-
-    for name, number in BACKGROUNDS.items():
-        save(Image.open(os.path.join(sp, f"rpg-battle-system/backgrounds/{number}.png")).convert("RGBA"), "backgrounds", f"{name}.png")
-
-    save(Image.open(os.path.join(sp, "rpg-battle-system/fx/1.png")).convert("RGBA"), "sprites", "fx", "burst.png")
-
-    for key, number in PORTRAITS.items():
-        save(Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA"), "sprites", "sellers", f"{key}.png")
-    for key, (number, rules) in RECOLOURED_PORTRAITS.items():
-        img = Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA")
-        save(recolour(img, rules), "sprites", "sellers", f"{key}.png")
-    for key, (number, colour, strength) in TINTED_PORTRAITS.items():
-        img = Image.open(os.path.join(sp, f"ninja-adventure/characters/faceset/{number}.png")).convert("RGBA")
-        save(wash(img, colour, strength), "sprites", "sellers", f"{key}.png")
+    build_items()
+    for key, img in custom_art.portraits().items():
+        save(img, "sprites", "sellers", f"{key}.png")
+    save(custom_art.burst(), "sprites", "fx", "burst.png")
+    build_chests()
+    build_curios()
+    build_signs()
+    build_shops()
+    build_ui()
+    build_icons()
 
     for group, files in SOUNDS.items():
         out = os.path.join(ASSETS, "audio", group)
@@ -1003,19 +807,17 @@ def main():
         for i, (pack, stem) in enumerate(files):
             shutil.copy(os.path.join(kenney, pack, "Audio", f"{stem}.ogg"), os.path.join(out, f"{i}.ogg"))
 
-    # A shard of the Aldric Key (the story's four), at 2x.
-    key = Image.open(os.path.join(sp, "ninja-adventure/items/gold-key.png")).convert("RGBA")
-    save(key.resize((key.width * 2, key.height * 2), Image.NEAREST), "ui", "key.png")
-
-    build_chests(sp)
-    build_curios(sp)
-    build_shops(sp)
-    build_ui()
-    build_icons()
-
     fonts = os.path.join(ASSETS, "fonts")
     os.makedirs(fonts, exist_ok=True)
     shutil.copy(os.path.join(kenney, "kenney_fontpackage/Fonts/Kenney Mini.ttf"), os.path.join(fonts, "kenney_mini.ttf"))
+
+    for folder in folders:
+        for path in walk(folder):
+            if path.endswith(".import") and not os.path.exists(path[:-len(".import")]):
+                os.remove(path)
+        for here, dirs, files in os.walk(folder, topdown=False):
+            if not dirs and not files:
+                os.rmdir(here)
 
     count = sum(len(files) for _, _, files in os.walk(ASSETS))
     print(f"Wrote {count} files to {ASSETS}")

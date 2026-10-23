@@ -70,7 +70,7 @@ public partial class TitlePhase : Phase
         Add(UiKit.MakeLabel(Main.Version, 16, Palette.Muted, outline: 4).Place(24, 684, 400, 20));
         if (Game.Profile?.Summary is string record)
             Add(UiKit.MakeLabel(record, 16, Palette.Gold.Darkened(0.15f), HorizontalAlignment.Center, outline: 4).Place(0, 196, 1280, 20));
-        Add(UiKit.MakeLabel("Art: Pixel-boy.  Sounds and font: Kenney.  All CC0.", 16, Palette.Muted, HorizontalAlignment.Right, outline: 4)
+        Add(UiKit.MakeLabel("Sounds and font: Kenney (CC0).", 16, Palette.Muted, HorizontalAlignment.Right, outline: 4)
             .Place(656, 684, 600, 20));
         Game.Moment("00_title", 1.0);
     }
