@@ -22,6 +22,19 @@ public partial class Sfx : Node
     /// <summary>When each group last played, so a burst of hits doesn't stack twenty copies.</summary>
     readonly Dictionary<string, ulong> _lastPlayed = new();
 
+    /// <summary>
+    /// dB added to each recorded group to bring them to about the same loudness (measured over their loudest 100 ms),
+    /// short of clipping their peaks; call sites then say how loud they mean it relative to that.
+    /// </summary>
+    static readonly Dictionary<string, float> Gain = new()
+    {
+        ["block"] = 1.9f, ["boss"] = 0.8f, ["chest_land"] = -0.6f, ["click"] = 0.7f, ["coin"] = 0.4f, ["coins"] = 7f,
+        ["creak"] = 4.6f, ["crit"] = -3.7f, ["defeat"] = 7.9f, ["equip_cloth"] = 3.3f, ["equip_metal"] = -7.2f,
+        ["error"] = 1.2f, ["fanfare"] = -2.4f, ["hit"] = -2.7f, ["hurt"] = 0.1f, ["kill"] = 0.4f, ["latch"] = 0f,
+        ["lid"] = -1.6f, ["powerup"] = -4.7f, ["sell"] = 0.2f, ["slice"] = -0.3f, ["swing"] = 12f, ["toggle"] = -2.3f,
+        ["unlock"] = 4.1f, ["victory"] = -1.8f,
+    };
+
     public override void _Ready()
     {
         Build();
@@ -87,7 +100,8 @@ public partial class Sfx : Node
             _groups[group] = streams = list.ToArray();
             if (streams.Length == 0) GD.PushWarning($"No recordings in sound group '{group}'");
         }
-        if (streams.Length > 0) PlayStream(streams[_rng.Next(streams.Length)], pitch * (0.94f + 0.12f * (float)_rng.NextDouble()), volumeDb);
+        if (streams.Length > 0)
+            PlayStream(streams[_rng.Next(streams.Length)], pitch * (0.94f + 0.12f * (float)_rng.NextDouble()), volumeDb + Gain.GetValueOrDefault(group));
     }
 
     void PlayStream(AudioStream stream, float pitch, float volumeDb)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 
 namespace LootFall.Audio;
@@ -7,6 +8,12 @@ public partial class Music : Node
 {
     AudioStreamPlayer _current, _old;
     string _playing;
+
+    /// <summary>dB per track, to even out their loudness (measured RMS).</summary>
+    static readonly Dictionary<string, float> Gain = new()
+    {
+        ["battle"] = -5f, ["battle2"] = 2.5f, ["boss"] = -1.2f, ["title"] = 1.3f,
+    };
 
     public override void _Ready()
     {
@@ -28,7 +35,7 @@ public partial class Music : Node
         _current.VolumeDb = -40;
         _current.Play();
         var t = CreateTween().SetParallel();
-        t.TweenProperty(_current, "volume_db", 0f, fade);
+        t.TweenProperty(_current, "volume_db", Gain.GetValueOrDefault(name), fade);
         if (_old.Playing) t.TweenProperty(_old, "volume_db", -60f, fade);
         t.Chain().TweenCallback(Callable.From(() => _old.Stop()));
     }

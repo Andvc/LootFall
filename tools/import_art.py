@@ -577,6 +577,17 @@ def pixel_icon(rows):
     return img.resize((32, 32), Image.NEAREST)
 
 
+def trimmed_copy(src, dest):
+    """Copies a sound without its trailing silence (some are padded to seconds of nothing, which holds a voice), via
+    ffmpeg; a plain copy if ffmpeg isn't there."""
+    if shutil.which("ffmpeg") is None:
+        shutil.copyfile(src, dest)
+        return
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-af",
+                    "areverse,silenceremove=start_periods=1:start_threshold=-60dB,areverse,apad=pad_dur=0.05",
+                    "-c:a", "libvorbis", "-q:a", "6", dest], check=True)
+
+
 def build_sounds(superpowers, kenney):
     out = os.path.join(ASSETS, "audio")
     if os.path.isdir(out):
@@ -586,7 +597,7 @@ def build_sounds(superpowers, kenney):
             src = os.path.join(superpowers, "ninja-adventure", "sounds", path) if pack == NINJA else os.path.join(kenney, pack, path)
             dest = os.path.join(out, group, f"{i}.ogg")
             os.makedirs(os.path.dirname(dest), exist_ok=True)
-            shutil.copyfile(src, dest)
+            trimmed_copy(src, dest)
     for name, (folder, file) in MUSIC.items():
         dest = os.path.join(ASSETS, "music", f"{name}.ogg")
         os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -606,6 +617,14 @@ def main():
     os.makedirs(args.cache, exist_ok=True)
     superpowers = fetch(*SUPERPOWERS, args.cache)
     kenney = fetch(*KENNEY, args.cache)
+    # Godot's .import files (with each asset's uid) are kept for whatever is rebuilt, so a re-run doesn't churn them.
+    kept = {}
+    for folder, _, files in os.walk(ASSETS):
+        for name in files:
+            if name.endswith(".import"):
+                path = os.path.join(folder, name)
+                with open(path) as f:
+                    kept[path] = f.read()
     for folder in ("sprites", "backgrounds", "ui"):
         path = os.path.join(ASSETS, folder)
         if os.path.isdir(path):
@@ -618,6 +637,10 @@ def main():
     build_ui()
     build_sounds(superpowers, kenney)
     build_fonts(kenney)
+    for path, text in kept.items():
+        if os.path.exists(path[:-len(".import")]):
+            with open(path, "w") as f:
+                f.write(text)
     print("assets rebuilt in", ASSETS)
 
 

@@ -55,6 +55,8 @@ public static class Settings
             int index = AudioServer.BusCount - 1;
             AudioServer.SetBusName(index, name);
             AudioServer.SetBusSend(index, "Master");
+            // A burst of hits, coins and a fanfare at once stays clean.
+            if (name == "Sfx") AudioServer.AddBusEffect(index, new AudioEffectHardLimiter { CeilingDb = -1f });
         }
         SetBus("Master", Volume);
         SetBus("Music", MusicVolume);

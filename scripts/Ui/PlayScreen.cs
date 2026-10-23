@@ -219,7 +219,7 @@ public partial class PlayScreen : Screen
         Fx.CoinsTo(_flyLayer, from, Hud.GoldSpot, coins, () =>
         {
             Hud.CoinIn();
-            Sfx.PlayGroup("coin", 1.4f, -18, 0.05f);
+            Sfx.PlayGroup("coin", 1.4f, -10, 0.05f);
         });
     }
 
@@ -238,7 +238,7 @@ public partial class PlayScreen : Screen
             Gear.Flash(item.Slot, color);
             Gear.BumpPower();
             Fx.Ring(_flyLayer, to, color, 70, 0.35f, 4);
-            Sfx.PlayGroup(Slots.Get(item.Slot).Metal ? "equip_metal" : "equip_cloth", 1f, -4);
+            Sfx.PlayGroup(Slots.Get(item.Slot).Metal ? "equip_metal" : "equip_cloth", 1f, -2);
             Sfx.Play("upgrade", 1f + 0.04f * (int)item.Rarity, -8);
             Battle.RefreshGear();
             Battle.PowerUp(Math.Max(0, o.PowerDelta), color);
@@ -246,7 +246,7 @@ public partial class PlayScreen : Screen
                 Fx.CoinsTo(_flyLayer, to, Hud.GoldSpot, 4, () =>
                 {
                     Hud.CoinIn();
-                    Sfx.PlayGroup("coin", 1.2f, -14, 0.05f);
+                    Sfx.PlayGroup("coin", 1.2f, -6, 0.05f);
                 });
             Game.Moment($"equipped_{item.Rarity.ToString().ToLowerInvariant()}", 0.4);
             Tip("equip", "Every piece shows in the fight: watch the numbers, and his blade and cape.", 4);
@@ -260,11 +260,11 @@ public partial class PlayScreen : Screen
         Gear.Highlight(null);
         Fx.Burst(_flyLayer, from, Palette.Of(o.Item.Rarity), 20, 200);
         Fx.Float(_flyLayer, "+" + Num.Short(gold) + "g", from + new Vector2(0, -30), Palette.Gold, 24, rise: 50, duration: 0.9f);
-        Sfx.PlayGroup("sell", 1f, -6);
+        Sfx.PlayGroup("sell", 1f, -2);
         Fx.CoinsTo(_flyLayer, from, Hud.GoldSpot, (int)Math.Clamp(2 + (int)o.Item.Rarity * 2, 2, 12), () =>
         {
             Hud.CoinIn();
-            Sfx.PlayGroup("coin", 1.3f, -14, 0.05f);
+            Sfx.PlayGroup("coin", 1.3f, -6, 0.05f);
         }, delay: 0.05f);
         Upgrades.Refresh();
         Hud.Refresh();
@@ -297,7 +297,7 @@ public partial class PlayScreen : Screen
             Fx.Fly(icon, Hud.GoldSpot, 0.4f, 50, () =>
             {
                 Hud.CoinIn();
-                Sfx.PlayGroup("coin", 1.3f, -16, 0.05f);
+                Sfx.PlayGroup("coin", 1.3f, -8, 0.05f);
             });
         }
     }

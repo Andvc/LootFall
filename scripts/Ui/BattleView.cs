@@ -288,7 +288,7 @@ public partial class BattleView : Node2D
         if (a.Attacker.IsHero)
         {
             _hero.Attack((float)Balance.HeroWindup, lunge: true);
-            Main.Instance.Sfx.PlayGroup("swing", 1.1f, -14, 0.05f);
+            Main.Instance.Sfx.PlayGroup("swing", 1.1f, -6, 0.05f);
         }
         else if (_foes.TryGetValue(a.Attacker, out var v)) v.Attack((float)Balance.MonsterWindup, lunge: true);
     }
