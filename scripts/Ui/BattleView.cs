@@ -420,8 +420,31 @@ public partial class BattleView : Node2D
         Fx.Float(_numbers, text, at, color, size, rise: _bossUi.Visible ? 36 : 56, duration: 0.85f, drift: drift);
     }
 
-    /// <summary>A big line of text across the lane ("BOSS", "STAGE CLEAR"), sliding in and out.</summary>
+    readonly Queue<(string Text, Color Color, string Sub, float Hold)> _banners = new();
+    bool _bannerShowing;
+
+    /// <summary>A big line of text across the lane ("BOSS", "STAGE CLEAR"); one at a time, in the order they came.</summary>
     public void Banner(string text, Color color, string sub = null, float hold = 1.2f)
+    {
+        _banners.Enqueue((text, color, sub, hold));
+        if (!_bannerShowing) NextBanner();
+    }
+
+    void NextBanner()
+    {
+        if (_banners.Count == 0)
+        {
+            _bannerShowing = false;
+            return;
+        }
+        _bannerShowing = true;
+        var (text, color, sub, hold) = _banners.Dequeue();
+        // A backlog is shown quicker.
+        if (_banners.Count > 0) hold = Mathf.Min(hold, 0.6f);
+        ShowBanner(text, color, sub, hold);
+    }
+
+    void ShowBanner(string text, Color color, string sub, float hold)
     {
         var root = new Node2D { Position = new Vector2(0, 150), ZIndex = 60 };
         var band = new ColorRect { Color = new Color(0, 0, 0, 0.55f), MouseFilter = Control.MouseFilterEnum.Ignore }.Place(0, -10, Width, sub == null ? 70 : 100);
@@ -437,6 +460,7 @@ public partial class BattleView : Node2D
         t.TweenProperty(root, "modulate", Colors.White, 0.12f);
         t.Parallel().TweenProperty(label, "scale", Vector2.One, 0.25f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
         t.TweenInterval(hold);
+        t.TweenCallback(Callable.From(NextBanner));
         t.TweenProperty(root, "modulate:a", 0f, 0.3f);
         t.TweenCallback(Callable.From(root.QueueFree));
     }

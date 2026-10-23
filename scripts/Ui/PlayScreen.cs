@@ -56,11 +56,24 @@ public partial class PlayScreen : Screen
         Battle.GoldDropped += DropGold;
         Chest.Equipped += OnEquipped;
         Chest.Sold += OnSold;
-        Chest.Revealed += o => Gear.Highlight(o.Item.Slot);
+        Chest.Revealed += OnRevealed;
         Upgrades.Bought += OnBought;
 
         if (_welcome != null) ShowWelcome(_welcome);
-        else if (G.ChestsOpened == 0 && G.TotalKills == 0) Hint("Open the chest!  Click it, or press SPACE.", 4);
+        else if (G.ChestsOpened == 0 && G.FirstTime("open")) Hint("Open the chest!  Click it, or press SPACE.", 5);
+    }
+
+    /// <summary>A tip over the lane, the first time something happens (remembered with the save).</summary>
+    void Tip(string key, string text, float seconds = 4)
+    {
+        if (G.FirstTime(key)) Hint(text, seconds);
+    }
+
+    void OnRevealed(Opening o)
+    {
+        Gear.Highlight(o.Item.Slot);
+        if (o.Item.Rarity >= Rarity.Legendary) Tip("legendary", "A LEGENDARY!  Its power goes off in the fight.", 4);
+        else Tip("card", "Better than what he wears? EQUIP it.  Worse? SELL it for gold.  SPACE picks the glowing one.", 6);
     }
 
     public override void _Process(double delta)
@@ -75,6 +88,8 @@ public partial class PlayScreen : Screen
             _refreshTimer = 0.2;
             Upgrades.Refresh();
             Hud.Refresh();
+            if (G.ChestLevel == 1 && G.Gold >= Core.Upgrades.Cost(G, Upgrade.ChestLevel))
+                Tip("chestlevel", "You can afford CHEST LEVEL 2: stronger, rarer loot from every chest.  (Upgrades, right)", 5);
         }
     }
 
@@ -113,6 +128,9 @@ public partial class PlayScreen : Screen
                 Sfx.PlayGroup("boss", 1.2f, -10);
                 Hint("The boss is ready.  Press FIGHT BOSS (or B).", 3);
                 break;
+            case BossAvailable:
+                Tip("boss", "Ten kills: here comes the boss.  Beat it within 30 seconds to move on.", 4);
+                break;
             case BossStarted b:
                 Battle.Banner(b.Boss.ZoneBoss ? b.Boss.Name.ToUpperInvariant() : "BOSS!", new Color("#ff5a6a"),
                     b.Boss.ZoneBoss ? $"Guardian of {World.Zone(G.Stage).Name}  -  {Balance.BossTime:0}s to win" : $"{b.Boss.Name}  -  {Balance.BossTime:0}s to win", 1.0f);
@@ -123,6 +141,7 @@ public partial class PlayScreen : Screen
                 break;
             case BossFailed f:
                 Battle.Banner(f.TimedOut ? "TIME'S UP" : "DEFEATED", Palette.Bad, "Open chests and train, then try again", 1.2f);
+                Tip("bossfail", "Auto-Boss tries again once he's stronger.  Chest Level and training get him there.", 5);
                 Sfx.Play("down", 1f, -4);
                 Game.Music.Play(World.Zone(G.Stage).Music, 1.5f);
                 break;
@@ -230,6 +249,7 @@ public partial class PlayScreen : Screen
                     Sfx.PlayGroup("coin", 1.2f, -14, 0.05f);
                 });
             Game.Moment($"equipped_{item.Rarity.ToString().ToLowerInvariant()}", 0.4);
+            Tip("equip", "Every piece shows in the fight: watch the numbers, and his blade and cape.", 4);
         });
         Upgrades.Refresh();
         Hud.Refresh();
@@ -306,12 +326,16 @@ public partial class PlayScreen : Screen
 
     // ------------------------------------------------------------------------------------------------- messages
 
-    /// <summary>A line of advice over the lane for a few seconds.</summary>
+    readonly System.Collections.Generic.List<Label> _hints = new();
+
+    /// <summary>A line of advice over the lane for a few seconds (stacking under any still showing).</summary>
     public void Hint(string text, float seconds)
     {
-        var label = UiKit.MakeLabel(text, 16, Palette.Text, HorizontalAlignment.Center, outline: 6).Place(140, 120, 1000, 24);
+        _hints.RemoveAll(h => !IsInstanceValid(h));
+        var label = UiKit.MakeLabel(text, 16, Palette.Text, HorizontalAlignment.Center, outline: 6).Place(140, 120 + 26 * _hints.Count, 1000, 24);
         label.ZIndex = 70;
         AddChild(label);
+        _hints.Add(label);
         label.Modulate = Colors.Transparent;
         var t = label.CreateTween();
         t.TweenProperty(label, "modulate", Colors.White, 0.25f);
@@ -322,21 +346,24 @@ public partial class PlayScreen : Screen
 
     void ShowWelcome(OfflineReport r)
     {
-        var layer = new Node2D { ZIndex = 90 };
+        var layer = new Node2D { ZIndex = 200 };
         AddChild(layer);
-        var panel = UiKit.MakePanel(Palette.Gold).Place(390, 200, 500, 210);
+        var panel = UiKit.MakePanel(Palette.Gold).Place(390, 196, 500, 222);
         layer.AddChild(panel);
         panel.AddChild(UiKit.MakeLabel("WELCOME BACK", 32, Palette.Gold, HorizontalAlignment.Center, outline: 6).Place(0, 16, 500, 40));
         panel.AddChild(UiKit.MakeLabel($"Your knight kept fighting for {Num.Time(r.Seconds)}.", 16, Palette.Text, HorizontalAlignment.Center).Place(0, 64, 500, 20));
         panel.AddChild(UiKit.MakeLabel($"{Num.Short(r.Kills)} monsters slain", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 92, 500, 20));
-        panel.AddChild(UiKit.MakeLabel($"+{Num.Short(r.Gold)} gold    +{r.Chests.Sum()} chests", 24, Palette.Good, HorizontalAlignment.Center, outline: 4).Place(0, 118, 500, 30));
+        panel.AddChild(UiKit.MakeLabel($"+{Num.Short(r.Gold)} gold    +{r.Chests.Sum()} chests", 24, Palette.Good, HorizontalAlignment.Center, outline: 4).Place(0, 116, 500, 30));
+        if (r.ChestGold > 0)
+            panel.AddChild(UiKit.MakeLabel($"(the chests past {Balance.OfflineChests} were sold for {Num.Short(r.ChestGold)})", 16, Palette.Muted,
+                HorizontalAlignment.Center).Place(0, 146, 500, 20));
         var ok = UiKit.MakeButton("COLLECT", Palette.Good.Darkened(0.3f), 16, () =>
         {
             Sfx.PlayGroup("coins", 1f, -2);
             Fx.CoinsTo(_flyLayer, new Vector2(640, 330), Hud.GoldSpot, 14, () => Hud.CoinIn());
             Chest.Refresh();
             layer.QueueFree();
-        }).Place(170, 160, 160, 36);
+        }).Place(170, 172, 160, 36);
         panel.AddChild(ok);
         Sfx.Play("chime", 1f, -6);
     }

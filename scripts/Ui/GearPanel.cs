@@ -132,6 +132,8 @@ public partial class GearPanel : Node2D
 
         // Effects in play, listed on the right of the slots.
         _effects = UiKit.MakeLabel("", 16, Palette.Of(Rarity.Legendary)).Place(14 + 4 * SlotView.S + 36, 42, 100, 150);
+        _effects.MouseFilter = Control.MouseFilterEnum.Pass;
+        _effects.AddThemeConstantOverride("line_spacing", -2);
         AddChild(_effects);
 
         string[] icons = { "atk", "hp", "def", "spd", "crit", "critdmg", "gold", "chest", "luck" };
@@ -179,9 +181,11 @@ public partial class GearPanel : Node2D
         _stats[6].Text = "+" + Num.Pct(s.GoldFind);
         _stats[7].Text = "+" + Num.Pct(s.ChestFind);
         _stats[8].Text = "+" + Num.Pct(s.Luck);
-        _stats[0].TooltipText = "Attack";
+        // Six lines fit beside the slots: past that, the rest are counted (and listed in the tooltip).
         var active = Effects.All.Where(e => e.Effect != Effect.None && s.Has(e.Effect)).Select(e => e.Name).ToList();
-        _effects.Text = string.Join("\n", active);
+        _effects.Text = string.Join("\n", active.Count <= 6 ? active : active.Take(5).Append($"+{active.Count - 5} more"));
+        _effects.TooltipText = string.Join("\n", Effects.All.Where(e => e.Effect != Effect.None && s.Has(e.Effect))
+            .Select(e => $"{e.Name}: {e.Describe(s.Mag(e.Effect))}"));
     }
 
     /// <summary>Flashes the power number (it just went up).</summary>

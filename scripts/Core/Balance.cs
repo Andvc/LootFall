@@ -87,6 +87,10 @@ public static class Balance
     public static int AutoOpenStage = 10;
     public static double AutoOpenCost = 2500, AutoOpenEvery = 0.8;
 
-    /// <summary>Time away is farmed at this share of what the knight does live, up to this long.</summary>
+    /// <summary>
+    /// Time away is farmed at this share of what the knight does live, up to this long; at most this many chests wait
+    /// for you (the rest are paid as the gold they'd sell for), so coming back is a treat rather than a chore.
+    /// </summary>
     public static double OfflineRate = 0.75, OfflineCap = 8 * 3600;
+    public static int OfflineChests = 100;
 }

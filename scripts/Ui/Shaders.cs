@@ -44,6 +44,8 @@ void fragment() {
 
     static Shader _actor;
 
+    public static void Release() => _actor = null;
+
     public static ShaderMaterial Actor()
     {
         _actor ??= new Shader { Code = ActorCode };

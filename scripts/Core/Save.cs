@@ -57,6 +57,7 @@ public sealed class SaveData
     public long BossesBeaten { get; set; }
     public long[] Found { get; set; } = new long[Rarities.Count];
     public double GoldEarned { get; set; }
+    public string[] TipsSeen { get; set; } = Array.Empty<string>();
     public ItemData Pending { get; set; }
     public int PendingKind { get; set; }
 
@@ -70,7 +71,7 @@ public sealed class SaveData
         ChestLevel = g.ChestLevel, Might = g.Might, Vigor = g.Vigor, Haste = g.Haste, HasAutoOpen = g.HasAutoOpen,
         AutoBoss = g.AutoBoss, AutoOpen = g.AutoOpen, AutoStopAt = (int)g.AutoStopAt,
         PlayTime = g.PlayTime, TotalKills = g.TotalKills, ChestsOpened = g.ChestsOpened, BossesBeaten = g.BossesBeaten,
-        Found = (long[])g.Found.Clone(), GoldEarned = g.GoldEarned,
+        Found = (long[])g.Found.Clone(), GoldEarned = g.GoldEarned, TipsSeen = g.TipsSeen.ToArray(),
         Pending = ItemData.From(g.Pending?.Item), PendingKind = (int)(g.Pending?.Kind ?? ChestKind.Wooden),
     };
 
@@ -96,6 +97,7 @@ public sealed class SaveData
         g.BossesBeaten = BossesBeaten;
         for (int i = 0; i < g.Found.Length && i < Found.Length; i++) g.Found[i] = Found[i];
         g.GoldEarned = GoldEarned;
+        foreach (var tip in TipsSeen ?? Array.Empty<string>()) g.TipsSeen.Add(tip);
     }
 
     static readonly JsonSerializerOptions Options = new() { WriteIndented = false };

@@ -17,7 +17,7 @@ namespace LootFall;
 /// saved), --seed=N, --stage=N (start at a stage with the gear a sensible player would have by then), --minutes=N (the
 /// bot stops after N minutes of play), --speed=N (game speed for the bot), --shots=DIR (screenshot each named moment
 /// the first time it happens), --opening-demo (opens one chest of each rarity, then quits), --title-demo (title,
-/// settings, a new game, the pause menu), --export-sounds=DIR.
+/// settings, a new game, the pause menu), --welcome-demo (a save round trip and two hours away), --export-sounds=DIR.
 /// </summary>
 public partial class Main : Node2D
 {
@@ -110,6 +110,7 @@ public partial class Main : Node2D
 
         int stage = int.TryParse(Arg(args, "--stage"), out var st) ? st : 0;
         if (args.Contains("--title-demo")) TitleDemo();
+        else if (args.Contains("--welcome-demo")) WelcomeDemo();
         else if (args.Contains("--opening-demo")) OpeningDemo();
         else if (_bot != null || stage > 1)
         {
@@ -228,6 +229,11 @@ public partial class Main : Node2D
         Music?.Stop();
         Sfx?.Release();
         for (int i = 0; i < 3; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        GetTree().Root.Theme = null;
+        UiKit.Release();
+        Anims.Release();
+        Fx.Release();
+        Shaders.Release();
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GetTree().Quit();
@@ -244,16 +250,23 @@ public partial class Main : Node2D
         CreateTween().TweenProperty(_flash, "color:a", 0f, duration).SetEase(Tween.EaseType.Out);
     }
 
-    double _hitStopUntil;
+    double _hitStopUntil, _lastSmallHitStop;
 
-    /// <summary>Freezes time for a moment on impact, which sells the weight of a hit.</summary>
+    /// <summary>
+    /// Freezes time for a moment on impact, which sells the weight of a hit. Small ones (crits) come at most every half
+    /// second, so a knight who crits all the time doesn't stutter.
+    /// </summary>
     public async void HitStop(double seconds)
     {
         if (Settings.Shake <= 0) return;
         double now = Time.GetTicksMsec() / 1000.0;
         if (now < _hitStopUntil) return;
+        if (seconds <= 0.05)
+        {
+            if (now - _lastSmallHitStop < 0.5) return;
+            _lastSmallHitStop = now;
+        }
         _hitStopUntil = now + seconds;
-        double before = Engine.TimeScale;
         Engine.TimeScale = 0.05;
         await ToSignal(GetTree().CreateTimer(seconds, true, false, true), SceneTreeTimer.SignalName.Timeout);
         Engine.TimeScale = _bot?.Speed ?? 1.0;
@@ -345,6 +358,37 @@ public partial class Main : Node2D
         await Wait(0.5);
         Moment("pause");
         await Wait(0.3);
+        QuitGame();
+    }
+
+    /// <summary>
+    /// A knight played to stage 15, saved and read back in memory (never to disk) as if two hours had passed: checks the
+    /// save round trip and shows the time-away payout.
+    /// </summary>
+    async void WelcomeDemo()
+    {
+        var played = Simulation.FastForward(_seed, 15);
+        var data = played.Save();
+        data.SavedAt = Time.GetUnixTimeFromSystem() - 2 * 3600;
+        var loaded = SaveData.FromJson(data.ToJson());
+        if (loaded == null)
+        {
+            GD.PrintErr("Save round trip failed: the JSON didn't read back");
+            QuitGame();
+            return;
+        }
+        State = GameState.Load(loaded);
+        bool same = State.MaxStage == played.MaxStage && State.ChestLevel == played.ChestLevel && Math.Abs(State.Gold - played.Gold) < 0.01 &&
+                    Math.Abs(State.Power - played.Power) < 1e-6 * played.Power && State.ChestTotal == played.ChestTotal &&
+                    State.Equipped.Zip(played.Equipped).All(p => p.First?.Name == p.Second?.Name && p.First?.Level == p.Second?.Level);
+        GD.Print($"Save round trip {(same ? "ok" : "MISMATCH")}: stage {State.MaxStage}, chest lv {State.ChestLevel}, power {Num.Short(State.Power)} " +
+                 $"(was {Num.Short(played.Power)}), gold {Num.Short(State.Gold)}, {State.ChestTotal} chests");
+        var report = State.ApplyOffline(Time.GetUnixTimeFromSystem() - loaded.SavedAt);
+        GD.Print($"Time away: {Num.Time(report.Seconds)}, {report.Kills} kills, +{Num.Short(report.Gold)} gold, +{report.Chests.Sum()} chests");
+        StartPlaying(report);
+        await ToSignal(GetTree().CreateTimer(2.0), SceneTreeTimer.SignalName.Timeout);
+        Moment("welcome");
+        await ToSignal(GetTree().CreateTimer(0.5), SceneTreeTimer.SignalName.Timeout);
         QuitGame();
     }
 

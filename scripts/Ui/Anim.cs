@@ -40,6 +40,9 @@ public static class Anims
         return JsonSerializer.Deserialize<T>(file.GetAsText());
     }
 
+    /// <summary>Lets go of every cached animation (before quitting).</summary>
+    public static void Release() => Frames.Clear();
+
     public static ActorData Actor(string key)
     {
         _actors ??= ReadJson<Dictionary<string, ActorData>>("res://assets/sprites/actors/actors.json");

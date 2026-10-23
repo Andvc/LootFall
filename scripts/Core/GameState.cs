@@ -33,7 +33,8 @@ public sealed record Opening(ChestKind Kind, Item Item, Rarity Rolled, Item Curr
     public double PowerDelta => PowerWith - PowerNow;
 }
 
-public sealed record OfflineReport(double Seconds, int Kills, double Gold, int[] Chests);
+/// <summary>What the knight did while the game was closed: <paramref name="ChestGold"/> is the part of the gold paid for chests past the cap.</summary>
+public sealed record OfflineReport(double Seconds, int Kills, double Gold, int[] Chests, double ChestGold);
 
 /// <summary>
 /// The whole game: where the knight is, what he wears, his gold and chests, the upgrades bought, and the battle. The
@@ -63,6 +64,12 @@ public sealed class GameState
 
     /// <summary>Auto-open stops and shows anything this rare or better.</summary>
     public Rarity AutoStopAt = Rarity.Epic;
+
+    /// <summary>One-time tips already shown (the screen's, kept with the save).</summary>
+    public readonly HashSet<string> TipsSeen = new();
+
+    /// <summary>True the first time a tip is asked for (and marks it seen).</summary>
+    public bool FirstTime(string tip) => TipsSeen.Add(tip);
 
     /// <summary>The chest just opened, waiting for Equip or Sell.</summary>
     public Opening Pending { get; private set; }
@@ -497,6 +504,13 @@ public sealed class GameState
         double gold = total * Balance.GoldPerKill(Stage) * (1 + Stats.GoldFind);
         double chestRate = Math.Min(1, Balance.ChestChance * (1 + Stats.ChestFind));
         int chests = (int)Math.Round(total * chestRate);
+        double chestGold = 0;
+        if (chests > Balance.OfflineChests)
+        {
+            chestGold = (chests - Balance.OfflineChests) * ExpectedSale();
+            gold += chestGold;
+            chests = Balance.OfflineChests;
+        }
         var got = new int[Core.Chests.Count];
         got[(int)ChestKind.Golden] = (int)Math.Round(chests * Balance.GoldenShare);
         got[(int)ChestKind.Iron] = (int)Math.Round(chests * Balance.IronShare);
@@ -505,7 +519,16 @@ public sealed class GameState
         Gold += gold;
         GoldEarned += gold;
         TotalKills += total;
-        return new OfflineReport(seconds, total, gold, got);
+        return new OfflineReport(seconds, total, gold, got, chestGold);
+    }
+
+    /// <summary>What a wooden chest's item sells for on average at the current chest level.</summary>
+    public double ExpectedSale()
+    {
+        var odds = Core.Chests.Odds(ChestLevel, ChestKind.Wooden);
+        double mult = 0;
+        for (int r = 0; r < odds.Length; r++) mult += odds[r] * Rarities.All[r].SellMult;
+        return Balance.SellBase * Balance.GearScale(Balance.ItemLevel(ChestLevel, ChestKind.Wooden, MaxStage)) * mult;
     }
 
     // ------------------------------------------------------------------------------------------------- saving

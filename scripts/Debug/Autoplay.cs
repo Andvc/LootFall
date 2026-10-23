@@ -18,7 +18,7 @@ public partial class Autoplay : Node
     public double Speed = 1;
 
     PlayScreen _play;
-    double _played, _think, _cardSeen;
+    double _played, _think, _cardSeen, _fpsLog = 5;
     bool _done;
     int _lastStage;
 
@@ -39,6 +39,11 @@ public partial class Autoplay : Node
         if (_done || _play == null || !IsInstanceValid(_play) || GetTree().Paused) return;
         var g = _play.G;
         _played += delta;
+        if ((_fpsLog -= delta) <= 0)
+        {
+            _fpsLog = 20;
+            GD.Print($"[{_played / 60:0.0}m] fps {Engine.GetFramesPerSecond():0}, {GetTree().GetNodeCount()} nodes");
+        }
         if (g.MaxStage != _lastStage)
         {
             _lastStage = g.MaxStage;

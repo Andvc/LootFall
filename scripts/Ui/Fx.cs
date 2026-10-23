@@ -16,6 +16,9 @@ public static class Fx
 
     public static CanvasItemMaterial Additive() => new() { BlendMode = CanvasItemMaterial.BlendModeEnum.Add };
 
+    /// <summary>Lets go of the cached textures (before quitting).</summary>
+    public static void Release() => _pixel = _coin = null;
+
     static float R(float a, float b) => a + (b - a) * (float)Rng.NextDouble();
 
     public static CpuParticles2D Sparks(Color color, int amount, float speedMin, float speedMax,

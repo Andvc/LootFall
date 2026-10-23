@@ -23,6 +23,13 @@ public static class UiKit
     static Texture2D ButtonPressedTex => _buttonPressed ??= GD.Load<Texture2D>("res://assets/ui/button_pressed.png");
     public static Texture2D SlotTex => _slot ??= GD.Load<Texture2D>("res://assets/ui/slot.png");
 
+    /// <summary>Lets go of the cached font and frames (before quitting, so nothing is left in use).</summary>
+    public static void Release()
+    {
+        _font = null;
+        _panel = _frame = _button = _buttonPressed = _slot = null;
+    }
+
     /// <summary>Kenney Mini is drawn on an 8px grid; other sizes render with uneven pixels.</summary>
     public static int SnapFont(int size) => Math.Max(16, (int)MathF.Round(size / 8f) * 8);
 
