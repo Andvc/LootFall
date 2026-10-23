@@ -25,9 +25,9 @@ public static class Hints
         ["slip"] = "The slip adds up what you've ticked, as good as the chest promises. The bar under it is your odds it's " +
                    "worth more than the price: the greener, the safer.",
         ["first_penn"] = "Penn only shook it gently and heard nothing. Try every strength yourself: gentle, firm, hard.",
-        ["heard_Garb"] = "Flump: garb, a cloak or a coat. Soft things only make a sound when you shake hard.",
+        ["heard_Garb"] = "Flump: a cloak. Soft things only make a sound when you shake hard.",
         ["first_hob"] = "Hob shook it hard and heard a clank. Shake it yourself, at every strength.",
-        ["heard_Arms"] = "Clank: arms, a blade or a helm. It only moves at a firm shake, and while it clanks you can't hear anything " +
+        ["heard_Arms"] = "Clank: a weapon, an axe or a blade. It only moves at a firm shake, and while it clanks you can't hear anything " +
                          "delicate. Shake gently to hear past it.",
         ["first_mags"] = "Mags counts the rattles at a firm shake and charges the same for each. If you hear nothing she " +
                          "didn't, pass: sellers always ask a bit more than it's worth.",
@@ -87,26 +87,33 @@ public static class Hints
         ["hood"] = "The Hooded Woman's commission pays in shards of the Aldric Key. If you miss it, she'll ask again next week.",
 
         // Each move brings one new thing.
-        ["tier2"] = "Thornwick folk bring two new sounds. Potions slosh at a gentle shake, like coin. Scrolls rustle only at a " +
-                    "hard shake, like garb. And some chests are locked, or have a false bottom.",
+        ["tier2"] = "Thornwick folk bring two new sounds. Potions slosh at a gentle shake, like coin. Spells, scrolls and " +
+                    "spellbooks, rustle only at a hard shake, like cloaks. And some chests are locked, or have a false bottom.",
         ["locked"] = "Locked. Buy it and you'll pick the lock before you open it. A crowbar's quicker, but it breaks glass.",
         ["dropped"] = "Dropped! A solid thud is a plain chest. A hollow boom means a false bottom: something hidden nobody's priced.",
         ["hollow"] = "Hear that boom? A false bottom. Tick it on your slip: whatever's in there, nobody's priced it.",
         ["broke"] = "Glass breaks when you drop it. If you heard a slosh, think twice before dropping.",
         ["heard_Potions"] = "Slosh: a potion. Delicate, like coin: a clank drowns it out.",
-        ["heard_Scrolls"] = "Rustle: a scroll. Soft, like garb: it only sounds at a hard shake.",
+        ["heard_Scrolls"] = "Rustle: a spell, a scroll or a spellbook. Soft, like a cloak: it only sounds at a hard shake.",
         ["tier3"] = "Crownhold: gems, which tinkle at a gentle shake; archmages, whose things are often enchanted (a witchlight " +
                     "would show it); and lots with two or three of a kind. Count the rattles: click a row again for each.",
-        ["heard_Gems"] = "Tinkle: a gem, or a ring. Delicate, and worth the most.",
+        ["heard_Gems"] = "Tinkle: a gem. Delicate, and worth the most.",
         ["lamp"] = "The witchlight's lit, and it stays lit: anything enchanted glows when it makes a sound. Click the star on a row " +
                    "to mark one enchanted.",
         ["counted"] = "Two of a kind: each one adds its value. Sellers who don't count only price one.",
         ["glow"] = "It glowed! That one's enchanted: worth twice as much. Click the star on its row to mark it.",
         ["tier4"] = "The Royal Emporium. Court folk, the Maw's creatures up through the cracks in the Gate, and Silas, who sells " +
                     "demon gold: gilded iron that jingles just like the real thing. A lodestone would catch it.",
-        ["magnet"] = "Lodestone's on: iron can't move. Arms go quiet, so nothing drowns out the delicate things. And demon gold, " +
+        ["magnet"] = "Lodestone's on: iron can't move. Weapons go quiet, so nothing drowns out the delicate things. And demon gold, " +
                      "which is iron under the gilt, goes quiet too.",
         ["shake_limit"] = "That's all the shaking this one stands: it's coming apart. Go by what you heard.",
+
+        // Heartsongs (Heartsongs.cs): about one a run, in any chest.
+        ["heard_Heartsong"] = "That sound... I've heard it once in forty years. A Heartsong! Only a Keywright hears one sing: the " +
+                              "seller has no idea it's there. Tick it on your slip, and buy that chest.",
+        ["song_found"] = "A Heartsong. Keep it on display: it needs no shelf, and it's worth more singing in the shop than any " +
+                         "merchant will pay. Each one does something different.",
+        ["song_shown"] = "Hear that? The whole stall's different with it singing. It'll sing as long as it's ours.",
 
         // A regular with nothing new to teach gets a tip the first time they come in after the first day; the rest have
         // a lesson (Lessons.cs). Bram's kin who come knowing the trade still get his word on each seller's terms.
@@ -114,11 +121,11 @@ public static class Hints
         ["seller_dorrin"] = "Dorrin's Barrow chests are rotten: about two seconds of shaking, all told. And half his stories are tall.",
         ["seller_snikkit"] = "Snikkit puts his price up a tenth for every strength you try after the first. Pick two: gentle and hard.",
         ["seller_bramble"] = "Mother Bramble dreams her price. It has nothing to do with the chest: add it up yourself.",
-        ["seller_ansel"] = "Brother Ansel won't have his chests shaken hard: half again if you do. Crypt chests are full of vestments.",
+        ["seller_ansel"] = "Brother Ansel won't have his chests shaken hard: half again if you do. Crypt chests are full of holy cloaks.",
         ["seller_fennick"] = "Fennick's smuggling chests often have a false bottom he never prices. Drop one and listen.",
         ["seller_orrin"] = "Orrin wagers: read his chest exactly, every kind and every count, and he gives back a third of the price.",
         ["seller_corisande"] = "Lady Corisande's trick boxes often hide a false bottom, and she'll have half again if you drop one.",
-        ["seller_aldous"] = "Sir Aldous takes the best arms in his chest, for the fee he names. Value what's left.",
+        ["seller_aldous"] = "Sir Aldous takes the best weapon in his chest, for the fee he names. Value what's left.",
         ["seller_vexis"] = "Vexis gives you twelve seconds. Gently, then hard, and decide.",
         ["seller_malbranche"] = "Malbranche is cheap, but the dearest thing inside is his. Many middling things suit his bargain.",
         ["seller_skrae"] = "Skrae hears everything but magic and the floor. Look for a glow, and drop it.",

@@ -81,8 +81,8 @@ public static class Synergies
         },
         new()
         {
-            Key = "smith", Name = "Armourer", Blurb = "Arms", Kinds = new[] { Category.Arms },
-            Effect = l => $"Soldiers, knights and dwarves, who bring plenty of arms, come {Pct(SmithVisits(l) - 1)} more often.",
+            Key = "smith", Name = "Armourer", Blurb = "Weapons", Kinds = new[] { Category.Arms },
+            Effect = l => $"Soldiers, knights and dwarves, who bring plenty of weapons, come {Pct(SmithVisits(l) - 1)} more often.",
         },
         new()
         {
@@ -92,12 +92,12 @@ public static class Synergies
         },
         new()
         {
-            Key = "archivist", Name = "Archivist", Blurb = "Scrolls", Kinds = new[] { Category.Scrolls }, Tier = 2,
+            Key = "archivist", Name = "Spellkeeper", Blurb = "Spells", Kinds = new[] { Category.Scrolls }, Tier = 2,
             Effect = l => $"People trust you with their secrets: chests are {Pct(HiddenBonus(l))} likelier to have a false bottom.",
         },
         new()
         {
-            Key = "tailor", Name = "Clothier", Blurb = "Garb", Kinds = new[] { Category.Garb },
+            Key = "tailor", Name = "Cloakmaker", Blurb = "Cloaks", Kinds = new[] { Category.Garb },
             Effect = l => $"Fine drapery: your exhibition counts +{Pct(ShowBonus(l))}.",
         },
         new()
@@ -126,6 +126,6 @@ public static class Synergies
     public static int KeenFee(int level) => level;
     public static float MagicBonus(int level) => 0.01f * level;
 
-    /// <summary>How much more often soldiers, knights and dwarves (who bring a lot of arms) come in.</summary>
+    /// <summary>How much more often soldiers, knights and dwarves (who bring a lot of weapons) come in.</summary>
     public static float SmithVisits(int level) => 1f + 0.2f * level;
 }

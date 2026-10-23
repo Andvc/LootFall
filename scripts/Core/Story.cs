@@ -137,7 +137,7 @@ public static class Story
         ? "Something enchanted. The last shard was hidden with magic, and only magic will find it."
         : ask.Category switch
         {
-            Category.Scrolls => "Old scrolls. The Keyhold wrote down where it hid every shard.",
+            Category.Scrolls => "A spellbook. The Keyhold wrote down where it hid every shard, in spells only a Keyhold book can hold.",
             Category.Gems => "A gem. The Key was set with them, and they remember where the rest of it went.",
             Category.Coins => "Old coin. The Key-smiths were paid in it, and stamped every coin with where they worked.",
             _ => "A blade. The Wardens who carried the shards away were buried with their swords.",
@@ -199,13 +199,34 @@ public static class Story
                   "for nobody else. Quickly: the Guild is a day behind us."),
     };
 
-    /// <summary>After the Crown Chest's been opened.</summary>
-    public static List<Line> VaultEpilogue() => new()
+    /// <summary>
+    /// After the Crown Chest's been opened. It holds the Locking's tune; the Heartsongs hold its nine verses. With fewer
+    /// than all nine known to Bram's kin, Mara renews it for another three hundred years. With all nine she sings it whole,
+    /// and a lock sung whole is an ending: the Maw starves, the Gate is only a gate, and every chest in Aldmark opens.
+    /// </summary>
+    public static List<Line> VaultEpilogue(GameState state)
     {
-        new(Hood, "Listen. The Gate's gone quiet. The Locking holds: another three hundred years, if we're lucky."),
-        new(Bram, "King Aldric's own hoard, on our counter. The old man said it's ours to keep."),
-        new(Bram, "The Guild will keep coming, you know. Debts are funny things. But now we can afford to make them wait."),
-    };
+        int known = Heartsongs.All.Count(h => state.Songbook.Contains(h.Key));
+        if (state.SongWhole)
+            return new()
+            {
+                new(Hood, "The tune's in here. And your family knows every verse: all nine Heartsongs. Then we don't renew the Locking. We finish it."),
+                new(Hood, "Listen. That's the Maw. Starving, with nothing left to want. The Gate's just a gate now."),
+                new(Bram, "And the chests, Mara. Every chest in Aldmark. They're opening. All of them, all at once."),
+                new(Hood, "The Guild has nothing to sell, and nothing to keep. Go home, Mister Vane."),
+                new(Bram, "Three hundred years of treasure, back in the light. We're going to need a bigger stall."),
+            };
+        var lines = new List<Line>
+        {
+            new(Hood, "Listen. The Gate's gone quiet. The Locking holds: another three hundred years, if we're lucky."),
+            new(Bram, "King Aldric's own hoard, on our counter. The old man said it's ours to keep."),
+        };
+        lines.Add(known == 0
+            ? new(Hood, "The Locking was a song, in nine verses: nine Heartsongs, hidden in chests. If you ever hear one sing, keep it.")
+            : new(Hood, $"Your family knows {Sellers.Number(known)} of the nine Heartsongs. Find every verse, and the next Keywright won't renew the Locking. They'll finish it."));
+        lines.Add(new(Bram, "The Guild will keep coming, you know. Debts are funny things. But now we can afford to make them wait."));
+        return lines;
+    }
 
     public static List<Line> Foreclosed(GameState state) => new()
     {

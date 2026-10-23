@@ -9,8 +9,8 @@ namespace LootFall.Debug;
 
 /// <summary>
 /// Checks that shaking follows the rules: `godot --headless --path . -- --shake-test [--n=40]`. Shakes random town
-/// and Emporium chests (two of a kind, sand, gilded fakes) gently, firmly and hard, and gently with the magnet on, the
-/// way the bot does, and compares what made a sound,
+/// and Emporium chests (two of a kind, sand, gilded fakes, and every third one a Heartsong) gently, firmly and hard, and
+/// gently with the magnet on, the way the bot does, and compares what made a sound,
 /// thing by thing, with what <see cref="Chest.HeardAt"/> says should: anything expected but never heard is a miss,
 /// anything heard that the rules say should be silent is a leak.
 /// </summary>
@@ -37,6 +37,7 @@ public partial class ShakeTest : Node2D
         {
             var seller = rng.PickOne(Sellers.All.Where(s => s.Tier >= 3).ToArray());
             var chest = Market.CreateVisit(rng, seller, 4).Chest;
+            if (i % 3 == 0) chest.AddSong(Heartsongs.Make(rng.PickOne(Heartsongs.All), chest.Quality));
             if (chest.Items.GroupBy(it => it.Category).Any(g => g.Count() > 1)) pairs++;
             if (chest.Items.Any(it => it.Fake && !it.Def.FakeIron)) sand++;
             foreach (var trial in Trials)

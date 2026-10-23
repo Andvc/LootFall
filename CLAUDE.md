@@ -14,9 +14,13 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 2. Gameplay/balance changes: `godot --headless --path . -- --sim` and compare the report before and after. Its last
    section is the lesson test: every seller's lesson must complete when played the careful way; the one before it,
    "Bram's kin", plays each character with no talents and with all of them at challenge levels 0 to 8.
+   `-- --sim=songs` runs only the Heartsongs section (how often, each one on display from day 1 against curios, and the
+   careful player with and without Heartsongs) for tuning them quickly.
 3. Visual changes: run the autoplay bot under Xvfb with `--shots=<dir>` and look at the PNGs.
    Bot flags: `--seed=N --quit-at-end --days=N --no-tutorial --start-tier=N --gold=N --start-week=N --character=KEY
-   --challenge=N --talents=all` (`--quit-at-end` quits after the first opening: use `--days` for longer runs). `--start-tier`
+   --challenge=N --talents=all --heartsongs=P --songs=all` (`--quit-at-end` quits after the first opening: use `--days`
+   for longer runs; `--heartsongs=0.3` puts a Heartsong in that share of chests, `--songs=all` plays as if all nine were
+   known, so `--vault-demo --songs=all` shows the other ending). `--start-tier`
    jumps to a shop tier with the tools a player would own by then (use it to check later tiers' screens);
    `--start-week` fast-forwards a run with the sim's careful collector (curios, commissions, exhibition and all; `--gold`
    then sets the purse, e.g. 0 to see a short night and foreclosure). The bot plays scenes, Nim, the Guild's night and
@@ -51,8 +55,10 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   time, each taught by the seller it belongs to. Rules apply every time or not at all: a hidden roll that makes a rule
   work only sometimes reads as a bug, and a rule people can't reason about from real life (v7's cloth padding) goes. Enchantment (`Item.Magic`) is something any
   thing can be: x2 value and exhibition, same quality, colour and sprite.
-- Six kinds of thing a sword-and-sorcery realm would lock away (`Category`: Coins, Arms, Garb, Potions, Scrolls, Gems;
-  the fakes are demon gold, paste gems and scroll cases of sand). One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`; alternatives for each
+- Six kinds of thing a sword-and-sorcery realm would lock away (`Category`: Coins, Arms, Garb, Potions, Scrolls, Gems,
+  shown as Coin, Weapons, Cloaks, Potions, Spells, Gems; the fakes are demon gold, paste gems and scroll cases of sand).
+  Every thing is a find worth having (no letters, no rusty daggers); rename one in `Categories.Renamed` too, so saves'
+  journals carry over. One sound per kind of thing, the one you'd expect in real life (`CategoryDef` in `Items.cs`; alternatives for each
   kind, chosen in Settings > Item sounds, are in `Audio.SoundSets`: play `SoundSets.Group(kind)`); kinds differ in how
   hard you must shake to hear them (`StirsAt`) and whether they drown out or get drowned out (`Loud`, `Delicate`).
   Introduce new things one at a time: by shop tier (`CategoryDef.Tier`, `SellerDef.Tier`) and with a Bram hint
@@ -62,6 +68,14 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   does, so they can't miss; the sim's lesson test plays each one. A lesson waits for tips already up
   (`MentorView.ShowLesson`), `CounterPhase.Teach` holds other tips back during one, and `Lesson.Covers` lists the tips
   it makes redundant. Read a guided `--autoplay` run's `[Bram ...]` lines to check the tutorial reads in order.
+- Heartsongs (`Heartsongs.cs`, `Category.Heartsong`, `Rarity.Mythic`, red): nine collectibles, about one a run in any
+  seller's chest (`Heartsongs.Chance`, own dice, rolled in `GameState.Sing` after the seller's priced it: no seller ever
+  hears one, `SellerDef.Notices`). Each sings its own synth song (`Sfx` "song_{key}"), at the gentlest shake, never
+  drowned or stilled; priced as a trinket as fine as its chest (`Quality` holds the chest colour); displayed without a
+  slot at any shop ("Highly recommended"), never pawned; each does one thing on display (`GameState.Shows`) under the
+  curio rule, tuned with `--sim=songs` to about a common curio from day 1. Luck (`Chest.Improve`) never touches one.
+  The profile's songbook (`Profile.Songs`, merged into `GameState.Songbook`) changes the Crown Chest's ending with all
+  nine (`Story.VaultEpilogue`). Iterate `Categories.Kinds` (not `All`) where the six ordinary kinds are meant.
 - Synergies (`Synergies.cs`) come from what's been acquired (ten of a kind at a quality per level) or achieved; only
   active ones (one slot, more with upgrades) do anything, chosen at the end of a day.
 - The run (`Run.cs`, a partial of `GameState`): five-day weeks; the Gilded Guild's tithe every fifth evening (`Guild.Due`,
@@ -131,7 +145,8 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 
 ## Art direction (pixel art)
 
-- The art is the game's own, drawn in code: things, portraits, chest, curios, backdrops and effects in
+- The art is a placeholder until dedicated art replaces it (the owner found it underwhelming), drawn in code: things,
+  Heartsongs (`HEARTSONGS`), portraits, chest, curios, backdrops and effects in
   `tools/custom_art.py` (materials with a shadow/mid/light ramp, lit from the top left, a 1px dark outline; things
   24px, portraits 38px over their place's backdrop, curios 24px), frames, icons and shop architecture in
   `tools/import_art.py`, which builds `assets/` from both (needs Pillow). Draw or edit there and re-run rather than

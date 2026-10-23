@@ -26,7 +26,7 @@ public static class Upgrades
 {
     public static readonly Upgrade[] All =
     {
-        new("shop2", "Move to Thornwick", "A shop at Thornwick Market: 5 customers a day, better chests, locks, and two new sounds: potions and scrolls.",
+        new("shop2", "Move to Thornwick", "A shop at Thornwick Market: 5 customers a day, better chests, locks, and two new sounds: potions and spells.",
             60, 1, "shop", SetsTier: 2),
 
         new("sign", "Painted Sign", "One more customer every day.", 40, 2, "sign", Customers: 1),

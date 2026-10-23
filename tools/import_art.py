@@ -172,7 +172,7 @@ def build_ui():
 ICON_PALETTE = {
     "k": (20, 16, 26), "g": (242, 193, 78), "G": (176, 128, 44), "w": (240, 232, 214), "s": (190, 196, 210),
     "S": (110, 116, 134), "r": (200, 60, 60), "b": (140, 90, 46), "B": (92, 56, 28), "c": (110, 200, 230),
-    "p": (160, 110, 230),
+    "p": (160, 110, 230), "R": (255, 70, 90), "m": (150, 24, 44),
 }
 ICONS = {
     "sign": [
@@ -397,6 +397,25 @@ ICONS = {
 # One small icon per kind of thing (matching Category in scripts/Core/Items.cs), for the slip and the ledger rows,
 # where item sprites are too big. Saved at 2x under assets/ui/kinds/.
 KIND_ICONS = {
+    # A Heartsong: a red heart with a note in it.
+    "heartsong": [
+        "................",
+        "................",
+        "..kkkk....kkkk..",
+        ".kRRRRk..kRRRRk.",
+        "kRRwRRRkkRRRRRRk",
+        "kRwRRRRRRRRkkRRk",
+        "kRRRRRRRRRRkwkRk",
+        "kRRRRRRRRRRkRkRk",
+        ".kRRRRRRkkkkRkk.",
+        "..kRRRRkwwkRRk..",
+        "...kRRRkwwkRk...",
+        "....kmRRkkRmk...",
+        ".....kmRRRmk....",
+        "......kmmmk.....",
+        ".......kkk......",
+        "................",
+    ],
     "coins": [
         "................",
         "................",

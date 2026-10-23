@@ -27,7 +27,7 @@ public partial class Autoplay : Node
 
     const double ShakeSeconds = 1.6;
 
-    bool _ledgerShown, _collectionShown;
+    bool _ledgerShown, _collectionShown, _songsShown;
 
     static GameState State => Main.Instance.State;
 
@@ -233,6 +233,20 @@ public partial class Autoplay : Node
             counter.CloseLedger();
             await Wait(0.5);
         }
+        // Once a Heartsong's been found, a look at the songbook.
+        else if (!_songsShown && !hurried && State.Songbook.Count > 0)
+        {
+            _songsShown = true;
+            counter.OpenLedger();
+            await Wait(1.0);
+            if (!IsInstanceValid(counter)) return;
+            counter.LedgerPage(5);
+            Main.Instance.Moment("02_songs", 0.3);
+            await Wait(1.5);
+            if (!IsInstanceValid(counter)) return;
+            counter.CloseLedger();
+            await Wait(0.5);
+        }
         // Later, once there's something in it, a look at the collection too.
         else if (!_collectionShown && !hurried && State.Found.Count >= 10)
         {
@@ -252,7 +266,8 @@ public partial class Autoplay : Node
         var read = counter.Hearing.Read(visit.Chest.Quality, State.Tier);
         if (State.Weighs) Strategy.Weigh(read, counter.Hearing, visit, State);
         Strategy.OnFaith(visit, read, counter.Hearing, State);
-        foreach (var kind in Categories.UpTo(State.Tier).Select(k => k.Category))
+        // A Heartsong it heard sing goes on the slip too.
+        foreach (var kind in Categories.UpTo(State.Tier).Select(k => k.Category).Append(Category.Heartsong))
         {
             if (counter.Slip.Count(kind) == read.Count(kind) && counter.Slip.Magic(kind) == read.Magic(kind)) continue;
             counter.SetMark(kind, read.Count(kind), read.Magic(kind));

@@ -282,22 +282,24 @@ public partial class DayEndPhase : Phase
     /// <summary>What's on display, what it does for the shop, and a click to sell any of it.</summary>
     void BuildExhibition()
     {
-        if (!State.DisplayOpen) return;
         const float x0 = CardsX, y0 = 562;
+        BuildSongs(x0, y0);
+        if (!State.DisplayOpen) return;
         int score = State.Exhibition;
         string effect = score == 0 ? "Keep grand things when you open a chest, and they'll show here."
             : $"{score} points: +{State.ExhibitionCustomers} customer{(State.ExhibitionCustomers == 1 ? "" : "s")} a day, " +
               $"better chests {Synergies.Pct(State.BetterChests)} of the time.";
-        _cards.AddChild(UiKit.MakeLabel($"EXHIBITION {State.Display.Count}/{State.DisplaySlots}", 16, Palette.Magic).Place(x0, y0, 300, 20));
+        var shown = State.Display.Where(i => !i.IsSong).ToList();
+        _cards.AddChild(UiKit.MakeLabel($"EXHIBITION {shown.Count}/{State.DisplaySlots}", 16, Palette.Magic).Place(x0, y0, 300, 20));
         _cards.AddChild(UiKit.MakeLabel(effect, 16, Palette.Muted).Place(x0 + 200, y0, 616, 20));
         for (int i = 0; i < State.DisplaySlots; i++)
         {
-            bool filled = i < State.Display.Count;
-            var slot = UiKit.MakePanel(filled ? Palette.Of(State.Display[i].Rarity) : Palette.PanelBorder).Place(x0 + i * 56, y0 + 26, 50, 50);
+            bool filled = i < shown.Count;
+            var slot = UiKit.MakePanel(filled ? Palette.Of(shown[i].Rarity) : Palette.PanelBorder).Place(x0 + i * 56, y0 + 26, 50, 50);
             slot.MouseFilter = Control.MouseFilterEnum.Pass;
             _cards.AddChild(slot);
             if (!filled) continue;
-            var item = State.Display[i];
+            var item = shown[i];
             slot.AddChild(UiKit.MakeItemIcon(item, new Vector2(25, 25), 44));
             var sell = new Button { Flat = true, FocusMode = Control.FocusModeEnum.None, TooltipText = $"{item.Name}, {item.Prestige} points{(item.Magic ? " (double: enchanted)" : "")}. Click to sell it for {item.Value}g." };
             sell.Pressed += () => SellFromDisplay(item);
@@ -307,6 +309,32 @@ public partial class DayEndPhase : Phase
         string book = State.HasCurio("book") && score > 0 ? $" Visitors leave {Curios.BookPerPoint * score}g a night."
             : State.Admission > 0 ? $" Visitors pay {State.Admission}g a night at the door." : "";
         _cards.AddChild(UiKit.MakeLabel(found + book, 16, Palette.Muted).Place(x0, y0 + 84, 816, 20));
+    }
+
+    /// <summary>
+    /// The Heartsongs singing in the shop, to the right of the exhibition (or alone, before there's a shelf): what each
+    /// does, and a click to sell it (it goes back to the Locking, and its effect with it).
+    /// </summary>
+    void BuildSongs(float x0, float y0)
+    {
+        var songs = State.Display.Where(i => i.IsSong).ToList();
+        if (songs.Count == 0) return;
+        float x = State.DisplayOpen ? x0 + 816 - songs.Count * 56 : x0;
+        var red = Palette.Of(Rarity.Mythic);
+        _cards.AddChild(UiKit.MakeLabel("HEARTSONGS", 16, red, State.DisplayOpen ? HorizontalAlignment.Right : HorizontalAlignment.Left)
+            .Place(State.DisplayOpen ? x0 + 516 : x0, y0 + (State.DisplayOpen ? 84 : 0), 300, 20));
+        for (int i = 0; i < songs.Count; i++)
+        {
+            var item = songs[i];
+            var slot = UiKit.MakePanel(red).Place(x + i * 56, y0 + 26, 50, 50);
+            slot.MouseFilter = Control.MouseFilterEnum.Pass;
+            _cards.AddChild(slot);
+            slot.AddChild(UiKit.MakeItemIcon(item, new Vector2(25, 25), 44));
+            var sell = new Button { Flat = true, FocusMode = Control.FocusModeEnum.None,
+                TooltipText = $"{item.Name}, singing: {item.SongDef.Effect} Click to sell it for {item.Value}g (it goes back to the Locking)." };
+            sell.Pressed += () => SellFromDisplay(item);
+            slot.AddChild(sell.Place(0, 0, 50, 50));
+        }
     }
 
     public void SellFromDisplay(Item item)

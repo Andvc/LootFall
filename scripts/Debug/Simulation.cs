@@ -35,8 +35,9 @@ public static class Simulation
     /// say, forget the drop and the magnet, misjudge what a chest is worth and pick curios on a whim, less often the
     /// better they get (<see cref="Slip"/>).
     /// </param>
+    /// <param name="Shown">A Heartsong on display from the first day, to see what it's worth.</param>
     sealed record Style(string Name, Care Care, bool Collects, bool Curios = true, bool Synergies = true, string Character = Characters.Kit,
-        int Challenge = 0, string[] Talents = null, float Skill = 1);
+        int Challenge = 0, string[] Talents = null, float Skill = 1, string Shown = null);
 
     static readonly Style[] Styles =
     {
@@ -86,6 +87,9 @@ public static class Simulation
 
         /// <summary>Per seller, at the shop where they're new: customers, and the profit on what was bought from them.</summary>
         public readonly Dictionary<string, (int Visits, float Profit)> BySeller = new();
+
+        /// <summary>Chests that held a Heartsong, those bought, and those whose Heartsong went on display; the day the first was found.</summary>
+        public int SongsOffered, SongsFound, SongsShown, FirstSong;
     }
 
     public static void Run(int campaigns)
@@ -144,6 +148,8 @@ public static class Simulation
                      $"worth {100f * logs.Sum(l => l.SurpriseGold) / Math.Max(1, logs.Sum(l => l.Held)),4:0}% of what the chests held");
         }
 
+        PrintHeartsongs(all[Styles[^1]], Math.Max(50, campaigns / 2));
+
         GD.Print("\nWhat curios and synergies are worth to the careful player with both tools (cleared; median gold on the Guild's night, weeks 4/6/8)");
         foreach (var style in Without.Prepend(Styles[^2]))
         {
@@ -170,6 +176,48 @@ public static class Simulation
         Learners(Math.Max(50, campaigns / 2));
         Careers(40, 30);
         LessonTest();
+    }
+
+    /// <summary>Just the Heartsongs (`--sim=songs`): how often, what each is worth, and the careful player with and without talents.</summary>
+    public static void Songs(int campaigns)
+    {
+        var logs = Enumerable.Range(0, campaigns).Select(i => Play(Styles[^1], 1000 + i).Log).ToList();
+        PrintHeartsongs(logs, campaigns);
+        GD.Print($"Kit, careful, no talents: {Trial(Characters.Kit, 0, null, campaigns)}");
+        GD.Print($"Kit, careful, every talent: {Trial(Characters.Kit, 0, AllTalents, campaigns)}");
+        float chance = Heartsongs.Chance;
+        Heartsongs.Chance = 0;
+        GD.Print($"No Heartsongs at all, no talents: {Trial(Characters.Kit, 0, null, campaigns)}");
+        GD.Print($"No Heartsongs at all, every talent: {Trial(Characters.Kit, 0, AllTalents, campaigns)}");
+        Heartsongs.Chance = chance;
+    }
+
+    /// <summary>
+    /// How often Heartsongs turn up for the careful collector (about once a run is the aim), and what each is worth on
+    /// display: the careful collector with it on the shelf from the first day, against none. None should move the clear
+    /// rate or the clear day much: they're for the moment of finding one, not a way to win.
+    /// </summary>
+    static void PrintHeartsongs(List<Log> logs, int campaigns)
+    {
+        int Median(IEnumerable<int> xs)
+        {
+            var list = xs.OrderBy(x => x).ToList();
+            return list.Count == 0 ? 0 : list[list.Count / 2];
+        }
+        GD.Print($"\nHeartsongs (the careful collector, {MaxWeeks} weeks): per run {logs.Average(l => l.SongsOffered):0.00} chests held one, " +
+                 $"{logs.Average(l => l.SongsFound):0.00} found, {logs.Average(l => l.SongsShown):0.00} displayed; runs with at least one: " +
+                 $"{100f * logs.Count(l => l.SongsFound > 0) / logs.Count:0}% (by week 8: {100f * logs.Count(l => l.FirstSong > 0 && l.FirstSong <= Guild.Weeks * Guild.DaysPerWeek) / logs.Count:0}%), " +
+                 $"first one found on day {Median(logs.Where(l => l.FirstSong > 0).Select(l => l.FirstSong))} (median)");
+        GD.Print("On display from the first day (cleared; median clear day; median gold on the Guild's night, weeks 4/6/8):");
+        foreach (var song in Heartsongs.All.Select(h => h.Key).Prepend(null).Concat(new[] { "crate", "coin", "letter", "clover" }))
+        {
+            var style = Styles[^1] with { Name = song ?? "none", Shown = song };
+            var runs = Enumerable.Range(0, campaigns).Select(i => Play(style, 1000 + i).Log).ToList();
+            string Gold(int w) => Median(runs.Where(l => l.Due[w] > 0).Select(l => l.GoldAtDues[w])).ToString();
+            var days = runs.Where(l => l.ClearedDay > 0).Select(l => l.ClearedDay).ToList();
+            GD.Print($"  {(song == null ? "none" : Heartsongs.Exists(song) ? Heartsongs.Get(song).Name : $"(curio) {Curios.Get(song).Name}"),-22} cleared {100f * days.Count / runs.Count,4:0}% " +
+                     $"(day {(days.Count == 0 ? "-" : Median(days).ToString()),3})   gold {Gold(4),7} {Gold(6),7} {Gold(8),7}");
+        }
     }
 
     /// <summary>
@@ -423,9 +471,14 @@ public static class Simulation
     static GameState CampaignState(Style style, int seed) => Play(style, seed, 30).State;
 
     /// <summary>One run in this style, until the Guild takes the shop or the days run out.</summary>
-    static (Log Log, GameState State) Play(Style style, int seed, int days = Days)
+    /// <param name="songbook">The Heartsongs this career has opened before (they're likelier to be ones it hasn't).</param>
+    static (Log Log, GameState State) Play(Style style, int seed, int days = Days, IEnumerable<string> songbook = null)
     {
         var state = GameState.NewRun(seed, style.Character, style.Challenge, style.Talents, guided: false);
+        if (songbook != null) state.Songbook.UnionWith(songbook);
+        if (style.Shown != null && Heartsongs.Exists(style.Shown)) state.Display.Add(Heartsongs.Make(Heartsongs.Get(style.Shown), Rarity.Common));
+        // Or a curio from the first day, to compare with.
+        else if (style.Shown != null) state.BuyCurio(Curios.Get(style.Shown), 0);
         var log = new Log();
         var rng = new Random(seed);
         for (int day = 1; day <= days; day++)
@@ -491,6 +544,9 @@ public static class Simulation
     {
         var records = new List<(int Run, float Skill, bool Cleared, int Lost, int Level, int Talents, int Renown, int Score)>();
         var firstClear = new List<int>[Challenges.Max + 1];
+        // The run each career first knew all nine Heartsongs, and first opened the Crown Chest with them (the other ending).
+        var allNine = new List<int>();
+        var sungWhole = new List<int>();
         for (int l = 0; l <= Challenges.Max; l++) firstClear[l] = new List<int>();
         for (int c = 0; c < careers; c++)
         {
@@ -501,15 +557,19 @@ public static class Simulation
             {
                 float skill = best - (best - start) * MathF.Exp(-pace * r);
                 int level = profile.MaxChallenge(Characters.Kit);
-                var (log, state) = Play(Learner(skill, Characters.Kit, level, profile.Talents.ToArray()), 500000 + c * 1000 + r, Guild.Weeks * Guild.DaysPerWeek);
+                var (log, state) = Play(Learner(skill, Characters.Kit, level, profile.Talents.ToArray()), 500000 + c * 1000 + r, Guild.Weeks * Guild.DaysPerWeek,
+                    profile.Songs);
                 profile.Runs++;
+                bool knewAll = profile.Songs.Count >= Heartsongs.All.Length;
                 profile.Note(state);
+                if (!knewAll && profile.Songs.Count >= Heartsongs.All.Length) allNine.Add(r + 1);
                 if (state.DebtCleared)
                 {
                     profile.Cleared++;
                     profile.ClearedAt(state);
                 }
                 if (state.VaultOpened) profile.Vaults++;
+                if (state.VaultOpened && state.SongWhole && profile.SungWhole++ == 0) sungWhole.Add(r + 1);
                 int renown = profile.Bank(state);
                 while (Talents.All.Where(profile.CanLearn).OrderBy(t => t.Cost).FirstOrDefault() is TalentDef next) profile.Learn(next);
                 records.Add((r + 1, skill, state.DebtCleared, state.DebtCleared ? 0 : state.Week, level, profile.Talents.Count, renown, Score.Total(state)));
@@ -539,6 +599,9 @@ public static class Simulation
         GD.Print("first cleared the debt (quarter / half / three quarters of players):");
         foreach (int l in new[] { 0, 1, 2, 4, 6, 8 })
             GD.Print($"  level {l}: {When(firstClear[l])}   ({100f * firstClear[l].Count(r => r < int.MaxValue) / careers:0}% by run {runs})");
+        List<int> Padded(List<int> runsTo) => runsTo.Concat(Enumerable.Repeat(int.MaxValue, careers - runsTo.Count)).ToList();
+        GD.Print($"  all nine Heartsongs known: {When(Padded(allNine))}   ({100f * allNine.Count / careers:0}% by run {runs})");
+        GD.Print($"  the Locking sung whole:    {When(Padded(sungWhole))}   ({100f * sungWhole.Count / careers:0}% by run {runs})");
     }
 
     static void Scored(GameState state, Log log)
@@ -571,6 +634,7 @@ public static class Simulation
             int tier = state.Tier;
             log.CustomersByTier[tier]++;
             bool home = visit.Seller.Tier == tier;
+            if (visit.Chest.Song != null) log.SongsOffered++;
             if (home) log.BySeller[visit.Seller.Key] = (log.BySeller.GetValueOrDefault(visit.Seller.Key).Visits + 1, log.BySeller.GetValueOrDefault(visit.Seller.Key).Profit);
             int? paid = Deal(visit, state, rng, style.Care, out var slip, style.Skill);
             if (paid is not int price)
@@ -587,7 +651,12 @@ public static class Simulation
             {
                 int sale = purchase.IsClaimed(item) ? purchase.ClaimPays : state.SaleValue(item, grade);
                 value += sale;
-                if (!item.Fake && !item.Broken)
+                if (item.IsSong)
+                {
+                    log.SongsFound++;
+                    if (log.FirstSong == 0) log.FirstSong = state.Day;
+                }
+                else if (!item.Fake && !item.Broken)
                 {
                     log.Opened++;
                     int steps = item.Quality - visit.Chest.Quality;
@@ -614,7 +683,8 @@ public static class Simulation
                     }
                     continue;
                 }
-                if (style.Collects || state.Is(Characters.Isolde))
+                // A Heartsong is highly recommended for display, whoever's playing.
+                if (item.IsSong || style.Collects || state.Is(Characters.Isolde))
                 {
                     var (keep, replace) = Strategy.ShouldKeep(state, item, sale);
                     if (keep)
@@ -622,6 +692,7 @@ public static class Simulation
                         if (replace != null) state.SellFromDisplay(replace);
                         state.Earn(sale);
                         state.Keep(item, sale);
+                        if (item.IsSong) log.SongsShown++;
                         continue;
                     }
                 }

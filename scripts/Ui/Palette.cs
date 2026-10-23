@@ -57,6 +57,7 @@ public static class Palette
         Rarity.Uncommon => new Color("#62d46f"),
         Rarity.Rare => new Color("#4ea3ff"),
         Rarity.Epic => new Color("#b46bff"),
+        Rarity.Mythic => new Color("#ff4058"),
         _ => new Color("#ffb52e"),
     };
 }

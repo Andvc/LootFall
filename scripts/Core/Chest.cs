@@ -9,7 +9,8 @@ namespace LootFall.Core;
 /// sealed under a false bottom. What you hear depends only on how hard it's shaken, by the same rules for everyone,
 /// sellers included: a thing sounds once the shake is strong enough to stir it; while metal clanks, delicate things
 /// can't be heard; a magnet holds iron still, so it makes no sound at all. Whatever is under a false bottom is wrapped
-/// tight and never rattles, but the hollow booms if the chest is dropped.
+/// tight and never rattles, but the hollow booms if the chest is dropped. A Heartsong sings at the gentlest shake and
+/// nothing drowns it out or stills it, but only a Keywright hears it: no seller ever does (<see cref="SellerDef.Notices"/>).
 /// </summary>
 public sealed class Chest
 {
@@ -50,6 +51,15 @@ public sealed class Chest
     }
 
     public Item Get(Category category) => _items.FirstOrDefault(i => i.Category == category);
+
+    /// <summary>The Heartsong in it, or null.</summary>
+    public Item Song => _items.FirstOrDefault(i => i.IsSong);
+
+    /// <summary>Puts a Heartsong in (once the seller has priced the chest: they never know it's there).</summary>
+    public void AddSong(Item song)
+    {
+        if (Song == null) _items.Add(song);
+    }
 
     public bool Has(Category category) => Get(category) != null;
 
@@ -109,10 +119,14 @@ public sealed class Chest
     /// <summary>What it all weighs on Hesk's scale, false bottom and all, in pounds.</summary>
     public float Pounds => Everything.Sum(Characters.Pounds);
 
-    /// <summary>Changes things inside without them becoming different things (a curio's luck with their quality).</summary>
+    /// <summary>
+    /// Changes things inside without them becoming different things (a curio's luck with their quality). Luck never
+    /// touches a Heartsong.
+    /// </summary>
     public void Improve(Func<Item, Item> change)
     {
-        for (int i = 0; i < _items.Count; i++) _items[i] = change(_items[i]) with { Id = _items[i].Id };
+        for (int i = 0; i < _items.Count; i++)
+            if (!_items[i].IsSong) _items[i] = change(_items[i]) with { Id = _items[i].Id };
         if (Hidden != null) Hidden = change(Hidden) with { Id = Hidden.Id };
     }
 

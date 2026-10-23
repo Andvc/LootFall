@@ -14,9 +14,10 @@ namespace LootFall.Phases;
 /// table; something better than its chest rises out glowing in the chest's colour and climbs, quality by quality, to
 /// what it really is before it slams down, with more fuss for every step (two or three steps up stops the clock). Each
 /// quality lands with its own effect: dust, sparkles, a pillar of light, crackling lightning, turning rays and a coin
-/// fountain. A false bottom gives up its secret last. Then the verdict slams down with your gut's opinion, the coins fly
-/// into your purse, and a perfect read gets its banner. Anything grand can be kept for display, and anything a
-/// commission wants can be delivered instead of sold.
+/// fountain. A false bottom gives up its secret last, and a Heartsong comes out after everything: the room goes dark, it
+/// sings, and it rises in mythic red with its name and its story. Then the verdict slams down with your gut's opinion, the
+/// coins fly into your purse, and a perfect read gets its banner. Anything grand can be kept for display (a Heartsong is
+/// highly recommended), and anything a commission wants can be delivered instead of sold.
 /// </summary>
 public partial class OpeningPhase : Phase
 {
@@ -171,7 +172,7 @@ public partial class OpeningPhase : Phase
         _step = Step.Reveal;
         // The letdowns first, then what the chest promised, worst to best; then the surprises, smallest first; whatever
         // was under a false bottom comes out last of all.
-        var reads = _report.Items.OrderBy(r => r.Hidden).ThenBy(r => StepsUp(r.Item)).ThenBy(r => r.Item.Value).ToList();
+        var reads = _report.Items.OrderBy(r => r.Item.IsSong).ThenBy(r => r.Hidden).ThenBy(r => StepsUp(r.Item)).ThenBy(r => r.Item.Value).ToList();
         int n = reads.Count;
         float spacing = n == 0 ? 0 : Math.Min(232f, 1180f / n);
         _spacing = spacing;
@@ -188,7 +189,13 @@ public partial class OpeningPhase : Phase
                 await Wait(0.9);
                 if (!Alive) return;
             }
-            if (StepsUp(reads[i].Item) > 0)
+            if (reads[i].Item.IsSong)
+            {
+                await Sing(reads[i], x, spacing);
+                if (!Alive) return;
+                await Wait(0.6);
+            }
+            else if (StepsUp(reads[i].Item) > 0)
             {
                 await Climb(reads[i], x, i, spacing);
                 if (!Alive) return;
@@ -386,6 +393,83 @@ public partial class OpeningPhase : Phase
         Landed(read, sprite, scale, land, spacing, steps);
     }
 
+    /// <summary>
+    /// A Heartsong, after everything else: the room goes dark and still, it sings, and it rises out of the chest slowly in
+    /// mythic red, with its name, who loved it and what it does on display. Then it comes down onto the table like the rest.
+    /// </summary>
+    async Task Sing(ItemRead read, float x, float spacing)
+    {
+        var item = read.Item;
+        var song = item.SongDef;
+        var red = Palette.Of(Rarity.Mythic);
+        _dim.CreateTween().TweenProperty(_dim, "color:a", 0.82f, 0.6f);
+        _chest.Wobble(0.5f);
+        FloatText("...listen.", SeamPos + new Vector2(0, -150), red, 32);
+        Sfx.Play($"song_{item.Song}", 1f, 0);
+        await Wait(1.3);
+        if (!Alive) return;
+
+        var sprite = MakeSprite(item, out int scale);
+        var start = SeamPos + new Vector2(0, -ChestPixel * 3);
+        sprite.Position = start;
+        sprite.Scale = Vector2.One * scale * 0.4f;
+        sprite.Modulate = red.Lightened(0.5f);
+        var aura = Fx.Aura(this, HoverPos, red, 120f);
+        aura.ZIndex = 7;
+        Sfx.Play("rise", 0.8f, -4);
+        var up = sprite.CreateTween().SetParallel();
+        up.TweenProperty(sprite, "position", HoverPos, 1.1f).SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+        up.TweenProperty(sprite, "scale", Vector2.One * scale * 3, 1.1f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        up.TweenProperty(sprite, "modulate", Colors.White, 1.1f);
+        await ToSignal(up, Tween.SignalName.Finished);
+        if (!Alive) return;
+
+        Game.HitStop(0.3);
+        Game.Flash(red.Lightened(0.3f), 0.7f, 0.6f);
+        Game.Shake(0.4f);
+        Fx.Ring(this, HoverPos, red, 700f, 0.9f, 10f);
+        Fx.Rays(this, HoverPos, red, 300f, 16, 0.35f);
+        Fx.Burst(this, HoverPos, red, 120, 420f);
+        Fx.Confetti(this, HoverPos, 90);
+        Sfx.Play("fanfare", 0.8f, -2);
+        Sfx.Play("reveal_big", 0.7f, -2);
+        var labels = new List<Control>
+        {
+            UiKit.MakeLabel("A HEARTSONG!", 48, red, HorizontalAlignment.Center, outline: 8).Place(240, 84, 800, 60),
+            UiKit.MakeLabel(song.Name, 32, red, HorizontalAlignment.Center, outline: 6).Place(780, 150, 460, 40),
+            UiKit.MakeLabel($"Mythic. From {song.From}.", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Wrapped().Place(780, 196, 460, 44),
+            UiKit.MakeLabel(song.Story, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(780, 242, 460, 64),
+            UiKit.MakeLabel($"On display: {song.Effect}", 16, Palette.Gold, HorizontalAlignment.Center, outline: 4).Wrapped().Place(780, 312, 460, 44),
+        };
+        foreach (var label in labels)
+        {
+            label.ZIndex = 9;
+            label.Modulate = Colors.Transparent;
+            Add(label).CreateTween().TweenProperty(label, "modulate", Colors.White, 0.4f);
+        }
+        var bob = sprite.CreateTween().SetLoops();
+        bob.TweenProperty(sprite, "position:y", HoverPos.Y - 8, 0.8f).SetTrans(Tween.TransitionType.Sine);
+        bob.TweenProperty(sprite, "position:y", HoverPos.Y + 8, 0.8f).SetTrans(Tween.TransitionType.Sine);
+        Game.Moment("07_heartsong", 0.6);
+        await Wait(1.6);
+        if (!Alive) return;
+        Sfx.Play($"song_{item.Song}", 1f, -2);
+        await Wait(2.4);
+        if (!Alive) return;
+
+        bob.Kill();
+        aura.QueueFree();
+        foreach (var label in labels) label.CreateTween().TweenProperty(label, "modulate:a", 0f, 0.3f).Finished += label.QueueFree;
+        _dim.CreateTween().TweenProperty(_dim, "color:a", 0f, 0.4f);
+        var land = TableSpot(x, sprite.Texture, scale);
+        var down = sprite.CreateTween().SetParallel();
+        down.TweenProperty(sprite, "position", land, 0.4f).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.In);
+        down.TweenProperty(sprite, "scale", Vector2.One * scale, 0.4f);
+        await ToSignal(down, Tween.SignalName.Finished);
+        if (!Alive) return;
+        Landed(read, sprite, scale, land, spacing, 0);
+    }
+
     void Landed(ItemRead read, Sprite2D sprite, int scale, Vector2 at, float spacing, int stepsUp)
     {
         if (!Alive) return;
@@ -394,7 +478,8 @@ public partial class OpeningPhase : Phase
         // Squash on impact, then spring back.
         sprite.Scale = new Vector2(scale * 1.35f, scale * 0.65f);
         sprite.CreateTween().TweenProperty(sprite, "scale", Vector2.One * scale, 0.35f).SetTrans(Tween.TransitionType.Elastic).SetEase(Tween.EaseType.Out);
-        Sfx.PlayGroup(Audio.SoundSets.Group(item.Category), item.Def.Pitch, 4);
+        if (item.IsSong) Sfx.Play("boom", 0.8f, -2);
+        else Sfx.PlayGroup(Audio.SoundSets.Group(item.Category), item.Def.Pitch, 4);
         QualityEffects(item, at, stepsUp);
         if (stepsUp > 0) Surprise(at, stepsUp);
         if (item.Magic && !item.Broken)
@@ -415,6 +500,8 @@ public partial class OpeningPhase : Phase
             sprite.Modulate = new Color(0.5f, 0.45f, 0.5f);
         }
         bool isNew = State.Collect(item);
+        // A Heartsong goes into the family's songbook straight away.
+        if (item.IsSong) Game.NoteSongs();
         // The seller's claim (a knight's heirloom, a devil's due) goes back to them, for what they pay for it.
         bool claimed = _purchase.IsClaimed(item);
         int worth = claimed ? _purchase.ClaimPays : State.SaleValue(item, _purchase.Grade);
@@ -458,7 +545,7 @@ public partial class OpeningPhase : Phase
             Sfx.Play(read.Right ? "blip" : "miss", read.Right ? 1.2f : 1f, -4);
         }));
         stamp.TweenProperty(mark, "scale", Vector2.One, 0.14f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
-        string quality = item.Fake || item.Broken ? "" : Categories.QualityName(item.Quality);
+        string quality = item.Fake || item.Broken ? "" : Categories.QualityName(item.Rarity);
         // With many things on the table, just the read (the colour already says the quality).
         string note = Narrow && read.Note.Length > 0 ? read.Note : string.Join(", ", new[] { read.Note, quality }.Where(s => s.Length > 0));
         var noteLabel = Add(UiKit.MakeLabel(note, 16, read.Right ? Palette.Good : Palette.Warn, HorizontalAlignment.Center, outline: 4)
@@ -618,8 +705,8 @@ public partial class OpeningPhase : Phase
         bool last = State.Queue.Count == 0;
         Add(UiKit.MakeButton(visit.Seller == Story.VaultSeller ? "Go on" : last ? "Close up for the day" : "Next customer", Palette.Gold, 24, Next)
             .Place(1000, 300, 260, 52));
-        if (State.DisplayOpen)
-            foreach (var (item, at, worth) in _landed) AddKeepButton(item, at, worth);
+        foreach (var (item, at, worth) in _landed)
+            if (State.DisplayOpen || item.IsSong) AddKeepButton(item, at, worth);
         foreach (var (item, at, worth) in _landed) AddDeliverButton(item, at, worth);
         if (_purchase.Luck != null)
         {
@@ -630,7 +717,8 @@ public partial class OpeningPhase : Phase
         _mentor = Add(new MentorView { Position = new Vector2(812, 72), ZIndex = 20 });
         Teach("opened");
         if (visit.Seller == Story.VaultSeller) Game.Moment("24_vault", 1.5);
-        if (_landed.Any(l => l.Item.Quality != _purchase.Chest.Quality && l.Item.Displayable)) Teach("quality");
+        if (_landed.Any(l => l.Item.IsSong)) Teach("song_found");
+        if (_landed.Any(l => l.Item.Quality != _purchase.Chest.Quality && l.Item.Displayable && !l.Item.IsSong)) Teach("quality");
         if (State.DisplayOpen && _landed.Any(l => l.Item.Displayable && l.Item.Prestige >= 4)) Teach("keep");
         if (_deliverButtons.Count > 0) Teach("deliver");
         Game.Moment("08_verdict", 1.2);
@@ -663,12 +751,23 @@ public partial class OpeningPhase : Phase
     void AddKeepButton(Item item, Vector2 at, int worth)
     {
         if (!item.Displayable || _purchase.IsClaimed(item)) return;
-        var button = UiKit.MakeButton("", Palette.Magic.Darkened(0.3f), 16).Place(at.X - ButtonW / 2, 644, ButtonW, 34);
+        var button = UiKit.MakeButton("", item.IsSong ? Palette.Of(Rarity.Mythic).Darkened(0.2f) : Palette.Magic.Darkened(0.3f), 16)
+            .Place(at.X - ButtonW / 2, 644, ButtonW, 34);
         button.Pressed += () =>
         {
-            if (State.DisplayFull) ShowSwap(item, worth, at);
+            if (State.DisplayFull && !item.IsSong) ShowSwap(item, worth, at);
             else if (State.Keep(item, worth)) Kept(item, at);
         };
+        // A Heartsong takes no room and does far more on display than its price: Bram's advice is printed under it.
+        if (item.IsSong)
+        {
+            var advice = Add(UiKit.MakeLabel("Highly recommended", 16, Palette.Of(Rarity.Mythic), HorizontalAlignment.Center, outline: 4)
+                .Place(at.X - 100, 682, 200, 20));
+            advice.ZIndex = 8;
+            var pulse = advice.CreateTween().SetLoops();
+            pulse.TweenProperty(advice, "modulate:a", 0.55f, 0.6f);
+            pulse.TweenProperty(advice, "modulate:a", 1f, 0.6f);
+        }
         _keepButtons.Add((button, item, worth));
         Add(button);
         RefreshKeep();
@@ -769,9 +868,19 @@ public partial class OpeningPhase : Phase
         RefreshDeliver();
         Sfx.Play("sting", 1.4f, -4);
         Game.Hud.SetGold(State.Gold);
-        FloatText(item.Magic ? $"+{item.Prestige} exhibition (x2: enchanted!)" : $"+{item.Prestige} exhibition", at + new Vector2(0, -80),
-            Palette.Magic, 16);
-        Teach("kept");
+        if (item.IsSong)
+        {
+            Sfx.Play($"song_{item.Song}", 1f, -4);
+            Fx.Burst(this, at, Palette.Of(Rarity.Mythic), 60, 300f);
+            FloatText("It sings for the shop now!", at + new Vector2(0, -80), Palette.Of(Rarity.Mythic), 16);
+            Teach("song_shown");
+        }
+        else
+        {
+            FloatText(item.Magic ? $"+{item.Prestige} exhibition (x2: enchanted!)" : $"+{item.Prestige} exhibition", at + new Vector2(0, -80),
+                Palette.Magic, 16);
+            Teach("kept");
+        }
         RefreshKeep();
     }
 
@@ -790,6 +899,13 @@ public partial class OpeningPhase : Phase
                 button.Disabled = true;
                 continue;
             }
+            if (item.IsSong)
+            {
+                button.Disabled = _swap != null || State.Gold < worth;
+                button.Text = Narrow ? "Display!" : $"Display it (-{worth}g)";
+                button.TooltipText = $"On display: {item.SongDef.Effect} It takes no room on your shelf. Or sell it for {worth}g.";
+                continue;
+            }
             // The points it would add, so an enchanted thing's double shows before you choose.
             string points = item.Magic ? $"+{item.Prestige}*" : $"+{item.Prestige}";
             button.Disabled = _swap != null || State.Gold + (State.DisplayFull ? State.Display.Max(i => i.Value) : 0) < worth;
@@ -803,7 +919,7 @@ public partial class OpeningPhase : Phase
     void ShowSwap(Item item, int worth, Vector2 at)
     {
         if (_swap != null) return;
-        var shown = State.Display.ToList();
+        var shown = State.Display.Where(i => !i.IsSong).ToList();
         int columns = 3, rows = (shown.Count + columns - 1) / columns;
         float w = 984, h = 104 + rows * 48;
         // Clicking outside the chooser closes it, and nothing behind it can be pressed meanwhile.

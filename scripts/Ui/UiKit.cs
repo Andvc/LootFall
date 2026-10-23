@@ -209,7 +209,7 @@ public static class UiKit
     /// <summary>A pixel-framed slider with a gold coin for a grabber (the offer slider, the volume).</summary>
     public static void StyleSlider(HSlider slider)
     {
-        var coin = GD.Load<Texture2D>("res://assets/sprites/items/gold_crowns.png");
+        var coin = GD.Load<Texture2D>("res://assets/sprites/items/dwarf_gold_crowns.png");
         var track = new StyleBoxFlat { BgColor = new Color("#120e1a"), BorderColor = Palette.PanelBorder, AntiAliasing = false };
         track.SetBorderWidthAll(3);
         track.SetContentMarginAll(6);

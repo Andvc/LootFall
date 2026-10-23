@@ -133,7 +133,7 @@ public static class Market
             return new Item(c, quality, magic, fake);
         }).ToList();
 
-        // People hide money, jewels and papers under a false bottom.
+        // People hide money, gems and spellbooks under a false bottom.
         Item hidden = null;
         if (shopTier >= 2 && rng.NextFloat() < seller.HiddenChance + boosts.Hidden)
         {

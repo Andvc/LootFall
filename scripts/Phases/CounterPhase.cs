@@ -31,6 +31,11 @@ public partial class CounterPhase : Phase
     /// <summary>How long a hard shake a seller who hates them lets go before they mind.</summary>
     const double HardShakeTolerance = 0.2;
 
+    /// <summary>The slip's panel, and the line under its header that the Heartsong row takes over once one sings.</summary>
+    Node2D _panel;
+    Label _ticked;
+    Button _songRow;
+
     sealed class Row
     {
         public Category? Category;
@@ -136,6 +141,12 @@ public partial class CounterPhase : Phase
         _seller.Enter();
         _seller.Say(_visit.Pitch);
         State.HeardStory(_visit);
+        // The Drowned Bell tolls for every lie told near it.
+        if (State.Shows(Heartsongs.Bell) && _visit.Origin != null && !_visit.ToldTruth)
+        {
+            Sfx.Play("song_bell", 1f, -4);
+            Note($"The Drowned Bell tolls: {_visit.Seller.Short}'s story is a lie.");
+        }
         Game.Hud.SetDay(State.Day, State.Tier);
         Game.Hud.SetGold(State.Gold, animate: false);
         // What a lesson teaches, Bram needn't also tip about.
@@ -378,12 +389,26 @@ public partial class CounterPhase : Phase
         }
     }
 
-    /// <summary>Whatever you've kept on display, standing on the shop's shelf (part of the picture from the village shop on).</summary>
+    /// <summary>
+    /// Whatever you've kept on display, standing on the shop's shelf (part of the picture from the village shop on), and
+    /// any Heartsong, which needs no shelf: it hangs on a cord above it, glowing, at any shop.
+    /// </summary>
     void BuildShelf()
     {
+        var songs = State.Display.Where(i => i.IsSong).ToList();
+        for (int i = 0; i < songs.Count; i++)
+        {
+            var at = new Vector2(360 + i * 64, 132);
+            Add(new Painter(p =>
+            {
+                for (int r = 3; r >= 1; r--) p.DrawCircle(Vector2.Zero, 10 + r * 8, Palette.Of(Rarity.Mythic) with { A = 0.07f });
+            }) { Position = at, Material = Fx.Additive() });
+            Add(new Painter(p => p.DrawLine(new Vector2(0, -70), new Vector2(0, -18), new Color(0.15f, 0.1f, 0.12f), 2)) { Position = at });
+            Add(UiKit.MakeItemIcon(songs[i], at, 40));
+        }
         if (!State.DisplayOpen) return;
         const float y = 196, x0 = 300, w = 504;
-        var shown = State.Display;
+        var shown = State.Display.Where(i => !i.IsSong).ToList();
         for (int i = 0; i < shown.Count; i++)
         {
             float slot = w / Math.Max(6, shown.Count);
@@ -442,7 +467,9 @@ public partial class CounterPhase : Phase
             : seller.Listens ? $"Ticked: what {seller.Short} heard." : $"Ticked: what {seller.Short} says is inside.";
         string values = _visit.Chest.Sealed ? "Sealed: nothing to hear. Go by its weight."
             : $"Values: as good as a {(_visit.Chest.Gilded ? "gilded" : Categories.ChestSkin(_visit.Chest.Quality))} chest promises.";
-        panel.AddChild(UiKit.MakeLabel($"{who} {values}", 16, Palette.Muted).Wrapped().Place(PanelX, 106, PanelW, 40));
+        _ticked = UiKit.MakeLabel($"{who} {values}", 16, Palette.Muted).Wrapped().Place(PanelX, 106, PanelW, 40);
+        panel.AddChild(_ticked);
+        _panel = panel;
 
         var kinds = Categories.UpTo(State.Tier).ToList();
         float y = RowsY;
@@ -546,7 +573,7 @@ public partial class CounterPhase : Phase
         button.AddChild(UiKit.MakeLabel(word, 16, Palette.Muted.Darkened(0.2f)).Place(192, 8, 60, 20));
         if (category is Category claimed && _visit.Claim.Contains(claimed))
             button.AddChild(UiKit.MakeLabel("said", 16, Palette.Muted).Place(250, 8, 40, 20));
-        if (category is Category magicKind && _lamp)
+        if (category is Category magicKind && magicKind != Category.Heartsong && _lamp)
         {
             row.Star = UiKit.MakeLabel("*", 32, Palette.Muted.Darkened(0.2f), HorizontalAlignment.Center).Place(288, -3, 28, 40);
             row.Star.MouseFilter = Control.MouseFilterEnum.Stop;
@@ -706,6 +733,7 @@ public partial class CounterPhase : Phase
     {
         bool glowed = _lamp && item.Magic;
         _hearing.Heard(item, level, _magnet, glowed);
+        if (item.IsSong) SongHeard(item);
         Teach($"heard_{item.Category}");
         if (glowed)
         {
@@ -713,6 +741,25 @@ public partial class CounterPhase : Phase
             Game.Moment("04_glow", 0.1);
         }
         Game.Moment("01_shake", 0.1);
+    }
+
+    /// <summary>
+    /// A Heartsong sang: the slip gets its row, in mythic red, at the top where the seller's line was (no seller ever
+    /// hears one, so nothing about it was ticked). The first time in a chest, the room catches its breath.
+    /// </summary>
+    void SongHeard(Item song)
+    {
+        if (_songRow != null) return;
+        _ticked.Visible = false;
+        _songRow = MakeRow(Category.Heartsong, "Heartsong", song.Word, 106);
+        _songRow.SelfModulate = Palette.Of(Rarity.Mythic);
+        _panel.AddChild(_songRow);
+        bool known = State.Songbook.Contains(song.Song);
+        Note(known ? $"That song... you know it. {song.Name}!" : "A sound like nothing in any chest. A Heartsong!");
+        Game.Flash(Palette.Of(Rarity.Mythic), 0.25f, 0.6f);
+        Game.Shake(0.1f);
+        Refresh();
+        Game.Moment("01_heartsong", 0.3);
     }
 
     /// <summary>The chest came down. Dropped from high up, it tells you what's under the floor, and breaks glass.</summary>

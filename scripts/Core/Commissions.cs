@@ -36,17 +36,20 @@ public sealed class Commission
     /// <summary>The Hooded Woman's: it pays a shard of the Aldric Key as well.</summary>
     public bool Story { get; init; }
 
+    /// <summary>Kept open another week by the Clockwork Lark (it lapses at the next Guild's night).</summary>
+    public bool Carried { get; set; }
+
     public bool Done => Delivered >= Needed;
 
     public string PatronName => Story ? Core.Story.HoodName : Sellers.All.FirstOrDefault(s => s.Key == Patron)?.Name ?? Patron;
 
     /// <summary>Whether this thing would do. Fakes and broken things never do.</summary>
     /// <param name="leeway">How many qualities lower than asked they'll take (a letter of introduction).</param>
-    public bool Wants(Item item, int leeway = 0) => !Done && !item.Fake && !item.Broken && (Kind == CommissionKind.Enchanted
+    public bool Wants(Item item, int leeway = 0) => !Done && !item.Fake && !item.Broken && !item.IsSong && (Kind == CommissionKind.Enchanted
         ? item.Magic
         : item.Category == Category && item.Quality >= Quality - leeway);
 
-    /// <summary>What's wanted, in a few words: "arms, rare or better", "3 garb, uncommon or better".</summary>
+    /// <summary>What's wanted, in a few words: "weapons, rare or better", "3 cloaks, uncommon or better".</summary>
     public string What => Kind switch
     {
         CommissionKind.Enchanted => "anything enchanted",
@@ -60,15 +63,15 @@ public sealed class Commission
     static string Noun(Category kind, int n) => (kind, n > 1) switch
     {
         (Category.Coins, _) => n > 1 ? $"{Sellers.Number(n)} purses of coin" : "a purse of coin",
-        (Category.Arms, false) => "a blade or a bit of armour",
-        (Category.Garb, false) => "a cloak or a coat",
+        (Category.Arms, false) => "a weapon",
+        (Category.Garb, false) => "a cloak",
         (Category.Potions, false) => "a potion",
-        (Category.Scrolls, false) => "a scroll",
+        (Category.Scrolls, false) => "a spell",
         (Category.Gems, false) => "a gem",
-        (Category.Arms, true) => $"{Sellers.Number(n)} pieces of arms",
-        (Category.Garb, true) => $"{Sellers.Number(n)} cloaks or coats",
+        (Category.Arms, true) => $"{Sellers.Number(n)} weapons",
+        (Category.Garb, true) => $"{Sellers.Number(n)} cloaks",
         (Category.Potions, true) => $"{Sellers.Number(n)} potions",
-        (Category.Scrolls, true) => $"{Sellers.Number(n)} scrolls",
+        (Category.Scrolls, true) => $"{Sellers.Number(n)} spells",
         _ => $"{Sellers.Number(n)} gems",
     };
 
@@ -102,7 +105,7 @@ public static class Patrons
         var list = new List<Commission>();
         var crowd = Sellers.All.Where(s => s.Tier <= state.Tier && (state.Met.Contains(s.Key) || state.Met.Count < 3)).ToList();
         var kinds = Categories.UpTo(state.Tier).Select(c => c.Category).ToList();
-        int wanted = PerWeek + Upgrades.All.Where(u => state.Has(u.Key)).Sum(u => u.Commissions);
+        int wanted = PerWeek + Upgrades.All.Where(u => state.Has(u.Key)).Sum(u => u.Commissions) + (state.Shows(Heartsongs.Lark) ? 1 : 0);
         while (list.Count < wanted && crowd.Count > 0)
         {
             var patron = rng.PickWeighted(crowd.ToArray(), s => s.Tier == state.Tier ? 2f : 1f);
@@ -142,7 +145,7 @@ public static class Patrons
     }
 
     /// <summary>
-    /// The Hooded Woman's request for her next shard of the Aldric Key: scrolls first (the Keyhold's records of where
+    /// The Hooded Woman's request for her next shard of the Aldric Key: spells first (the Keyhold's records of where
     /// it hid them), then a gem (the Key was set with them), then something enchanted, a step better than the regulars ask for; something simpler if your shop is small.
     /// </summary>
     public static Commission Hood(int piece, int tier)

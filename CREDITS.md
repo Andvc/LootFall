@@ -2,12 +2,12 @@
 
 ## Art
 
-The pictures are LootFall's own, drawn for this game as pixel art in code, so anyone can rebuild them with
-`python3 tools/import_art.py`:
+The pictures are LootFall's own, drawn for this game as pixel art in code (placeholders, until dedicated art replaces
+them), so anyone can rebuild them with `python3 tools/import_art.py`:
 
-- `tools/custom_art.py`: the 33 things in chests (six kinds, five qualities, three fakes), the portraits of every
-  seller, Bram, his kin, Mister Vane, Nim, the Hooded Woman and the Stranger, each against the place they come from;
-  the chest (recoloured per lot origin), the shards of the Aldric Key, the Gilded Guild's sign, the 25 curios, the
+- `tools/custom_art.py`: the 33 things in chests (six kinds, five qualities, three fakes), the nine Heartsongs, the
+  portraits of every seller, Bram, his kin, Mister Vane, Nim, the Hooded Woman and the Stranger, each against the place
+  they come from; the chest (recoloured per lot origin), the shards of the Aldric Key, the Gilded Guild's sign, the 25 curios, the
   four places behind the counter (the Brindle crossroads at dusk, Thornwick's stone wall onto the Old Wood,
   Crownhold's roofs and palace, the Royal Emporium's colonnade and the Gilded Gate), the props on the counters, and
   the burst a chest opens with.
@@ -15,6 +15,10 @@ The pictures are LootFall's own, drawn for this game as pixel art in code, so an
   beams, panelling, drapes, shelves and counters).
 
 ## Font and sound
+
+The Heartsongs' songs, and the other synthesized sounds (the slosh, the hum, the opening's stings), are made in code at
+startup (`scripts/Audio/Sfx.cs`).
+
 
 By [Kenney](https://kenney.nl), released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/):
 

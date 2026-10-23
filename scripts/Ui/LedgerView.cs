@@ -11,7 +11,7 @@ namespace LootFall.Ui;
 /// and the rules of listening. Regulars: how each seller you've met judges a chest, trades and behaves, and how far
 /// their stories hold up, place by place. Places: where chests come from, and what each tends to hold. Collection:
 /// everything you've found so far. Synergies: what the shop could be known for, how far along each is, and
-/// (at the end of a day) which are active.
+/// (at the end of a day) which are active. Songs: the Heartsongs Bram's kin have opened, once there's one to show.
 /// </summary>
 public partial class LedgerView : Node2D
 {
@@ -56,7 +56,9 @@ public partial class LedgerView : Node2D
         // Synergies come with Crownhold: before that, the journal just keeps its tally.
         if (_state.SynergiesOpen)
             AddChild(UiKit.MakeButton("Synergies", Palette.Text, 16, () => ShowPage(3)).Place(PanelX + 792, PanelY + 14, 152, 36));
-        AddChild(UiKit.MakeButton("Close  [L]", Palette.Text, 16, Close).Place(PanelX + PanelW - 168, PanelY + 12, 144, 40));
+        if (_state.Songbook.Count > 0)
+            AddChild(UiKit.MakeButton("Songs", Palette.Of(Rarity.Mythic), 16, () => ShowPage(5)).Place(PanelX + 952, PanelY + 14, 96, 36));
+        AddChild(UiKit.MakeButton("Close [L]", Palette.Text, 16, Close).Place(PanelX + PanelW - 144, PanelY + 12, 120, 40));
         _page = new Node2D();
         AddChild(_page);
         ShowPage(_firstPage);
@@ -66,11 +68,12 @@ public partial class LedgerView : Node2D
         CreateTween().TweenProperty(this, "modulate", Colors.White, 0.15f);
     }
 
-    /// <summary>0: sounds, 1: regulars, 2: collection, 3: synergies, 4: places.</summary>
+    /// <summary>0: sounds, 1: regulars, 2: collection, 3: synergies, 4: places, 5: Heartsongs.</summary>
     public void ShowPage(int page)
     {
         foreach (var child in _page.GetChildren()) child.QueueFree();
-        if (page == 1) BuildRegulars(Spread(_state.Tier));
+        if (page == 5 && _state.Songbook.Count > 0) BuildSongs();
+        else if (page == 1) BuildRegulars(Spread(_state.Tier));
         else if (page == 2) BuildCollection();
         else if (page == 4) BuildPlaces();
         else if (page == 3 && _state.SynergiesOpen) BuildSynergies();
@@ -137,6 +140,44 @@ public partial class LedgerView : Node2D
     }
 
     /// <summary>
+    /// The songbook: the nine Heartsongs, three by three. One the family has opened shows its picture, who loved it and
+    /// what it does on display (its story on hover), and whether it's singing in the shop now; the rest are "?".
+    /// </summary>
+    void BuildSongs()
+    {
+        int known = Heartsongs.All.Count(h => _state.Songbook.Contains(h.Key));
+        _page.AddChild(UiKit.MakeLabel("Nine things loved more than gold, sung into the Locking and hidden in chests among millions. Only a " +
+                                       "Keywright hears one sing; to anyone else it's a trinket. Hover a card for its story. " +
+                                       $"Bram's kin know {known} of the nine" +
+                                       (known == Heartsongs.All.Length ? ": the Crown Chest can be sung whole." : ": with all nine, the Crown Chest's ending changes."),
+            16, Palette.Muted).Wrapped().Place(TableX, PanelY + 56, PanelW - 48, 60));
+        const float cardW = 376, cardH = 128, gap = 8;
+        for (int i = 0; i < Heartsongs.All.Length; i++)
+        {
+            var song = Heartsongs.All[i];
+            bool found = _state.Songbook.Contains(song.Key);
+            bool shown = _state.Shows(song.Key);
+            float x = TableX - 8 + i % 3 * (cardW + gap), y = PanelY + 118 + i / 3 * (cardH + 4);
+            var card = new Panel { MouseFilter = Control.MouseFilterEnum.Pass }.Place(x, y, cardW, cardH);
+            card.AddThemeStyleboxOverride("panel", UiKit.PanelBox(4));
+            if (shown) card.AddChild(UiKit.MakeFrame(Palette.Of(Rarity.Mythic)));
+            _page.AddChild(card);
+            if (!found)
+            {
+                card.AddChild(UiKit.MakeLabel("?", 32, Palette.Muted, HorizontalAlignment.Center).Place(0, 44, cardW, 40));
+                card.TooltipText = "Not heard yet.";
+                continue;
+            }
+            card.TooltipText = $"{song.Name}, from {song.From}. {song.Story}";
+            card.AddChild(UiKit.MakeItemIcon(Heartsongs.Make(song, Rarity.Common), new Vector2(32, 40), 48));
+            card.AddChild(UiKit.MakeLabel(song.Name, 16, Palette.Of(Rarity.Mythic)).Place(64, 6, cardW - 72, 20));
+            card.AddChild(UiKit.MakeLabel($"From {song.From}.", 16, Palette.Muted).Wrapped().Place(64, 28, cardW - 72, 40));
+            card.AddChild(UiKit.MakeLabel(song.Effect, 16, Palette.Text).Wrapped().Place(10, 66, cardW - 18, 60));
+            if (shown) card.AddChild(UiKit.MakeLabel("singing", 16, Palette.Gold, HorizontalAlignment.Right).Place(cardW - 100, 6, 92, 20));
+        }
+    }
+
+    /// <summary>
     /// A grid: one row per kind, one column per quality, then the fake. Found things show as they came out of the chest;
     /// the rest are "?". A star means you've found one enchanted too.
     /// </summary>
@@ -149,7 +190,7 @@ public partial class LedgerView : Node2D
                 .Place(gridX + c * step - 38, gridY - 26, cell + 66, 20));
         var entries = Collection.Entries.ToList();
         int row = 0;
-        foreach (var kind in Categories.All)
+        foreach (var kind in Categories.Kinds)
         {
             float y = gridY + row * cell;
             _page.AddChild(UiKit.MakeKindIcon(kind.Category, new Vector2(TableX + 16, y + cell / 2 - 6)));
@@ -199,8 +240,8 @@ public partial class LedgerView : Node2D
 
         var rules = new[]
         {
-            "Light things rattle at a gentle shake, arms at a firm one, soft things only at a hard one. Click a row to hear it.",
-            "While arms clank, delicate things go unheard: shake gently to hear past it.",
+            "Light things rattle at a gentle shake, weapons at a firm one, soft things only at a hard one. Click a row to hear it.",
+            "While weapons clank, delicate things go unheard: shake gently to hear past it.",
             tier >= 2 ? "Dropped, a chest with a false bottom booms hollow. Glass may break." : null,
             tier >= 3 ? "Two or three of a kind each sound from their own spot: count them. Sand rustles like a scroll, but pours at a gentle shake." : null,
             tier >= 3 ? $"Anything can be enchanted: it sounds the same, but glows under a witchlight. Worth x{Categories.MagicMultiplier}." +

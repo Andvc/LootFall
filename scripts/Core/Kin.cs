@@ -76,10 +76,15 @@ public sealed partial class GameState
 
     public IReadOnlyCollection<string> Snubbed => _snubbed;
 
-    /// <summary>The seller just gone walked out on an offer of Rosa's: word gets round, and they stay away this week.</summary>
+    /// <summary>
+    /// The seller just gone walked out. On an offer of Rosa's, word gets round, and they stay away this week; with the
+    /// Shepherd's Pipe singing, they come back at the end of the day, calmer, at their first price (once).
+    /// </summary>
     void NoteWalkout(Visit visit)
     {
-        if (HagglesAll && visit is { Outcome: VisitOutcome.Left, OffersMade: > 0 } && visit.Lesson == null) _snubbed.Add(visit.Seller.Key);
+        if (visit is not { Outcome: VisitOutcome.Left } || visit.Lesson != null) return;
+        if (Shows(Heartsongs.Pipe) && !visit.Returned) Queue.Add(visit.Again());
+        else if (HagglesAll && visit.OffersMade > 0) _snubbed.Add(visit.Seller.Key);
     }
 
     // ---- Isolde: a collection that pays its way ----
@@ -87,8 +92,11 @@ public sealed partial class GameState
     /// <summary>What Isolde's visitors pay tonight: so much a point of exhibition.</summary>
     public int Admission => Is(Characters.Isolde) ? Exhibition * Characters.AdmissionPerPoint : 0;
 
-    /// <summary>Whether this displayed thing can go to the Guild on a short night (never Isolde's).</summary>
-    public bool CanPawn(Item item) => !Is(Characters.Isolde) && Display.Contains(item);
+    /// <summary>
+    /// Whether this displayed thing can go to the Guild on a short night (never Isolde's, and never a Heartsong: greed
+    /// can't price one).
+    /// </summary>
+    public bool CanPawn(Item item) => !Is(Characters.Isolde) && !item.IsSong && Display.Contains(item);
 
     // ---- The Guild's terms ----
 

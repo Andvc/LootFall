@@ -31,8 +31,8 @@ public static class Characters
             {
                 "A bad back: he can't shake a chest hard, or lift it to drop it.",
                 "Every chest sits on his scale: he knows what everything in it weighs, to the half pound.",
-                $"Coin {Pounds(Category.Coins)} lb, arms {Pounds(Category.Arms)}, garb {Pounds(Category.Garb)}, potions {Pounds(Category.Potions)}, " +
-                $"scrolls {Pounds(Category.Scrolls)}, gems {Pounds(Category.Gems)}. Demon gold weighs half what gold does; sand is heavier than a scroll.",
+                $"Coin {Pounds(Category.Coins)} lb, weapons {Pounds(Category.Arms)}, cloaks {Pounds(Category.Garb)}, potions {Pounds(Category.Potions)}, " +
+                $"spells {Pounds(Category.Scrolls)}, gems {Pounds(Category.Gems)}. Demon gold weighs half what gold does; sand is heavier than a scroll.",
             }, "Pay the Guild's third due to unlock.", p => p.BestWeek >= 4),
         new(Rosa, "Rosa", "The Tongue", "Bram's niece from the Crownhold markets. She'd haggle with a statue, and win.",
             new[]
@@ -189,13 +189,15 @@ public static class Talents
 }
 
 /// <summary>
-/// How a run went, in points: the Guild's dues paid, the debt cleared (and how early), the vault, the map, the shop, the
-/// collection, and every week after the debt you kept the Guild paid. Points times the challenge level's multiplier are
+/// How a run went, in points: the Guild's dues paid, the debt cleared (and how early), the vault (sung whole, with all nine
+/// Heartsongs known), the map, the shop, the collection, the Heartsongs found, and every week after the debt you kept the
+/// Guild paid. Points times the challenge level's multiplier are
 /// the renown the run earns.
 /// </summary>
 public static class Score
 {
-    public const int PerDue = 10, Cleared = 100, PerDaySpare = 5, Vault = 100, PerPiece = 10, PerRenovation = 25, PerFind = 2, PerEndlessWeek = 25;
+    public const int PerDue = 10, Cleared = 100, PerDaySpare = 5, Vault = 100, PerPiece = 10, PerRenovation = 25, PerFind = 2, PerEndlessWeek = 25,
+        PerSong = 20, SungWhole = 200;
 
     /// <summary>The run's points, line by line (lines worth nothing are left out).</summary>
     public static List<(string Label, int Points)> Lines(GameState state)
@@ -215,6 +217,8 @@ public static class Score
         }
         if (state.VaultOpened) Add("The Crown Chest", Vault);
         else Add($"Key shards ({state.MapPieces})", state.MapPieces * PerPiece);
+        if (state.VaultOpened && state.SongWhole) Add("The Locking, sung whole", SungWhole);
+        Add($"Heartsongs ({state.SongsFound.Count})", state.SongsFound.Count * PerSong);
         Add($"Moves ({state.Tier - 1})", (state.Tier - 1) * PerRenovation);
         Add($"Collection ({state.Found.Count} of {Collection.Size})", state.Found.Count * PerFind);
         int endless = Math.Max(0, state.WeeksPaid - Guild.Weeks);

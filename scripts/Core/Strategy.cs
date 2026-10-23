@@ -46,7 +46,7 @@ public static class Strategy
     /// </summary>
     public static bool ShouldDrop(Visit visit, Hearing hearing, int tier, GameState state = null) =>
         tier >= 2 && (state?.CanDrop ?? true) && !(state?.MindsDrop(visit.Seller) ?? visit.Seller.HatesDrop) && !Rushed(visit, state) && !hearing.Dropped &&
-        (state?.HasCurio("crate") == true || !Categories.All.Any(c => c.Fragile && hearing.HeardAny(c.Category)));
+        (state?.DropSturdier >= 1 || !Categories.All.Any(c => c.Fragile && hearing.HeardAny(c.Category)));
 
     /// <summary>
     /// Where to check with the magnet: each strength at which a jingle or tinkle was heard (a gilded fake goes quiet
@@ -343,12 +343,14 @@ public static class Strategy
     /// <returns>Whether to keep it, and what to sell from the display to make room (or null).</returns>
     public static (bool Keep, Item Replace) ShouldKeep(GameState state, Item item, int value)
     {
+        // A Heartsong: highly recommended, and it takes no room. Kept unless its price is what pays the Guild tonight.
+        if (item.IsSong) return (state.Gold - value >= (state.DuesTonight ? state.DueNow : 0), null);
         if (state.Is(Characters.Isolde)) return Collects(state, item, value);
         if (!item.Displayable || item.Prestige < 2 || state.Tier < 3 || (state.Exhibition >= GameState.ExhibitionCap && !state.HasCurio("book")) ||
             value > item.Prestige * GoldPerPoint || state.Gold - value < 20 + 15 * state.Tier)
             return (false, null);
         if (!state.DisplayFull) return (true, null);
-        var plainest = state.Display.OrderBy(i => i.Prestige).First();
+        var plainest = state.Display.Where(i => !i.IsSong).OrderBy(i => i.Prestige).First();
         return plainest.Prestige < item.Prestige ? (true, plainest) : (false, null);
     }
 
@@ -366,7 +368,7 @@ public static class Strategy
         Item replace = null;
         if (state.DisplayFull)
         {
-            replace = state.Display.OrderBy(i => i.Prestige).ThenBy(i => i.Value).First();
+            replace = state.Display.Where(i => !i.IsSong).OrderBy(i => i.Prestige).ThenBy(i => i.Value).First();
             if (replace.Prestige >= item.Prestige) return (false, null);
         }
         int back = replace == null ? 0 : state.SaleValue(replace);

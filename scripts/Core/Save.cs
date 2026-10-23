@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 
 namespace LootFall.Core;
@@ -46,6 +47,7 @@ public sealed class SaveData
     public Dictionary<string, int[]> Stories { get; set; } = new();
     public List<string> ActiveSynergies { get; set; } = new();
     public List<SavedItem> Display { get; set; } = new();
+    public List<string> SongsFound { get; set; } = new();
 
     /// <summary>The journal's tally: kind by kind, five qualities each.</summary>
     public List<int> Acquired { get; set; } = new();
@@ -118,6 +120,7 @@ public sealed class SavedCommission
     public int Delivered { get; set; }
     public int Reward { get; set; }
     public bool Story { get; set; }
+    public bool Carried { get; set; }
 }
 
 /// <summary>
@@ -130,6 +133,20 @@ public sealed class Profile
     public int Runs { get; set; }
     public int Cleared { get; set; }
     public int Vaults { get; set; }
+
+    /// <summary>The Heartsongs Bram's kin have ever opened (the ledger's songbook): all nine change the Crown Chest's ending.</summary>
+    public List<string> Songs { get; set; } = new();
+
+    /// <summary>Crown Chests opened with all nine Heartsongs known: the Locking sung whole.</summary>
+    public int SungWhole { get; set; }
+
+    /// <summary>Notes the Heartsongs a run has opened. Returns how many of them are new to the songbook.</summary>
+    public int Learn(GameState state)
+    {
+        int before = Songs.Count;
+        foreach (var song in state.SongsFound.Where(s => !Songs.Contains(s))) Songs.Add(song);
+        return Songs.Count - before;
+    }
     public int BestWeek { get; set; }
     public int BestGold { get; set; }
 
@@ -193,6 +210,7 @@ public sealed class Profile
         {
             var profile = JsonSerializer.Deserialize<Profile>(json) ?? new Profile();
             profile.Talents.RemoveAll(t => !Core.Talents.Exists(t));
+            profile.Songs.RemoveAll(s => !Heartsongs.Exists(s));
             return profile;
         }
         catch (JsonException)
@@ -204,6 +222,7 @@ public sealed class Profile
     /// <summary>Notes how far a run got (call as it goes, and when it ends).</summary>
     public void Note(GameState state)
     {
+        Learn(state);
         BestWeek = Math.Max(BestWeek, state.Week);
         BestGold = Math.Max(BestGold, state.Gold);
         if (state.ClearedDay > 0 && (FastestClear == 0 || state.ClearedDay < FastestClear)) FastestClear = state.ClearedDay;
@@ -211,7 +230,8 @@ public sealed class Profile
 
     /// <summary>A line for the title screen, or null before the first run.</summary>
     public string Summary => Runs == 0 ? null
-        : $"Best: week {BestWeek}   Debts cleared: {Cleared}{(FastestClear > 0 ? $" (fastest: day {FastestClear})" : "")}   Crown Chests opened: {Vaults}";
+        : $"Best: week {BestWeek}   Debts cleared: {Cleared}{(FastestClear > 0 ? $" (fastest: day {FastestClear})" : "")}   Crown Chests opened: {Vaults}" +
+          (Songs.Count > 0 ? $"   Heartsongs: {Songs.Count}/{Heartsongs.All.Length}" : "");
 }
 
 /// <summary>Something on display, as it's saved.</summary>
@@ -220,4 +240,7 @@ public sealed class SavedItem
     public Category Category { get; set; }
     public Rarity Quality { get; set; }
     public bool Magic { get; set; }
+
+    /// <summary>Which Heartsong (for the Heartsong kind).</summary>
+    public string Song { get; set; }
 }

@@ -242,6 +242,71 @@ public partial class Sfx : Node
         Add("upgrade", new Synth(0.7f).Tone(0, 0.25f, 784, 0.3f, 8).Tone(0.07f, 0.25f, 988, 0.3f, 8).Tone(0.14f, 0.25f, 1175, 0.3f, 8)
             .Tone(0.21f, 0.45f, 1568, 0.35f, 5));
 
+        // The Heartsongs (Core.Heartsongs): nine songs unlike any thing in a chest, each its own. Played as "song_{key}".
+        float Note(int semitones) => 440f * MathF.Pow(2f, semitones / 12f);
+        // A music box: high plucked tines playing the first bars of a lullaby.
+        var lullaby = new Synth(1.9f);
+        int[] tune = { 7, 10, 12, 10, 7, 5, 7, 3 };
+        for (int i = 0; i < tune.Length; i++)
+        {
+            float f = Note(tune[i] + 12), t = i * 0.2f;
+            lullaby.Tone(t, 0.9f, f, 0.28f, 5.5f).Tone(t, 0.5f, f * 3.01f, 0.06f, 12).Tone(t, 0.02f, f * 6f, 0.05f, 80);
+        }
+        Add("song_lullaby", lullaby);
+        // A shepherd's pipe: a breathy run up and back down, each note wavering.
+        var pipe = new Synth(1.8f).Noise(0, 1.7f, 0.05f, 0.6f, 0.08f, attack: 0.1f);
+        int[] call = { 2, 5, 9, 7, 5, 9, 14 };
+        for (int i = 0; i < call.Length; i++)
+        {
+            float f = Note(call[i]), t = i * 0.22f, d = i == call.Length - 1 ? 0.55f : 0.24f;
+            pipe.Tone(t, d, f, 0.3f, 1.5f, freqEnd: f * 1.008f, attack: 0.04f).Tone(t, d, f * 2, 0.06f, 2f, attack: 0.04f);
+        }
+        Add("song_pipe", pipe);
+        // Fey chimes: glass rods struck at random, on a scale no bell in Aldmark is tuned to.
+        var chimes = new Synth(2f);
+        int[] fey = { 0, 3, 6, 8, 11, 13 };
+        for (int i = 0; i < 9; i++)
+        {
+            float f = Note(fey[rng.Next(fey.Length)] + 19), t = i * R(0.08f, 0.17f);
+            chimes.Tone(t, 1.5f, f, R(0.12f, 0.2f), 2.2f).Tone(t, 1f, f * 2.76f, 0.05f, 4f).Tone(t, 0.6f, f * 5.4f, 0.025f, 7f);
+        }
+        Add("song_chimes", chimes);
+        // A dragon's egg: a heartbeat, slow and deep, twice.
+        var heart = new Synth(1.8f);
+        foreach (float t in new[] { 0f, 0.2f, 0.9f, 1.1f })
+            heart.Tone(t, 0.3f, 62, 0.95f, 14, freqEnd: 40, attack: 0.01f).Noise(t, 0.08f, 0.15f, 40, 0.05f);
+        Add("song_egg", heart);
+        // A clockwork lark: quick rising chirps, and the tick of its spring.
+        var lark = new Synth(1.6f);
+        for (int i = 0; i < 9; i++)
+        {
+            float t = 0.05f + i * R(0.11f, 0.16f), f = R(2400, 3200);
+            lark.Tone(t, 0.08f, f, 0.22f, 10, freqEnd: f * R(1.3f, 1.6f), attack: 0.005f);
+        }
+        for (float t = 0; t < 1.5f; t += 0.25f) lark.Tone(t, 0.02f, 1800, 0.12f, 120);
+        Add("song_lark", lark);
+        // The hearthstone: a warm, low hum that swells and fades.
+        Add("song_hearth", new Synth(1.8f).Tone(0, 1.8f, 98, 0.45f, 1.2f, attack: 0.5f).Tone(0, 1.8f, 99, 0.3f, 1.2f, attack: 0.5f)
+            .Tone(0, 1.8f, 147, 0.2f, 1.4f, attack: 0.6f).Tone(0, 1.8f, 196, 0.14f, 1.6f, attack: 0.6f).Noise(0, 1.6f, 0.05f, 1.5f, 0.02f, attack: 0.4f));
+        // The drowned bell: a deep toll, with a bell's uneven overtones, muffled as if under water.
+        var toll = new Synth(2.2f);
+        foreach (var (ratio, amp, decay) in new[] { (0.5f, 0.35f, 0.9f), (1f, 0.5f, 1.2f), (1.19f, 0.25f, 1.6f), (1.5f, 0.18f, 2f), (2f, 0.16f, 2.4f), (2.6f, 0.08f, 3f) })
+            toll.Tone(0, 2.2f, 196 * ratio, amp, decay, attack: 0.006f);
+        toll.Noise(0, 0.05f, 0.25f, 40, 0.3f);
+        Add("song_bell", toll);
+        // A bottled star: a shimmering run up into the highest notes.
+        var star = new Synth(1.8f).Tone(0, 1.8f, 1318, 0.08f, 1.2f, attack: 0.3f).Tone(0, 1.8f, 1320, 0.08f, 1.2f, attack: 0.3f);
+        for (int i = 0; i < 12; i++)
+        {
+            float t = i * 0.09f, f = Note(15 + i * 2 + (i % 3 == 0 ? 1 : 0));
+            star.Tone(t, 0.6f, f, 0.12f, 6).Tone(t, 0.4f, f * 2.01f, 0.04f, 9);
+        }
+        Add("song_star", star);
+        // The imp's ember: a crackle of fire, and under it a long sigh.
+        var ember = new Synth(1.8f).Tone(0.1f, 1.6f, 330, 0.25f, 1.1f, freqEnd: 196, attack: 0.3f).Tone(0.1f, 1.6f, 495, 0.08f, 1.3f, freqEnd: 294, attack: 0.3f);
+        for (int i = 0; i < 26; i++) ember.Noise(R(0, 1.6f), R(0.01f, 0.03f), R(0.25f, 0.6f), 60, 0.9f, highpass: true);
+        Add("song_ember", ember);
+
         // Integer frequencies over exactly one second loop seamlessly; the 110/111 pair gives a slow shimmer.
         var hum = new Synth(1f).Tone(0, 1f, 110, 0.3f, 0, attack: 0).Tone(0, 1f, 111, 0.18f, 0, attack: 0)
             .Tone(0, 1f, 220, 0.16f, 0, attack: 0).Tone(0, 1f, 330, 0.07f, 0, attack: 0);

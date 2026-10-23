@@ -16,17 +16,17 @@ public enum Judgment
     Thorough,
     /// <summary>Counts the rattles and charges the same for each, whatever is rattling.</summary>
     Counter,
-    /// <summary>Hefts it: heavy means valuable. Arms and coin weigh a lot; scrolls and gems next to nothing.</summary>
+    /// <summary>Hefts it: heavy means valuable. Weapons and coin weigh a lot; spells and gems next to nothing.</summary>
     Weight,
     /// <summary>Judges by the chest's colour alone: a blue chest is worth what a blue chest usually holds.</summary>
     Colour,
     /// <summary>Names a number that came to them in a dream. It has nothing to do with the chest.</summary>
     Dreamer,
-    /// <summary>Knows arms; prices everything else at half, except gems, which he takes for diamonds.</summary>
+    /// <summary>Knows weapons; prices everything else at half, except gems, which he takes for diamonds.</summary>
     Miner,
     /// <summary>Knows her own gems (at what she paid for them) and nothing else in the chest.</summary>
     Jeweller,
-    /// <summary>Can't tell a coin from a coat, but can feel magic, and knows it's worth a lot.</summary>
+    /// <summary>Can't tell a coin from a cloak, but can feel magic, and knows it's worth a lot.</summary>
     MagicSense,
     /// <summary>Never shook it, has no idea, takes a few coins.</summary>
     Clueless,
@@ -116,7 +116,7 @@ public sealed class SellerDef
     public float[] Kinds
     {
         get => _kinds ??= Enumerable.Range(0, Categories.All.Length)
-            .Select(k => From.Sum(f => f.Weight * Origins.Get(f.Origin).Kinds[k]) / Math.Max(0.01f, From.Sum(f => f.Weight))).ToArray();
+            .Select(k => From.Sum(f => f.Weight * Origins.Get(f.Origin).Kinds.ElementAtOrDefault(k)) / Math.Max(0.01f, From.Sum(f => f.Weight))).ToArray();
         init => _kinds = value;
     }
 
@@ -157,7 +157,7 @@ public sealed class SellerDef
     /// <summary>How often their chest is locked (from the village shop on).</summary>
     public float LockChance { get; init; } = 0.3f;
 
-    /// <summary>The kinds they pass off fakes of: gilded iron for coins and jewelry, sand for paper.</summary>
+    /// <summary>The kinds they pass off fakes of: gilded iron for coin and gems, sand for spells.</summary>
     public Category[] Fakes { get; init; } = Array.Empty<Category>();
 
     /// <summary>How likely each thing of a kind they fake is the fake.</summary>
@@ -187,21 +187,24 @@ public sealed class SellerDef
     /// <summary>Whether they shake it at all (and so what you can learn from what they say they heard).</summary>
     public bool Listens => Judge is Judgment.Ear or Judgment.Thorough or Judgment.Counter or Judgment.Miner;
 
-    /// <summary>Soldiers, knights and dwarves: they bring a lot of arms (a smithing name draws them).</summary>
+    /// <summary>Soldiers, knights and dwarves: they bring a lot of weapons (a smithing name draws them).</summary>
     public bool Metalworker => Kinds[(int)Category.Arms] / Kinds.Sum() >= 0.3f;
 
     /// <summary>Whether they say how many of a kind (and price each), or just which kinds they heard.</summary>
     public bool Counts => Judge is Judgment.Counter or Judgment.Thorough or Judgment.Crook or Judgment.Jeweller;
 
-    /// <summary>What this seller says is in the chest: what they heard, or (crooks, jewellers) what they packed.</summary>
-    public IEnumerable<Item> Notices(Chest chest) => Judge switch
+    /// <summary>
+    /// What this seller says is in the chest: what they heard, or (crooks, jewellers) what they packed. Never a Heartsong:
+    /// only a Keywright hears one.
+    /// </summary>
+    public IEnumerable<Item> Notices(Chest chest) => (Judge switch
     {
         Judgment.Crook => chest.Items,
         Judgment.Jeweller => chest.Items.Where(i => i.Category == Category.Gems),
         Judgment.Thorough => chest.HeardAt(Shake.Gentle).Union(chest.HeardAt(Shake.Hard)),
         _ when Listens => chest.HeardAt(Shakes),
         _ => Enumerable.Empty<Item>(),
-    };
+    }).Where(i => !i.IsSong);
 
     /// <summary>How they put it in the ledger: how they judge a chest.</summary>
     public string JudgeWord => Judge switch
@@ -212,7 +215,7 @@ public sealed class SellerDef
         Judgment.Weight => "goes by weight",
         Judgment.Colour => "goes by the chest's colour",
         Judgment.Dreamer => "dreams up a price",
-        Judgment.Miner => "knows only arms",
+        Judgment.Miner => "knows only weapons",
         Judgment.Jeweller => "knows only her own gems",
         Judgment.MagicSense => "feels for magic",
         Judgment.Clueless => "has no idea",
@@ -263,7 +266,7 @@ public static class Sellers
                 ("kitbag", new[] { "My Tobb's old soldiering chest. I gave it a gentle shake: {heard}. I can't bear to open it. Would {price} do?",
                                    "Tobb carried this through two wars, dear. A gentle shake: {heard}. {price}?" }),
                 ("attic", new[] { "From the attic: Tobb's mother's. Just a gentle shake, my wrists aren't what they were. {heard}. {price}?" })),
-            Habit = "A soldier's widow selling his things. Shakes gently, so heavy arms and soft garb make no sound for her, and a kitbag usually holds both.",
+            Habit = "A soldier's widow selling his things. Shakes gently, so heavy weapons and soft cloaks make no sound for her, and a kitbag usually holds both.",
             Accepts = new[] { "Thank you. Truly.", "Bless you." },
         },
         new()
@@ -283,7 +286,7 @@ public static class Sellers
             From = new[] { ("tab", 1f) },
             Stories = Tell(("tab", new[] { "Some adventurer left this for his tab. Gave it a firm shake, love: {count}. A rattle's a rattle: {price}.",
                                            "Three nights' ale and a broken bench, and he paid me in chest. {count}. {price}, love." })),
-            Habit = "Keeps the Crossed Keys inn and takes chests for unpaid tabs. Counts the rattles at a firm shake and charges the same for each: a rusty dagger costs what a purse does.",
+            Habit = "Keeps the Crossed Keys inn and takes chests for unpaid tabs. Counts the rattles at a firm shake and charges the same for each: a goblin cleaver costs what a purse does.",
             Accepts = new[] { "Pleasure doing business!", "Done, love." },
         },
         new()
@@ -294,7 +297,7 @@ public static class Sellers
                                               "From the Barrow. Lost my torch and my nerve, kept the chest. It's rotten, so shake it once. {price}." })),
             Tales = new[] { "From a dragon's hoard! A small dragon. A sleeping one. Shake it once, it's fragile. {price}.",
                             "I slew a barrow-wight for this. Well, I ran past one. It's falling apart, so one shake. {price}." },
-            Habit = "A young adventurer back from the Barrow with chests so rotten they stand one short shake. Grave goods: coin, arms, rings. Half his stories are tall.",
+            Habit = "A young adventurer back from the Barrow with chests so rotten they stand one short shake. Grave goods: coin, weapons, gems. Half his stories are tall.",
             Accepts = new[] { "Drinks are on me!", "Back to the Barrow!" },
         },
 
@@ -319,7 +322,7 @@ public static class Sellers
                                  "The outlaws won't be needing it. {heft}: fair weight, fair price. {price}." }),
                 ("den", new[] { "Found it in a wolf den. The wolves had eaten whoever carried it. {heft}. {price}.",
                                 "Wolves don't hoard, but their dinners did. {heft}. {price}." })),
-            Habit = "A huntress who prices by weight: heavy means valuable, so light things (scrolls, gems) come cheap. Never lies about where she found a chest.",
+            Habit = "A huntress who prices by weight: heavy means valuable, so light things (spells, gems) come cheap. Never lies about where she found a chest.",
             Accepts = new[] { "Done.", "Good hunting." },
         },
         new()
@@ -328,7 +331,7 @@ public static class Sellers
             From = new[] { ("wood", 1f) },
             Stories = Tell(("wood", new[] { "The Old Wood let this one go. The oaks whispered a number to me in my sleep: {price}.",
                                             "Moss grew on it for a hundred years. Last night I dreamt its price: {price}. The Wood is never wrong. Often." })),
-            Habit = "A druid of the Old Wood. Her price comes from a dream and has nothing to do with the chest. Her chests hold brews, green cloaks and bark scrolls.",
+            Habit = "A druid of the Old Wood. Her price comes from a dream and has nothing to do with the chest. Her chests hold brews, elven cloaks and spells on birch bark.",
             Accepts = new[] { "As the Wood wills.", "The oaks approve." },
         },
         new()
@@ -337,7 +340,7 @@ public static class Sellers
             From = new[] { ("crypt", 1f) },
             Stories = Tell(("crypt", new[] { "From the abbey crypt, by the Abbot's leave. A firm shake: {heard}. {price}. Not hard, please: the saints are resting.",
                                              "Brother Cuthbert's reliquary. I shook it firmly, as is seemly: {heard}. {price}, for the roof fund." })),
-            Habit = "A young monk selling the crypt's chests for the abbey roof. Shakes firmly, and won't have them shaken hard, so the vestments inside go unheard and unpriced.",
+            Habit = "A young monk selling the crypt's chests for the abbey roof. Shakes firmly, and won't have them shaken hard, so the holy cloaks inside go unheard and unpriced.",
             Accepts = new[] { "Bless you.", "The roof thanks you." },
             Angry = new[] { "Brother! The saints! Half again, for the sacrilege." },
         },
@@ -362,7 +365,7 @@ public static class Sellers
             From = new[] { ("arcanum", 1f) },
             Stories = Tell(("arcanum", new[] { "Master Orrin said to clear the Arcanum stores. I can't tell what's in it, but I'll know if it's special. What's it worth?",
                                                "From the third cellar of the Arcanum. Don't tell Master. What would you give?" })),
-            Habit = "An archmage's apprentice. Can't tell a coin from a coat, but feels magic. Name a price: she takes a little, unless something's enchanted.",
+            Habit = "An archmage's apprentice. Can't tell a coin from a cloak, but feels magic. Name a price: she takes a little, unless something's enchanted.",
             Accepts = new[] { "Oh good! Don't tell Master.", "Thank you!" },
             Refusals = new[] { "No... there's something special in there. More, please." },
             Leaves = new[] { "I should ask Master first. Sorry!" },
@@ -382,7 +385,7 @@ public static class Sellers
             From = new[] { ("hold", 1f) },
             Stories = Tell(("hold", new[] { "Dug it out of the deep seam under Ironroot. Hard shake, dwarf's hands: {heard}. {price}.",
                                             "Ironroot hold, sealed since my great-great-grandmother's day. {heard}. {price}." })),
-            Habit = "A dwarf of Ironroot. Knows arms; prices everything else at half, except gems, which he takes for diamonds. Haggles.",
+            Habit = "A dwarf of Ironroot. Knows weapons; prices everything else at half, except gems, which he takes for diamonds. Haggles.",
             Accepts = new[] { "Done. Back to the deep.", "Ha! Done." },
             Counters = new[] { "{price}. Lower and I'll eat my helmet." },
             Leaves = new[] { "You take me for a fool? Good day." },
@@ -412,9 +415,9 @@ public static class Sellers
             Key = "shelly", Name = "Shelly the Mudlark", Tier = 3, Shakes = Shake.Hard, Fakes = new[] { Category.Scrolls }, FakeChance = 0.5f,
             Colours = new[] { 0.1f, 0.5f, 0.35f, 0.05f },
             From = new[] { ("river", 1f) },
-            Stories = Tell(("river", new[] { "Out of the Aldwater mud at low tide! Shook it hard: {heard}. A treasure map, I'd bet my boots. {price}.",
-                                             "The river gives, the river takes. {heard}. Maps, letters, who knows! {price}." })),
-            Habit = "Combs the Aldwater mud and swears every rustle is a treasure map. Her scroll cases are often full of sand, which pours at the gentlest shake. Parchment never does.",
+            Stories = Tell(("river", new[] { "Out of the Aldwater mud at low tide! Shook it hard: {heard}. A drowned wizard's spellbook, I'd bet my boots. {price}.",
+                                             "The river gives, the river takes. {heard}. Spellbooks, potions, who knows! {price}." })),
+            Habit = "Combs the Aldwater mud and swears every rustle is a drowned wizard's spellbook. Her scroll cases are often full of sand, which pours at the gentlest shake. Parchment never does.",
             Accepts = new[] { "Mud's good to me!", "The river provides." },
         },
         new()
@@ -423,7 +426,7 @@ public static class Sellers
             From = new[] { ("warchest", 1f) },
             Stories = Tell(("warchest", new[] { "Grandfather's war chest. If his sword's in it, it's mine, and I'll pay you {fee} for it. The rest is yours for {price}.",
                                                 "The de Lacy war chest, from the siege of Harrowgate. Any blade in it is family: {fee} for the best. {price} for the chest." })),
-            Habit = "A knight seeking his grandfather's sword. If there are arms inside, the best of them is his, for the price he names; value what's left.",
+            Habit = "A knight seeking his grandfather's sword. If there are weapons inside, the best of them is his, for the price he names; value what's left.",
             Accepts = new[] { "Honour is satisfied.", "For the de Lacys!" },
         },
 

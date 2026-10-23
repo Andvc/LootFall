@@ -17,18 +17,20 @@ namespace LootFall;
 /// Command-line flags (after `--`): --seed=N, --sim [--n=N], --shake-test, --export-sounds=DIR, --autoplay,
 /// --shots=DIR, --quit-at-end, --days=N, --no-tutorial (no tips, no scripted first day),
 /// --start-tier=N and --gold=N (jump ahead with the tools you'd have by then), --opening-demo (opens a blue chest
-/// holding one thing of each quality, two of them better than the chest, to preview the opening's effects; quits
-/// after with --quit-at-end), --shell-demo (with --shots: the title screen, a new game, the pause menu and the
+/// holding one thing of each quality, two of them better than the chest, and a Heartsong, to preview the opening's
+/// effects; quits after with --quit-at-end), --shell-demo (with --shots: the title screen, a new game, the pause menu and the
 /// settings, one screenshot each, then quits), --vault-demo (opens King Aldric's vault; quits after with --quit-at-end),
 /// --start-week=N (a shop as a careful player would have it by then, played
 /// through by the balance simulation; --gold=N then sets its purse). Autoplay sets --days=N to stop after that many days.
 /// --character=KEY, --challenge=N and --talents=all play one of Bram's kin, at a challenge level, with every talent.
+/// --heartsongs=P makes a Heartsong turn up in that share of chests; --songs=all plays as if every one had been found
+/// (with --vault-demo, the Crown Chest's other ending).
 /// </summary>
 public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Early Access 0.16";
+    public const string Version = "Early Access 0.17";
     const string SavePath = "user://save.json", ProfilePath = "user://profile.json";
 
     public GameState State { get; private set; }
@@ -61,6 +63,12 @@ public partial class Main : Node2D
     {
         Instance = this;
         var args = OS.GetCmdlineUserArgs();
+        if (Arg(args, "--sim") == "songs")
+        {
+            Simulation.Songs(int.Parse(Arg(args, "--n") ?? "150"));
+            GetTree().Quit();
+            return;
+        }
         if (args.Contains("--sim"))
         {
             Simulation.Run(int.Parse(Arg(args, "--n") ?? "300"));
@@ -86,6 +94,12 @@ public partial class Main : Node2D
         {
             State = GameState.NewRun(_seed, Arg(args, "--character") ?? Characters.Kit, int.TryParse(Arg(args, "--challenge"), out var level) ? level : 0,
                 Arg(args, "--talents") == "all" ? Talents.All.Select(t => t.Key) : null, !args.Contains("--no-tutorial"));
+            // --songs=all: as if Bram's kin had opened every Heartsong (the Crown Chest's other ending). --heartsongs=0.5:
+            // half of all chests hold one, to see them turn up.
+            if (Arg(args, "--songs") == "all") State.Songbook.UnionWith(Heartsongs.All.Select(h => h.Key));
+            if (float.TryParse(Arg(args, "--heartsongs"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture,
+                    out var songChance))
+                Heartsongs.Chance = Math.Clamp(songChance, 0f, 1f);
             if (int.TryParse(Arg(args, "--start-tier"), out var startTier))
                 State.SkipTo(Math.Clamp(startTier, 1, ShopTiers.Max), int.TryParse(Arg(args, "--gold"), out var g) ? g : 500);
             // A shop as a careful player would have it by the start of that week (tips are taken as read).
@@ -290,6 +304,7 @@ public partial class Main : Node2D
             DirAccess.RemoveAbsolute(ProjectSettings.GlobalizePath(SavePath));
         }
         State = GameState.NewRun(_seed, character, challenge, Profile.Talents, Settings.Tips);
+        State.Songbook.UnionWith(Profile.Songs);
         _seed++;
         _saving = !_demo;
         Profile.LastCharacter = character;
@@ -306,6 +321,9 @@ public partial class Main : Node2D
         LevelsAtStart = Profile.MaxChallenge(State.Character);
     }
 
+    /// <summary>A Heartsong's just been opened: into the profile's songbook straight away.</summary>
+    public void NoteSongs() => WriteProfile();
+
     /// <summary>Learns a talent with renown, and keeps it in the profile.</summary>
     public bool LearnTalent(TalentDef talent)
     {
@@ -319,6 +337,7 @@ public partial class Main : Node2D
     public void ContinueGame(SaveData save)
     {
         State = GameState.Load(save);
+        State.Songbook.UnionWith(Profile.Songs);
         _saving = true;
         NoteStart();
         BeginPlaying();
@@ -368,6 +387,7 @@ public partial class Main : Node2D
         {
             new Item(Category.Arms, Rarity.Common), new Item(Category.Garb, Rarity.Uncommon), new Item(Category.Potions, Rarity.Rare),
             new Item(Category.Coins, Rarity.Epic), new Item(Category.Gems, Rarity.Legendary),
+            Heartsongs.Make(Heartsongs.Get(Heartsongs.Egg), Rarity.Rare),
         }, Rarity.Rare, new Item(Category.Scrolls, Rarity.Rare, Magic: true));
         var visit = Market.Price(State.Rng, Sellers.Get("vexis"), chest, ShopTiers.Max, ask: 300);
         visit.Buy(State.Rng);
@@ -389,6 +409,14 @@ public partial class Main : Node2D
         SwitchTo(opening);
         while (IsInstanceValid(opening) && !opening.Finished) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await ToSignal(GetTree().CreateTimer(3.0), SceneTreeTimer.SignalName.Timeout);
+        // Then the epilogue (sung whole with --songs=all), a line every two seconds.
+        var scene = new ScenePhase(Story.VaultEpilogue(State), () => { }, State.SongWhole ? "THE LOCKING, SUNG WHOLE" : "THE CROWN CHEST");
+        SwitchTo(scene);
+        while (IsInstanceValid(scene) && !scene.Done)
+        {
+            await ToSignal(GetTree().CreateTimer(2.0), SceneTreeTimer.SignalName.Timeout);
+            if (IsInstanceValid(scene) && !scene.Done) scene.Advance();
+        }
         if (quit) QuitGame();
     }
 
@@ -502,7 +530,9 @@ public partial class Main : Node2D
     {
         if (State.Opening?.Visit.Seller == Story.VaultSeller)
         {
-            SwitchTo(new ScenePhase(Story.VaultEpilogue(), () => SwitchTo(new RunEndPhase(cleared: true)), "THE CROWN CHEST"));
+            if (State.SongWhole) WriteProfile(p => p.SungWhole++);
+            SwitchTo(new ScenePhase(Story.VaultEpilogue(State), () => SwitchTo(new RunEndPhase(cleared: true)),
+                State.SongWhole ? "THE LOCKING, SUNG WHOLE" : "THE CROWN CHEST"));
             return;
         }
         NextCustomer();

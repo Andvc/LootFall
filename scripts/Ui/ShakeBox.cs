@@ -29,6 +29,9 @@ public partial class ShakeBox : Node2D
     /// <summary>How long a clank drowns out delicate sounds.</summary>
     const double MaskSeconds = 0.6;
 
+    /// <summary>A Heartsong's song is a phrase, not a knock: one at a time, this often at most.</summary>
+    const double SongEvery = 1.7;
+
     /// <summary>
     /// Anything stirred makes a sound at least this often while the chest is moving, even if the physics hasn't knocked
     /// it into a wall: a slow, gentle shake rolls things around without many hard hits, but you'd still hear them.
@@ -91,7 +94,7 @@ public partial class ShakeBox : Node2D
     AnimatableBody2D _box;
     Node2D _words;
     bool _dragging, _airborne, _moved;
-    double _autoShakeLeft, _autoShakeTime, _liftLeft, _time, _lastClank = -9;
+    double _autoShakeLeft, _autoShakeTime, _liftLeft, _time, _lastClank = -9, _lastSong = -9;
     double _settling = 0.8; // items drop into place when the chest appears; that shouldn't make noise
     float _fallHeight;
     Shake _autoLevel;
@@ -351,8 +354,17 @@ public partial class ShakeBox : Node2D
 
         HeardAnything = true;
         float loud = Mathf.Clamp((strength - ImpactThreshold) / 600f, 0f, 1f);
+        if (item.IsSong)
+        {
+            // A Heartsong sings its own song, not a knock: nothing else sounds like it. One phrase at a time.
+            if (_time - _lastSong >= SongEvery)
+            {
+                _lastSong = _time;
+                Sfx.Play($"song_{item.Song}", 1f, -1);
+            }
+        }
         // Always the kind's own sound, give or take a hair: things of a kind sound alike.
-        Sfx.PlayGroup(SoundSets.Group(item.Category), item.Def.Pitch * (1f + 0.04f * Rand()), Mathf.LinearToDb(0.4f + 0.6f * loud) + 3f);
+        else Sfx.PlayGroup(SoundSets.Group(item.Category), item.Def.Pitch * (1f + 0.04f * Rand()), Mathf.LinearToDb(0.4f + 0.6f * loud) + 3f);
 
         if (_wordCooldown.GetValueOrDefault(index) <= 0)
         {
@@ -360,7 +372,8 @@ public partial class ShakeBox : Node2D
             // Each thing has its own spot above the chest, so you can count them.
             var spot = _pos + new Vector2((index % 3 - 1) * 112f + Rand() * 6f, -128f - index / 3 * 36f + Rand() * 4f);
             bool glow = Witchlight && item.Magic;
-            PopWord(item.Word, spot, item.Def.Loud ? 32 : 24, glow ? Palette.Magic : Palette.Word, glow);
+            var color = item.IsSong ? Palette.Of(Rarity.Mythic) : glow ? Palette.Magic : Palette.Word;
+            PopWord(item.Word, spot, item.Def.Loud || item.IsSong ? 32 : 24, color, glow || item.IsSong);
         }
         Heard?.Invoke(item, level);
         return true;
@@ -379,8 +392,8 @@ public partial class ShakeBox : Node2D
         _words.AddChild(label);
         if (glow)
         {
-            label.AddThemeColorOverride("font_outline_color", Palette.Magic.Darkened(0.5f));
-            Fx.Burst(_words, at, Palette.Magic, 16, 140f);
+            label.AddThemeColorOverride("font_outline_color", color.Darkened(0.5f));
+            Fx.Burst(_words, at, color, 16, 140f);
         }
         var tween = label.CreateTween().SetParallel();
         tween.TweenProperty(label, "scale", Vector2.One * (glow ? 1.2f : 1f), 0.1f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);

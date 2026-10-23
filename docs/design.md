@@ -113,19 +113,71 @@ profits from every seller.
 
 | Kind | Sound | Stirs at | Note | Common to legendary |
 |---|---|---|---|---|
-| Coin | jingle | gentle | delicate | Copper Pennies 12g, Silver Marks, Gold Crowns, Old Sovereigns, Dragon Gold 600g |
-| Arms | clank | firm | loud, iron | Rusty Dagger 5g, Soldier's Helm, Steel Longsword, Knight's Gauntlet, Runeblade 250g |
-| Garb | flump | hard | soft | Moth-Eaten Cloak 6g, Hunter's Coat, Silk Robe, Archmage's Mantle, Royal Ermine 300g |
-| Potions | slosh | gentle | delicate, glass | Swamp Tonic 8g, Healing Draught, Elixir of Vigour, Phoenix Tears, Ambrosia 400g |
-| Scrolls | rustle | hard | soft; sand sounds alike | Tattered Map 5g, Spell Scroll, Bestiary, Grimoire, Locking Codex 250g |
-| Gems | tinkle | gentle | delicate | Brass Ring 20g, Silver Amulet, Ruby Ring, Starstone, Dragon's Eye 1000g |
+| Coin | jingle | gentle | delicate | Barrow Silver 12g, Moonsilver Marks, Dwarf-Gold Crowns, Sunken Sovereigns, Dragon Gold 600g |
+| Weapons | clank | firm | loud, iron | Goblin Cleaver 5g, Dwarven Axe, Warden's Blade, Flamebrand, Dragonslayer 250g |
+| Cloaks | flump | hard | soft | Wolfskin Cloak 6g, Elven Cloak, Cloak of Shadows, Archmage's Mantle, Phoenix Mantle 300g |
+| Potions | slosh | gentle | delicate, glass | Healing Draught 8g, Elixir of Vigour, Invisibility Draught, Mermaid's Breath, Ambrosia 400g |
+| Spells | rustle | hard | soft; sand sounds alike | Scroll of Sparks 5g, Scroll of Fireball, Summoner's Grimoire, Lich's Tome, Keyhold Codex 250g |
+| Gems | tinkle | gentle | delicate | Moonstone 20g, Elfstone, Blood Ruby, Starstone, Dragon's Eye 1000g |
 
-The kinds are what a sword-and-sorcery realm would lock away: currency, weapons and armour, clothes, potions, scrolls
-and gems. Each keeps the sound you'd expect of it, so the three rules read the same in any shop. From Crownhold,
-**anything can be enchanted** (5% of things, more from the Arcanum): an Enchanted Silk Robe is still a silk robe, the
+The kinds are what a sword-and-sorcery realm would lock away: currency, weapons, cloaks, potions, spells and gems.
+Each keeps the sound you'd expect of it, so the three rules read the same in any shop. Until 0.16 the commonest of each
+was something nobody would want (copper pennies, a rusty dagger, a moth-eaten cloak, a swamp tonic, a tattered map, a
+brass ring) and a whole kind was paper; 0.17 made every one a find you'd be glad of, from barrow silver and a goblin's
+cleaver up, without touching a value or a sound, so the balance stayed put (the kinds are still Arms, Garb and Scrolls in
+code, and an old save's journal is renamed, `Categories.Renamed`). From Crownhold,
+**anything can be enchanted** (5% of things, more from the Arcanum): an Enchanted Elven Cloak is still an elven cloak, the
 same quality and colour, worth twice as much and twice the exhibition points. It sounds like anything else; under the
 Witchlight it glows. A fake (demon gold, a paste gem, a scroll case of sand) is worth 1g; broken glass is worth
 nothing.
+
+## Heartsongs: the rarest things in the realm
+
+Nine collectibles of a kind of their own (`Heartsongs.cs`, world lore in `docs/world.md`): things loved more than gold
+that the archmages sang the Locking into. They're for the moment of finding one: a sound you've never heard, then a
+reveal like nothing else in the game.
+
+- **Mythic** (red), a quality nothing else reaches (`Rarity.Mythic`); no chest promises it.
+- **Their own sounds.** Each sings its own synthesized song (`Sfx`: a music box, a pipe, fey chimes, a heartbeat,
+  birdsong, a hum, a bell, a shimmer, a crackle and a sigh), none of them like any kind of thing. The rule is one people
+  can reason about: it sings at the gentlest shake, and nothing drowns it out or stills it (`Chest.Audible` and `ShakeBox`
+  apply it the same way, and the shake test checks it). Only a Keywright hears one, so no seller ever prices one
+  (`SellerDef.Notices`): hearing one means the chest is worth more than its price says. When one sings, its row takes the
+  top of the slip, in red; tick it like anything else (a perfect read counts it).
+- **Rare.** Any chest a seller brings (not a lesson's or the first day's) has a 0.4% chance (`Heartsongs.Chance`), rolled
+  with its own dice so nothing else changes. That's about one find a run for the careful player (64% of runs see one, the
+  first around day 19). One you've never found is three times likelier; never two of the same in a run.
+- **An ordinary price.** A merchant takes it for a trinket as fine as its chest: 10g times the chest colour's multiplier
+  (10g in wood, 200g in purple), on the slip and in the sale. The Guild won't take one in pawn.
+- **Display: highly recommended.** It needs no shelf and takes no slot (it hangs on a cord over the counter, at any
+  shop, even Bram's stall); the opening's button says so. It adds no exhibition points: each does one thing instead,
+  following the curio rule (nothing that tells you what's in a chest, no share on sale prices).
+
+| Heartsong | On display |
+|---|---|
+| The Lullaby Box | impatient sellers wait as long as you like |
+| The Shepherd's Pipe | anyone who storms off or walks out comes back at the end of the day, at their first price (once) |
+| The Fey Chimes | each thing that comes out as promised has a 1% chance to come out a step better |
+| The Dragon's Egg | in the first chest each day, nothing comes out worse than promised |
+| The Clockwork Lark | a regular's unfinished commission stays open another week (once) |
+| The Hearthstone | exhibition counts half as much again |
+| The Drowned Bell | tolls when a seller's story about their chest is a lie |
+| The Bottled Star | room for one more curio |
+| The Imp's Ember | glass never breaks, dropped or forced |
+
+Tuning (`--sim=songs`, the careful collector, 150 runs): on display from the first day, the strongest (the Egg, the
+Lark, the Ember) lift the clear rate about as much as a Padded Crate does from day 1 (8 to 14 points), and well under a
+Lucky Coin (20), a Letter of Introduction (21) or a Four-Leaf Clover (38); the Bell, the Lullaby and the Star are a
+point or three. The first draft (every customer +1, double surprises, nothing ever worse, a synergy slot) gave 11 to
+45 points: one find decided a run. As they really turn up (about one a run, from mid-run), the careful player clears
+45% with no talents and 83% with all, against 43% and 81% with no Heartsongs at all.
+
+**The ending.** Bram's kin remember every Heartsong they've opened (`Profile.Songs`, the ledger's Songs page). The Crown
+Chest holds the Locking's tune; the Heartsongs are its verses. With all nine known when it's opened, Mara sings the
+Locking whole: the Maw starves, the Gate is only a gate, every chest in Aldmark opens (`Story.VaultEpilogue`, worth 200
+points). With fewer, she renews it and says how many verses the family knows. In the sim's careers, all nine are known
+around the sixteenth run and the first Crown Chest sung whole comes around the seventeenth: after the first clear,
+before level 4. Each Heartsong found is worth 20 points too.
 
 ## Ways to judge a chest
 
@@ -584,10 +636,10 @@ than judgment did).
 | Synergy | Needs | Does (per level) |
 |---|---|---|
 | Goldsmith | coin and gems | coin and gems turn up in chests 10% more often |
-| Armourer | arms | soldiers, knights and dwarves (who bring arms) come 20% more often |
+| Armourer | weapons | soldiers, knights and dwarves (who bring weapons) come 20% more often |
 | Apothecary | potions | glass 20% less likely to break, dropped or forced (never, at level 5) |
-| Archivist | scrolls | chests 2% likelier to have a false bottom |
-| Clothier | garb | exhibition +10% |
+| Spellkeeper | spells | chests 2% likelier to have a false bottom |
+| Cloakmaker | cloaks | exhibition +10% |
 | Keen Eye | perfect reads in a row (3, 6, 10, 15, 25) | a perfect read earns a valuer's fee of 1g per shop tier |
 | Arcanist | enchanted things found (3, 8, 15, 25, 40) | each thing 1% likelier to be enchanted |
 
@@ -716,10 +768,12 @@ they know the rules but don't yet apply them every time.
 
 | Skill (Kit, level 0) | No talents: cleared, still trading after weeks 4 / 5 / 6 / 7 | Every talent |
 |---|---|---|
-| 0.15 (a first run) | 0%; 89 / 61 / 41 / 39%, lost in week 6 | 3% |
-| 0.5 | 5%; 96 / 83 / 61 / 57% | 15% |
-| 0.75 | 19%; 99 / 91 / 73 / 73% | 50% |
-| 1 (the careful collector) | 43%; 100 / 95 / 83 / 82% | 81% |
+| 0.15 (a first run) | 0%; 90 / 63 / 43 / 39%, lost in week 6 | 2% |
+| 0.5 | 4%; 97 / 82 / 63 / 60% | 14% |
+| 0.75 | 20%; 99 / 91 / 75 / 75% | 53% |
+| 1 (the careful collector) | 45%; 100 / 95 / 83 / 83% | 83% |
+
+(0.17's figures, with the Heartsongs: without them the careful player clears 43% and 81%, as in v15.)
 
 **Careers.** Each simulated player starts at skill 0 to 0.3 and improves toward their own best (0.75 to 1) at their
 own pace (a tenth to three tenths of the way each run); every run is Kit's at the highest level open, scored at the
@@ -729,17 +783,18 @@ guess; what the sim shows is the shape (`--sim`, 40 players over 30 runs):
 | Run | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 12 | 16 | 20 | 24 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Skill | 0.15 | 0.29 | 0.41 | 0.50 | 0.57 | 0.63 | 0.68 | 0.71 | 0.74 | 0.77 | 0.80 | 0.84 | 0.86 | 0.87 |
-| Cleared | 0% | 0% | 0% | 8% | 8% | 18% | 18% | 20% | 23% | 23% | 25% | 33% | 43% | 30% |
+| Cleared | 0% | 0% | 0% | 8% | 10% | 20% | 15% | 25% | 28% | 28% | 35% | 30% | 30% | 30% |
 | Lost in week (median) | 6 | 7 | 7 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 |
-| Challenge level | 0 | 0 | 0 | 0 | 0.1 | 0.2 | 0.3 | 0.5 | 0.7 | 0.9 | 1.4 | 2.6 | 4.0 | 5.4 |
-| Talents (of 13) | 1.6 | 3.1 | 4.1 | 4.9 | 5.7 | 6.6 | 7.2 | 7.8 | 8.4 | 9.0 | 10.0 | 11.6 | 12.8 | 13 |
-| Renown | 167 | 172 | 163 | 199 | 222 | 254 | 270 | 279 | 310 | 343 | 374 | 436 | 583 | 628 |
+| Challenge level | 0 | 0 | 0 | 0 | 0.1 | 0.2 | 0.4 | 0.5 | 0.8 | 1.1 | 1.6 | 2.9 | 4.5 | 5.8 |
+| Talents (of 13) | 1.8 | 3.4 | 4.3 | 5.2 | 6.1 | 6.9 | 7.5 | 8.1 | 8.7 | 9.4 | 10.4 | 12.2 | 12.9 | 13 |
+| Renown | 186 | 184 | 185 | 217 | 241 | 275 | 286 | 319 | 346 | 391 | 464 | 538 | 651 | 796 |
 
 The first run gets through the first five weeks and loses in week 6 with a growing purse that wasn't growing fast
 enough; the next few get to the last weeks and lose there; the debt is first cleared around the ninth run (a quarter
 of players by run 6, half by 9, three quarters by 12), with about eight talents learned. Then the levels: level 1
-around run 13, 2 around 16, 4 around 21 (95% of players by run 30), 6 around 28 (55%); level 8 is cleared by one in
-twelve by run 30. The whole talent tree is learned around run 21, as the climb starts in earnest; renown keeps the
+around run 13, 2 around 15, 4 around 20 (every player by run 30), 6 around 27 (60%); level 8 is cleared by one in
+twelve by run 30. All nine Heartsongs are known around run 16, and the first Crown Chest sung whole comes around run
+17 (90% of players by run 30). The whole talent tree is learned around run 21, as the climb starts in earnest; renown keeps the
 score of how far a run got. A new talent comes after nearly every run early on.
 
 Getting there: v13's dues (40, 100, 300, 800, 1,400, 2,400, 3,800, 7,000) let the careful player with no talents
@@ -756,14 +811,14 @@ moved from level 6 to 8; the rest kept their places (within a few points of each
 All together, level by level: 81, 81, 72, 67, 61, 43, 31, 13, 6%. The first levels are an on-ramp for a careful player
 and bite a learner who still leans on Bram's stash and word and drops glass.
 
-**Bram's kin** on the new curve (the careful collector, 150 runs each; cleared %):
+**Bram's kin** on the new curve (the careful collector, 150 runs each; cleared %; 0.17, with the Heartsongs):
 
 | | No talents | All, level 0 | Level 2 | Level 4 | Level 6 | Level 8 |
 |---|---|---|---|---|---|---|
-| Kit | 43% | 81% | 72% | 61% | 31% | 6% |
-| Hesk | 39% | 76% | 76% | 59% | 24% | 14% |
-| Rosa | 43% | 79% | 69% | 54% | 28% | 5% |
-| Isolde | 45% | 80% | 72% | 60% | 32% | 5% |
+| Kit | 45% | 83% | 73% | 62% | 32% | 6% |
+| Hesk | 37% | 79% | 79% | 60% | 22% | 13% |
+| Rosa | 43% | 81% | 70% | 59% | 29% | 8% |
+| Isolde | 49% | 82% | 79% | 61% | 35% | 8% |
 
 v14 set Rosa's wariness at a twentieth; v15's sellers who'd name a cheap price (Dorrin, Wenna, Malbranche) made
 haggling dearer for her than their price, so now a seller who'd name a price never holds out for more than it with
@@ -832,6 +887,9 @@ and his scale catches demon gold).
 
 ## Open questions
 
+- Heartsongs: is a sound you've never heard, then a reveal, the heart-racing moment it should be, and does "highly
+  recommended" read as advice rather than an order? About one a run: too often for "extremely rare", or about right?
+  Is the songbook (nine, across runs) a goal people chase, and is the ending worth it?
 - v15's stories: do players read them, and use a place as a clue (a barrow's grave goods, a goblin warren's coin)? Is
   the ledger's tally of each seller's honesty enough to learn whom to believe, and is the "tall tale" line on the
   results screen a satisfying reveal?

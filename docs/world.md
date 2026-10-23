@@ -40,7 +40,9 @@ the Gate", wants you opening chests as fast as you can, and wants its tithe in g
 | Week 6 | Vane offers to forget half a week's tithe for your shards. | Whether to trust him. |
 | Week 7 | Her name is Mara, the last archmage of the Keyhold, Bram's old partner. The tithe goes down through the Gilded Gate: the Maw is buying his way out, and the Guild is his. A tired old man who's been selling you chests at the Emporium is the King. | Whether you'll be ready. |
 | Week 8 | The last tithe. With the Key whole, Mara knows where the Crown Chest is. | |
-| The Crown Chest | Opened by a Keywright who rightfully owns it, it renews the Locking: the Maw falls silent, and King Aldric's hoard is on your counter. | What the Guild does next (endless). |
+| Any day, about once a run | A sound like nothing in any chest: a Heartsong. Bram heard one once in forty years. | What the nine of them are for. |
+| The Crown Chest | Opened by a Keywright who rightfully owns it, it renews the Locking: the Maw falls silent, and King Aldric's hoard is on your counter. The Locking was a song in nine verses, Mara says: the Heartsongs. | What the Guild does next (endless). |
+| The Crown Chest, with all nine Heartsongs known | Mara sings the Locking whole. A lock sung whole is an ending: the Maw starves, the Gate is only a gate, and every chest in Aldmark opens at once. | |
 
 ## The places (the shop's tiers)
 
@@ -49,8 +51,8 @@ things to hear, and new trouble.
 
 | Tier | Place | Who comes | New to hear and do |
 |---|---|---|---|
-| 1 | **Brindle Crossroads**, Bram's stall where the north road meets the river | villagers, an innkeeper, young adventurers back from the Barrow | coin, arms, garb; the three strengths; haggling, naming a price |
-| 2 | **Thornwick Market**, a market town on the edge of the Old Wood | a goblin, a huntress, a druid, a priest, a smuggler | potions and scrolls; locks; false bottoms and the drop; the display shelf |
+| 1 | **Brindle Crossroads**, Bram's stall where the north road meets the river | villagers, an innkeeper, young adventurers back from the Barrow | coin, weapons, cloaks; the three strengths; haggling, naming a price |
+| 2 | **Thornwick Market**, a market town on the edge of the Old Wood | a goblin, a huntress, a druid, a priest, a smuggler | potions and spells; locks; false bottoms and the drop; the display shelf |
 | 3 | **A shop in Crownhold**, the capital | an archmage and his apprentice, a dwarf miner, a noblewoman, a knight, a pawnbroker, a mudlark | gems; two or three of a kind; sand; enchantment and the witchlight; the shop's name (synergies) |
 | 4 | **The Royal Emporium**, in the palace's shadow, by the Gilded Gate | demons through the cracking Gate, a court lady, the King in disguise, and once in a while the Maw himself | demon gold (iron: the lodestone silences it); hurried, greedy and bargaining customers |
 
@@ -73,20 +75,54 @@ Each move costs the renovation's price: "Move to Thornwick", "Move to Crownhold"
 ## Things (the kinds)
 
 Six kinds of things, each with the sound you'd expect from it and the strength of shake it takes to stir it. The world
-made them; the rules didn't change.
+made them; the rules didn't change. Since 0.17 every one of them is something you'd want to find: the commonest coin is
+grave silver from the Barrow, the plainest weapon a goblin's cleaver, and nobody locks away a letter. (In code the kinds
+are still Arms, Garb and Scrolls, so saves carry over.)
 
 | Kind | Sound | Stirs at | Notes | Common to legendary |
 |---|---|---|---|---|
-| Coin | jingle | gentle | delicate | Copper Pennies, Silver Marks, Gold Crowns, Old Sovereigns, Dragon Gold |
-| Arms | clank | firm | loud; iron (the lodestone holds it) | Rusty Dagger, Soldier's Helm, Steel Longsword, Knight's Gauntlet, Runeblade |
-| Garb | flump | hard | soft | Moth-Eaten Cloak, Hunter's Coat, Silk Robe, Archmage's Mantle, Royal Ermine |
-| Potions | slosh | gentle | delicate; glass, breaks if dropped (from Thornwick) | Swamp Tonic, Healing Draught, Elixir of Vigour, Phoenix Tears, Ambrosia |
-| Scrolls | rustle | hard | soft (from Thornwick) | Tattered Map, Spell Scroll, Bestiary, Grimoire, Locking Codex |
-| Gems | tinkle | gentle | delicate (from Crownhold) | Brass Ring, Silver Amulet, Ruby Ring, Starstone, Dragon's Eye |
+| Coin | jingle | gentle | delicate | Barrow Silver, Moonsilver Marks (elven), Dwarf-Gold Crowns, Sunken Sovereigns (from the town under the Aldwater), Dragon Gold |
+| Weapons | clank | firm | loud; iron (the lodestone holds it) | Goblin Cleaver, Dwarven Axe, Warden's Blade (the Wardens carried the Locking's chests), Flamebrand, Dragonslayer |
+| Cloaks | flump | hard | soft | Wolfskin Cloak, Elven Cloak, Cloak of Shadows, Archmage's Mantle, Phoenix Mantle |
+| Potions | slosh | gentle | delicate; glass, breaks if dropped (from Thornwick) | Healing Draught, Elixir of Vigour, Invisibility Draught, Mermaid's Breath, Ambrosia |
+| Spells | rustle | hard | soft: scrolls and spellbooks (from Thornwick) | Scroll of Sparks, Scroll of Fireball, Summoner's Grimoire, Lich's Tome, Keyhold Codex (the archmages' own) |
+| Gems | tinkle | gentle | delicate (from Crownhold) | Moonstone, Elfstone, Blood Ruby, Starstone, Dragon's Eye |
 
 Fakes: **Demon Gold** (gilded iron coins and gems: the lodestone silences them), **Paste Gems**, and **scroll cases
 full of sand** (sand pours at a gentle shake; parchment only rustles at a hard one). Anything can be **enchanted**
 (the witchlight makes it glow when it sounds).
+
+## The Heartsongs
+
+A lock of gold could never hold the demon of greed. So at the Locking the archmages asked the peoples of Aldmark for
+things they loved more than gold, and sang the Locking into nine of them. Then they hid each one in an ordinary chest,
+among millions, so the Maw could never find them all. They're the rarest things in the realm, and they're **mythic**,
+the red quality nothing else reaches.
+
+- **Why you hear them.** Only a Keywright hears a Heartsong sing: the ward that's made of the same song lets it through.
+  It sings at the gentlest shake, and nothing drowns it out or stills it, lodestone or not. It doesn't knock about like a
+  thing: each sings its own song, nothing like coin or glass. No seller has ever heard one, so none is ever priced.
+- **Why they're worth so little.** To anyone without the Key-mark a Heartsong is a trinket: a music box that won't play,
+  a cold stone, a tin bird. A merchant pays what a trinket as fine as its chest fetches. The Guild won't take one in pawn:
+  greed can't put a price on it.
+- **Why they turn up anywhere, and again.** Sell one and it goes back to the Locking, to turn up in some other chest some
+  day: a millpond chest as easily as the King's. About one a run, in any chest a seller brings.
+- **Why you keep them.** On display (no shelf needed: one hangs from the awning at Bram's stall), each one does something
+  for the shop, the way the thing itself would.
+- **Why they matter.** Bram's kin remember every one they've opened. The Crown Chest holds the Locking's tune; the
+  Heartsongs hold its verses. With all nine known, Mara doesn't renew the Locking: she finishes it.
+
+| Heartsong | Given by | Its song | On display |
+|---|---|---|---|
+| The Lullaby Box | a farmer's wife at Brindle: the music box that sang her children to sleep | a music box's lullaby | nobody storms off; impatient sellers wait as long as you like |
+| The Shepherd's Pipe | a shepherd of the Brindle hills: the pipe that called any flock home | a breathy run on a pipe | one more customer every day |
+| The Fey Chimes | the fair folk of the Old Wood: the chimes over their door between the worlds | glass on a scale no bell is tuned to | things come out better than their chest twice as often |
+| The Dragon's Egg | Ysolt, the last dragon of the Ember Peaks: her egg, still warm | a heartbeat | a dragon guards its hoard: nothing comes out worse than its chest promised |
+| The Clockwork Lark | a tinker of Crownhold: the bird he built for a princess who never woke | birdsong and a ticking spring | it carries word of you: one more regular's commission every week |
+| The Hearthstone | the dwarves of Ironroot: a stone from their first hearth | a warm, low hum | folk linger by its warmth: your exhibition counts double |
+| The Drowned Bell | old Aldwater, before the river took it: the chapel bell | a deep, muffled toll | it tolls when a seller lies about where their chest came from |
+| The Bottled Star | the archmages of the Keyhold: a star they caught as students | a shimmering run up into the highest notes | room for one more curio |
+| The Imp's Ember | Pib, an imp who loved a miller's daughter: his own heart, a coal that never goes out | a crackle of fire, and a sigh | the whole city talks of your shop: one more synergy active |
 
 ## Where chests come from (origins)
 
@@ -98,22 +134,22 @@ what each place tends to hold once you've heard of it, and each seller's page sa
 |---|---|---|
 | The millpond | whatever fell in, often nothing | Tam |
 | A farmhouse attic | savings and Sunday clothes | Tam, Penn |
-| A soldier's kitbag | arms and a coat | Penn |
-| The old battlefield | arms, and the coins the dead carried | Hob |
+| A soldier's kitbag | weapons and a cloak | Penn |
+| The old battlefield | weapons, and the coin the dead carried | Hob |
 | An unpaid tab | a bit of everything | Mags |
-| The Barrow | grave goods: coin, arms, rings | Dorrin |
+| The Barrow | grave goods: coin, weapons, gems | Dorrin |
 | A goblin warren | stolen shinies: coin, mostly | Snikkit |
-| An outlaws' camp | arms, purses and grog | Wenna |
+| An outlaws' camp | weapons, purses and potions | Wenna |
 | A wolf's den | what the wolves' dinner wore | Wenna |
-| The Old Wood | brews, green cloaks and bark scrolls | Mother Bramble |
-| The abbey crypt | vestments, scripture, holy water | Brother Ansel |
+| The Old Wood | brews, elven cloaks and spells on birch bark | Mother Bramble |
+| The abbey crypt | holy cloaks, prayer-spells, holy water | Brother Ansel |
 | The smugglers' road | brandy and coin, and false bottoms | Fennick |
-| The Arcanum stores | robes, potions and spellbooks; often enchanted | Wren, Orrin |
-| A dwarf-hold | arms and gems | Grit |
+| The Arcanum stores | mantles, potions and spellbooks; often enchanted | Wren, Orrin |
+| A dwarf-hold | weapons and gems | Grit |
 | A noble's strongroom | coin, jewels and fine clothes | Lady Corisande, Lady Ermine |
 | A forgotten pawn lot | anything, in twos and threes | Pell |
-| The Aldwater mud | lost bottles and letters (and sand) | Shelly |
-| A knight's war chest | arms and a surcoat | Sir Aldous |
+| The Aldwater mud | drowned wizards' potions and spellbooks (and sand) | Shelly |
+| A knight's war chest | weapons and a cloak | Sir Aldous |
 | The Maw's hoard | gold and gems, some of it demon gold | the demons |
 | The Royal Treasury | the realm's best of everything | the King |
 
@@ -138,11 +174,11 @@ them; how far to believe them is part of the job.
 | 2 | Fennick the Smuggler | runs brandy along the forest road | a gentle shake | haggles; his chests often have false bottoms | lies half the time |
 | 3 | Wren the Apprentice | an archmage's apprentice | a sense for magic | name your price; she wants more if something's enchanted | true |
 | 3 | Archmage Orrin | an archmage of the Arcanum | the chest's colour | **wagers**: read it exactly and he returns a third of your price | true |
-| 3 | Grit the Miner | a dwarf from the Ironroot hold | knows arms; takes every tinkle for a diamond | haggles | true |
+| 3 | Grit the Miner | a dwarf from the Ironroot hold | knows weapons; takes every tinkle for a diamond | haggles | true |
 | 3 | Lady Corisande | a noblewoman selling grandmother's trick boxes | colour, and she feels magic | **won't have them dropped**; half hide a false bottom | true |
 | 3 | Pell the Pawnbroker | sells lots nobody redeemed | a firm shake; never counts | fixed price; two or three of a kind | doesn't know |
-| 3 | Shelly the Mudlark | combs the Aldwater mud | a hard shake | fixed price; her "maps" are often sand | true, over-excited |
-| 3 | Sir Aldous | a knight looking for his grandfather's sword | colour | **heirloom**: if there are arms inside, the best is his, for a price he names | true |
+| 3 | Shelly the Mudlark | combs the Aldwater mud | a hard shake | fixed price; her "spellbooks" are often sand | true, over-excited |
+| 3 | Sir Aldous | a knight looking for his grandfather's sword | colour | **heirloom**: if there are weapons inside, the best is his, for a price he names | true |
 | 4 | Vexis the Imp | an imp with an hourglass | colour | **twelve seconds** | lies |
 | 4 | Malbranche | a skeletal devil who deals in bargains | colour | **cheap, but the dearest thing inside is his** | lies half the time |
 | 4 | Skrae | a demon with ears like a bat | hears everything | fixed price, fair; misses only magic and false bottoms | true (it's crueller) |
@@ -163,6 +199,9 @@ them; how far to believe them is part of the job.
 - *Enchantment.* Things the archmages enchanted before they were locked stay enchanted; the witchlight shows it.
 - *The lodestone.* Iron can't move near it. Arms go quiet, and so does demon gold, which is iron under the gilt.
 - *Curios.* Oddments from the Locking that bend a rule of the trade. Nim finds them; nobody asks where.
+- *Heartsongs.* Things loved more than gold, sung into the Locking: a Keywright hears them through the ward because the
+  ward is their song. Nobody else knows they're there, so they're never priced, and they're worth a trinket's price to
+  anyone but you.
 - *Bram's stash and his word.* Old Keywrights keep a little by, and the Guild still takes Bram's word, once.
 - *A rotten chest.* The ward holds a lid shut for ever; it doesn't stop the wood rotting. Barrow damp gets into
   everything, and a chest from there stands about two seconds of shaking before it starts to come apart.

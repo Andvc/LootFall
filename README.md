@@ -13,13 +13,14 @@ eight weeks. Pay them all (or the whole debt at once, the moment you have it) an
 shards of the Aldric Key on the way and the Crown Chest opens on your counter. The world is in
 [docs/world.md](docs/world.md).
 
-**Status:** Early Access (0.16): a rebuilt world (four places, 24 sellers with their own stories and rules, six kinds
-of things a sword-and-sorcery realm would lock away), runs of eight weeks against the Guild's dues (then endless),
-with curios, commissions, weekly events and a story; four of Bram's kin to play, eight challenge levels each, and a
-talent tree bought with the renown runs earn; saves, settings and a guided start. 0.16 draws all of it in the game's
-own pixel art, made in code (`tools/custom_art.py`); recorded sounds and the font from Kenney's CC0 packs (see
-[CREDITS.md](CREDITS.md)). Built with Godot 4.7 (.NET / C#), targeting PC on Steam. Design rationale:
-[docs/design.md](docs/design.md).
+**Status:** Early Access (0.17): a rebuilt world (four places, 24 sellers with their own stories and rules, six kinds
+of things a sword-and-sorcery realm would lock away, every one a find worth having), runs of eight weeks against the
+Guild's dues (then endless), with curios, commissions, weekly events and a story; nine **Heartsongs**, the rarest
+things in the realm, each with its own song and its own use on display, and an ending that needs all nine; four of
+Bram's kin to play, eight challenge levels each, and a talent tree bought with the renown runs earn; saves, settings
+and a guided start. The pixel art is drawn in code (`tools/custom_art.py`) as a placeholder until dedicated art
+replaces it; recorded sounds and the font are from Kenney's CC0 packs (see [CREDITS.md](CREDITS.md)). Built with Godot
+4.7 (.NET / C#), targeting PC on Steam. Design rationale: [docs/design.md](docs/design.md).
 
 ## The loop
 
@@ -32,8 +33,8 @@ own pixel art, made in code (`tools/custom_art.py`); recorded sounds and the fon
    an old man whose price is whatever your slip says.
 2. **Shake it yourself.** How fast you drag is how hard you shake (the words under the chest show gentle, firm or
    hard as you go, and which you've tried). Light things (coin jingles, potions slosh, gems
-   tinkle) rattle at a gentle shake; arms only clank at a firm one, and their clanking drowns out anything delicate;
-   soft things (garb flumps, scrolls rustle) only sound at a hard shake. Lift it high and let go to drop it: a hollow
+   tinkle) rattle at a gentle shake; weapons only clank at a firm one, and their clanking drowns out anything delicate;
+   soft things (cloaks flump, spells rustle) only sound at a hard shake. Lift it high and let go to drop it: a hollow
    boom means a false bottom (but glass may break). As the shop grows, more to work out: two or three of a kind (count
    the rattles), river sand that rustles like a scroll, enchanted things that only a witchlight shows, demon gold.
 3. **Correct the slip and trade.** Mark how many of each kind are in there; the slip adds them up at what they'd be
@@ -44,6 +45,10 @@ own pixel art, made in code (`tools/custom_art.py`); recorded sounds and the fon
    against your slip; anything better than its chest climbs, quality by quality, with more fuss for every step, and
    anything worse sags as its colour drains. The profit is stamped across the screen with your gut's verdict and why
    the seller missed it. Keep grand things for your exhibition (enchanted ones count double).
+   Once in a long while, about once a run, a chest sings: a sound like nothing else, that only you can hear. That's a
+   **Heartsong**, one of nine things loved more than gold that the Locking was sung into. Nobody's priced it; it comes
+   out last, in mythic red, and it's worth more singing in your shop than any merchant will pay. Find all nine, over
+   your runs, and the Crown Chest ends differently.
 5. **End of day:** once the stall has earned 120g, spend your earnings on moving inward (each place brings richer
    customers, a new look and something new), tools (the Witchlight shows what's enchanted, the Lodestone silences iron
    and demon gold, Fine Lockpicks) and cabinets. From Crownhold, choose which of the shop's synergies to put to work

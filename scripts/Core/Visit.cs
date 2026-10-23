@@ -61,10 +61,22 @@ public sealed class Visit
         Chest = chest;
         Claim = claim;
         Trade = trade;
-        Ask = ask;
+        Ask = _firstAsk = ask;
         Floor = Math.Max(1, floor);
         Pitch = pitch;
     }
+
+    readonly int _firstAsk;
+
+    /// <summary>They walked out once and came back (the Shepherd's Pipe): they won't come back twice.</summary>
+    public bool Returned { get; private init; }
+
+    /// <summary>The same seller with the same chest, back at the end of the day, calmer, at their first price.</summary>
+    public Visit Again() => new(Seller, Chest, Claim, Trade, _firstAsk, Floor,
+        _firstAsk > 0 ? $"I came back. {_firstAsk}g, and no hard feelings." : "I came back. Make me an offer, then.")
+    {
+        Origin = Origin, ToldTruth = ToldTruth, Fee = Fee, HearsOut = HearsOut, Returned = true,
+    };
 
     public bool Deciding => Outcome == VisitOutcome.Deciding;
 
@@ -175,9 +187,11 @@ public sealed class Visit
         string name = Seller.Short;
         var lines = new List<string>();
         if (Origin != null && !ToldTruth) lines.Add($"{Capital(name)}'s story was a tall one: it came from {Origin.Name}.");
-        if (Chest.Items.Count == 0 && Chest.Hidden == null)
+        if (Chest.Items.All(i => i.IsSong) && Chest.Hidden == null)
         {
-            lines.Add("Empty! Nothing rattled because there was nothing there.");
+            lines.Add(Chest.Song is Item only
+                ? $"Nothing rattled because there was nothing there, but {only.Name}. Only a Keywright hears a Heartsong sing."
+                : "Empty! Nothing rattled because there was nothing there.");
             return string.Join(" ", lines);
         }
         var gilded = Chest.Items.Where(i => i.Fake && i.Def.FakeIron).ToList();
@@ -196,7 +210,7 @@ public sealed class Visit
             case Judgment.Weight:
             {
                 var heavy = Chest.Items.Where(i => Categories.Heft(i.Category) >= 2).ToList();
-                var light = Chest.Items.Where(i => Categories.Heft(i.Category) <= 0.5f).ToList();
+                var light = Chest.Items.Where(i => Categories.Heft(i.Category) <= 0.5f && !i.IsSong).ToList();
                 if (heavy.Count > 0) lines.Add($"{Capital(name)} went by weight: the {Join(heavy.Select(i => i.Word))} made it heavy.");
                 if (light.Count > 0) lines.Add($"The {Join(light.Select(i => i.Word))} weighed next to nothing to {name}.");
                 break;
@@ -238,7 +252,7 @@ public sealed class Visit
         if (Seller.Judge is Judgment.Ear or Judgment.Counter or Judgment.Miner)
         {
             var noticed = Seller.Notices(Chest).ToHashSet();
-            var unheard = Chest.Items.Where(i => !noticed.Contains(i) && !i.Fake).ToList();
+            var unheard = Chest.Items.Where(i => !noticed.Contains(i) && !i.Fake && !i.IsSong).ToList();
             if (unheard.Count > 0)
             {
                 string words = Join(unheard.Select(i => i.Word).Distinct());
@@ -253,6 +267,8 @@ public sealed class Visit
         }
         if (Chest.Hidden != null)
             lines.Add($"A false bottom nobody knew about: {Chest.Hidden.Name}.");
+        if (Chest.Song is Item song)
+            lines.Add($"Only a Keywright hears a Heartsong sing: nobody knew {song.Name} was in it.");
         var magic = Chest.Everything.Where(i => i.Magic).ToList();
         if (magic.Count > 0 && !Seller.SensesMagic)
             lines.Add($"Nobody can hear enchantment: the {Join(magic.Select(i => i.Name))} went for the price of plain goods.");

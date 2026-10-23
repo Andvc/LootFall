@@ -89,9 +89,12 @@ public sealed class Appraisal
     /// <summary>One of them glowed: it's magic.</summary>
     public bool Magic(Category category) => _magic[(int)category] && _count[(int)category] > 0;
 
+    /// <summary>The most of this kind the slip counts (a chest never holds two Heartsongs).</summary>
+    public int MaxOf(Category category) => category == Category.Heartsong ? 1 : MaxCount;
+
     public void Set(Category category, int count, bool magic = false)
     {
-        _count[(int)category] = Math.Clamp(count, 0, MaxCount);
+        _count[(int)category] = Math.Clamp(count, 0, MaxOf(category));
         _magic[(int)category] = magic && count > 0;
         _outcomes = null;
     }
@@ -99,7 +102,7 @@ public sealed class Appraisal
     /// <summary>One more of this kind, or back to none after the most there can be.</summary>
     public void CycleCount(Category category)
     {
-        int count = Count(category) >= MaxCount ? 0 : Count(category) + 1;
+        int count = Count(category) >= MaxOf(category) ? 0 : Count(category) + 1;
         Set(category, count, Magic(category));
     }
 
@@ -156,8 +159,10 @@ public sealed class Appraisal
                 next[total + value] = next.GetValueOrDefault(total + value) + p * q;
             totals = next;
         }
-        IEnumerable<(float, float)> One(Category kind, bool magic) =>
-            Categories.Odds(Chest).Select(o => (Categories.Value(kind, o.Quality, magic) * sale(kind), o.Chance));
+        // A Heartsong is priced as a trinket exactly as fine as its chest: no spread.
+        IEnumerable<(float, float)> One(Category kind, bool magic) => kind == Category.Heartsong
+            ? new[] { (Categories.Nominal(kind, Chest) * sale(kind), 1f) }
+            : Categories.Odds(Chest).Select(o => (Categories.Value(kind, o.Quality, magic) * sale(kind), o.Chance));
 
         foreach (var kind in Marked)
             for (int i = 0; i < Count(kind); i++)

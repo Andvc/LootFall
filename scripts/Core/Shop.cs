@@ -114,8 +114,23 @@ public sealed partial class GameState
     /// <summary>Collection entries you've also found enchanted (the journal stars them).</summary>
     public HashSet<string> FoundEnchanted { get; } = new();
 
-    /// <summary>What you kept to show off in the shop instead of selling.</summary>
+    /// <summary>What you kept to show off in the shop instead of selling (Heartsongs too, which take no shelf space).</summary>
     public List<Item> Display { get; } = new();
+
+    /// <summary>
+    /// The Heartsongs Bram's kin have ever opened: the profile's (<see cref="Profile.Songs"/>, merged in when a run starts
+    /// or loads) and this run's.
+    /// </summary>
+    public HashSet<string> Songbook { get; } = new();
+
+    /// <summary>The Heartsongs opened this run, in the order they turned up.</summary>
+    public List<string> SongsFound { get; } = new();
+
+    /// <summary>This Heartsong is on display: its effect is on.</summary>
+    public bool Shows(string song) => Display.Any(i => i.IsSong && i.Song == song);
+
+    /// <summary>Bram's kin have opened all nine: the Crown Chest can be sung whole.</summary>
+    public bool SongWhole => Heartsongs.All.All(h => Songbook.Contains(h.Key));
 
     /// <summary>Sellers whose first-visit lesson has been given.</summary>
     public HashSet<string> Tutored { get; } = new();
@@ -160,10 +175,14 @@ public sealed partial class GameState
 
     public int DisplaySlots => DisplayOpen ? (Is(Characters.Isolde) ? Characters.IsoldeShelf : ShelfSlots) + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Slots) +
                                              (HasCurio("dome") ? 1 : 0) : 0;
-    public bool DisplayFull => Display.Count >= DisplaySlots;
+    public bool DisplayFull => Display.Count(i => !i.IsSong) >= DisplaySlots;
 
-    /// <summary>The exhibition: what your displayed things are worth to visitors' eyes, not their purses.</summary>
-    public int Exhibition => (int)MathF.Round(Display.Sum(i => i.Prestige) * (1 + Synergies.ShowBonus(Active("tailor"))));
+    /// <summary>
+    /// The exhibition: what your displayed things are worth to visitors' eyes, not their purses (half as much again by the
+    /// Hearthstone's warmth).
+    /// </summary>
+    public int Exhibition => (int)MathF.Round(Display.Sum(i => i.Prestige) * (1 + Synergies.ShowBonus(Active("tailor"))) *
+                                              (Shows(Heartsongs.Hearth) ? 1.5f : 1));
 
     // The collection journal: everything acquired, by kind and quality, and the feats synergies ask for.
     readonly int[,] _acquired = new int[Categories.All.Length, 5];
@@ -210,18 +229,19 @@ public sealed partial class GameState
     /// <summary>How much less likely glass is to break (a vintner's packing).</summary>
     public float Sturdier => Synergies.Sturdier(Active("vintner"));
 
-    /// <summary>When you drop a chest: in a padded crate, glass never breaks.</summary>
-    public float DropSturdier => HasCurio("crate") ? 1f : Sturdier;
+    /// <summary>When you drop a chest: in a padded crate, or by the Imp's Ember, glass never breaks.</summary>
+    public float DropSturdier => HasCurio("crate") || Shows(Heartsongs.Ember) ? 1f : Sturdier;
 
     /// <summary>A lock as you'll pick it: one pin fewer with a locksmith's oil.</summary>
     public LockTier Oiled(LockTier lockTier) => HasCurio("oil") && lockTier.Pins > 1 ? lockTier with { Pins = lockTier.Pins - 1 } : lockTier;
 
     /// <summary>
     /// How long a seller gives you, in seconds (0: all day): an impatient one's patience, or everyone's when the town is
-    /// in a hurry; twice as long with a pocket watch.
+    /// in a hurry; twice as long with a pocket watch, and all day while the Lullaby Box plays.
     /// </summary>
     public float Patience(SellerDef seller)
     {
+        if (Shows(Heartsongs.Lullaby)) return 0;
         float patience = seller.Patience;
         if (Under(Challenges.Hurried)) patience = patience > 0 ? Math.Min(patience, Challenges.HurriedPatience) : Challenges.HurriedPatience;
         return patience * (HasCurio("watch") ? Curios.WatchPatience : 1);
@@ -246,7 +266,7 @@ public sealed partial class GameState
     /// <summary>Notes something you opened in the journal.</summary>
     public void Acquire(Item item)
     {
-        if (item.Fake || item.Broken) return;
+        if (item.Fake || item.Broken || item.IsSong) return;
         _acquired[(int)item.Category, (int)item.Quality]++;
         if (item.Magic) MagicFound++;
     }
@@ -309,7 +329,8 @@ public sealed partial class GameState
             Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
             FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
             Places = Places.ToList(), Stories = _stories.ToDictionary(s => s.Key, s => new[] { s.Value.Told, s.Value.True }),
-            Display = Display.Select(i => new SavedItem { Category = i.Category, Quality = i.Quality, Magic = i.Magic }).ToList(),
+            Display = Display.Select(i => new SavedItem { Category = i.Category, Quality = i.Quality, Magic = i.Magic, Song = i.Song }).ToList(),
+            SongsFound = SongsFound.ToList(),
             WeeksPaid = WeeksPaid, Arrears = Arrears, GraceUsed = GraceUsed > 0, GraceCount = GraceUsed, BramPiece = BramPiece, StashUsed = StashUsed, ClearedDay = ClearedDay, CloverWeek = CloverWeek,
             CurioPaid = _curios.Select(key => _curioPaid.GetValueOrDefault(key)).ToList(),
             DrySpell = DrySpell, HoodPieces = HoodPieces, MapGiven = MapGiven, VaultOpened = VaultOpened,
@@ -318,7 +339,7 @@ public sealed partial class GameState
             Commissions = Commissions.Select(c => new SavedCommission
             {
                 Patron = c.Patron, Kind = c.Kind, Category = c.Category, Quality = c.Quality, Needed = c.Needed, Delivered = c.Delivered,
-                Reward = c.Reward, Story = c.Story,
+                Reward = c.Reward, Story = c.Story, Carried = c.Carried,
             }).ToList(),
         };
         foreach (int count in _acquired) data.Acquired.Add(count);
@@ -356,19 +377,23 @@ public sealed partial class GameState
         state.Commissions.AddRange(data.Commissions.Select(c => new Commission
         {
             Patron = c.Patron, Kind = c.Kind, Category = c.Category, Quality = c.Quality, Needed = c.Needed, Delivered = c.Delivered,
-            Reward = c.Reward, Story = c.Story,
+            Reward = c.Reward, Story = c.Story, Carried = c.Carried,
         }));
         state._owned.UnionWith(data.Owned);
         state.HintsSeen.UnionWith(data.HintsSeen);
         state.Met.UnionWith(data.Met);
-        state.Found.UnionWith(data.Found);
-        state.FoundEnchanted.UnionWith(data.FoundEnchanted);
+        // Things renamed in 0.17 keep their place in the journal.
+        state.Found.UnionWith(data.Found.Select(name => Categories.Renamed.GetValueOrDefault(name, name)));
+        state.FoundEnchanted.UnionWith(data.FoundEnchanted.Select(name => Categories.Renamed.GetValueOrDefault(name, name)));
+        state.SongsFound.AddRange(data.SongsFound.Where(Heartsongs.Exists).Distinct());
+        state.Songbook.UnionWith(state.SongsFound);
         state.Tutored.UnionWith(data.Tutored);
         state.Places.UnionWith(data.Places.Where(key => Origins.All.Any(o => o.Key == key)));
         foreach (var (seller, tally) in data.Stories)
             if (tally.Length == 2) state._stories[seller] = (tally[0], tally[1]);
         state.ActiveSynergies.UnionWith(data.ActiveSynergies.Where(key => Synergies.All.Any(s => s.Key == key)));
-        state.Display.AddRange(data.Display.Select(i => new Item(i.Category, i.Quality, i.Magic)));
+        state.Display.AddRange(data.Display.Where(i => i.Category != Category.Heartsong || Heartsongs.Exists(i.Song))
+            .Select(i => new Item(i.Category, i.Quality, i.Magic, Song: i.Song)));
         int kinds = state._acquired.GetLength(0), qualities = state._acquired.GetLength(1);
         for (int i = 0; i < Math.Min(data.Acquired.Count, kinds * qualities); i++)
             state._acquired[i / qualities, i % qualities] = data.Acquired[i];
@@ -392,6 +417,7 @@ public sealed partial class GameState
         Queue.Clear();
         Current = null;
         Today = new DayStats();
+        _songRng = new Random(unchecked(Seed * 3571 + Day));
         PeddlerRerolled = false;
         DipIntoStash();
         if (DayOfWeek == 1) StartWeek();
@@ -446,12 +472,27 @@ public sealed partial class GameState
         var fresh = Market.CreateVisit(Rng, seller, Tier, Boosts);
         // A merchant's signet (or Rosa's charm): hagglers hear out an offer that's too low, instead of storming off.
         fresh.HearsOut = HasCurio("signet") || HagglesAll;
+        Sing(fresh);
         return fresh;
+    }
+
+    /// <summary>Its own dice, so a Heartsong turning up (or not) leaves every other roll of the day as it was.</summary>
+    Random _songRng = new();
+
+    /// <summary>
+    /// Maybe a Heartsong in a chest someone's brought, after they've priced it (they never know it's there). One at a
+    /// time: never one that's already been found this run or is in a chest waiting at the counter.
+    /// </summary>
+    Visit Sing(Visit visit)
+    {
+        var taken = SongsFound.Concat(Queue.Select(v => v.Chest.Song?.Song)).Where(k => k != null).ToHashSet();
+        if (Heartsongs.Roll(_songRng, Songbook, taken) is HeartsongDef song) visit.Chest.AddSong(Heartsongs.Make(song, visit.Chest.Quality));
+        return visit;
     }
 
     /// <summary>
     /// The first day teaches one thing per customer: a gentle shake and the slip (Tam never shook his chest), a hard
-    /// shake (Penn shook hers too gently to hear the coat), a gentle shake under a clank (Hob shook hard and the
+    /// shake (Penn shook hers too gently to hear the cloak), a gentle shake under a clank (Hob shook hard and the
     /// knife drowned out the coins), and passing (Mags heard everything there was).
     /// </summary>
     static IEnumerable<Visit> FirstDay(Random rng)
@@ -498,7 +539,7 @@ public sealed partial class GameState
     }
 
     /// <summary>
-    /// What the seller claims of what's inside, once it's yours: a knight's family arms (the best of them, for the fee
+    /// What the seller claims of what's inside, once it's yours: a knight's family weapons (the best of them, for the fee
     /// he named), or a devil's due (the dearest thing, for nothing).
     /// </summary>
     static (Item Item, int Pays) Claim(Visit visit)
@@ -509,7 +550,8 @@ public sealed partial class GameState
             var best = visit.Chest.Everything.Where(i => i.Category == kind && !i.Fake).OrderByDescending(i => i.Value).FirstOrDefault();
             return best == null ? (null, 0) : (best, visit.Fee);
         }
-        if (seller.TakesDearest) return (visit.Chest.Everything.OrderByDescending(i => i.Value).FirstOrDefault(), 0);
+        // A devil can't price a Heartsong, so he never takes one.
+        if (seller.TakesDearest) return (visit.Chest.Everything.Where(i => !i.IsSong).OrderByDescending(i => i.Value).FirstOrDefault(), 0);
         return (null, 0);
     }
 
@@ -529,9 +571,19 @@ public sealed partial class GameState
         return 0;
     }
 
-    /// <summary>Notes a find in the collection and the journal. True the first time this thing turns up.</summary>
+    /// <summary>
+    /// Notes a find in the collection and the journal. True the first time this thing turns up (a Heartsong: the first
+    /// time Bram's kin have ever opened it).
+    /// </summary>
     public bool Collect(Item item)
     {
+        if (item.IsSong)
+        {
+            if (!SongsFound.Contains(item.Song)) SongsFound.Add(item.Song);
+            if (!Songbook.Add(item.Song)) return false;
+            Today.NewFinds++;
+            return true;
+        }
         Acquire(item);
         if (item.Magic && !item.Broken && !item.Fake) FoundEnchanted.Add(item.Entry);
         if (item.Broken || !Found.Add(item.Entry)) return false;
@@ -540,10 +592,13 @@ public sealed partial class GameState
         return true;
     }
 
-    /// <summary>Puts something on display instead of selling it: you give up its price.</summary>
+    /// <summary>
+    /// Puts something on display instead of selling it: you give up its price. A Heartsong needs no shelf (Bram hangs
+    /// it from the awning, if he must), so it can go on display at any shop, and takes no room from anything else.
+    /// </summary>
     public bool Keep(Item item, int value)
     {
-        if (!DisplayOpen || !item.Displayable || DisplayFull || Gold < value) return false;
+        if (!(DisplayOpen || item.IsSong) || !item.Displayable || (DisplayFull && !item.IsSong) || Gold < value) return false;
         Display.Add(item);
         Gold -= value;
         Today.Earned -= value;

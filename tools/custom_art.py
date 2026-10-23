@@ -601,25 +601,361 @@ def paste_gem():
     return c
 
 
+# 0.17's things: everything you'd want to find, from barrow silver to a dragonslayer.
+MATERIALS.update({
+    "moon": [(150, 160, 196), (204, 212, 238), (238, 242, 255), (255, 255, 255)],
+    "bronze": [(46, 84, 72), (78, 132, 108), (128, 178, 150)],
+    "weed": [(30, 70, 40)],
+    "shadow": [(20, 14, 30), (40, 30, 58), (66, 52, 92)],
+    "wisp": [(150, 110, 220)],
+    "flame": [(196, 52, 20), (250, 130, 30), (255, 222, 100)],
+    "sea": [(20, 86, 120), (40, 150, 180), (110, 210, 220)],
+    "ghost": [(196, 210, 230)],
+    "spark": [(255, 236, 120)],
+    "skull": [(170, 164, 140), (222, 216, 196), (248, 246, 236)],
+    "scale": [(120, 20, 24), (190, 50, 30), (240, 110, 50)],
+    "coal": [(40, 20, 20), (80, 30, 26), (130, 46, 30)],
+    "stone": [(84, 76, 70), (130, 120, 108), (170, 160, 146)],
+    "ribbon": [(200, 40, 60)],
+})
+
+
+def barrow_silver():
+    c = Canvas(S, S)
+    # Grave silver from the Barrow: old coins, cold to the touch, with a ghost of frost on them.
+    pile(c, "silver", [(9, 8), (3, 11), (13, 13), (6, 15), (12, 17)])
+    c.dots([(5, 12), (15, 14), (10, 9), (8, 18)], "ghost")
+    return c
+
+
+def moonsilver_marks():
+    c = silver_marks()
+    # Elven coin: each one stamped with a crescent moon.
+    c.ellipse(13, 3, 19, 9, "moon").ellipse(15, 3, 20, 8, "hole")
+    for y in range(c.h):
+        for x in range(c.w):
+            if c.at(x, y) == "hole":
+                c.clear(x, y)
+    return c
+
+
+def sunken_sovereigns():
+    c = Canvas(S, S)
+    # Gold from the drowned town under the Aldwater: a heap of old sovereigns, river weed and a shell.
+    pile(c, "oldgold", [(9, 7), (3, 11), (13, 12), (6, 15), (12, 17), (16, 8)])
+    c.line([(2, 20), (5, 14), (4, 9)], "weed").line([(19, 21), (21, 15)], "weed")
+    c.ellipse(15, 17, 20, 21, "parchment").line([(17, 17), (17, 21)], "line")
+    return c
+
+
+def goblin_cleaver():
+    c = Canvas(S, S)
+    # A goblin's cleaver: a broad, notched slab of iron on a rag-wrapped stick.
+    c.poly([(8, 3), (20, 3), (21, 13), (9, 13)], "iron")
+    c.dots([(12, 13), (16, 13), (19, 12)], "hole")
+    c.line([(9, 4), (20, 4)], "steel")
+    c.line([(9, 13), (3, 21)], "wood", 3)
+    c.line([(6, 17), (4, 20)], "rag", 3)
+    c.glint(18, 5).glint(17, 6)
+    for y in range(c.h):
+        for x in range(c.w):
+            if c.at(x, y) == "hole":
+                c.clear(x, y)
+    return c
+
+
+def dwarven_axe():
+    c = Canvas(S, S)
+    # A double-bitted dwarven axe: two crescent blades on a haft bound in gold.
+    c.line([(5, 22), (17, 3)], "wood", 2)
+    c.poly([(10, 4), (14, 8), (9, 13), (6, 11), (5, 6)], "steel")
+    c.poly([(16, 9), (20, 13), (22, 20), (17, 17), (14, 13)], "steel")
+    c.line([(11, 13), (13, 9)], "gold", 2)
+    c.dots([(8, 18), (7, 20)], "gold")
+    c.glint(7, 7).glint(18, 12)
+    return c
+
+
+def wardens_blade():
+    c = steel_longsword()
+    c.line([(2, 22), (6, 18)], "mantle", 2)
+    c.dot(6, 16, "sapphire")
+    return c
+
+
+def flamebrand():
+    c = Canvas(S, S)
+    # A sword that burns: flames lick along the blade.
+    c.line([(6, 17), (19, 4)], "steel", 3)
+    c.line([(19, 4), (21, 2)], "steel", 2)
+    for x, y in ((9, 12), (12, 9), (15, 6), (18, 3), (11, 13), (14, 10), (17, 7)):
+        c.dot(x, y, "flame").dot(x - 1, y - 1, "flame")
+    c.dots([(10, 10), (13, 7), (16, 4), (20, 1)], "spark")
+    c.line([(3, 13), (10, 20)], "iron", 2)
+    c.line([(2, 22), (6, 18)], "leather", 2)
+    c.ellipse(0, 21, 2, 23, "fire")
+    return c
+
+
+def wolfskin_cloak():
+    c = cloak(Canvas(S, S), "fur", clasp="bone")
+    # A wolf's head for a hood, ears and all.
+    c.poly([(7, 2), (16, 2), (17, 7), (6, 7)], "fur")
+    c.dots([(7, 1), (16, 1)], "fur")
+    c.dots([(9, 4), (14, 4)], "ember")
+    c.line([(1, 21), (22, 21)], "hairwhite")
+    return c
+
+
+def elven_cloak():
+    c = cloak(Canvas(S, S), "hunter", clasp="emerald")
+    # Woven with leaves: it vanishes into any wood.
+    for x, y in ((6, 12), (15, 10), (10, 17), (18, 18), (4, 19)):
+        c.dot(x, y, "leaf").dot(x + 1, y - 1, "leaf")
+    c.poly([(9, 4), (11, 2), (13, 4), (11, 6)], "emerald")
+    return c
+
+
+def cloak_of_shadows():
+    c = cloak(Canvas(S, S), "shadow", clasp="silver")
+    # Its edges smoke away into the dark.
+    for x, y in ((2, 20), (6, 22), (12, 22), (18, 22), (21, 19), (3, 15), (20, 13)):
+        c.dot(x, y, "wisp")
+    c.clear(1, 21).clear(8, 21).clear(15, 21).clear(22, 21)
+    return c
+
+
+def phoenix_mantle():
+    c = cloak(Canvas(S, S), "flame", collar="gold", clasp="ruby")
+    # Feathers of fire, edged in gold.
+    for x, y in ((6, 12), (11, 13), (16, 12), (8, 17), (14, 17), (19, 18), (4, 19)):
+        c.line([(x, y), (x + 1, y + 2)], "spark")
+    c.line([(1, 21), (22, 21)], "gold")
+    return c
+
+
+def invisibility_draught():
+    c = Canvas(S, S)
+    # A bottle half gone: the bottom of it has already vanished, all but a glimmer.
+    bottle(c, (4, 8, 19, 22), "starlight", 3, fill_from=11)
+    for y in range(15, 23):
+        for x in range(0, S):
+            if c.at(x, y) and (x + y) % 3:
+                c.clear(x, y)
+    c.glint(7, 11).glint(8, 10)
+    return c
+
+
+def mermaids_breath():
+    c = Canvas(S, S)
+    # A teardrop vial of the sea: breathe it and you breathe water. A shell for a stopper.
+    c.poly([(11, 5), (12, 5), (18, 15), (17, 20), (12, 22), (6, 20), (5, 15)], "glass")
+    c.poly([(8, 11), (15, 11), (17, 16), (16, 20), (11, 21), (7, 20), (6, 16)], "sea")
+    c.dots([(10, 14), (13, 17), (9, 18), (14, 13)], "white")
+    c.ellipse(8, 1, 15, 6, "shell")
+    c.glint(8, 14)
+    return c
+
+
+def scroll_of_sparks():
+    c = spell_scroll()
+    # Sealed in blue, crackling.
+    c.ellipse(13, 15, 18, 20, "sapphire")
+    c.line([(15, 20), (14, 23)], "sapphire").line([(16, 20), (18, 22)], "sapphire")
+    c.dots([(1, 2), (22, 2), (20, 9), (2, 12), (21, 14)], "spark")
+    return c
+
+
+def scroll_of_fireball():
+    c = Canvas(S, S)
+    # An open scroll with a ring of fire drawn on it, the ink still smouldering.
+    c.rect(3, 4, 20, 19, "parchment")
+    c.rect(2, 2, 21, 4, "wood")
+    c.rect(2, 19, 21, 21, "wood")
+    c.ellipse(6, 6, 17, 17, "flame").ellipse(8, 8, 15, 15, "parchment")
+    c.ellipse(10, 10, 13, 13, "fire")
+    c.dots([(5, 5), (18, 6), (19, 16)], "ember")
+    return c
+
+
+def lichs_tome():
+    c = book(Canvas(S, S), "black")
+    # Bound in black, with a skull on the cover and a green glow round its eyes.
+    c.ellipse(8, 5, 16, 13, "skull")
+    c.rect(10, 12, 14, 15, "skull")
+    c.dots([(10, 9), (14, 9)], "pupil").dots([(11, 9), (13, 9)], "leaf")
+    c.dots([(11, 14), (13, 14)], "line")
+    for x, y in ((3, 3), (20, 3), (3, 21), (20, 21)):
+        c.dot(x, y, "iron")
+    return c
+
+
+def moonstone():
+    c = Canvas(S, S)
+    # A moonstone: a milky oval with a blue light moving in it.
+    c.ellipse(3, 5, 20, 20, "silver")
+    c.ellipse(5, 7, 18, 18, "moon")
+    c.dots([(9, 10), (10, 11), (11, 11), (12, 12)], "starlight")
+    c.glint(7, 9).glint(8, 8)
+    return c
+
+
+def blood_ruby():
+    c = Canvas(S, S)
+    # A big cut ruby, dark at the heart.
+    c.poly([(6, 5), (17, 5), (21, 10), (11, 21), (2, 10)], "ruby")
+    c.line([(6, 5), (8, 10), (11, 21)], "blood")
+    c.line([(17, 5), (15, 10), (11, 21)], "blood")
+    c.line([(2, 10), (21, 10)], "blood")
+    c.glint(7, 7).glint(8, 6).glint(16, 7)
+    return c
+
+
 ITEMS = {
-    "copper_pennies": copper_pennies, "silver_marks": silver_marks, "gold_crowns": gold_crowns,
-    "old_sovereigns": old_sovereigns, "dragon_gold": dragon_gold, "demon_gold": demon_gold,
-    "rusty_dagger": rusty_dagger, "soldiers_helm": soldiers_helm, "steel_longsword": steel_longsword,
-    "knights_gauntlet": knights_gauntlet, "runeblade": runeblade,
-    "moth_eaten_cloak": moth_eaten_cloak, "hunters_coat": hunters_coat, "silk_robe": silk_robe,
-    "archmages_mantle": archmages_mantle, "royal_ermine": royal_ermine,
-    "swamp_tonic": swamp_tonic, "healing_draught": healing_draught, "elixir_of_vigour": elixir_of_vigour,
-    "phoenix_tears": phoenix_tears, "ambrosia": ambrosia,
-    "tattered_map": tattered_map, "spell_scroll": spell_scroll, "bestiary": bestiary, "grimoire": grimoire,
-    "codex_of_the_locking": codex_of_the_locking, "sand_case": sand_case,
-    "brass_ring": brass_ring, "silver_amulet": silver_amulet, "ruby_ring": ruby_ring, "starstone": starstone,
+    "barrow_silver": barrow_silver, "moonsilver_marks": moonsilver_marks, "dwarf_gold_crowns": gold_crowns,
+    "sunken_sovereigns": sunken_sovereigns, "dragon_gold": dragon_gold, "demon_gold": demon_gold,
+    "goblin_cleaver": goblin_cleaver, "dwarven_axe": dwarven_axe, "wardens_blade": wardens_blade,
+    "flamebrand": flamebrand, "dragonslayer": runeblade,
+    "wolfskin_cloak": wolfskin_cloak, "elven_cloak": elven_cloak, "cloak_of_shadows": cloak_of_shadows,
+    "archmages_mantle": archmages_mantle, "phoenix_mantle": phoenix_mantle,
+    "healing_draught": healing_draught, "elixir_of_vigour": elixir_of_vigour, "invisibility_draught": invisibility_draught,
+    "mermaids_breath": mermaids_breath, "ambrosia": ambrosia,
+    "scroll_of_sparks": scroll_of_sparks, "scroll_of_fireball": scroll_of_fireball, "summoners_grimoire": grimoire,
+    "lichs_tome": lichs_tome, "keyhold_codex": codex_of_the_locking, "sand_case": sand_case,
+    "moonstone": moonstone, "elfstone": silver_amulet, "blood_ruby": blood_ruby, "starstone": starstone,
     "dragons_eye": dragons_eye, "paste_gem": paste_gem,
 }
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Heartsongs: nine things loved more than gold (scripts/Core/Heartsongs.cs). Same size and light as the things, warmer.
+
+def lullaby_box():
+    c = Canvas(S, S)
+    # A little music box, lid up, its gold comb showing and a dancer on top.
+    c.rect(3, 12, 20, 21, "wood")
+    c.poly([(3, 12), (20, 12), (22, 5), (5, 5)], "bookbrown")
+    c.rect(5, 13, 18, 15, "gold")
+    for x in range(6, 18, 2):
+        c.dot(x, 14, "line")
+    c.line([(3, 17), (20, 17)], "gold")
+    c.rect(20, 15, 22, 16, "brass").dot(22, 14, "brass").dot(22, 17, "brass")
+    c.line([(11, 5), (11, 2)], "silk").dot(10, 3, "silk").dot(12, 3, "silk").dot(11, 1, "skin")
+    return c
+
+
+def shepherds_pipe():
+    c = Canvas(S, S)
+    # A shepherd's pan-pipe: seven reeds of falling length, bound with a red ribbon.
+    for i in range(7):
+        x = 2 + i * 3
+        c.rect(x, 2 + i * 2, x + 1, 21, "cork")
+        c.dot(x, 2 + i * 2, "line").dot(x + 1, 2 + i * 2, "line")
+    c.rect(2, 10, 21, 11, "ribbon")
+    c.line([(21, 12), (23, 17)], "ribbon").line([(20, 12), (20, 18)], "ribbon")
+    return c
+
+
+def fey_chimes():
+    c = Canvas(S, S)
+    # A silver crescent on a twig, hung with rods of fey glass that ring like nothing in this world.
+    c.line([(1, 2), (22, 2)], "wood", 2)
+    c.dot(4, 1, "leaf").dot(19, 0, "leaf").dot(20, 1, "leaf")
+    for i, (x, length) in enumerate(((3, 11), (7, 16), (11, 19), (15, 15), (19, 10))):
+        c.line([(x, 3), (x, 5)], "line")
+        c.rect(x - 1, 5, x, 5 + length, "emerald" if i % 2 else "moon")
+    return c
+
+
+def dragons_egg():
+    c = Canvas(S, S)
+    # A dragon's egg, scaled in red, still warm: light shows through the cracks where its heart beats.
+    c.ellipse(4, 2, 19, 22, "scale")
+    for y in range(5, 21, 3):
+        for x in range(6 + (y // 3) % 2 * 2, 18, 4):
+            c.dot(x, y, "blood")
+    c.line([(9, 11), (11, 13), (10, 16), (13, 18)], "ember")
+    c.line([(14, 8), (13, 10)], "ember")
+    c.glint(8, 5).glint(7, 6)
+    return c
+
+
+def clockwork_lark():
+    c = Canvas(S, S)
+    # A brass lark on a perch, a winding key in its back.
+    c.ellipse(5, 8, 17, 17, "brass")
+    c.ellipse(13, 4, 20, 11, "brass")
+    c.poly([(20, 7), (23, 8), (20, 9)], "gold")
+    c.dot(17, 7, "pupil")
+    c.poly([(5, 12), (0, 16), (6, 16)], "brass")
+    c.line([(8, 11), (13, 14)], "line")
+    c.rect(8, 5, 9, 8, "iron").rect(6, 3, 11, 5, "iron")
+    c.line([(3, 20), (20, 20)], "wood", 2)
+    c.line([(10, 17), (10, 19)], "iron").line([(13, 17), (13, 19)], "iron")
+    c.glint(14, 5).glint(7, 10)
+    return c
+
+
+def hearthstone():
+    c = Canvas(S, S)
+    # A round stone from the first dwarven hearth, still warm: firelight in its cracks.
+    c.ellipse(2, 5, 21, 21, "stone")
+    c.line([(6, 12), (10, 10), (13, 14), (17, 11)], "ember")
+    c.line([(9, 17), (12, 15), (15, 18)], "ember")
+    c.dots([(7, 15), (16, 8), (12, 7)], "amber")
+    c.glint(6, 8).glint(7, 7)
+    return c
+
+
+def drowned_bell():
+    c = Canvas(S, S)
+    # A chapel bell gone green under the river, barnacles and weed on it.
+    c.ellipse(6, 3, 17, 12, "bronze")
+    c.poly([(6, 8), (17, 8), (18, 14), (22, 19), (1, 19), (5, 14)], "bronze")
+    c.rect(10, 0, 13, 3, "bronze")
+    c.rect(1, 18, 22, 20, "bronze")
+    c.ellipse(10, 19, 13, 23, "iron")
+    c.dots([(7, 15), (15, 9), (17, 16), (9, 8)], "paper")
+    c.line([(4, 18), (3, 13)], "weed").line([(17, 5), (19, 10)], "weed")
+    c.glint(8, 6).glint(7, 8)
+    return c
+
+
+def bottled_star():
+    c = Canvas(S, S)
+    # A round flask, corked, with a star caught in it.
+    c.ellipse(3, 7, 20, 23, "glass")
+    c.rect(9, 3, 14, 8, "glass")
+    c.rect(9, 1, 14, 3, "cork")
+    c.poly([(11, 9), (13, 13), (17, 15), (13, 17), (11, 21), (10, 17), (6, 15), (10, 13)], "nectar")
+    c.rect(10, 14, 12, 16, "white")
+    c.dots([(6, 10), (16, 11), (17, 19), (6, 20)], "starlight")
+    c.glint(6, 12).glint(7, 11)
+    return c
+
+
+def imps_ember():
+    c = Canvas(S, S)
+    # An imp's heart: a coal the shape of a heart that never goes out.
+    c.ellipse(2, 6, 12, 15, "coal").ellipse(11, 6, 21, 15, "coal")
+    c.poly([(3, 12), (20, 12), (11, 22)], "coal")
+    c.line([(6, 10), (9, 13), (12, 11), (15, 14), (17, 10)], "ember")
+    c.line([(9, 16), (11, 18), (13, 16)], "ember")
+    c.dots([(6, 4), (11, 3), (16, 4), (8, 2), (14, 1)], "flame")
+    c.glint(5, 8).glint(14, 8)
+    return c
+
+
+HEARTSONGS = {
+    "lullaby_box": lullaby_box, "shepherds_pipe": shepherds_pipe, "fey_chimes": fey_chimes, "dragons_egg": dragons_egg,
+    "clockwork_lark": clockwork_lark, "hearthstone": hearthstone, "drowned_bell": drowned_bell, "bottled_star": bottled_star,
+    "imps_ember": imps_ember,
+}
+
+
 def items():
-    """Every thing's sprite, by its key in scripts/Core/Items.cs."""
-    return {key: draw().render() for key, draw in ITEMS.items()}
+    """Every thing's sprite (and every Heartsong's), by its key in scripts/Core/Items.cs and Heartsongs.cs."""
+    return {key: draw().render() for key, draw in {**ITEMS, **HEARTSONGS}.items()}
 
 
 # ---------------------------------------------------------------------------------------------------------------------

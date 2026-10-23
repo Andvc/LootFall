@@ -51,8 +51,8 @@ public static class Curios
         new("crescent", "Cursed Crescent", "No surprises: everything comes out exactly as its chest promised.",
             CurioRarity.Uncommon, "crescent"),
         new("marker", "Guildsman's Marker", "Bram's word is good twice a run, not once.", CurioRarity.Uncommon, "marker"),
-        new("gauntlet", "Smith's Glove", "You mend arms: they never come out worse than their chest promised.", CurioRarity.Uncommon, "gauntlet"),
-        new("cap", "Hatter's Cap", "You mend garb: it never comes out worse than its chest promised.", CurioRarity.Uncommon, "cap"),
+        new("gauntlet", "Smith's Glove", "You mend weapons: they never come out worse than their chest promised.", CurioRarity.Uncommon, "gauntlet"),
+        new("cap", "Hatter's Cap", "You mend cloaks: they never come out worse than their chest promised.", CurioRarity.Uncommon, "cap"),
         new("loupe", "Jeweller's Loupe", "Paste gems and demon gold sell as costume pieces: a quarter of the real thing.",
             CurioRarity.Uncommon, "loupe", MinTier: 4),
 
@@ -123,15 +123,17 @@ public static class Curios
 
     public static string RarityName(CurioRarity rarity) => rarity.ToString().ToLowerInvariant();
 
-    /// <summary>What the opening says a curio did to a chest: "Lucky Coin: 2 things came out better!"</summary>
+    /// <summary>What the opening says a curio (or a Heartsong on display) did to a chest: "Lucky Coin: 2 things came out better!"</summary>
     public static string LuckLine(string key, int things)
     {
         string n = $"{things} thing{(things == 1 ? "" : "s")}";
+        string name = Exists(key) ? Get(key).Name : Heartsongs.Get(key).Name;
         return key switch
         {
-            "token" => $"{Get(key).Name}: {n} swung!",
-            "gauntlet" or "cap" => $"{Get(key).Name}: {n} mended.",
-            _ => $"{Get(key).Name}: {n} came out better!",
+            "token" => $"{name}: {n} swung!",
+            "gauntlet" or "cap" => $"{name}: {n} mended.",
+            Heartsongs.Egg => $"{name}: {n} guarded.",
+            _ => $"{name}: {n} came out better!",
         };
     }
 }

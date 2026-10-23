@@ -108,7 +108,7 @@ public static class Lessons
             Steps = new LessonStep[]
             {
                 new("A dragon? Dorrin's never been past the Barrow, and half his stories are tall. Barrow chests hold grave goods: " +
-                    "coin, arms, a shroud. Where it really came from shows when it's open, and your ledger keeps count."),
+                    "coin, weapons, a shroud. Where it really came from shows when it's open, and your ledger keeps count."),
                 new("His chests are rotten through: about two seconds of shaking and no more. One strength, then. Hard stirs " +
                     "everything, but a clank would drown the coin. Shake it hard.", c => c.Tried(Shake.Hard)),
             },
@@ -136,7 +136,7 @@ public static class Lessons
                     LockTiers.For(Rarity.Uncommon)), tier),
             Steps = new LessonStep[]
             {
-                new("Wenna prices by weight: heavy means valuable. But potions and scrolls weigh next to nothing. Shake it at " +
+                new("Wenna prices by weight: heavy means valuable. But potions and spells weigh next to nothing. Shake it at " +
                     "every strength.", c => c.Tried(Shake.Gentle, Shake.Firm, Shake.Hard)),
                 new("A slosh and a rustle: good things, and light. Tick them: at her price, a bargain. It's locked, mind: " +
                     "you'll pick it after.", c => c.Slip.Count(Category.Potions) > 0 && c.Slip.Count(Category.Scrolls) > 0),
@@ -167,7 +167,7 @@ public static class Lessons
             {
                 new("Brother Ansel shook it firmly, and won't have it shaken hard: the saints are resting. Half again if you do. " +
                     "Shake it gently, then firmly.", c => c.Tried(Shake.Gentle, Shake.Firm)),
-                new("Crypt chests are full of vestments, and cloth only sounds at a hard shake, so he never prices it. Tick Garb " +
+                new("Crypt chests are full of holy cloaks, and cloth only sounds at a hard shake, so he never prices it. Tick Cloaks " +
                     "on faith, or shake it hard and pay for certainty.", c => c.Slip.Count(Category.Garb) > 0 || c.Tried(Shake.Hard)),
             },
         },
@@ -219,9 +219,9 @@ public static class Lessons
             Make = (rng, tier) => Price(rng, "grit", new Chest(new[] { I(Category.Gems, Rarity.Uncommon), I(Category.Scrolls, Rarity.Rare) }, Rarity.Rare), tier),
             Steps = new LessonStep[]
             {
-                new("Grit heard a tinkle: a gem. He's a dwarf: he knows arms, and thinks every tinkle is a diamond. Shake it " +
+                new("Grit heard a tinkle: a gem. He's a dwarf: he knows weapons, and thinks every tinkle is a diamond. Shake it " +
                     "gently yourself.", c => c.Tried(Shake.Gentle)),
-                new("A ring, priced like the crown jewels. Offer what it's really worth, or let him keep it."),
+                new("An elfstone, priced like the crown jewels. Offer what it's really worth, or let him keep it."),
             },
         },
         new()
@@ -260,9 +260,9 @@ public static class Lessons
                 Rarity.Rare), tier),
             Steps = new LessonStep[]
             {
-                new("Shelly heard a rustle and swears it's a treasure map. Shake it gently.", c => c.Tried(Shake.Gentle)),
+                new("Shelly heard a rustle and swears it's a drowned wizard's spellbook. Shake it gently.", c => c.Tried(Shake.Gentle)),
                 new("A rustle at a gentle shake? Parchment only rustles when it's shaken hard. That's river sand pouring. Untick " +
-                    "Scrolls.", c => c.Slip.Count(Category.Scrolls) == 0),
+                    "Spells.", c => c.Slip.Count(Category.Scrolls) == 0),
             },
         },
         new()
@@ -272,7 +272,7 @@ public static class Lessons
                 Rarity.Rare), tier),
             Steps = new LessonStep[]
             {
-                new("Sir Aldous wants his grandfather's sword. If there are arms inside, the best of them goes back to him, for " +
+                new("Sir Aldous wants his grandfather's sword. If there are weapons inside, the best of them goes back to him, for " +
                     "the fee he named. Shake it: is there a clank?", c => c.Tried(Shake.Firm) || c.Tried(Shake.Hard)),
                 new("A clank: that blade is his. Count it at his fee, not its worth, and see whether the rest pays for the chest."),
             },

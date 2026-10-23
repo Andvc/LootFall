@@ -28,7 +28,7 @@ public partial class SoundSetsView : Control
             HorizontalAlignment.Center).Place(X, Y + 60, W, 20));
 
         float row = Y + 96;
-        foreach (var def in Categories.All)
+        foreach (var def in Categories.Kinds)
         {
             var kind = def.Category;
             AddChild(UiKit.MakeKindIcon(kind, new Vector2(X + 52, row + 18)));
