@@ -194,10 +194,13 @@ public partial class Autoplay : Node
         bool hurried = State.Impatient(visit.Seller) && !State.HasCurio("watch");
         // A rotten chest: one short shake, well inside what it stands.
         double seconds = visit.Seller.ShakeLimit > 0 ? Math.Min(ShakeSeconds, visit.Seller.ShakeLimit - 0.6) : hurried ? 1.2 : ShakeSeconds;
-        foreach (var level in Strategy.Levels(visit, State))
-            if (!await Shake(counter, level, seconds)) return;
+        // The Bookkeeping Engine has marked the slip already: nothing to shake (unless a lesson asks for it).
+        bool recorded = Strategy.Recorded(visit, State) && visit.Lesson == null;
+        if (!recorded)
+            foreach (var level in Strategy.Levels(visit, State))
+                if (!await Shake(counter, level, seconds)) return;
         // A jingle or tinkle that goes quiet under the magnet is gilded iron: check at the strength it sounded at.
-        var magnetLevels = Strategy.MagnetLevels(visit, counter.Hearing, State);
+        var magnetLevels = recorded ? Array.Empty<Shake>() : Strategy.MagnetLevels(visit, counter.Hearing, State);
         if (magnetLevels.Length > 0)
         {
             counter.ToggleMagnet();
@@ -206,7 +209,7 @@ public partial class Autoplay : Node
                 if (!await Shake(counter, level, ShakeSeconds)) return;
         }
         // Drop it to listen for a false bottom, unless there's glass in there or the seller would mind.
-        if (Strategy.ShouldDrop(visit, counter.Hearing, State.Tier, State))
+        if (!recorded && Strategy.ShouldDrop(visit, counter.Hearing, State.Tier, State))
         {
             while (IsInstanceValid(counter) && counter.Shake.Busy) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             if (!IsInstanceValid(counter)) return;
@@ -263,9 +266,12 @@ public partial class Autoplay : Node
         }
 
         // The slip, corrected from what it heard (how many of each, and which glowed), one row at a time.
-        var read = counter.Hearing.Read(visit.Chest.Quality, State.Tier);
-        if (State.Weighs) Strategy.Weigh(read, counter.Hearing, visit, State);
-        Strategy.OnFaith(visit, read, counter.Hearing, State);
+        var read = recorded ? counter.Slip : counter.Hearing.Read(visit.Chest.Quality, State.Tier);
+        if (!recorded)
+        {
+            Strategy.Reckon(read, counter.Hearing, visit, State);
+            Strategy.OnFaith(visit, read, counter.Hearing, State);
+        }
         // A Heartsong it heard sing goes on the slip too.
         foreach (var kind in Categories.UpTo(State.Tier).Select(k => k.Category).Append(Category.Heartsong))
         {

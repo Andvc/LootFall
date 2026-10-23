@@ -31,9 +31,10 @@ public static class Market
     /// <summary>
     /// Hagglers who know they're dealing with Rosa open this much higher and come down this much less (v14: without it
     /// the careful player cleared the debt 55% of the time as Rosa, against Kit's 44%; v15, with sellers who'd have named
-    /// a price never holding out for more than it, a twentieth left her six points behind Kit).
+    /// a price never holding out for more than it, a twentieth left her six points behind Kit). v18: none. A seller who
+    /// stays away a week costs far more when an Emporium regular is worth thousands a visit, and that's price enough.
     /// </summary>
-    public const float RosaWary = 1.03f;
+    public const float RosaWary = 1f;
 
     /// <summary>
     /// A seller who'd name a price, haggling with Rosa: they ask no more than this much over it, and hold out for no more
@@ -98,7 +99,7 @@ public static class Market
     {
         var likely = origin?.Kinds ?? seller.Kinds;
         var lockTier = shopTier >= 2 && rng.NextFloat() < seller.LockChance ? LockTiers.For(colour) : null;
-        if (rng.NextFloat() < seller.EmptyChance) return new Chest(Array.Empty<Item>(), colour, null, lockTier);
+        if (rng.NextFloat() < seller.EmptyChance) return new Chest(Array.Empty<Item>(), colour, null, lockTier, packed: seller.Packs);
 
         var kinds = Categories.UpTo(shopTier).Select(c => c.Category).ToList();
         int count = Math.Min(kinds.Count, rng.PickWeighted(Counts[seller.Tier], c => c.Weight).Count);
@@ -140,7 +141,7 @@ public static class Market
             var hideable = HiddenKinds.Where(k => Categories.Get(k.Kind).Tier <= shopTier).ToArray();
             hidden = new Item(rng.PickWeighted(hideable, k => k.Weight).Kind, Categories.RollQuality(rng, colour));
         }
-        return new Chest(items, colour, hidden, lockTier);
+        return new Chest(items, colour, hidden, lockTier, packed: seller.Packs);
     }
 
     static readonly (Category Kind, float Weight)[] HiddenKinds =
@@ -232,15 +233,13 @@ public static class Market
     /// <param name="floor">A scripted least they'll take (a lesson's).</param>
     /// <param name="boosts">The shop's terms: sharp sellers' prices, and whether everybody haggles (with Rosa).</param>
     /// <param name="origin">Where the chest came from (one of the seller's places, if not given).</param>
-    /// <param name="truth">A scripted answer to whether they tell the truth about where it came from.</param>
     public static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, int? ask = null, Trade? trade = null, string pitch = null,
-        IEnumerable<Category> claim = null, int? floor = null, Boosts boosts = null, OriginDef origin = null, bool? truth = null)
+        IEnumerable<Category> claim = null, int? floor = null, Boosts boosts = null, OriginDef origin = null)
     {
         var said = claim?.ToList() ?? Claim(rng, seller, chest, shopTier);
         said.Sort();
         origin ??= PickOrigin(rng, seller);
-        var visit = Price(rng, seller, chest, shopTier, said, ask, trade, pitch, boosts ?? Boosts.None, origin,
-            truth ?? (seller.Tales.Length == 0 || rng.NextFloat() < seller.Honesty));
+        var visit = Price(rng, seller, chest, shopTier, said, ask, trade, pitch, boosts ?? Boosts.None, origin);
         if (floor is int least) visit.SetFloor(least);
         return visit;
     }
@@ -256,18 +255,17 @@ public static class Market
     public const float HeirloomShare = 0.75f;
 
     /// <summary>
-    /// What they tell you about the chest: a story about where it came from (the truth), or a tall tale; a seller with
-    /// no stories says one of their lines.
+    /// What they tell you about the chest: a story about where it came from; a seller with no stories (the Stranger, the
+    /// vault) says one of their lines.
     /// </summary>
-    static string Story(Random rng, SellerDef seller, OriginDef origin, bool truth)
+    static string Story(Random rng, SellerDef seller, OriginDef origin)
     {
-        if (!truth && seller.Tales.Length > 0) return rng.PickOne(seller.Tales);
         if (origin != null && seller.Stories.TryGetValue(origin.Key, out var lines)) return rng.PickOne(lines);
-        return seller.Pitches.Length > 0 ? rng.PickOne(seller.Pitches) : rng.PickOne(seller.Tales);
+        return rng.PickOne(seller.Pitches);
     }
 
     static Visit Price(Random rng, SellerDef seller, Chest chest, int shopTier, List<Category> claim, int? ask, Trade? trade, string pitch, Boosts boosts,
-        OriginDef origin, bool truth)
+        OriginDef origin)
     {
         float estimate = Estimate(rng, seller, chest, claim, shopTier) * boosts.Dearer;
         var format = trade ?? seller.Trade;
@@ -315,13 +313,36 @@ public static class Market
         }
         int asking = ask ?? Money.Round(price);
         int fee = seller.Heirloom is Category heirloom ? Money.Round(Categories.Nominal(heirloom, chest.Quality) * HeirloomShare) : 0;
-        string line = Fill(pitch ?? Story(rng, seller, origin, truth), seller, chest, claim, shopTier)
+        string line = Fill(pitch ?? Story(rng, seller, origin), seller, chest, claim, shopTier)
             .Replace("{price}", seller.SlipPrice ? "your slip's worth" : $"{asking}g").Replace("{fee}", $"{fee}g").Replace("{origin}", origin?.Name ?? "somewhere");
         return new Visit(seller, chest, claim, format, format == Trade.Offer ? 0 : asking, Money.Round(floor), line)
         {
-            Origin = origin, ToldTruth = truth, Fee = fee,
+            Origin = origin, Fee = fee, Clue = Clue(seller, chest),
         };
     }
+
+    /// <summary>
+    /// What a seller states besides what they heard, as Bram would note it under the chest: the count on Pell's pawn
+    /// ticket, the weight off Wenna's game scale, the sign in Mother Bramble's dream. Always true; reading it is the work.
+    /// </summary>
+    public static string Clue(SellerDef seller, Chest chest) => seller.States switch
+    {
+        Core.Clue.Articles => $"The pawn ticket says {Articles(chest)}.",
+        Core.Clue.Pounds => $"{seller.Short}'s game scale says {Characters.Weight(chest.Pounds)}.",
+        Core.Clue.Dream => $"{seller.Short} dreamt of {Dream(chest)}.",
+        _ => null,
+    };
+
+    /// <summary>How many things the pawn ticket lists: everything that was pledged, false bottom and all (never a Heartsong).</summary>
+    public static int ArticleCount(Chest chest) => chest.Everything.Count(i => !i.IsSong);
+
+    static string Articles(Chest chest) => ArticleCount(chest) is var n && n == 1 ? "one article" : $"{Sellers.Number(n)} articles";
+
+    /// <summary>The dearest thing inside, false bottom and all (never a Heartsong: it isn't greed's to dream of), or null.</summary>
+    public static Item Dearest(Chest chest) => chest.Everything.Where(i => !i.IsSong).OrderByDescending(i => i.Value).FirstOrDefault();
+
+    /// <summary>The sign of the dearest thing inside, as it comes to her in a dream ("nothing at all" for an empty chest).</summary>
+    public static string Dream(Chest chest) => Dearest(chest) is Item dearest ? Categories.Sign(dearest.Category) : "nothing at all";
 
     static string Fill(string line, SellerDef seller, Chest chest, IReadOnlyList<Category> claim, int shopTier)
     {
@@ -330,7 +351,8 @@ public static class Market
         string heftWord = heft > 1.3f ? "Heavy as a mule" : heft < 0.7f ? "Light, mind" : "A fair weight";
         return line.Replace("{heard}", Sellers.Heard(claim)).Replace("{count}", count).Replace("{heft}", heftWord)
             .Replace("{colour}", Categories.ChestSkin(chest.Quality))
-            .Replace("{magic}", chest.Items.Any(i => i.Magic) ? "there's magic in it" : "there's no magic in it");
+            .Replace("{magic}", chest.Items.Any(i => i.Magic) ? "there's magic in it" : "there's no magic in it")
+            .Replace("{articles}", Articles(chest)).Replace("{pounds}", Characters.Weight(chest.Pounds)).Replace("{dream}", Dream(chest));
     }
 }
 
@@ -340,7 +362,7 @@ public static class Market
 /// <param name="Magic">Added to the chance each thing is magic.</param>
 /// <param name="Pairs">Added to the chance (from the town shop on) of two or three of a kind.</param>
 /// <param name="MoneyKinds">How much more often coins and jewelry turn up (a jewelry tycoon's name): 0.2 is a fifth more.</param>
-/// <param name="Dearer">What sellers' prices are multiplied by (sharp sellers about).</param>
+/// <param name="Dearer">What sellers' prices are multiplied by (sharp sellers about, a shop known to sell high, the Lullaby Box).</param>
 /// <param name="Slugs">The chance any coin is a gilded slug (forgers about).</param>
 /// <param name="Haggles">Everybody haggles (with Rosa at the counter).</param>
 public sealed record Boosts(float BetterChests = 0, float Hidden = 0, float Magic = 0, float Pairs = 0, float MoneyKinds = 0, float Dearer = 1,

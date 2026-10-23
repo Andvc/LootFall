@@ -26,8 +26,8 @@ public sealed class Visit
     /// <summary>Where the chest really came from (null for the vault and the Stranger).</summary>
     public OriginDef Origin { get; init; }
 
-    /// <summary>Whether their story told the truth about where it came from.</summary>
-    public bool ToldTruth { get; init; } = true;
+    /// <summary>What the seller states besides what they heard (<see cref="Market.Clue"/>), or null.</summary>
+    public string Clue { get; init; }
 
     /// <summary>What an heirloom-hunter pays for the best thing of theirs inside (0 if they don't).</summary>
     public int Fee { get; init; }
@@ -75,7 +75,7 @@ public sealed class Visit
     public Visit Again() => new(Seller, Chest, Claim, Trade, _firstAsk, Floor,
         _firstAsk > 0 ? $"I came back. {_firstAsk}g, and no hard feelings." : "I came back. Make me an offer, then.")
     {
-        Origin = Origin, ToldTruth = ToldTruth, Fee = Fee, HearsOut = HearsOut, Returned = true,
+        Origin = Origin, Fee = Fee, HearsOut = HearsOut, Returned = true, Clue = Clue,
     };
 
     public bool Deciding => Outcome == VisitOutcome.Deciding;
@@ -186,7 +186,6 @@ public sealed class Visit
         if (Seller == Story.VaultSeller) return "King Aldric's own chest, sealed since the Locking. The Gate's gone quiet. Every bit of it is yours.";
         string name = Seller.Short;
         var lines = new List<string>();
-        if (Origin != null && !ToldTruth) lines.Add($"{Capital(name)}'s story was a tall one: it came from {Origin.Name}.");
         if (Chest.Items.All(i => i.IsSong) && Chest.Hidden == null)
         {
             lines.Add(Chest.Song is Item only
@@ -257,7 +256,9 @@ public sealed class Visit
             {
                 string words = Join(unheard.Select(i => i.Word).Distinct());
                 string why = unheard.All(i => i.Def.Delicate && Chest.Clanks(Seller.Shakes)) ? $"The clank drowned out the {words} for {name}"
-                    : unheard.All(i => i.StirsAt > Seller.Shakes) ? $"{Capital(name)} didn't shake hard enough to stir the {words}"
+                    : Chest.Packed && unheard.All(i => Chest.Needs(i) > (int)Shake.Hard) ? $"Nothing stirs the {words} through straw"
+                    : Chest.Packed && unheard.All(i => Chest.Needs(i) > (int)Seller.Shakes) ? $"Through the straw, {name}'s shake was too gentle to stir the {words}"
+                    : unheard.All(i => Chest.Needs(i) > (int)Seller.Shakes) ? $"{Capital(name)} didn't shake hard enough to stir the {words}"
                     : $"{Capital(name)} shook {Categories.Adverb(Seller.Shakes)} and missed the {words}";
                 lines.Add($"{why}: {Join(unheard.Select(i => i.Name))}, unpriced.");
             }
@@ -266,7 +267,10 @@ public sealed class Visit
                     lines.Add($"{Capital(name)} heard the {group.First().Word} but never counted: {Sellers.Number(group.Count())} for the price of one.");
         }
         if (Chest.Hidden != null)
-            lines.Add($"A false bottom nobody knew about: {Chest.Hidden.Name}.");
+            lines.Add(Seller.States == Core.Clue.Articles ? $"The ticket counted the false bottom, but {name} never reads tickets: {Chest.Hidden.Name}."
+                : $"A false bottom nobody knew about: {Chest.Hidden.Name}.");
+        if (Seller.States == Core.Clue.Dream && Market.Dearest(Chest) is Item dearest)
+            lines.Add($"{Capital(Categories.Sign(dearest.Category))} in her dream: the {dearest.Name}, the dearest thing inside.");
         if (Chest.Song is Item song)
             lines.Add($"Only a Keywright hears a Heartsong sing: nobody knew {song.Name} was in it.");
         var magic = Chest.Everything.Where(i => i.Magic).ToList();

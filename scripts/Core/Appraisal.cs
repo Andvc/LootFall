@@ -84,6 +84,19 @@ public sealed class Appraisal
     {
     }
 
+    /// <summary>
+    /// The Bookkeeping Engine's record of a chest: every real thing inside by kind (gilded iron and sand aren't), whether
+    /// any of a kind is enchanted, and a false bottom if there is one. How good each thing is, it can't say: that's still
+    /// the opening's.
+    /// </summary>
+    public static Appraisal Recorded(Chest chest, int tier)
+    {
+        var slip = new Appraisal(chest.Quality, tier) { Hidden = chest.Hidden != null && tier >= 2 };
+        foreach (var kind in chest.Items.Where(i => !i.Fake && !i.Broken).GroupBy(i => i.Category))
+            slip.Set(kind.Key, kind.Count(), kind.Any(i => i.Magic));
+        return slip;
+    }
+
     public int Count(Category category) => _count[(int)category];
 
     /// <summary>One of them glowed: it's magic.</summary>

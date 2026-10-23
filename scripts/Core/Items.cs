@@ -118,7 +118,7 @@ public sealed record Item(Category Category, Rarity Quality, bool Magic = false,
 public static class Categories
 {
     /// <summary>How much more a better thing of the same kind is worth: common, uncommon, rare, epic, legendary.</summary>
-    public static readonly int[] QualityMultiplier = { 1, 3, 8, 20, 50, 50 };
+    public static readonly int[] QualityMultiplier = { 1, 3, 10, 30, 100, 100 };
 
     public const int MagicMultiplier = 2;
 
@@ -163,7 +163,7 @@ public static class Categories
     /// How far a thing's quality lands from its chest's colour, and how often. A step better is a treat, two a rare
     /// event; a long dry spell is softened at purchase (<see cref="GameState.DrySpell"/>), not here.
     /// </summary>
-    static readonly (int Steps, float Chance)[] Spread = { (-1, 0.15f), (0, 0.8f), (1, 0.045f), (2, 0.004f), (3, 0.001f) };
+    static readonly (int Steps, float Chance)[] Spread = { (-1, 0.16f), (0, 0.77f), (1, 0.06f), (2, 0.008f), (3, 0.002f) };
 
     /// <summary>
     /// What's inside a chest of a given colour: mostly that quality, sometimes one worse, now and then a step better, and
@@ -245,6 +245,21 @@ public static class Categories
     };
 
     public static string QualityName(Rarity quality) => quality.ToString().ToLowerInvariant();
+
+    /// <summary>
+    /// What a kind of thing looks like in Mother Bramble's dreams: a magpie for coin (they steal it), a thorn for a
+    /// weapon, a raven's wing for a cloak, a river for a potion, an owl for a spell, a star for a gem.
+    /// </summary>
+    public static string Sign(Category kind) => kind switch
+    {
+        Category.Coins => "a magpie",
+        Category.Arms => "a thorn",
+        Category.Garb => "a raven's wing",
+        Category.Potions => "a river",
+        Category.Scrolls => "an owl",
+        Category.Gems => "a star",
+        _ => "a song",
+    };
 
     /// <summary>Every item sprite the game can show, for the importer and the collection.</summary>
     public static IEnumerable<string> AllSprites() =>

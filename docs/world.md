@@ -40,7 +40,7 @@ the Gate", wants you opening chests as fast as you can, and wants its tithe in g
 | Week 6 | Vane offers to forget half a week's tithe for your shards. | Whether to trust him. |
 | Week 7 | Her name is Mara, the last archmage of the Keyhold, Bram's old partner. The tithe goes down through the Gilded Gate: the Maw is buying his way out, and the Guild is his. A tired old man who's been selling you chests at the Emporium is the King. | Whether you'll be ready. |
 | Week 8 | The last tithe. With the Key whole, Mara knows where the Crown Chest is. | |
-| Any day, about once a run | A sound like nothing in any chest: a Heartsong. Bram heard one once in forty years. | What the nine of them are for. |
+| Any day, about one run in two | A sound like nothing in any chest: a Heartsong. Bram heard one once in forty years. | What the nine of them are for. |
 | The Crown Chest | Opened by a Keywright who rightfully owns it, it renews the Locking: the Maw falls silent, and King Aldric's hoard is on your counter. The Locking was a song in nine verses, Mara says: the Heartsongs. | What the Guild does next (endless). |
 | The Crown Chest, with all nine Heartsongs known | Mara sings the Locking whole. A lock sung whole is an ending: the Maw starves, the Gate is only a gate, and every chest in Aldmark opens at once. | |
 
@@ -106,7 +106,7 @@ the red quality nothing else reaches.
   a cold stone, a tin bird. A merchant pays what a trinket as fine as its chest fetches. The Guild won't take one in pawn:
   greed can't put a price on it.
 - **Why they turn up anywhere, and again.** Sell one and it goes back to the Locking, to turn up in some other chest some
-  day: a millpond chest as easily as the King's. About one a run, in any chest a seller brings.
+  day: a millpond chest as easily as the King's. About one run in two, in any chest a seller brings.
 - **Why you keep them.** On display (no shelf needed: one hangs from the awning at Bram's stall), each one does something
   for the shop, the way the thing itself would.
 - **Why they matter.** Bram's kin remember every one they've opened. The Crown Chest holds the Locking's tune; the
@@ -114,21 +114,21 @@ the red quality nothing else reaches.
 
 | Heartsong | Given by | Its song | On display |
 |---|---|---|---|
-| The Lullaby Box | a farmer's wife at Brindle: the music box that sang her children to sleep | a music box's lullaby | nobody storms off; impatient sellers wait as long as you like |
-| The Shepherd's Pipe | a shepherd of the Brindle hills: the pipe that called any flock home | a breathy run on a pipe | one more customer every day |
-| The Fey Chimes | the fair folk of the Old Wood: the chimes over their door between the worlds | glass on a scale no bell is tuned to | things come out better than their chest twice as often |
-| The Dragon's Egg | Ysolt, the last dragon of the Ember Peaks: her egg, still warm | a heartbeat | a dragon guards its hoard: nothing comes out worse than its chest promised |
-| The Clockwork Lark | a tinker of Crownhold: the bird he built for a princess who never woke | birdsong and a ticking spring | it carries word of you: one more regular's commission every week |
-| The Hearthstone | the dwarves of Ironroot: a stone from their first hearth | a warm, low hum | folk linger by its warmth: your exhibition counts double |
-| The Drowned Bell | old Aldwater, before the river took it: the chapel bell | a deep, muffled toll | it tolls when a seller lies about where their chest came from |
-| The Bottled Star | the archmages of the Keyhold: a star they caught as students | a shimmering run up into the highest notes | room for one more curio |
-| The Imp's Ember | Pib, an imp who loved a miller's daughter: his own heart, a coal that never goes out | a crackle of fire, and a sigh | the whole city talks of your shop: one more synergy active |
+| The Lullaby Box | a farmer's wife at Brindle: the music box that sang her children to sleep | a music box's lullaby | it calms every seller: nobody hurries you or minds what you do with their chest, and everyone asks a fifth less |
+| The Shepherd's Pipe | a shepherd of the Brindle hills: the pipe that called any flock home | a breathy run on a pipe | it calls folk to your door: two more customers every day, and anyone who walks out comes back |
+| The Fey Chimes | the fair folk of the Old Wood: the chimes over their door between the worlds | glass on a scale no bell is tuned to | fey luck: a third of what comes out as promised comes out a step better |
+| The Dragon's Egg | Ysolt, the last dragon of the Ember Peaks: her egg, still warm | a heartbeat | dragon-gold: coin and gems sell for twice their worth |
+| The Clockwork Lark | a tinker of Crownhold: the bird he built for a princess who never woke | birdsong and a ticking spring | it carries word across Aldmark: two more commissions a week, each paying half again |
+| The Hearthstone | the dwarves of Ironroot: a stone from their first hearth | a warm, low hum | folk come for miles to sit by it, and pay at the door for every point of exhibition |
+| The Drowned Bell | old Aldwater, before the river took it: the chapel bell that rang the hours | a deep, muffled toll | it still counts: it tolls once for every thing in a chest as it comes to the counter, false bottom and all |
+| The Bottled Star | the archmages of the Keyhold: a star they caught as students | a shimmering run up into the highest notes | starlight: enchanted things glow whenever they sound, and turn up far more often |
+| The Imp's Ember | Pib, an imp who loved a miller's daughter: his own heart, a coal that never goes out | a crackle of fire, and a sigh | its heat tempers all it warms: glass never breaks, nothing comes out worse than its chest promised, and every fake you open burns true |
 
 ## Where chests come from (origins)
 
-Every chest has a story, and the story says what tends to be in it. Sellers tell you where theirs came from; some tell
-the truth, some can't help embroidering, and some lie as easily as they breathe. The ledger's **Places** page lists
-what each place tends to hold once you've heard of it, and each seller's page says how far to trust them.
+Every chest has a story, and the story says what tends to be in it. Sellers always tell you where theirs came from, and
+it's always true: nobody in the trade gains by lying about a millpond. The ledger's **Places** page lists what each
+place tends to hold once you've heard of it.
 
 | Origin | Holds | Who brings them |
 |---|---|---|
@@ -155,37 +155,37 @@ what each place tends to hold once you've heard of it, and each seller's page sa
 
 ## The sellers
 
-Every seller has one way of judging their chest (which decides their price, and what they miss), one rule that changes
-what you can do or what the deal is, a place their chests come from, and a story they tell. What they say they heard
-is still on the slip when they listened, but the stories are about where the chest came from and what happened to
-them; how far to believe them is part of the job.
+Every seller has one way of judging their chest (which decides their price, and what they miss), maybe one rule that
+changes what you can do or what the deal is, a place their chests come from, and a story they tell about it. What they
+say is always true; what they miss is the opening. Some tell you something more, and it's always worth working out:
+Pell's pawn ticket, Wenna's game scale, Mother Bramble's dreams.
 
-| Tier | Seller | Who | Judges by | Their rule | Trust |
-|---|---|---|---|---|---|
-| 1 | Little Tam | a village boy who fishes things out of the millpond | no idea | name your own price | true, if naive |
-| 1 | Widow Penn | a soldier's widow, selling his old things | a gentle shake | fixed price | true |
-| 1 | Hob the Farmer | ploughs up the old battlefield | a hard shake | haggles | true |
-| 1 | Mags the Innkeeper | takes chests from adventurers who can't pay their tab | counting rattles | fixed price | true |
-| 1 | Dorrin the Delver | a young adventurer back from the Barrow | the chest's colour | **a rotten chest**: two seconds of shaking, all told, then it creaks and won't be shaken again | tall tales |
-| 2 | Snikkit the Goblin | a goblin from the hills with a sack of stolen chests | a gentle shake | **every strength after the first puts his price up a tenth** | lies, always |
-| 2 | Wenna the Huntress | finds chests in outlaws' camps and wolves' dens | weight | fixed, fair price | always true |
-| 2 | Mother Bramble | a druid of the Old Wood | a dream | **dreams her price**: it has nothing to do with the chest | true, cryptic |
-| 2 | Brother Ansel | a young monk selling the abbey crypt's chests | a firm shake | **won't have the saint's things shaken hard** | true |
-| 2 | Fennick the Smuggler | runs brandy along the forest road | a gentle shake | haggles; his chests often have false bottoms | lies half the time |
-| 3 | Wren the Apprentice | an archmage's apprentice | a sense for magic | name your price; she wants more if something's enchanted | true |
-| 3 | Archmage Orrin | an archmage of the Arcanum | the chest's colour | **wagers**: read it exactly and he returns a third of your price | true |
-| 3 | Grit the Miner | a dwarf from the Ironroot hold | knows weapons; takes every tinkle for a diamond | haggles | true |
-| 3 | Lady Corisande | a noblewoman selling grandmother's trick boxes | colour, and she feels magic | **won't have them dropped**; half hide a false bottom | true |
-| 3 | Pell the Pawnbroker | sells lots nobody redeemed | a firm shake; never counts | fixed price; two or three of a kind | doesn't know |
-| 3 | Shelly the Mudlark | combs the Aldwater mud | a hard shake | fixed price; her "spellbooks" are often sand | true, over-excited |
-| 3 | Sir Aldous | a knight looking for his grandfather's sword | colour | **heirloom**: if there are weapons inside, the best is his, for a price he names | true |
-| 4 | Vexis the Imp | an imp with an hourglass | colour | **twelve seconds** | lies |
-| 4 | Malbranche | a skeletal devil who deals in bargains | colour | **cheap, but the dearest thing inside is his** | lies half the time |
-| 4 | Skrae | a demon with ears like a bat | hears everything | fixed price, fair; misses only magic and false bottoms | true (it's crueller) |
-| 4 | Lady Ermine | a lady of the court | knows only her own gems | **no lodestone near her gems**; some are paste | true |
-| 4 | Silas Gilt | fence for the Maw | knows exactly | sells demon gold as gold, cheap | lies, always |
-| 4 | Old Aldo | the King, in a plain cloak | (none: you name the contents) | **his price is your slip**: read it exactly and he takes a quarter off; read it wrong and you pay what it held and a quarter more | lies about who he is |
-| 4 | the Gilded Maw | Avarax, in a borrowed body | the chest's colour | **one coin, but everyone after him today asks twice as much** | lies |
+| Tier | Seller | Who | Judges by | Their rule, or what they tell you |
+|---|---|---|---|---|
+| 1 | Little Tam | a village boy who fishes things out of the millpond | no idea | name your own price |
+| 1 | Widow Penn | a soldier's widow, selling his old things | a gentle shake | fixed price |
+| 1 | Hob the Farmer | ploughs up the old battlefield | a hard shake | haggles |
+| 1 | Mags the Innkeeper | takes chests from adventurers who can't pay their tab | counting rattles | fixed price |
+| 1 | Dorrin the Delver | a young adventurer back from the Barrow | the chest's colour | **a rotten chest**: two seconds of shaking, all told, then it creaks and won't be shaken again |
+| 2 | Snikkit the Goblin | a goblin from the hills with a sack of stolen chests | a gentle shake | **every strength after the first puts his price up a tenth** |
+| 2 | Wenna the Huntress | finds chests in outlaws' camps and wolves' dens | weight | **her game scale**: she says what the chest weighs; her chests hang on a skittish mare, so nobody shakes them hard, and the weight left over is what never stirred |
+| 2 | Mother Bramble | a druid of the Old Wood | a dream | **dreams her price**, and always dreams true of the dearest thing inside, as a sign (a magpie for coin, a thorn for a weapon, a raven's wing for a cloak, a river for a potion, an owl for a spell, a star for a gem) |
+| 2 | Brother Ansel | a young monk selling the abbey crypt's chests | a firm shake | **won't have the saint's things shaken hard** |
+| 2 | Fennick the Smuggler | runs brandy past the Wardens' toll on the forest road | a firm shake | haggles; **packs in straw** so nothing clinks at the toll: everything stirs a strength later, and cloaks and spells never; often a false bottom |
+| 3 | Wren the Apprentice | an archmage's apprentice | a sense for magic | name your price; she wants more if something's enchanted |
+| 3 | Archmage Orrin | an archmage of the Arcanum | the chest's colour | **wagers**: read it exactly and he returns a third of your price |
+| 3 | Grit the Miner | a dwarf from the Ironroot hold | knows weapons; takes every tinkle for a diamond | haggles |
+| 3 | Lady Corisande | a noblewoman selling grandmother's trick boxes | colour, and she feels magic | **won't have them dropped**; half hide a false bottom |
+| 3 | Pell the Pawnbroker | sells lots nobody redeemed | a firm shake; never counts | **the pawn ticket** counts every article pledged, false bottom and all; he won't have pledges dropped |
+| 3 | Shelly the Mudlark | combs the Aldwater mud | a hard shake | fixed price; her "spellbooks" are often sand |
+| 3 | Sir Aldous | a knight looking for his grandfather's sword | colour | **heirloom**: if there are weapons inside, the best is his, for a price he names |
+| 4 | Vexis the Imp | an imp with an hourglass | colour | **twelve seconds** |
+| 4 | Malbranche | a skeletal devil who deals in bargains | colour | **cheap, but the dearest thing inside is his** |
+| 4 | Skrae | a demon with ears like a bat | hears everything | fixed price, fair; misses only magic and false bottoms |
+| 4 | Lady Ermine | a lady of the court | knows only her own gems | **no lodestone near her gems**; some are paste |
+| 4 | Silas Gilt | fence for the Maw | knows exactly | sells demon gold as gold, cheap |
+| 4 | Old Aldo | the King, in a plain cloak | (none: you name the contents) | **his price is your slip**: read it exactly and he takes a quarter off; read it wrong and you pay what it held and a quarter more |
+| 4 | the Gilded Maw | Avarax, in a borrowed body | the chest's colour | **one coin, but everyone after him today asks twice as much** |
 
 ## Why the rules are true here
 
@@ -198,6 +198,18 @@ them; how far to believe them is part of the job.
   hollow boom of a drop is the only way to know.
 - *Enchantment.* Things the archmages enchanted before they were locked stay enchanted; the witchlight shows it.
 - *The lodestone.* Iron can't move near it. Arms go quiet, and so does demon gold, which is iron under the gilt.
+- *Straw.* Smugglers pack their chests in straw so nothing clinks at the Wardens' toll. It muffles any shake a strength:
+  what a gentle shake would stir needs a firm one, and soft things (cloth, paper) never stir through it.
+- *Weight and counts.* A thing weighs what it weighs and is one thing, wherever it's hidden: a scale or a pawn ticket
+  counts the false bottom too.
+
+## The Bookkeeping Engine
+
+The Gilded Guild's assessors don't shake chests: in the Guild's counting-house a clockwork the size of a wardrobe, built
+by Crownhold's tinkers, reads a chest set before it and writes out what's inside (not how good: the ward keeps that).
+The Guild sells one to any Keywright whose purse could pay off everything they owe, for exactly that sum: it would
+rather be paid twice. With it on the counter, every chest's contents are on the slip before you touch it, and a run
+that's already won can be finished in an afternoon.
 - *Curios.* Oddments from the Locking that bend a rule of the trade. Nim finds them; nobody asks where.
 - *Heartsongs.* Things loved more than gold, sung into the Locking: a Keywright hears them through the ward because the
   ward is their song. Nobody else knows they're there, so they're never priced, and they're worth a trinket's price to

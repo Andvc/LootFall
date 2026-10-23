@@ -23,7 +23,7 @@ public static class Guild
     /// middle weeks; better judgment and talents push that later, until the debt is cleared (the sim's careers: usually
     /// around the eighth run). A lucky run can have all of it a week early, and pay it off.
     /// </summary>
-    static readonly int[] Dues = { 40, 100, 200, 500, 1300, 2800, 6000, 12000 };
+    static readonly int[] Dues = { 40, 100, 200, 400, 1200, 7000, 55000, 200000 };
 
     /// <summary>After the debt: each week half as much again, for as long as you last.</summary>
     const float EndlessGrowth = 1.5f;
@@ -33,7 +33,7 @@ public static class Guild
     {
         if (week <= Weeks) return Dues[Math.Max(0, week - 1)];
         double due = Dues[^1] * Math.Pow(EndlessGrowth, week - Weeks);
-        return (int)(Math.Round(due / 50) * 50);
+        return (int)(Math.Round(due / 1000) * 1000);
     }
 
     /// <summary>All of Bram's debt, as Vane tells it the first evening.</summary>
@@ -52,7 +52,7 @@ public static class Guild
         "Two hundred. Your uncle never made it past week three, you know.",
         "I hear you've been opening a great many chests. The Guild approves. Keep opening.",
         "My masters are curious about you. That's rarely good news.",
-        "Two thousand eight hundred. The Guild is starting to take you seriously. So is its master.",
+        "Seven thousand. The Guild is starting to take you seriously. So is its master.",
         "One more week after this. Then the tithe's paid. Unless you'd like to sell us the shop now?",
         "The last of it. Every coin, mind. Gold you can see.",
     };

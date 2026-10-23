@@ -5,7 +5,7 @@ namespace LootFall.Core;
 /// <summary>
 /// Where a chest came from: a millpond, the Barrow, a goblin warren, the Maw's hoard. Three hundred years after the
 /// Locking, chests are everywhere, and where one was found says what it tends to hold (see docs/world.md). Sellers say
-/// where theirs came from; some tell the truth.
+/// where theirs came from.
 /// </summary>
 /// <param name="Name">"the Barrow", as a seller would say it.</param>
 /// <param name="Holds">What it tends to hold, for the ledger's Places page.</param>

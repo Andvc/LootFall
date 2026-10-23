@@ -123,10 +123,10 @@ public static class Events
         if (items.Count == 0) items.Add(new Item(Category.Coins, Categories.RollQuality(rng, colour)));
         int magic = rng.Next(items.Count);
         items[magic] = items[magic] with { Magic = true, Fake = false };
-        var chest = new Chest(items, colour, old.Hidden, old.Lock, gilded: true);
+        var chest = new Chest(items, colour, old.Hidden, old.Lock, gilded: true, packed: old.Packed);
         return new Visit(visit.Seller, chest, visit.Claim, visit.Trade, visit.Ask, visit.Floor, visit.Pitch)
         {
-            Origin = visit.Origin, ToldTruth = visit.ToldTruth, Fee = visit.Fee,
+            Origin = visit.Origin, Fee = visit.Fee, Clue = visit.Clue,
         };
     }
 }

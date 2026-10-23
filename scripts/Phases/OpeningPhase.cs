@@ -439,7 +439,7 @@ public partial class OpeningPhase : Phase
             UiKit.MakeLabel(song.Name, 32, red, HorizontalAlignment.Center, outline: 6).Place(780, 150, 460, 40),
             UiKit.MakeLabel($"Mythic. From {song.From}.", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Wrapped().Place(780, 196, 460, 44),
             UiKit.MakeLabel(song.Story, 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(780, 242, 460, 64),
-            UiKit.MakeLabel($"On display: {song.Effect}", 16, Palette.Gold, HorizontalAlignment.Center, outline: 4).Wrapped().Place(780, 312, 460, 44),
+            UiKit.MakeLabel($"On display: {song.Effect}", 16, Palette.Gold, HorizontalAlignment.Center, outline: 4).Wrapped().Place(780, 312, 460, 70),
         };
         foreach (var label in labels)
         {

@@ -105,7 +105,7 @@ public static class Patrons
         var list = new List<Commission>();
         var crowd = Sellers.All.Where(s => s.Tier <= state.Tier && (state.Met.Contains(s.Key) || state.Met.Count < 3)).ToList();
         var kinds = Categories.UpTo(state.Tier).Select(c => c.Category).ToList();
-        int wanted = PerWeek + Upgrades.All.Where(u => state.Has(u.Key)).Sum(u => u.Commissions) + (state.Shows(Heartsongs.Lark) ? 1 : 0);
+        int wanted = PerWeek + Upgrades.All.Where(u => state.Has(u.Key)).Sum(u => u.Commissions) + (state.Shows(Heartsongs.Lark) ? Heartsongs.LarkCommissions : 0);
         while (list.Count < wanted && crowd.Count > 0)
         {
             var patron = rng.PickWeighted(crowd.ToArray(), s => s.Tier == state.Tier ? 2f : 1f);

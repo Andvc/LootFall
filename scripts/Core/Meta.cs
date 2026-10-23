@@ -45,7 +45,7 @@ public static class Characters
             new[]
             {
                 $"A shelf from the start: she can display {IsoldeShelf} things at Bram's stall.",
-                $"Visitors pay to see her collection: every night, {AdmissionPerPoint}g per point of exhibition.",
+                $"Visitors pay to see her collection: every night, {AdmissionPerPoint}g per point of exhibition (more in a grander shop).",
                 "Her collection is not for pawning: on a short night, the Guild can only take her curios.",
             }, "Open the Crown Chest to unlock.", p => p.Vaults >= 1),
     };
@@ -58,10 +58,20 @@ public static class Characters
     public const int IsoldeShelf = 2;
 
     /// <summary>
-    /// What Isolde's visitors pay, per exhibition point, every night. Not more in a grander shop: the door money is a
-    /// return on what she keeps, and one that grew with the shop cleared her runs days early (sim: day 33 against 36).
+    /// What Isolde's visitors pay, per exhibition point, every night at the stall; more in a grander shop, but only a
+    /// quarter as fast as the shop grows (<see cref="IsoldeScale"/>). Door money that grew as fast as the shop made her the
+    /// strongest of the kin by far (v18's sim: 62% of runs cleared with no talents, against Kit's 42%; half as fast, 54%);
+    /// flat, the weakest (26%).
     /// </summary>
     public const int AdmissionPerPoint = 1;
+
+    /// <summary>A quarter of <see cref="ShopTiers.Scale"/>: x1, x1, x2, x5.</summary>
+    public static int IsoldeScale(int tier) => Math.Max(1, ShopTiers.Scale(tier) / 4);
+
+    /// <summary>What everything weighs, for the ledger and a scale's tooltip.</summary>
+    public static string PoundsTable =>
+        $"Coin {Pounds(Category.Coins)} lb, weapons {Pounds(Category.Arms)}, cloaks {Pounds(Category.Garb)}, potions {Pounds(Category.Potions)}, " +
+        $"spells {Pounds(Category.Scrolls)}, gems {Pounds(Category.Gems)}, a Heartsong {Pounds(Category.Heartsong)}.";
 
     /// <summary>What one thing of this kind weighs on Hesk's scale, in pounds.</summary>
     public static float Pounds(Category kind) => kind switch
@@ -103,13 +113,13 @@ public static class Challenges
         Hurried = "hurried", Interest = "interest", ThinCrowds = "thin";
 
     /// <summary>Sharp sellers ask this much more, and take no less.</summary>
-    public const float SharpPrices = 1.05f;
+    public const float SharpPrices = 1.1f;
 
     /// <summary>The Guild's interest on every due.</summary>
-    public const float InterestRate = 1.1f;
+    public const float InterestRate = 1.25f;
 
     /// <summary>With demon gold about: the chance any coin from any seller is gilded iron.</summary>
-    public const float SlugChance = 0.05f;
+    public const float SlugChance = 0.1f;
 
     /// <summary>When everyone's in a hurry: seconds each seller gives you.</summary>
     public const float HurriedPatience = 20f;
@@ -118,11 +128,11 @@ public static class Challenges
     {
         new(Stretched, "Bram's stretched thin", "Bram's secret stash has one dip fewer, and his word is good one time fewer."),
         new(FussySellers, "Fussy sellers", "Every seller minds a drop, and puts the price up by half."),
-        new(Forgers, "Demon gold about", "One coin in twenty is demon gold, whoever brings it."),
+        new(Forgers, "Demon gold about", "One coin in ten is demon gold, whoever brings it."),
         new(LeanStart, "Lean start", "You start with half the gold."),
-        new(ThinCrowds, "Thin crowds", "One customer fewer every day at Bram's stall."),
-        new(Interest, "The Guild's interest", "Every week's due is a tenth higher."),
-        new(SharpSellers, "Sharp sellers", "Every seller asks a twentieth more, and takes a twentieth more."),
+        new(ThinCrowds, "Thin crowds", "One customer fewer every day."),
+        new(Interest, "The Guild's interest", "Every week's due is a quarter higher."),
+        new(SharpSellers, "Sharp sellers", "Every seller asks a tenth more, and takes a tenth more."),
         new(Hurried, "Hurried", $"Every seller gives you {HurriedPatience:0} seconds."),
     };
 

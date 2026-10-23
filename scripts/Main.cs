@@ -23,6 +23,7 @@ namespace LootFall;
 /// --start-week=N (a shop as a careful player would have it by then, played
 /// through by the balance simulation; --gold=N then sets its purse). Autoplay sets --days=N to stop after that many days.
 /// --character=KEY, --challenge=N and --talents=all play one of Bram's kin, at a challenge level, with every talent.
+/// --engine starts with the Bookkeeping Engine, to see it read every chest.
 /// --heartsongs=P makes a Heartsong turn up in that share of chests; --songs=all plays as if every one had been found
 /// (with --vault-demo, the Crown Chest's other ending).
 /// </summary>
@@ -30,7 +31,7 @@ public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Early Access 0.17";
+    public const string Version = "Early Access 0.18";
     const string SavePath = "user://save.json", ProfilePath = "user://profile.json";
 
     public GameState State { get; private set; }
@@ -66,6 +67,25 @@ public partial class Main : Node2D
         if (Arg(args, "--sim") == "songs")
         {
             Simulation.Songs(int.Parse(Arg(args, "--n") ?? "150"));
+            GetTree().Quit();
+            return;
+        }
+        if (Arg(args, "--sim") == "sellers")
+        {
+            Simulation.PrintSellers();
+            Simulation.LessonTest();
+            GetTree().Quit();
+            return;
+        }
+        if (Arg(args, "--sim") == "kin")
+        {
+            Simulation.Meta(int.Parse(Arg(args, "--n") ?? "100"), Arg(args, "--who"));
+            GetTree().Quit();
+            return;
+        }
+        if (Arg(args, "--sim") == "quick")
+        {
+            Simulation.Run(int.Parse(Arg(args, "--n") ?? "120"), quick: true);
             GetTree().Quit();
             return;
         }
@@ -113,6 +133,7 @@ public partial class Main : Node2D
                 foreach (var key in new[] { "intro", "dayend", "colours", "slip", "ledger", "upgrades", "display", "synergy", "tier2", "tier3", "tier4" })
                     State.HintsSeen.Add(key);
             }
+            if (args.Contains("--engine")) State.Grant(Upgrades.Engine);
             NoteStart();
         }
         GD.Print($"LootFall seed {_seed}");

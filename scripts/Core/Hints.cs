@@ -45,8 +45,8 @@ public static class Hints
                      "or storm off if you insult them.",
         ["offer"] = "This one wants you to name a price. Offer what it's worth to you, less a little. You get two tries.",
         ["try_again"] = "Too low. One more try, then they'll go.",
-        ["story"] = "Listen to where they say it came from: a barrow holds grave goods, a goblin warren holds coin. But not " +
-                    "everybody tells the truth. What really came out of a chest shows when it's open, and the ledger keeps count.",
+        ["story"] = "Listen to where they say it came from: a barrow holds grave goods, a goblin warren holds coin. The ledger's " +
+                    "Places page keeps what each place tends to hold.",
         ["keep"] = "Something grand? You can keep it for display instead of selling it. A good exhibition brings more customers, " +
                    "and better ones. Enchanted things count double.",
         ["kept"] = "On display. You'll see it on the shelf behind the counter.",
@@ -63,7 +63,7 @@ public static class Hints
         ["slots"] = "Another synergy slot: open Synergies and put one more to work.",
         ["emporium"] = "The Royal Emporium, in the palace's shadow. The Gate's just down the street: you can feel it hum. Bigger " +
                        "things to grow into now: a night market, a patrons' book, a velvet case for curios. Keep enough back for Vane.",
-        ["ledger"] = "Forgotten a sound, or who lies? Press L for your ledger: the sounds, the places chests come from, the regulars " +
+        ["ledger"] = "Forgotten a sound, or someone's habits? Press L for your ledger: the sounds, the places chests come from, the regulars " +
                      "you've met, and everything you've found.",
         ["lockpick"] = "The ward's let go: the chest is yours. Now the old lock under it. The pick sweeps round: press Space, or " +
                        "click, while it's in the green to set a pin. Set every pin cleanly and nothing inside gets scratched.",
@@ -118,11 +118,14 @@ public static class Hints
         // A regular with nothing new to teach gets a tip the first time they come in after the first day; the rest have
         // a lesson (Lessons.cs). Bram's kin who come knowing the trade still get his word on each seller's terms.
         ["seller_penn"] = "Penn only shakes gently. Heavy things and soft things make no sound for her.",
-        ["seller_dorrin"] = "Dorrin's Barrow chests are rotten: about two seconds of shaking, all told. And half his stories are tall.",
+        ["seller_dorrin"] = "Dorrin's Barrow chests are rotten: about two seconds of shaking, all told. One strength, then: pick it well.",
         ["seller_snikkit"] = "Snikkit puts his price up a tenth for every strength you try after the first. Pick two: gentle and hard.",
-        ["seller_bramble"] = "Mother Bramble dreams her price. It has nothing to do with the chest: add it up yourself.",
+        ["seller_bramble"] = "Mother Bramble dreams her price, but she always dreams true of the dearest thing inside. If it never sounds, it's under a false bottom.",
+        ["engine"] = "You could pay off the Guild now. Or buy its Bookkeeping Engine for the same sum: every chest read for you, to finish the run fast.",
+        ["seller_wenna"] = "Wenna's scale says what her chest weighs. Take away what you heard: what's left never stirred (cloak 3 lb, spell 1).",
+        ["seller_pell"] = "Pell's ticket counts every article, false bottom and all. Count what you hear: one short means one under the floor.",
         ["seller_ansel"] = "Brother Ansel won't have his chests shaken hard: half again if you do. Crypt chests are full of holy cloaks.",
-        ["seller_fennick"] = "Fennick's smuggling chests often have a false bottom he never prices. Drop one and listen.",
+        ["seller_fennick"] = "Fennick packs in straw: everything stirs a strength later, cloaks and spells never. Firm, hard, then drop it.",
         ["seller_orrin"] = "Orrin wagers: read his chest exactly, every kind and every count, and he gives back a third of the price.",
         ["seller_corisande"] = "Lady Corisande's trick boxes often hide a false bottom, and she'll have half again if you drop one.",
         ["seller_aldous"] = "Sir Aldous takes the best weapon in his chest, for the fee he names. Value what's left.",

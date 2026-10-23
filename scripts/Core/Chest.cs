@@ -9,7 +9,8 @@ namespace LootFall.Core;
 /// sealed under a false bottom. What you hear depends only on how hard it's shaken, by the same rules for everyone,
 /// sellers included: a thing sounds once the shake is strong enough to stir it; while metal clanks, delicate things
 /// can't be heard; a magnet holds iron still, so it makes no sound at all. Whatever is under a false bottom is wrapped
-/// tight and never rattles, but the hollow booms if the chest is dropped. A Heartsong sings at the gentlest shake and
+/// tight and never rattles, but the hollow booms if the chest is dropped. A chest packed in straw (a smuggler's) muffles
+/// everything a strength: each thing stirs only at the next strength up, and soft things not at all. A Heartsong sings at the gentlest shake and
 /// nothing drowns it out or stills it, but only a Keywright hears it: no seller ever does (<see cref="SellerDef.Notices"/>).
 /// </summary>
 public sealed class Chest
@@ -26,8 +27,14 @@ public sealed class Chest
 
     public LockTier Lock { get; }
 
-    /// <summary>Packed tight in straw (the Stranger's): nothing inside can move, so nothing makes a sound.</summary>
+    /// <summary>Wrapped in iron chains (the Stranger's): nothing inside can move, so nothing makes a sound.</summary>
     public bool Sealed { get; }
+
+    /// <summary>
+    /// Packed in straw, so nothing clinks at the Wardens' toll (Fennick's): everything stirs a strength later than it would,
+    /// and what only a hard shake would stir can't be stirred at all.
+    /// </summary>
+    public bool Packed { get; }
 
     /// <summary>One of the old royal chests, gilded: a colour better than its seller thinks.</summary>
     public bool Gilded { get; }
@@ -40,9 +47,10 @@ public sealed class Chest
     public int Value => Everything.Sum(i => i.Value);
 
     public Chest(IEnumerable<Item> items, Rarity quality = Rarity.Common, Item hidden = null, LockTier lockTier = null, bool isSealed = false,
-        bool gilded = false)
+        bool gilded = false, bool packed = false)
     {
         Gilded = gilded;
+        Packed = packed;
         _items = items.OrderBy(i => i.Category).ToList();
         Quality = quality;
         Hidden = hidden;
@@ -70,7 +78,13 @@ public sealed class Chest
     public Item Now(Item item) => Everything.FirstOrDefault(i => i.Id == item.Id) ?? item;
 
     /// <summary>Whether this thing moves at this shake.</summary>
-    public static bool Stirs(Item item, Shake level, bool magnet = false) => level >= item.StirsAt && !(magnet && item.Iron);
+    public bool Stirs(Item item, Shake level, bool magnet = false) => (int)level >= Needs(item) && !(magnet && item.Iron);
+
+    /// <summary>
+    /// The gentlest shake that stirs this thing in this chest: its own, or a strength harder in straw (4: never). Straw
+    /// can't still a Heartsong: it sings at the gentlest shake whatever it's packed in.
+    /// </summary>
+    public int Needs(Item item) => (int)item.StirsAt + (Packed && !item.IsSong ? 1 : 0);
 
     /// <summary>It moves and you'd hear it, if nothing louder drowned it out. Nothing moves in a sealed chest.</summary>
     public bool Sounds(Item item, Shake level, bool magnet = false) => !Sealed && Stirs(item, level, magnet);

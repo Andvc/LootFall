@@ -22,14 +22,14 @@ public static class Curios
     public const float InterestRate = 0.05f, HookHidden = 0.05f, DraughtMagic = 0.03f, TicketRate = 0.8f, LoupeFakes = 0.25f,
         WatchPatience = 2f, TokenSwing = 0.25f;
 
-    public const int InterestPerTier = 25, CataloguePerTier = 10, BookPerPoint = 2, ShellPityAfter = 7;
+    public const int InterestPerTier = 100, CataloguePerTier = 40, BookPerPoint = 5, ShellPityAfter = 7, CoinChests = 2;
 
     public static readonly CurioDef[] All =
     {
-        new("coin", "Lucky Coin", "The first chest you open each day: everything in it gets two tries at its quality.", CurioRarity.Common, "coin"),
+        new("coin", "Lucky Coin", $"The first {CoinChests} chests you open each day: everything in them gets two tries at its quality.", CurioRarity.Common, "coin"),
         new("shell", "Lucky Shell", "Luck evens out: after a run of plain finds, a surprise comes twice as soon.", CurioRarity.Common, "shell"),
         new("lantern", "Shop Lantern", "Open late on the Guild's night: one more customer that day.", CurioRarity.Common, "lantern"),
-        new("catalogue", "Collector's Catalogue", $"Every new find in your journal pays {CataloguePerTier}g per shop tier.",
+        new("catalogue", "Collector's Catalogue", $"Every new find in your journal pays {CataloguePerTier}g (more in a grander shop).",
             CurioRarity.Common, "catalogue"),
         new("crate", "Padded Crate", "Glass never breaks when you drop a chest.", CurioRarity.Common, "crate", MinTier: 2),
         new("oil", "Locksmith's Oil", "Every lock has one pin fewer.", CurioRarity.Common, "oil", MinTier: 2),
@@ -39,7 +39,7 @@ public static class Curios
 
         new("signet", "Merchant's Signet", "Hagglers hear you out: an offer too low gets a second try, not a slammed door.",
             CurioRarity.Uncommon, "signet"),
-        new("jar", "Savings Jar", $"Every night: a twentieth of your gold as interest (up to {InterestPerTier}g per shop tier).",
+        new("jar", "Savings Jar", $"Every night: a twentieth of your gold as interest (up to {InterestPerTier}g at the stall, more in a grander shop).",
             CurioRarity.Uncommon, "jar"),
         new("letter", "Letter of Introduction", "Regulars take what you deliver a quality lower than they asked for.", CurioRarity.Uncommon, "letter"),
         new("knife", "Burglar's Knife", "Forcing a lock breaks nothing and scratches nothing.", CurioRarity.Uncommon, "knife", MinTier: 2),
@@ -58,7 +58,7 @@ public static class Curios
 
         new("clover", "Four-Leaf Clover", "The first chest you open each week: everything in it is a step better.",
             CurioRarity.Rare, "clover"),
-        new("book", "Visitors' Book", $"Every night, visitors leave {BookPerPoint}g for each point of your exhibition.", CurioRarity.Rare, "book",
+        new("book", "Visitors' Book", $"Every night, visitors leave {BookPerPoint}g for each point of your exhibition (more in a grander shop).", CurioRarity.Rare, "book",
             MinTier: 2),
         new("gloves", "Kid Gloves", "Nobody minds a hard shake, a drop or the lodestone on their chest.",
             CurioRarity.Rare, "gloves", MinTier: 2),
@@ -132,7 +132,7 @@ public static class Curios
         {
             "token" => $"{name}: {n} swung!",
             "gauntlet" or "cap" => $"{name}: {n} mended.",
-            Heartsongs.Egg => $"{name}: {n} guarded.",
+            Heartsongs.Ember => $"{name}: {n} tempered!",
             _ => $"{name}: {n} came out better!",
         };
     }

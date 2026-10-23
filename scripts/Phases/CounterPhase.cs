@@ -108,17 +108,17 @@ public partial class CounterPhase : Phase
         _seller = Add(new SellerView(_visit.Seller) { Position = new Vector2(150, 196) });
         // Hesk can't lift a chest high enough to drop it, or shake it hard.
         var bounds = State.CanDrop ? DragBounds : new Rect2(DragBounds.Position.X, ChestRest.Y - LiftLimit, DragBounds.Size.X, LiftLimit);
-        _shake = Add(new ShakeBox(_visit.Chest, bounds) { Position = ChestRest, MaxLevel = State.CanShakeHard ? Core.Shake.Hard : Core.Shake.Firm });
+        _shake = Add(new ShakeBox(_visit.Chest, bounds) { Position = ChestRest, MaxLevel = State.CanShakeHardAt(_visit.Seller) ? Core.Shake.Hard : Core.Shake.Firm });
         _shake.View.LockColor = Palette.Lock(_visit.Chest.Lock);
         _shake.Heard += OnHeard;
         _shake.Landed += OnLanded;
         // Once you own the witchlight it's always lit: anything enchanted glows when it makes a sound.
-        _lamp = State.Has("lamp");
+        _lamp = State.Witchlight;
         _shake.Witchlight = _lamp;
         _hint = Add(UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center, outline: 4).Place(316, 478, 484, 20));
         _hint.ZIndex = 10;
         BuildStrength();
-        if (State.Weighs) BuildScale();
+        if (State.Weighs || _visit.Seller.States == Clue.Pounds) BuildScale();
         _notes = Add(UiKit.MakeLabel("", 16, Palette.Text, HorizontalAlignment.Center, outline: 4).Wrapped().Place(316, 500, 484, 84));
         _notes.ZIndex = 10;
         _timer = Add(UiKit.MakeLabel("", 32, Palette.Warn, HorizontalAlignment.Center, outline: 6).Place(206, 92, 64, 40));
@@ -141,12 +141,6 @@ public partial class CounterPhase : Phase
         _seller.Enter();
         _seller.Say(_visit.Pitch);
         State.HeardStory(_visit);
-        // The Drowned Bell tolls for every lie told near it.
-        if (State.Shows(Heartsongs.Bell) && _visit.Origin != null && !_visit.ToldTruth)
-        {
-            Sfx.Play("song_bell", 1f, -4);
-            Note($"The Drowned Bell tolls: {_visit.Seller.Short}'s story is a lie.");
-        }
         Game.Hud.SetDay(State.Day, State.Tier);
         Game.Hud.SetGold(State.Gold, animate: false);
         // What a lesson teaches, Bram needn't also tip about.
@@ -155,6 +149,9 @@ public partial class CounterPhase : Phase
         if (_visit.Lesson != null) StartLesson();
         Note(ChestNote());
         if (State.Terms(_visit) is string terms) Note(terms);
+        if (_visit.Clue != null) Note(_visit.Clue);
+        if (State.Shows(Heartsongs.Bell)) TollBell(Market.ArticleCount(_visit.Chest));
+        if (State.Has(Upgrades.Engine)) Record();
         Refresh();
         Game.Moment("01_counter", 1.0);
     }
@@ -173,19 +170,21 @@ public partial class CounterPhase : Phase
             _strength.AddChild(_strengthWords[i]);
         }
         if (!State.CanShakeHard) _strengthWords[2].Text = "(back)";
+        else if (_visit.Seller.Packhorse) _strengthWords[2].Text = "(mare)";
     }
 
     /// <summary>
-    /// Hesk's scale, beside the chest: what everything in it weighs, and what the things ticked on the slip would. The
-    /// difference is what he couldn't hear (or a fake that weighs short).
+    /// Hesk's scale (or what Wenna's game scale read), beside the chest: what everything in it weighs, and what the things
+    /// ticked on the slip would. The difference is what couldn't be heard (or a fake that weighs short).
     /// </summary>
     void BuildScale()
     {
         var scale = Add(UiKit.MakePanel(Palette.Gold.Darkened(0.35f)).Place(318, 360, 128, 92));
         scale.ZIndex = 10;
-        scale.TooltipText = $"Hesk's scale. {State.Kin.Rules[2]}";
+        scale.TooltipText = State.Weighs ? $"Hesk's scale. {State.Kin.Rules[2]}"
+            : $"Wenna's game scale. {Characters.PoundsTable} What it weighs, less what you've ticked, is what you couldn't hear.";
         scale.MouseFilter = Control.MouseFilterEnum.Pass;
-        scale.AddChild(UiKit.MakeLabel("ON THE SCALE", 16, Palette.Gold.Darkened(0.15f), HorizontalAlignment.Center).Place(0, 6, 128, 20));
+        scale.AddChild(UiKit.MakeLabel(State.Weighs ? "ON THE SCALE" : "WENNA'S SCALE", 16, Palette.Gold.Darkened(0.15f), HorizontalAlignment.Center).Place(0, 6, 128, 20));
         _scale = UiKit.MakeLabel(Characters.Weight(_visit.Chest.Pounds), 24, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 28, 128, 30);
         scale.AddChild(_scale);
         _slipWeight = UiKit.MakeLabel("", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 62, 128, 20);
@@ -193,7 +192,7 @@ public partial class CounterPhase : Phase
     }
 
     /// <summary>What the slip's ticked things would weigh (a false bottom aside: there's no telling what's in one).</summary>
-    float SlipPounds => Categories.UpTo(State.Tier).Sum(k => _slip.Count(k.Category) * Characters.Pounds(k.Category));
+    float SlipPounds => Categories.UpTo(State.Tier).Append(Categories.Get(Category.Heartsong)).Sum(k => _slip.Count(k.Category) * Characters.Pounds(k.Category));
 
     void UpdateStrength()
     {
@@ -462,7 +461,8 @@ public partial class CounterPhase : Phase
         _ledgerButton = UiKit.MakeButton("Ledger [L]", Palette.Gold, 16, OpenLedger).Place(PanelX + 236, 72, 148, 36);
         panel.AddChild(_ledgerButton);
         var seller = _visit.Seller;
-        string who = _visit.Claim.Count == 0
+        string who = State.Has(Upgrades.Engine) && !_visit.Chest.Sealed ? "Ticked: what the Bookkeeping Engine read."
+            : _visit.Claim.Count == 0
             ? seller.Listens ? $"{seller.Who} heard nothing, so nothing's ticked." : $"{seller.Who} didn't listen, so nothing's ticked."
             : seller.Listens ? $"Ticked: what {seller.Short} heard." : $"Ticked: what {seller.Short} says is inside.";
         string values = _visit.Chest.Sealed ? "Sealed: nothing to hear. Go by its weight."
@@ -486,7 +486,8 @@ public partial class CounterPhase : Phase
 
         // The tools: the witchlight is always on (a sign), the magnet is a switch.
         var signs = new List<(string Icon, string Short, string Long)>();
-        if (State.Has("lamp")) signs.Add(("lamp", "Witchlight", "Witchlight lit: enchanted things glow"));
+        if (State.Witchlight)
+            signs.Add(("lamp", State.Has("lamp") ? "Witchlight" : "Starlight", "Witchlight lit: enchanted things glow"));
         bool magnet = State.Has("magnet");
         int tools = signs.Count + (magnet ? 1 : 0);
         if (tools > 0)
@@ -946,6 +947,39 @@ public partial class CounterPhase : Phase
         _seller.Say(_visit.Buy(State.Rng), Palette.Good);
         _seller.Bob();
         AfterBuy();
+    }
+
+    /// <summary>The Bookkeeping Engine reads the chest the moment it's set down, and marks the slip: nothing to shake.</summary>
+    void Record()
+    {
+        if (_visit.Chest.Sealed)
+        {
+            Note("The Bookkeeping Engine can't read through chains.");
+            return;
+        }
+        var record = Appraisal.Recorded(_visit.Chest, State.Tier);
+        foreach (var kind in Categories.UpTo(State.Tier).Select(k => k.Category)) _slip.Set(kind, record.Count(kind), record.Magic(kind));
+        _slip.Hidden = record.Hidden;
+        if (_visit.Chest.Song is Item song)
+        {
+            _slip.Set(Category.Heartsong, 1);
+            SongHeard(song);
+        }
+        Note("The Bookkeeping Engine whirs and clicks: everything inside is on the slip.");
+        Sfx.Play("tick", 1.4f, -4);
+    }
+
+    /// <summary>The Drowned Bell counts what's inside as the chest comes to the counter: one toll a thing, false bottom and all.</summary>
+    async void TollBell(int things)
+    {
+        Note(things == 0 ? "The Drowned Bell is silent: nothing inside."
+            : $"The Drowned Bell tolls {things} time{(things == 1 ? "" : "s")}: {things} thing{(things == 1 ? "" : "s")} inside, false bottom and all.");
+        for (int i = 0; i < things; i++)
+        {
+            await Wait(i == 0 ? 0.6 : 0.8);
+            if (!Alive) return;
+            Sfx.Play("song_bell", 1f, -10);
+        }
     }
 
     async void AfterBuy()

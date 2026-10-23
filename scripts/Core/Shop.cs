@@ -17,13 +17,25 @@ public static class ShopTiers
         _ => "The Royal Emporium",
     };
 
+    /// <summary>
+    /// What a shop of this tier's chests are worth against the stall's, roughly: flat sums (a curio's fees, door money)
+    /// grow with it, so they matter as much in the Emporium as at the stall.
+    /// </summary>
+    public static int Scale(int tier) => tier switch
+    {
+        1 => 1,
+        2 => 3,
+        3 => 8,
+        _ => 20,
+    };
+
     /// <summary>Gold to keep for a day's chests at a shop of this tier: Bram's advice before spending on the shop.</summary>
     public static int Working(int tier) => tier switch
     {
         1 => 20,
         2 => 30,
-        3 => 100,
-        _ => 250,
+        3 => 120,
+        _ => 400,
     };
 }
 
@@ -86,7 +98,7 @@ public sealed partial class GameState
     public const int ShelfSlots = 1;
 
     /// <summary>Exhibition points per extra customer a day (up to two).</summary>
-    public const int ExhibitionPerCustomer = 10;
+    public const int ExhibitionPerCustomer = 10, ExhibitionMaxCustomers = 4;
 
     /// <summary>Past this, an exhibition draws no more customers and no better chests.</summary>
     public const int ExhibitionCap = 40;
@@ -135,27 +147,13 @@ public sealed partial class GameState
     /// <summary>Sellers whose first-visit lesson has been given.</summary>
     public HashSet<string> Tutored { get; } = new();
 
-    /// <summary>Places chests come from that you've heard of (a story told true, or a chest of theirs opened): the ledger's Places page.</summary>
+    /// <summary>Places chests come from that you've heard of (from a seller's story): the ledger's Places page.</summary>
     public HashSet<string> Places { get; } = new();
 
-    /// <summary>Each seller's stories, checked against what came out of their chests: how many, and how many were true.</summary>
-    readonly Dictionary<string, (int Told, int True)> _stories = new();
-
-    public (int Told, int True) StoriesChecked(string seller) => _stories.GetValueOrDefault(seller);
-
-    /// <summary>A seller's told you where their chest came from: if it's true, that's a place you've heard of.</summary>
+    /// <summary>A seller's told you where their chest came from: that's a place you've heard of.</summary>
     public void HeardStory(Visit visit)
     {
-        if (visit.Origin != null && visit.ToldTruth && visit.Seller.Stories.ContainsKey(visit.Origin.Key)) Places.Add(visit.Origin.Key);
-    }
-
-    /// <summary>A chest's open: where it really came from, and whether its seller said so.</summary>
-    void CheckStory(Visit visit)
-    {
-        if (visit.Origin == null || visit.Seller == Story.VaultSeller) return;
-        Places.Add(visit.Origin.Key);
-        var (told, truths) = _stories.GetValueOrDefault(visit.Seller.Key);
-        _stories[visit.Seller.Key] = (told + 1, truths + (visit.ToldTruth ? 1 : 0));
+        if (visit.Origin != null && visit.Seller != Story.VaultSeller) Places.Add(visit.Origin.Key);
     }
 
     // The shop opens up a step at a time: renovations once the stall has earned its keep, a shelf to display things
@@ -177,12 +175,8 @@ public sealed partial class GameState
                                              (HasCurio("dome") ? 1 : 0) : 0;
     public bool DisplayFull => Display.Count(i => !i.IsSong) >= DisplaySlots;
 
-    /// <summary>
-    /// The exhibition: what your displayed things are worth to visitors' eyes, not their purses (half as much again by the
-    /// Hearthstone's warmth).
-    /// </summary>
-    public int Exhibition => (int)MathF.Round(Display.Sum(i => i.Prestige) * (1 + Synergies.ShowBonus(Active("tailor"))) *
-                                              (Shows(Heartsongs.Hearth) ? 1.5f : 1));
+    /// <summary>The exhibition: what your displayed things are worth to visitors' eyes, not their purses.</summary>
+    public int Exhibition => (int)MathF.Round(Display.Sum(i => i.Prestige) * (1 + Synergies.ShowBonus(Active("tailor"))));
 
     // The collection journal: everything acquired, by kind and quality, and the feats synergies ask for.
     readonly int[,] _acquired = new int[Categories.All.Length, 5];
@@ -222,9 +216,10 @@ public sealed partial class GameState
     /// <summary>What the exhibition, synergies, the Guild's terms and who's at the counter do to the chests people bring.</summary>
     public Boosts Boosts => new(BetterChests + (EventIs("storm") ? 1 : 0),
         Synergies.HiddenBonus(Active("archivist")) + (HasCurio("hook") ? Curios.HookHidden : 0),
-        Synergies.MagicBonus(Active("arcane")) + (HasCurio("draught") ? Curios.DraughtMagic : 0),
+        Synergies.MagicBonus(Active("arcane")) + (HasCurio("draught") ? Curios.DraughtMagic : 0) + (Shows(Heartsongs.Star) ? Heartsongs.StarMagic : 0),
         EventIs("wreck") ? Events.WreckPairs : 0, Synergies.MoneyKinds(Active("jewelry")),
-        Under(Challenges.SharpSellers) ? Challenges.SharpPrices : 1, Under(Challenges.Forgers) ? Challenges.SlugChance : 0, HagglesAll);
+        (Under(Challenges.SharpSellers) ? Challenges.SharpPrices : 1) * (Shows(Heartsongs.Lullaby) ? Heartsongs.LullabyPrices : 1) * Buyers,
+        Under(Challenges.Forgers) ? Challenges.SlugChance : 0, HagglesAll);
 
     /// <summary>How much less likely glass is to break (a vintner's packing).</summary>
     public float Sturdier => Synergies.Sturdier(Active("vintner"));
@@ -247,21 +242,40 @@ public sealed partial class GameState
         return patience * (HasCurio("watch") ? Curios.WatchPatience : 1);
     }
 
-    /// <summary>In kid gloves, a seller who won't stand for a hard shake, a drop or the magnet doesn't notice.</summary>
-    public bool KidGloves => HasCurio("gloves");
+    /// <summary>
+    /// In kid gloves, a seller who won't stand for a hard shake, a drop or the magnet doesn't notice; with the Lullaby Box
+    /// playing, nobody minds.
+    /// </summary>
+    public bool KidGloves => HasCurio("gloves") || Shows(Heartsongs.Lullaby);
+
+    /// <summary>The witchlight is lit: the lamp, or the Bottled Star's light.</summary>
+    public bool Witchlight => Has("lamp") || Shows(Heartsongs.Star);
 
     /// <summary>
-    /// What a thing fetches when you sell it: its value, how cleanly the lock came open, and today's event. Curios and
-    /// synergies never add a share to it.
+    /// What a thing fetches when you sell it: its value, how cleanly the lock came open, and what the shop's trade, its
+    /// name and today's event put on it (<see cref="SaleMultiplier"/>).
     /// </summary>
     public int SaleValue(Item item, PickGrade grade = PickGrade.Clean) =>
-        (int)MathF.Round((item.Fake ? FakeValue(item) : item.Value) * GradeMultiplier(grade) * SaleMultiplier(item.Category));
+        (int)MathF.Round((item.Fake ? FakeValue(item) : item.Value) * GradeMultiplier(grade) * SaleMultiplier(item.Category) *
+                         (item.Magic ? 1 + Synergies.MagicSales(this) : 1));
 
-    /// <summary>What today's event does to the price of a thing of this kind (1 on most days).</summary>
-    public float SaleMultiplier(Category kind) => EventSales(kind);
+    /// <summary>
+    /// What a thing of this kind sells for, against its worth: the buyers' trades you've set up (scales, the auction block,
+    /// the royal warrant, multiplied together), a name for it (an active synergy), the Dragon's Egg for coin and gems, and
+    /// today's event.
+    /// </summary>
+    public float SaleMultiplier(Category kind) => EventSales(kind) * Buyers * (1 + Synergies.SaleBonus(this, kind)) *
+                                                  (kind is Category.Coins or Category.Gems && Shows(Heartsongs.Egg) ? Heartsongs.EggSales : 1);
+
+    /// <summary>
+    /// What the buyers' trades you've set up put on every sale, multiplied together. Word gets round: sellers ask that
+    /// much more of a shop known to sell high (<see cref="Boosts"/>), so a trade multiplies your edge; it never makes
+    /// buying blind pay.
+    /// </summary>
+    public float Buyers => Upgrades.All.Where(u => u.Sales > 0 && Has(u.Key)).Aggregate(1f, (m, u) => m * (1 + u.Sales));
 
     /// <summary>A keen eye's valuer's fee for a perfect read: a few coins per level and shop tier, whatever the chest.</summary>
-    public int KeenFee(int held) => Synergies.KeenFee(Active("keen")) * Tier;
+    public int KeenFee(int held) => (int)MathF.Round(held * Synergies.KeenFee(Active("keen")));
 
     /// <summary>Notes something you opened in the journal.</summary>
     public void Acquire(Item item)
@@ -279,7 +293,7 @@ public sealed partial class GameState
     }
 
     /// <summary>People come to see the exhibition: one more customer a day per so many points, up to two.</summary>
-    public int ExhibitionCustomers => Math.Min(2, Exhibition / ExhibitionPerCustomer);
+    public int ExhibitionCustomers => Math.Min(ExhibitionMaxCustomers, Exhibition / ExhibitionPerCustomer);
 
     /// <summary>And a fine exhibition draws a better class of customer: the chance a chest is one colour better.</summary>
     public float BetterChests => MathF.Min(ExhibitionCap, Exhibition) * 0.01f;
@@ -301,7 +315,8 @@ public sealed partial class GameState
     public bool Has(string upgrade) => _owned.Contains(upgrade);
 
     public int CustomersPerDay => Math.Max(2, 3 + Tier + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.Customers) + ExhibitionCustomers +
-                                            (HasCurio("lantern") && DuesTonight ? 1 : 0) + EventCustomers - (Under(Challenges.ThinCrowds) && Tier == 1 ? 1 : 0));
+                                            (Shows(Heartsongs.Pipe) ? Heartsongs.PipeCustomers : 0) +
+                                            (HasCurio("lantern") && DuesTonight ? 1 : 0) + EventCustomers - (Under(Challenges.ThinCrowds) ? 1 : 0));
 
     public bool CanBuy(Upgrade upgrade) => UpgradesOpen && Gold >= Cost(upgrade) && Upgrades.Available(this).Contains(upgrade);
 
@@ -328,7 +343,7 @@ public sealed partial class GameState
             UpgradesOpen = UpgradesOpen, MagicFound = MagicFound, PerfectStreak = PerfectStreak, BestStreak = BestStreak,
             Owned = _owned.ToList(), HintsSeen = HintsSeen.ToList(), Met = Met.ToList(), Found = Found.ToList(),
             FoundEnchanted = FoundEnchanted.ToList(), Tutored = Tutored.ToList(), ActiveSynergies = ActiveSynergies.ToList(),
-            Places = Places.ToList(), Stories = _stories.ToDictionary(s => s.Key, s => new[] { s.Value.Told, s.Value.True }),
+            Places = Places.ToList(),
             Display = Display.Select(i => new SavedItem { Category = i.Category, Quality = i.Quality, Magic = i.Magic, Song = i.Song }).ToList(),
             SongsFound = SongsFound.ToList(),
             WeeksPaid = WeeksPaid, Arrears = Arrears, GraceUsed = GraceUsed > 0, GraceCount = GraceUsed, BramPiece = BramPiece, StashUsed = StashUsed, ClearedDay = ClearedDay, CloverWeek = CloverWeek,
@@ -389,8 +404,6 @@ public sealed partial class GameState
         state.Songbook.UnionWith(state.SongsFound);
         state.Tutored.UnionWith(data.Tutored);
         state.Places.UnionWith(data.Places.Where(key => Origins.All.Any(o => o.Key == key)));
-        foreach (var (seller, tally) in data.Stories)
-            if (tally.Length == 2) state._stories[seller] = (tally[0], tally[1]);
         state.ActiveSynergies.UnionWith(data.ActiveSynergies.Where(key => Synergies.All.Any(s => s.Key == key)));
         state.Display.AddRange(data.Display.Where(i => i.Category != Category.Heartsong || Heartsongs.Exists(i.Song))
             .Select(i => new Item(i.Category, i.Quality, i.Magic, Song: i.Song)));
@@ -401,9 +414,12 @@ public sealed partial class GameState
     }
 
     /// <summary>For debugging and screenshots: jump ahead with the tools a player would have by then.</summary>
+    /// <summary>For debugging (--engine): owns an upgrade without buying it.</summary>
+    public void Grant(string upgrade) => _owned.Add(upgrade);
+
     public void SkipTo(int tier, int gold)
     {
-        foreach (var upgrade in Upgrades.All.Where(u => u.IsRenovation ? u.SetsTier <= tier : u.MinTier < tier))
+        foreach (var upgrade in Upgrades.All.Where(u => (u.IsRenovation ? u.SetsTier <= tier : u.MinTier < tier) && u.Key != Upgrades.Engine))
             _owned.Add(upgrade.Key);
         Tier = tier;
         Gold = gold;
@@ -531,7 +547,7 @@ public sealed partial class GameState
         Pity(visit.Chest);
         Steady(visit.Chest);
         var (claimed, pays) = Claim(visit);
-        CheckStory(visit);
+        HeardStory(visit);
         // The Maw's gaze: everyone still waiting today wants a little more.
         if (visit.Seller.Gaze > 0)
             foreach (var waiting in Queue) waiting.Raise(visit.Seller.Gaze);

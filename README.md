@@ -13,7 +13,7 @@ eight weeks. Pay them all (or the whole debt at once, the moment you have it) an
 shards of the Aldric Key on the way and the Crown Chest opens on your counter. The world is in
 [docs/world.md](docs/world.md).
 
-**Status:** Early Access (0.17): a rebuilt world (four places, 24 sellers with their own stories and rules, six kinds
+**Status:** Early Access (0.18): a rebuilt world (four places, 24 sellers with their own stories and rules, six kinds
 of things a sword-and-sorcery realm would lock away, every one a find worth having), runs of eight weeks against the
 Guild's dues (then endless), with curios, commissions, weekly events and a story; nine **Heartsongs**, the rarest
 things in the realm, each with its own song and its own use on display, and an ending that needs all nine; four of
@@ -25,12 +25,14 @@ replaces it; recorded sounds and the font are from Kenney's CC0 packs (see [CRED
 ## The loop
 
 1. **A customer brings a chest**, tells you where it came from (a millpond, the Barrow, a goblin warren, the Maw's
-   hoard; the place says what it tends to hold, if the story's true) and prices it their way: some say how hard they
+   hoard; the place says what it tends to hold) and prices it their way: some say how hard they
    shook it and what they heard, some heft it, some go by its colour, some feel for magic, some have no idea. The
    chest's colour (wood, green, blue, purple) says how good things inside tend to be. Each customer has one habit worth
    learning, and many have a rule of their own: a rotten chest that stands two seconds of shaking, a goblin who charges
-   for every shake, an imp with an hourglass, an archmage's wager, a knight's claim on the family sword, a devil's due,
-   an old man whose price is whatever your slip says.
+   for every shake, a smuggler who packs his chests in straw (everything stirs a strength later), a pawn ticket that
+   counts every article (false bottom and all), a huntress's game scale, a druid who dreams of the dearest thing inside,
+   an imp with an hourglass, an archmage's wager, a knight's claim on the family sword, a devil's due, an old man whose
+   price is whatever your slip says. What they tell you is always true: working out what it means is the game.
 2. **Shake it yourself.** How fast you drag is how hard you shake (the words under the chest show gentle, firm or
    hard as you go, and which you've tried). Light things (coin jingles, potions slosh, gems
    tinkle) rattle at a gentle shake; weapons only clank at a firm one, and their clanking drowns out anything delicate;
@@ -45,19 +47,23 @@ replaces it; recorded sounds and the font are from Kenney's CC0 packs (see [CRED
    against your slip; anything better than its chest climbs, quality by quality, with more fuss for every step, and
    anything worse sags as its colour drains. The profit is stamped across the screen with your gut's verdict and why
    the seller missed it. Keep grand things for your exhibition (enchanted ones count double).
-   Once in a long while, about once a run, a chest sings: a sound like nothing else, that only you can hear. That's a
+   Once in a long while, about one run in two, a chest sings: a sound like nothing else, that only you can hear. That's a
    **Heartsong**, one of nine things loved more than gold that the Locking was sung into. Nobody's priced it; it comes
-   out last, in mythic red, and it's worth more singing in your shop than any merchant will pay. Find all nine, over
-   your runs, and the Crown Chest ends differently.
+   out last, in mythic red, and it's worth far more singing in your shop than any merchant will pay: each one changes
+   the trade (two more customers a day, coin and gems at double, a bell that counts what's in every chest...). Find all
+   nine, over your runs, and the Crown Chest ends differently.
 5. **End of day:** once the stall has earned 120g, spend your earnings on moving inward (each place brings richer
    customers, a new look and something new), tools (the Witchlight shows what's enchanted, the Lodestone silences iron
-   and demon gold, Fine Lockpicks) and cabinets. From Crownhold, choose which of the shop's synergies to put to work
-   (ten of a kind at a quality earns one).
+   and demon gold, Fine Lockpicks), cabinets, a crier and a night market for more customers, and a buyers' trade that
+   puts up everything you sell (brass scales, an auction block, a royal warrant). From Crownhold, choose which of the
+   shop's synergies to put to work (ten of a kind at a quality earns one; each puts up what its kind sells for). Once
+   your purse could pay off everything you owe, the Guild offers its **Bookkeeping Engine** for exactly that sum: it
+   reads every chest for you, so a won run can be finished fast.
 6. **The week:** every fifth evening Mister Vane collects the Guild's tithe. Short, pawn what's on display or sell your
    curios back; once a run Bram will vouch for you; otherwise the Guild seals the shop. Start a day nearly broke and
    Bram dips into his secret stash for you (three times a run). From the second week, Nim the
    peddler sells **curios** that bend one rule each (a lucky coin, kid gloves no seller minds, a gambler's token...;
-   never a share on what things sell for, and priced to keep pace with the weeks), regulars post **commissions** (deliver what they want from a chest instead of selling it), and once a
+   priced to keep pace with the weeks), regulars post **commissions** (deliver what they want from a chest instead of selling it), and once a
    week something happens in town: a fair, Locking Day, the Crown's buyer, a royal chest, a storm, a barge aground,
    or the Stranger with a chained chest that nothing rattles in. The Hooded Woman trades shards of the Aldric Key for
    the finds she asks for. Whenever you have all that's left of the debt, you can pay it off and finish early.

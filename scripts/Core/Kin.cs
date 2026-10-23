@@ -60,6 +60,9 @@ public sealed partial class GameState
     /// <summary>Hesk's back won't let him shake a chest hard.</summary>
     public bool CanShakeHard => !Is(Characters.Hesk);
 
+    /// <summary>Nor will Wenna's mare, for anyone.</summary>
+    public bool CanShakeHardAt(SellerDef seller) => CanShakeHard && !seller.Packhorse;
+
     /// <summary>Nor lift it to drop it.</summary>
     public bool CanDrop => !Is(Characters.Hesk);
 
@@ -90,7 +93,8 @@ public sealed partial class GameState
     // ---- Isolde: a collection that pays its way ----
 
     /// <summary>What Isolde's visitors pay tonight: so much a point of exhibition.</summary>
-    public int Admission => Is(Characters.Isolde) ? Exhibition * Characters.AdmissionPerPoint : 0;
+    public int Admission => Exhibition * ((Is(Characters.Isolde) ? Characters.AdmissionPerPoint * Characters.IsoldeScale(Tier) : 0) +
+                                          (Shows(Heartsongs.Hearth) ? Heartsongs.HearthPerPoint * ShopTiers.Scale(Tier) : 0));
 
     /// <summary>
     /// Whether this displayed thing can go to the Guild on a short night (never Isolde's, and never a Heartsong: greed
@@ -119,6 +123,8 @@ public sealed partial class GameState
         var seller = visit.Seller;
         var terms = new List<string>();
         if (seller.ShakeLimit > 0) terms.Add($"Rotten: {seller.ShakeLimit:0} seconds of shaking, all told.");
+        if (visit.Chest.Packed) terms.Add("Packed in straw: everything stirs a strength later.");
+        if (seller.Packhorse) terms.Add("On a skittish mare: no hard shake.");
         if (seller.ShakeFee > 0) terms.Add($"Each strength after your first: price +{Synergies.Pct(seller.ShakeFee)}.");
         if (seller.Wager > 0) terms.Add("Read it exactly: a third of the price back.");
         if (seller.Heirloom is Category heirloom) terms.Add($"The best {Categories.Get(heirloom).Name.ToLowerInvariant()} inside are his, for {visit.Fee}g.");
@@ -133,8 +139,17 @@ public sealed partial class GameState
         return terms.Count == 0 ? null : string.Join(" ", terms);
     }
 
-    /// <summary>What an upgrade costs this run: its price, but the witchlight and the magnet at half with Trade Secrets.</summary>
-    public int Cost(Upgrade upgrade) => Knows("tools") && upgrade.Key is "lamp" or "magnet" ? upgrade.Cost / 2 : upgrade.Cost;
+    /// <summary>
+    /// What an upgrade costs this run: its price, but the witchlight and the magnet at half with Trade Secrets, and the
+    /// Bookkeeping Engine whatever is left of the debt.
+    /// </summary>
+    public int Cost(Upgrade upgrade) => upgrade.Key == Upgrades.Engine ? DebtLeft
+        : Knows("tools") && upgrade.Key is "lamp" or "magnet" ? upgrade.Cost / 2 : upgrade.Cost;
+
+    /// <summary>
+    /// The Guild offers its Bookkeeping Engine once you could pay off everything you owe: it would rather be paid twice.
+    /// </summary>
+    public bool EngineOffered => CanPayOff && !Has(Upgrades.Engine);
 
     /// <summary>A curio that would do nothing for this character on these terms: Nim doesn't bother bringing it.</summary>
     public bool NoUse(CurioDef curio) => curio.Key switch

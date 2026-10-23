@@ -135,7 +135,9 @@ public partial class DayEndPhase : Phase
             BuildExhibition();
             return;
         }
-        var offers = Upgrades.Available(State).OrderByDescending(u => u.IsRenovation).ThenBy(u => u.Cost).Take(6).ToList();
+        // The Guild's Bookkeeping Engine first, when it's offered: it's the way to finish a won run quickly.
+        var offers = Upgrades.Available(State).OrderByDescending(u => u.Key == Upgrades.Engine).ThenByDescending(u => u.IsRenovation)
+            .ThenBy(State.Cost).Take(6).ToList();
         if (offers.Count == 0)
             _cards.AddChild(UiKit.MakeLabel("Nothing left to buy. The shop is complete.", 24, Palette.Muted, HorizontalAlignment.Center)
                 .Place(CardsX, CardsY + 80, 2 * CardW + CardGapX, 30));
@@ -144,6 +146,7 @@ public partial class DayEndPhase : Phase
             float x = CardsX + i % 2 * (CardW + CardGapX), y = CardsY + i / 2 * (CardH + CardGapY);
             _cards.AddChild(MakeCard(offers[i], x, y));
         }
+        if (offers.Any(u => u.Key == Upgrades.Engine)) Teach("engine");
 
         BuildExhibition();
     }
@@ -377,22 +380,26 @@ public partial class DayEndPhase : Phase
     /// </summary>
     Control MakeCard(Upgrade upgrade, float x, float y)
     {
-        bool affordable = State.Gold >= upgrade.Cost;
-        int left = State.Gold - upgrade.Cost, keep = ShopTiers.Working(Math.Max(State.Tier, upgrade.SetsTier));
+        int cost = State.Cost(upgrade);
+        bool affordable = State.Gold >= cost, engine = upgrade.Key == Upgrades.Engine;
+        int left = State.Gold - cost, keep = ShopTiers.Working(Math.Max(State.Tier, upgrade.SetsTier));
         bool shortForGuild = State.DuesTonight && !State.PaidThisWeek && left < State.DueNow;
         bool risky = shortForGuild || left < keep;
-        var card = UiKit.MakePanel(upgrade.IsRenovation ? Palette.Gold : Palette.PanelBorder).Place(x, y, CardW, CardH);
+        var card = UiKit.MakePanel(upgrade.IsRenovation || engine ? Palette.Gold : Palette.PanelBorder).Place(x, y, CardW, CardH);
         card.AddChild(new TextureRect
         {
             Texture = GD.Load<Texture2D>($"res://assets/ui/icons/{upgrade.Icon}.png"),
             MouseFilter = Control.MouseFilterEnum.Ignore,
         }.Place(12, 12, 48, 48));
-        card.AddChild(UiKit.MakeLabel(upgrade.Name, 24, upgrade.IsRenovation ? Palette.Gold : Palette.Text).Place(70, 8, 216, 30));
+        // A long name steps down a size, so the price beside it never covers it.
+        card.AddChild(UiKit.MakeLabel(upgrade.Name, upgrade.Name.Length > 16 ? 16 : 24, upgrade.IsRenovation || engine ? Palette.Gold : Palette.Text)
+            .Place(70, upgrade.Name.Length > 16 ? 12 : 8, 216, 30));
         card.AddChild(UiKit.MakeLabel(upgrade.Blurb, 16, Palette.Muted).Wrapped().Place(70, 40, CardW - 82, 66));
         if (affordable)
         {
-            var buy = UiKit.MakeButton($"{upgrade.Cost}g", risky ? Palette.Warn : Palette.Good, 16, () => Buy(upgrade)).Place(CardW - 112, 8, 100, 30);
-            buy.TooltipText = shortForGuild ? "You'd be short for the Guild tonight!"
+            var buy = UiKit.MakeButton($"{cost}g", risky ? Palette.Warn : Palette.Good, 16, () => Buy(upgrade)).Place(CardW - 112, 8, 100, 30);
+            buy.TooltipText = engine ? $"Every chest read for you, for good. You'd still owe the Guild {State.DebtLeft}g, and have {left}g to earn it with."
+                : shortForGuild ? "You'd be short for the Guild tonight!"
                 : left < keep ? $"That leaves you {left}g. A day's chests at the {ShopTiers.Name(Math.Max(State.Tier, upgrade.SetsTier))} " +
                                 $"usually need about {keep}g: maybe wait a day."
                 : $"Buy the {upgrade.Name}. Leaves you {left}g.";
@@ -400,8 +407,8 @@ public partial class DayEndPhase : Phase
         }
         else
         {
-            var price = UiKit.MakeLabel($"{upgrade.Cost}g", 24, Palette.Muted, HorizontalAlignment.Right).Place(CardW - 132, 6, 120, 30);
-            price.TooltipText = $"{upgrade.Cost - State.Gold}g more to go";
+            var price = UiKit.MakeLabel($"{cost}g", 24, Palette.Muted, HorizontalAlignment.Right).Place(CardW - 132, 6, 120, 30);
+            price.TooltipText = $"{cost - State.Gold}g more to go";
             price.MouseFilter = Control.MouseFilterEnum.Pass;
             card.AddChild(price);
         }
@@ -411,6 +418,7 @@ public partial class DayEndPhase : Phase
     public void Buy(Upgrade upgrade)
     {
         if (!State.CanBuy(upgrade)) return;
+        int cost = State.Cost(upgrade);
         State.BuyUpgrade(upgrade);
         Game.Hud.SetGold(State.Gold);
         Game.Hud.SetDay(State.Day, State.Tier);
@@ -428,7 +436,7 @@ public partial class DayEndPhase : Phase
             RefreshSynergyButton();
             if (Teach("slots")) Pulse(_synergies);
         }
-        else if (upgrade.Customers > 1 || upgrade.Commissions > 0 || upgrade.CurioSlots > 0)
+        else if (upgrade.Customers > 1 || upgrade.Commissions > 0 || upgrade.CurioSlots > 0 || upgrade.Sales > 0 || upgrade.Key == Upgrades.Engine)
         {
             Sfx.Play("upgrade", 1f, -4);
             Game.Flash(Palette.Gold, 0.2f);
@@ -437,7 +445,7 @@ public partial class DayEndPhase : Phase
         else
         {
             Sfx.Play("sting", 1.2f, -4);
-            FloatText($"-{upgrade.Cost}g", new Vector2(640, 150), Palette.Gold, 32);
+            FloatText($"-{cost}g", new Vector2(640, 150), Palette.Gold, 32);
         }
         BuildCards();
     }

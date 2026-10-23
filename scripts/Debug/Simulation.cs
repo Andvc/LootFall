@@ -23,8 +23,8 @@ public static class Simulation
     /// <summary>The order a sensible player buys things in.</summary>
     public static readonly string[] BuyOrder =
     {
-        "shop2", "sign", "cabinet1", "picks", "cabinet2", "shop3", "lamp", "charter", "case", "cabinet3", "cabinet4", "shop4", "magnet",
-        "cabinet5", "seal", "cabinet6", "night", "patrons", "velvet",
+        "shop2", "sign", "scales", "shop3", "cabinet1", "picks", "cabinet2", "crier", "block", "lamp", "shop4", "charter", "case", "cabinet3",
+        "cabinet4", "warrant", "night", "magnet", "cabinet5", "seal", "cabinet6", "patrons", "velvet",
     };
 
 
@@ -92,7 +92,11 @@ public static class Simulation
         public int SongsOffered, SongsFound, SongsShown, FirstSong;
     }
 
-    public static void Run(int campaigns)
+    /// <param name="quick">
+    /// Just enough to tune the economy (--sim=quick): the styles, the careful collector week by week, and the career
+    /// targets (the careful player with no talents and with all, and a learner halfway there).
+    /// </param>
+    public static void Run(int campaigns, bool quick = false)
     {
         GD.Print($"=== LootFall balance report ({campaigns} runs per style, up to {MaxWeeks} weeks of {Guild.DaysPerWeek} days) ===");
         var all = Styles.ToDictionary(s => s, s => Enumerable.Range(0, campaigns).Select(i => Play(s, 1000 + i).Log).ToList());
@@ -113,7 +117,7 @@ public static class Simulation
         GD.Print("(cleared: all eight dues paid; crown: opened the Crown Chest; lost: share of runs foreclosed, and the median week;");
         GD.Print(" tier columns: median day the renovation was bought, '-' if fewer than half got there)");
 
-        foreach (var style in Styles.Skip(2))
+        foreach (var style in quick ? Styles.Skip(4) : Styles.Skip(2))
         {
             var logs = all[style];
             GD.Print($"\nWeek by week, {style.Name}: over the runs still trading");
@@ -137,6 +141,21 @@ public static class Simulation
                      $"Bram's stash opened {logs.Average(l => l.Stash):0.0} times, " +
                      $"Bram vouched in {100f * logs.Count(l => l.Grace > 0) / logs.Count:0}% (median week " +
                      $"{logs.Where(l => l.Grace > 0).Select(l => l.Grace).DefaultIfEmpty(0).OrderBy(w => w).ElementAt(logs.Count(l => l.Grace > 0) / 2)})");
+        }
+
+        if (quick)
+        {
+            GD.Print("\nskill  talents   cleared   lost first   day   score  renown");
+            foreach (var (skill, talents) in new[] { (1f, false), (1f, true), (0.5f, false), (0.15f, false) })
+                GD.Print($"{skill,5:0.00}  {(talents ? "all" : "none"),-7}  {Trial(Characters.Kit, 0, talents ? AllTalents : null, campaigns, skill)}");
+            float chance = Heartsongs.Chance;
+            Heartsongs.Chance = 0;
+            GD.Print($"(no Heartsongs) 1.00 none  {Trial(Characters.Kit, 0, null, campaigns)}");
+            GD.Print($"(no Heartsongs) 0.15 none  {Trial(Characters.Kit, 0, null, campaigns, 0.15f)}");
+            Heartsongs.Chance = chance;
+            Diagnose(1, campaigns);
+            Diagnose(0.15f, campaigns);
+            return;
         }
 
         GD.Print("\nSurprises (things better than their chest's colour), share of things opened, and of what the chests held:");
@@ -240,12 +259,13 @@ public static class Simulation
     /// talent and with none, at each challenge level. The design works if each character usually clears at level 0,
     /// talents raise the clear rate more than they shorten the run, and the top level is a wall for the best of them.
     /// </summary>
-    public static void Meta(int campaigns)
+    /// <param name="only">Just this character (--sim=kin --who=KEY), for tuning one.</param>
+    public static void Meta(int campaigns, string only = null)
     {
         GD.Print($"\nBram's kin ({campaigns} runs each, the careful collector with both tools): cleared %, lost (median week), " +
                  "median clear day, score and renown a run");
         GD.Print("character   talents  level   cleared   lost first   day   score  renown");
-        foreach (var kin in Characters.All)
+        foreach (var kin in Characters.All.Where(k => only == null || k.Key == only))
         foreach (var (talents, level) in new[] { (false, 0), (true, 0), (true, 2), (true, 4), (true, 6), (true, Challenges.Max) })
             GD.Print($"{kin.Name,-10}  {(talents ? "all" : "none"),-7}  {level,5}   {Trial(kin.Key, level, talents ? AllTalents : null, campaigns)}");
         GD.Print($"(lost first: foreclosed before the debt was cleared, and the median week; every talent costs {Talents.Total} renown, all told)");
@@ -290,9 +310,10 @@ public static class Simulation
             float profit = 0, blind = 0;
             for (int i = 0; i < n; i++)
             {
-                var visit = Market.CreateVisit(rng, seller, seller.Tier);
+                // At what the shop sells for, and what sellers ask of a shop that sells that high.
+                var visit = Market.CreateVisit(rng, seller, seller.Tier, state.Boosts);
                 blind += BlindValue(visit, state, rng);
-                visit = Market.CreateVisit(rng, seller, seller.Tier);
+                visit = Market.CreateVisit(rng, seller, seller.Tier, state.Boosts);
                 int? paid = Deal(visit, state, rng, Care.Tools, out var slip);
                 if (paid is not int price) continue;
                 buys++;
@@ -336,12 +357,22 @@ public static class Simulation
             foreach (var kind in chest.HeardAt(Shake.Hard).GroupBy(i => i.Category))
                 slip.Set(kind.Key, Math.Max(slip.Count(kind.Key), 1));
         }
+        else if (Strategy.Recorded(visit, state))
+        {
+            // The Bookkeeping Engine read it: nothing to shake.
+            hearing = new Hearing();
+            slip = Appraisal.Recorded(chest, tier);
+        }
         else
         {
             hearing = Listen(visit, state, rng, care == Care.Tools, skill);
             slip = hearing.Read(chest.Quality, tier);
-            if (state.Weighs) Strategy.Weigh(slip, hearing, visit, state);
-            if (skill >= 1 || rng.NextFloat() < skill) Strategy.OnFaith(visit, slip, hearing, state);
+            if (skill >= 1 || rng.NextFloat() < skill)
+            {
+                Strategy.Reckon(slip, hearing, visit, state);
+                Strategy.OnFaith(visit, slip, hearing, state);
+            }
+            else if (state.Weighs) Strategy.Weigh(slip, hearing, visit, state);
             if (skill < 1) Slip(visit, slip, rng, 1 - skill);
         }
         // The King's price is whatever the slip says.
@@ -391,7 +422,7 @@ public static class Simulation
     static Hearing Listen(Visit visit, GameState state, Random rng, bool tools, float skill = 1)
     {
         var chest = visit.Chest;
-        bool lamp = tools && state.Has("lamp");
+        bool lamp = tools && state.Witchlight;
         float e = 1 - skill;
         var levels = Strategy.Levels(visit, state);
         if (e > 0)
@@ -843,9 +874,9 @@ public static class Simulation
             {
                 while (step < steps.Count && (steps[step].Done == null || steps[step].Done(check()))) step++;
             }
-            bool lamp = state.Has("lamp");
+            bool lamp = state.Witchlight;
             Advance();
-            foreach (var level in Strategy.Levels(visit))
+            foreach (var level in Strategy.Levels(visit, state))
             {
                 hearing.Listen(visit.Chest, new[] { level }, lamp);
                 Advance();
@@ -859,7 +890,8 @@ public static class Simulation
                 Advance();
             }
             var read = hearing.Read(visit.Chest.Quality, state.Tier);
-            Strategy.OnFaith(visit, read, hearing);
+            Strategy.Reckon(read, hearing, visit, state);
+            Strategy.OnFaith(visit, read, hearing, state);
             foreach (var kind in Categories.UpTo(state.Tier).Select(k => k.Category))
             {
                 slip.Set(kind, read.Count(kind), read.Magic(kind));

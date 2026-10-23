@@ -312,8 +312,7 @@ public sealed partial class GameState
     public IReadOnlyList<string> CurioKeys => _curios;
     public IEnumerable<CurioDef> OwnedCurios => _curios.Select(Curios.Get);
     public bool HasCurio(string key) => _curios.Contains(key);
-    public int CurioSlots => Curios.Slots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.CurioSlots) + (Knows("curio") ? 1 : 0) +
-                             (Shows(Heartsongs.Star) ? 1 : 0);
+    public int CurioSlots => Curios.Slots + Upgrades.All.Where(u => Has(u.Key)).Sum(u => u.CurioSlots) + (Knows("curio") ? 1 : 0);
     public bool CuriosFull => _curios.Count >= CurioSlots;
 
     public bool BuyCurio(CurioDef curio, int price)
@@ -360,8 +359,8 @@ public sealed partial class GameState
             changed = n;
         }
 
-        // The day's first chest: two tries at each thing's quality. The week's first: a step better all round.
-        if (Today.Bought == 1)
+        // The day's first few chests: two tries at each thing's quality. The week's first: a step better all round.
+        if (Today.Bought <= Curios.CoinChests)
             Apply("coin", i => Categories.RollQuality(Rng, chest.Quality) is var again && again > i.Quality ? i with { Quality = again } : i);
         if (HasCurio("clover") && CloverWeek != Week)
         {
@@ -373,10 +372,17 @@ public sealed partial class GameState
         // A smith or a hatter mends what came out worse than the chest promised.
         Apply("gauntlet", i => i.Category == Category.Arms && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
         Apply("cap", i => i.Category == Category.Garb && i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i);
-        // Heartsongs on display: the fey chimes' luck, and the dragon's egg guarding the hoard.
+        // Heartsongs on display: the Fey Chimes' luck.
         Apply(Heartsongs.Chimes, i => i.Quality == chest.Quality && i.Quality < Rarity.Legendary && Rng.NextFloat() < Heartsongs.ChimesLuck
             ? i with { Quality = i.Quality + 1 } : i, song: true);
-        if (Today.Bought == 1) Apply(Heartsongs.Egg, i => i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i, song: true);
+        // The Imp's Ember tempers what it warms (nothing comes out worse than promised), and burns the lie out of demon
+        // gold, paste and sand: every fake comes out real.
+        Apply(Heartsongs.Ember, i => i.Quality < chest.Quality ? i with { Quality = chest.Quality } : i, song: true);
+        if (Shows(Heartsongs.Ember) && chest.Items.Count(i => i.Fake) is var fakes && fakes > 0)
+        {
+            chest.Improve(i => i.Fake ? i with { Fake = false } : i);
+            if (curio == null) (curio, changed) = (Heartsongs.Ember, fakes);
+        }
         return (curio, changed);
     }
 
@@ -422,7 +428,7 @@ public sealed partial class GameState
     /// <summary>How many qualities lower than asked a commission will take.</summary>
     public int LetterLeeway(Commission c) => HasCurio("letter") && !c.Story ? 1 : 0;
 
-    public int CommissionReward(Commission c) => c.Reward;
+    public int CommissionReward(Commission c) => Shows(Heartsongs.Lark) ? (int)MathF.Round(c.Reward * Heartsongs.LarkPay) : c.Reward;
 
     /// <summary>
     /// Hands something over for a commission instead of selling it (giving up <paramref name="forgo"/>, its sale price,
@@ -473,10 +479,7 @@ public sealed partial class GameState
     void StartWeek()
     {
         var rng = new Random(unchecked(Seed * 104729 + Week * 7907));
-        // The Clockwork Lark carries word: a regular's open commission stays another week (once).
-        var carried = Shows(Heartsongs.Lark) ? Commissions.Where(c => !c.Done && !c.Story && !c.Carried).ToList() : new List<Commission>();
         Commissions.Clear();
-        foreach (var c in carried) c.Carried = true;
         WeekEvent = null;
         EventDay = 0;
         PeddlerDay = 0;
@@ -485,7 +488,6 @@ public sealed partial class GameState
 
         BramPiece = true;
         Commissions.AddRange(Patrons.Roll(rng, this));
-        Commissions.AddRange(carried);
         if (!MapGiven && Week <= Guild.Weeks && HoodPieces < Story.Pieces - 1 && HoodPieces < HoodScheduled(Week))
             Commissions.Insert(0, Patrons.Hood(HoodPieces + 1, Tier));
 
@@ -530,13 +532,13 @@ public sealed partial class GameState
         }
         if (HasCurio("jar"))
         {
-            int interest = Math.Min((int)(Gold * Curios.InterestRate), Curios.InterestPerTier * Tier);
+            int interest = Math.Min((int)(Gold * Curios.InterestRate), Curios.InterestPerTier * ShopTiers.Scale(Tier));
             Gold += interest;
             Today.Curios += interest;
         }
         if (HasCurio("book"))
         {
-            int coins = Curios.BookPerPoint * Exhibition;
+            int coins = Curios.BookPerPoint * ShopTiers.Scale(Tier) * Exhibition;
             Gold += coins;
             Today.Curios += coins;
         }
@@ -546,7 +548,7 @@ public sealed partial class GameState
     void Catalogue()
     {
         if (!HasCurio("catalogue")) return;
-        int fee = Curios.CataloguePerTier * Tier;
+        int fee = Curios.CataloguePerTier * ShopTiers.Scale(Tier);
         Gold += fee;
         Today.Curios += fee;
     }

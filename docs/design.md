@@ -44,10 +44,10 @@ druid, a monk and a smuggler at Thornwick; an archmage and his apprentice, a dwa
 pawnbroker and a mudlark in Crownhold; demons, a court lady, a fence, the King in disguise and once in a while the Maw
 himself at the Royal Emporium. Every chest has an **origin** (`Origins`: the millpond, the Barrow, a goblin warren, the
 abbey crypt, the Maw's hoard...), and the origin decides what it tends to hold. Sellers say where theirs came from
-(`SellerDef.Stories`), truthfully as often as their `Honesty` says, or they tell a tall tale (`Tales`). What really
-came out of a chest shows when it's open (`Visit.Explain`: "Dorrin's story was a tall one: it came from the Barrow"),
-the ledger keeps each seller's tally and a Places page of what each place tends to hold, and a careful player who knows
-a seller always tells the truth reads their chest by its place (`Strategy.Likely`).
+(`SellerDef.Stories`), always truthfully: whether a seller is lying was never a mechanic worth playing (v18 took the
+tall tales out), so the place is a clue to read, never a trap. The ledger keeps a Places page of what each place tends
+to hold, and a careful player reads every chest by its place (`Strategy.Likely`). Some sellers tell you something
+more, always true and always worth working out (`SellerDef.States`, below).
 
 ## The puzzle: rules you'd expect from real life
 
@@ -86,13 +86,15 @@ agree, thing by thing, with and without the lodestone (`Magnet` in code).
 ## What a chest holds, and how good it is
 
 A chest's **colour** says what to expect: wood (common), green (uncommon), blue (rare), purple (epic). Each thing
-inside rolls its own quality around that: 80% as promised, 15% one worse, 4.5% one better, 0.4% two better, 0.1%
+inside rolls its own quality around that: 77% as promised, 16% one worse, 6% one better, 0.8% two better, 0.2%
 three better (what would fall below common or above legendary stays at the end). Value is the kind's base times
-1, 3, 8, 20 or 50 by quality.
+1, 3, 10, 30 or 100 by quality (v18; v12 to v17: 1, 3, 8, 20, 50).
 
-Surprises are rare on purpose: in v10 one thing in five came out better (two steps in 2%), a third of a careful
-player's income came from them, and one lucky chest could pay for a renovation. Now a careful player sees about one
-thing in twelve come out better and 1 in 170 jump two steps or more, and surprises are about a seventh of the income.
+Surprises: in v10 one thing in five came out better (two steps in 2%), a third of a careful player's income came from
+them, and one lucky chest could pay for a renovation; v12 to v17 cut that to one in twelve and a seventh of the income,
+which kept the balance tight and the openings tame. v18 lets them back up: a careful player sees about one thing in
+eight come out better (with the luck curios) and one in 140 jump two steps or more, and surprises are about a quarter
+of what the chests hold.
 So a long dry spell doesn't drag on, a pity counter (`GameState.DrySpell`) counts the things opened since the last
 surprise: after 15 (7 with a Lucky Shell), each chest you buy has a 3% chance per thing more (up to 50%) that one thing
 in it is a step better, and any surprise resets it. The Lucky Coin and the Four-Leaf Clover work on top of this.
@@ -144,33 +146,35 @@ reveal like nothing else in the game.
   apply it the same way, and the shake test checks it). Only a Keywright hears one, so no seller ever prices one
   (`SellerDef.Notices`): hearing one means the chest is worth more than its price says. When one sings, its row takes the
   top of the slip, in red; tick it like anything else (a perfect read counts it).
-- **Rare.** Any chest a seller brings (not a lesson's or the first day's) has a 0.4% chance (`Heartsongs.Chance`), rolled
-  with its own dice so nothing else changes. That's about one find a run for the careful player (64% of runs see one, the
-  first around day 19). One you've never found is three times likelier; never two of the same in a run.
+- **Rare.** Any chest a seller brings (not a lesson's or the first day's) has a 0.3% chance (`Heartsongs.Chance`), rolled
+  with its own dice so nothing else changes. That's about one run in two for the careful player (54% of runs see one
+  by week 8, the first around day 24; v17's 0.4% was one a run, but a find is worth far more now). One you've never found is three times likelier; never two of the same in a run.
 - **An ordinary price.** A merchant takes it for a trinket as fine as its chest: 10g times the chest colour's multiplier
-  (10g in wood, 200g in purple), on the slip and in the sale. The Guild won't take one in pawn.
+  (10g in wood, 300g in purple), on the slip and in the sale. The Guild won't take one in pawn.
 - **Display: highly recommended.** It needs no shelf and takes no slot (it hangs on a cord over the counter, at any
-  shop, even Bram's stall); the opening's button says so. It adds no exhibition points: each does one thing instead,
-  following the curio rule (nothing that tells you what's in a chest, no share on sale prices).
+  shop, even Bram's stall); the opening's button says so. It adds no exhibition points: each does one big thing instead.
+  They're the rarest things in Aldmark, so each is worth a run built around it (v17's were a percent here and there, and
+  a find felt like nothing). None shows what a chest is worth: the Bell counts, the Star lights up enchantment, the
+  rest is still yours to work out.
 
 | Heartsong | On display |
 |---|---|
-| The Lullaby Box | impatient sellers wait as long as you like |
-| The Shepherd's Pipe | anyone who storms off or walks out comes back at the end of the day, at their first price (once) |
-| The Fey Chimes | each thing that comes out as promised has a 1% chance to come out a step better |
-| The Dragon's Egg | in the first chest each day, nothing comes out worse than promised |
-| The Clockwork Lark | a regular's unfinished commission stays open another week (once) |
-| The Hearthstone | exhibition counts half as much again |
-| The Drowned Bell | tolls when a seller's story about their chest is a lie |
-| The Bottled Star | room for one more curio |
-| The Imp's Ember | glass never breaks, dropped or forced |
+| The Lullaby Box | it calms every seller: nobody hurries you or minds what you do with their chest (kid gloves and a pocket watch at once), and everyone asks a fifth less |
+| The Shepherd's Pipe | two more customers every day, and anyone who walks out comes back at the end of the day, at their first price (once) |
+| The Fey Chimes | a third of what comes out as its chest promised comes out a step better |
+| The Dragon's Egg | coin and gems sell for twice their worth |
+| The Clockwork Lark | two more commissions every week, and every commission pays half as much again |
+| The Hearthstone | door money every night: 10g a point of exhibition at the stall, more in a grander shop (`ShopTiers.Scale`: x3, x8, x20) |
+| The Drowned Bell | as a chest comes to the counter it tolls once for every thing inside, false bottom and all: Pell's ticket on every chest |
+| The Bottled Star | enchanted things glow whenever they sound, with or without the witchlight, and are 15 points likelier |
+| The Imp's Ember | glass never breaks, dropped or forced; nothing comes out worse than its chest promised; every fake you open (demon gold, paste, sand) turns real |
 
-Tuning (`--sim=songs`, the careful collector, 150 runs): on display from the first day, the strongest (the Egg, the
-Lark, the Ember) lift the clear rate about as much as a Padded Crate does from day 1 (8 to 14 points), and well under a
-Lucky Coin (20), a Letter of Introduction (21) or a Four-Leaf Clover (38); the Bell, the Lullaby and the Star are a
-point or three. The first draft (every customer +1, double surprises, nothing ever worse, a synergy slot) gave 11 to
-45 points: one find decided a run. As they really turn up (about one a run, from mid-run), the careful player clears
-45% with no talents and 83% with all, against 43% and 81% with no Heartsongs at all.
+Tuning (`--sim=songs`, the careful collector): on display from the first day, against 42% of runs cleared with none,
+the Fey Chimes and the Dragon's Egg clear 99%, the Lullaby Box 92%, the Hearthstone 86%, the Shepherd's Pipe 82%, the
+Imp's Ember 81%, the Bottled Star 70% and the Clockwork Lark 66% (a Lucky Coin from day 1: 75%). The Drowned Bell is
+the exception in the sim (43%), because the sim's careful player already counts perfectly; for a person it's a Pell's
+ticket on every chest. As they really turn up (about one run in two, from mid-run), the careful player clears 42% with
+no talents, against 30% with no Heartsongs at all.
 
 **The ending.** Bram's kin remember every Heartsong they've opened (`Profile.Songs`, the ledger's Songs page). The Crown
 Chest holds the Locking's tune; the Heartsongs are its verses. With all nine known when it's opened, Mara sings the
@@ -263,13 +267,20 @@ something a real person might insist on. Not every visit is a deal: often the ri
 | The King's game (`SlipPrice`) | Old Aldo | his price is your slip: exactly right and he takes a quarter off; wrong, and you pay what it truly held and a quarter more | the purest test of a read; a careless one costs dear |
 | The Maw's gaze (`Gaze`) | Avarax, the Gilded Maw | one coin for the chest, but everyone after him today asks twice as much | count who's still waiting |
 
-**Stories** (`SellerDef.Stories`, `Tales`, `Honesty`; `Market.Story`). Every seller's line is a story about where the
-chest came from and what happened to them, with what they heard or how heavy it felt woven in ("Turned up under the
-plough on the old battlefield. Shook it hard: heard a clank. 30g, and that's a bargain!"). A seller tells the truth
-about the place as often as their honesty says; otherwise it's a tall tale (Dorrin's dragon, Snikkit's King's bedroom,
-Silas's Royal Treasury). The place decides what the chest tends to hold, so a true story is a clue and a tall one is a
-trap: the careful player reads an always-honest seller's chest by its place, and anyone else's by what they usually
-bring. The ledger keeps how often each seller's story held up, and the results screen says when one didn't.
+**Stories** (`SellerDef.Stories`; `Market.Story`). Every seller's line is a story about where the chest came from and
+what happened to them, with what they heard or how heavy it felt woven in ("Turned up under the plough on the old
+battlefield. Shook it hard: heard a clank. 30g, and that's a bargain!"). It's always true: the place decides what the
+chest tends to hold, so the careful player reads every chest by its place.
+
+**What they tell you besides** (`SellerDef.States`, `Visit.Clue`, `Strategy.Reckon`), and chests that change the rules
+of hearing. Each is a deduction, on a rule from real life, taught by its seller's lesson:
+
+| Seller | The clue | The deduction |
+|---|---|---|
+| Fennick the Smuggler | **straw** (`Packs`, `Chest.Packed`): packed so nothing clinks at the Wardens' toll | everything stirs a strength later (`Chest.Needs`): a gentle shake proves nothing, a firm one hears coin, potions and gems, a hard one weapons (whose clank then drowns the rest), and cloaks and spells never stir. He shakes firmly, so he never prices a weapon; nobody can price the soft things, so read them by the road's odds. Still often a false bottom: drop it |
+| Pell the Pawnbroker | **the pawn ticket** (`Clue.Articles`): how many articles were pledged, false bottom and all; he won't have pledges dropped | count every separate sound at every strength against the ticket: one short is under the false bottom |
+| Wenna the Huntress | **her game scale** (`Clue.Pounds`): the weight, to the pound; her chests hang on a mare who spooks at a hard shake (`Packhorse`) | take what you heard from the weight: what's left never stirred (a cloak 3 lb, a spell 1, a purse under the floor 4). Her scale shows beside the chest, like Hesk's |
+| Mother Bramble | **a dream** (`Clue.Dream`): she always dreams true of the dearest thing inside, as a sign (magpie, thorn, raven's wing, river, owl, star) | if the dreamt kind never sounds, it's under a false bottom; if a cheap kind is the dearest, it's finer than its colour (or the dear one is worse) |
 
 Three ways to trade:
 - **Fixed price**: buy or pass.
@@ -277,32 +288,32 @@ Three ways to trade:
   least what they'd really accept, name a final price if not, or storm off if it's under 35% of their ask.
 - **Name a price**: they wait for your offer. Two tries.
 
-| Seller | Place | Comes from | Judges by | Trades | Their rule | Trust |
-|---|---|---|---|---|---|---|
-| Little Tam | Brindle | the millpond, Gran's attic | no idea | name a price | (30% empty) | true |
-| Widow Penn | Brindle | her Tobb's kitbag, the attic | a gentle shake | fixed | | true |
-| Hob the Farmer | Brindle | the old battlefield | a hard shake | haggle | | true |
-| Mags the Innkeeper | Brindle | unpaid tabs | counting rattles (firmly) | fixed | | true |
-| Dorrin the Delver | Brindle | the Barrow | colour | fixed, cheap | a rotten chest | tall tales (40% true) |
-| Snikkit the Goblin | Thornwick | a goblin warren | a gentle shake | fixed | a tenth more per strength | lies |
-| Wenna the Huntress | Thornwick | outlaws' camps, wolves' dens | weight | fixed, fair | (80% locked) | true |
-| Mother Bramble | Thornwick | the Old Wood | a dream | fixed | | true |
-| Brother Ansel | Thornwick | the abbey crypt | a firm shake | fixed, steep | no hard shake | true |
-| Fennick the Smuggler | Thornwick | the smugglers' road | a gentle shake | haggle | (55% false bottoms) | half true |
-| Wren the Apprentice | Crownhold | the Arcanum stores | feeling for magic | name a price | (25% enchanted) | true |
-| Archmage Orrin | Crownhold | the Arcanum stores | colour | fixed | a wager | true |
-| Grit the Miner | Crownhold | a dwarf-hold | knowing arms (hard) | haggle | | true |
-| Lady Corisande | Crownhold | a noble's strongroom | colour, plus magic | fixed | no drop (50% false bottoms) | true |
-| Pell the Pawnbroker | Crownhold | forgotten pawn lots | a firm shake, never counting | fixed, steep | (60% pairs) | true |
-| Shelly the Mudlark | Crownhold | the Aldwater mud | a hard shake | fixed | (half her scrolls are sand) | true |
-| Sir Aldous | Crownhold | a knight's war chest | colour | fixed | an heirloom | true |
-| Vexis the Imp | Royal Emporium | the Maw's hoard | colour | fixed | twelve seconds (things often better than their colour) | mostly lies |
-| Malbranche | Royal Emporium | the Maw's hoard | colour | fixed, cheap | a devil's due | half true |
-| Skrae | Royal Emporium | the Maw's hoard | a gentle shake, then a hard one | fixed | (enchantment 20%, false bottoms 30%) | true |
-| Lady Ermine | Royal Emporium | a noble's strongroom | her gems, at what she paid | fixed | no lodestone (25% paste) | true |
-| Silas Gilt | Royal Emporium | the Maw's hoard | packed it himself | fixed, at about half | (60% demon gold) | lies |
-| Old Aldo | Royal Emporium | the Royal Treasury | none | your slip | the King's game | lies (about who he is) |
-| Avarax, the Gilded Maw | Royal Emporium | the Maw's hoard | colour | one coin | the Maw's gaze | lies |
+| Seller | Place | Comes from | Judges by | Trades | Their rule |
+|---|---|---|---|---|---|
+| Little Tam | Brindle | the millpond, Gran's attic | no idea | name a price | (30% empty) |
+| Widow Penn | Brindle | her Tobb's kitbag, the attic | a gentle shake | fixed | |
+| Hob the Farmer | Brindle | the old battlefield | a hard shake | haggle | |
+| Mags the Innkeeper | Brindle | unpaid tabs | counting rattles (firmly) | fixed | |
+| Dorrin the Delver | Brindle | the Barrow | colour | fixed, cheap | a rotten chest |
+| Snikkit the Goblin | Thornwick | a goblin warren | a gentle shake | fixed | a tenth more per strength |
+| Wenna the Huntress | Thornwick | outlaws' camps, wolves' dens | weight | fixed, fair | her game scale; no hard shake (her mare); 80% locked |
+| Mother Bramble | Thornwick | the Old Wood | a dream | fixed | dreams of the dearest thing (25% false bottoms) |
+| Brother Ansel | Thornwick | the abbey crypt | a firm shake | fixed, steep | no hard shake |
+| Fennick the Smuggler | Thornwick | the smugglers' road | a firm shake, through straw | haggle | straw (45% false bottoms) |
+| Wren the Apprentice | Crownhold | the Arcanum stores | feeling for magic | name a price | (25% enchanted) |
+| Archmage Orrin | Crownhold | the Arcanum stores | colour | fixed | a wager |
+| Grit the Miner | Crownhold | a dwarf-hold | knowing arms (hard) | haggle | |
+| Lady Corisande | Crownhold | a noble's strongroom | colour, plus magic | fixed | no drop (50% false bottoms) |
+| Pell the Pawnbroker | Crownhold | forgotten pawn lots | a firm shake, never counting | fixed, steep | the pawn ticket; no drop (60% pairs, 35% false bottoms) |
+| Shelly the Mudlark | Crownhold | the Aldwater mud | a hard shake | fixed | (half her scrolls are sand) |
+| Sir Aldous | Crownhold | a knight's war chest | colour | fixed | an heirloom |
+| Vexis the Imp | Royal Emporium | the Maw's hoard | colour | fixed | twelve seconds (things often better than their colour) |
+| Malbranche | Royal Emporium | the Maw's hoard | colour | fixed, cheap | a devil's due |
+| Skrae | Royal Emporium | the Maw's hoard | a gentle shake, then a hard one | fixed | (enchantment 20%, false bottoms 30%) |
+| Lady Ermine | Royal Emporium | a noble's strongroom | her gems, at what she paid | fixed | no lodestone (25% paste) |
+| Silas Gilt | Royal Emporium | the Maw's hoard | packed it himself | fixed, at about half | (60% demon gold) |
+| Old Aldo | Royal Emporium | the Royal Treasury | none | your slip | the King's game |
+| Avarax, the Gilded Maw | Royal Emporium | the Maw's hoard | colour | one coin | the Maw's gaze |
 
 For listeners, whether the chest holds something they can't price (unheard, or a second of a kind they didn't count)
 is rolled first, at their miss rate (55% by default; 45% for Pell, 50% for Ansel, 60% for Snikkit; Skrae and Silas
@@ -312,9 +323,9 @@ then (8%, from Crownhold). Old Aldo comes in less often than the others (`Visits
 ## A seller's first visit is a lesson
 
 The first time each seller comes in (with tips on), their visit is a lesson in their habit, built so it can't fail
-to show it: Fennick's chest has a false bottom, Pell's has three purses, Shelly's has a scroll case of sand, Silas's has
-demon gold, Dorrin's comes with a tall tale (a dragon) to set against the Barrow, Malbranche's holds four things for
-him to take the best of. Bram gives one step at a time; each step has a check
+to show it: Fennick's is packed in straw with an unpriced weapon and a false bottom, Pell's ticket counts one more than
+you can hear, Wenna's weighs a cloak more than you heard, Mother Bramble dreams of a star with no tinkle inside, Shelly's
+has a scroll case of sand, Silas's has demon gold, Malbranche's holds four things for him to take the best of. Bram gives one step at a time; each step has a check
 (`LessonStep.Done`, on what's been heard, the slip, the visit) that runs every frame, so a step done early counts.
 Until the steps are done, the trade buttons wait (unless the step is about trading, like naming Tam a price); the
 lesson can always be skipped. Steps adapt to the tools you own (Skrae's asks you to mark what glows if you have the
@@ -386,12 +397,26 @@ The first four weeks ask for little: a first-timer's purse grows and they get th
 third of them to Bram's word, whose interest then sank them in week 4). From week 5 the dues climb faster than a
 learner's shop grows; week 8 is the wall that only good judgment with some talents behind it gets over.
 
+**v18: bigger numbers, faster dues.** The owner: tight constraints made upgrades feel optional and growth flat; let
+the numbers scale and the dues climb faster. Qualities are now worth 1, 3, 10, 30 and 100 times a common; the buyers'
+trades, the crier and the night market, synergies that put up their kind's price and powerful Heartsongs all compound;
+each move inward multiplies what a customer is worth several times. The dues keep the first four weeks for learning
+and then climb six to eight times a week, as fast as a growing shop does:
+
+| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | then |
+|---|---|---|---|---|---|---|---|---|---|
+| Due | 40g | 100g | 200g | 400g | 1,200g | 7,000g | 55,000g | 200,000g | x1.5 a week |
+
+A careful collector's purse on the Guild's night goes from about 130g in week 1 to 2,000g in week 3, 20,000g in week 5
+and 200,000g in week 8; a strong run takes off at the Royal Emporium and pays it all off in week 6 or 7.
+
 **Paying it off early.** Whenever you have all that's left of the debt (`GameState.DebtLeft`: this week's due if it's
 unpaid, and every week's after it to the eighth), you can pay it at once: from the day-end screen's Guild panel, which
 shows what's left and turns into a "Pay it all off" button (with a confirmation), or on the Guild's night beside the
 week's due. The debt is cleared and the run is won, however early (`ClearedDay`; the profile keeps your fastest).
-Keep trading after, and nobody comes until week 9, when the Guild's interest starts. A careful player usually pays
-the eighth due on the night; a lucky run has it all a week early, and nobody yet has managed two.
+Keep trading after, and nobody comes until week 9, when the Guild's interest starts. Since v18 a run that takes off
+pays it off a week or two early (or buys the Bookkeeping Engine for the same sum and finishes fast); the rest meet the
+wall on the eighth night.
 
 The first weeks are small while you learn the stall and the village; from week 4 the dues climb with what a growing
 shop can earn, so every evening's spending is a decision: a renovation or cabinet now pays back over days, but the
@@ -399,7 +424,7 @@ Guild comes on a fixed night. Once Vane has introduced himself (the first evenin
 then), the HUD shows the next due and when, and the day-end screen shows it against your gold.
 
 Spending is guided, not blocked. The day-end screen says how much to keep for tomorrow's chests
-(`ShopTiers.Working`: 20g at the stall, 30g in the village, 100g in town, 250g at the Emporium, counting the shop a
+(`ShopTiers.Working`: 20g at the stall, 30g in the village, 120g in town, 400g at the Emporium, counting the shop a
 renovation would make), and an upgrade that would leave less than that, or leave you short for the Guild tonight, has
 an orange price and a tooltip saying why. The sim's careful player keeps the same purse (`Strategy.Reserve` adds it
 to what the next due needs), so Bram's advice is what good play does: buying the village at 120g and opening it with
@@ -436,16 +461,16 @@ are 1g, and he always has one. He buys curios back for half what you paid (so on
 
 | Curio | | Does |
 |---|---|---|
-| Lucky Coin | common | the first chest you open each day: everything in it gets two tries at its quality |
+| Lucky Coin | common | the first two chests you open each day: everything in them gets two tries at its quality |
 | Lucky Shell | common | a dry spell ends twice as soon: the pity starts after 7 plain finds, not 15 |
 | Shop Lantern | common | one more customer on the fifth day of each week |
-| Collector's Catalogue | common | every new find in the journal pays 10g per shop tier |
+| Collector's Catalogue | common | every new find in the journal pays 40g at the stall, more in a grander shop (`ShopTiers.Scale`: x3, x8, x20) |
 | Padded Crate | common (Thornwick on) | glass never breaks when you drop a chest |
 | Locksmith's Oil | common (Thornwick on) | every lock has one pin fewer |
 | Rainy-Day Purse | common | Bram's stash has one more dip in it |
 | Pawn Ticket | common | on a short night, what you pawn fetches four-fifths of its price, not three-fifths |
 | Merchant's Signet | uncommon | hagglers hear you out: an offer too low gets a second try, not a slammed door |
-| Savings Jar | uncommon | nightly interest: 5% of your gold, up to 25g per shop tier |
+| Savings Jar | uncommon | nightly interest: 5% of your gold, up to 100g at the stall, more in a grander shop |
 | Letter of Introduction | uncommon | regulars take what you deliver a quality lower than they asked for (not the Hooded Woman) |
 | Burglar's Knife | uncommon (Thornwick on) | forcing a lock breaks and scratches nothing |
 | Smuggler's Hook | uncommon (Thornwick on) | false bottoms turn up a little more often (+5%) |
@@ -458,7 +483,7 @@ are 1g, and he always has one. He buys curios back for half what you paid (so on
 | Hatter's Cap | uncommon | garb never comes out worse than its chest promised |
 | Jeweller's Loupe | uncommon (Royal Emporium) | paste gems and demon gold sell as costume pieces, for a quarter of the real thing |
 | Four-Leaf Clover | rare | the first chest you open each week: everything in it is a step better |
-| Visitors' Book | rare (Thornwick on) | every night, 2g per exhibition point |
+| Visitors' Book | rare (Thornwick on) | every night, 5g per exhibition point at the stall, more in a grander shop |
 | Kid Gloves | rare (Thornwick on) | nobody minds how you handle their chest: shake hard, drop it, use the lodestone (a rotten chest is still rotten) |
 | Bell Jar | rare (Thornwick on) | room to display one more thing |
 
@@ -554,11 +579,11 @@ Terms are rules that hold every time, not hidden rolls:
 |---|---|
 | 1 | Bram's stretched thin: his stash has one dip fewer, his word one time fewer |
 | 2 | Fussy sellers: everyone minds a drop (price up by half) |
-| 3 | Demon gold about: one coin in twenty is demon gold, whoever brings it |
+| 3 | Demon gold about: one coin in ten is demon gold, whoever brings it |
 | 4 | Lean start: half the starting gold |
-| 5 | Thin crowds: one customer fewer every day at Bram's stall |
-| 6 | The Guild's interest: every due a tenth higher |
-| 7 | Sharp sellers: everyone asks, and takes, a twentieth more |
+| 5 | Thin crowds: one customer fewer every day |
+| 6 | The Guild's interest: every due a quarter higher |
+| 7 | Sharp sellers: everyone asks, and takes, a tenth more |
 | 8 | Hurried: every seller gives you 20 seconds |
 
 They're ordered mildest first by what each does on its own to the careful player with every talent (the sim's
@@ -628,23 +653,23 @@ all show its own sprite (`UiKit.MakeItemIcon`, from icons `tools/import_art.py` 
 
 **Synergies** turn that tally into goals. Each has five levels; ten of a kind at common or better reaches level 1,
 ten at uncommon or better level 2, and so on to ten legendary for level 5. Two are achievements instead. A synergy is
-what the shop gets known for, and a name works the way it does in real life: it brings people and chances your way
-and spares you some breakage. It never adds a share to what things sell for (v7 to v11 had +3% to +15% on every sale,
-or a fee of 3% to 15% of what a perfect read's chest held; on margins of a few percent, that grew the shop far faster
-than judgment did).
+what the shop gets known for, and a name works the way it does in real life: it brings people and chances your way,
+spares you some breakage, and buyers pay more at a shop known for a kind of thing. Since v18 each is a real power (v12
+to v17 kept them to a percent or two, for fear a share on sales would grow the shop faster than judgment; that made
+them feel optional, and the Guild's dues now climb fast enough to check any growth):
 
 | Synergy | Needs | Does (per level) |
 |---|---|---|
-| Goldsmith | coin and gems | coin and gems turn up in chests 10% more often |
-| Armourer | weapons | soldiers, knights and dwarves (who bring weapons) come 20% more often |
-| Apothecary | potions | glass 20% less likely to break, dropped or forced (never, at level 5) |
-| Spellkeeper | spells | chests 2% likelier to have a false bottom |
-| Cloakmaker | cloaks | exhibition +10% |
-| Keen Eye | perfect reads in a row (3, 6, 10, 15, 25) | a perfect read earns a valuer's fee of 1g per shop tier |
-| Arcanist | enchanted things found (3, 8, 15, 25, 40) | each thing 1% likelier to be enchanted |
+| Goldsmith | coin and gems | coin and gems turn up 10% more often, and sell for 10% more |
+| Armourer | weapons | soldiers, knights and dwarves (who bring weapons) come 20% more often; weapons sell for 10% more |
+| Apothecary | potions | glass 20% less likely to break, dropped or forced (never, at level 5); potions sell for 10% more |
+| Spellkeeper | spells | chests 4% likelier to have a false bottom; spells sell for 10% more |
+| Cloakmaker | cloaks | exhibition +20%; cloaks sell for 10% more |
+| Keen Eye | perfect reads in a row (3, 6, 10, 15, 25) | a perfect read earns a valuer's fee of 5% of what the chest held |
+| Arcanist | enchanted things found (3, 8, 15, 25, 40) | each thing 3% likelier to be enchanted; enchanted things sell for 10% more |
 
 Only **one** synergy is active at a time, chosen at the end of a day (the day-end screen's Synergies button opens the
-journal with switches). A Crownhold Charter (300g) and then a Royal Seal (900g, Royal Emporium, only once you have the
+journal with switches). A Crownhold Charter (600g) and then a Royal Seal (2,500g, Royal Emporium, only once you have the
 charter) add a slot each. The Synergies button is on the day-end screen from the moment you move to Crownhold, even
 before any synergy is reached ("Synergies: none reached yet"), so Bram's tip always has something to point at. That makes a
 specific kind of chest worth wanting: a player chasing Goldsmith level 3 wants blue chests with coin and gems (a
@@ -653,26 +678,39 @@ noble's strongroom, the Maw's hoard), and will pay up for them.
 After an opening, anything not fake or broken can be **kept for display** instead of sold: you give up its price. The
 button shows the points it adds (a star for enchanted, which counts double). With the display full, it becomes **Swap**:
 pick something on display to sell, and the new thing takes its place. Display space: a shelf with room for one, then
-six cabinets of one each, each on offer only once the one before it is bought: Oak Cabinet 60g and Oak Dresser 120g
-(Thornwick), Glass Cabinet 250g and Glass Case 400g (Crownhold), Gilded Cabinet 700g and Gilded Case 1,100g (Royal
+six cabinets of one each, each on offer only once the one before it is bought: Oak Cabinet 80g and Oak Dresser 160g
+(Thornwick), Glass Cabinet 400g and Glass Case 700g (Crownhold), Gilded Cabinet 1,500g and Gilded Case 2,500g (Royal
 Emporium); a Bell
 Jar (a curio) holds one more. The **exhibition** score is the display's prestige (1, 2, 4, 8 or 16 by quality; double
-if enchanted). Every 10 points brings a customer a day (up to two), and each point makes a chest 1% likelier to be a
+if enchanted). Every 10 points brings a customer a day (up to four), and each point makes a chest 1% likelier to be a
 colour better (up to 40%). Past 40 an exhibition brings nothing more, unless visitors pay to see it (the Visitors'
-Book curio).
+Book curio, Isolde's door, the Hearthstone).
 
 ## Stages
 
 | Place | Cost | Customers/day | Chests | New |
 |---|---|---|---|---|
 | Bram's Stall, the Brindle crossroads | start | 4 | mostly wood | jingle, clank, flump; three strengths; clanks drown jingles; from day 2, haggling, naming a price, counting rattles, stories; Dorrin's rotten Barrow chests |
-| Thornwick Market | 60g, once the stall has earned 120g | 5 | mostly green | slosh and rustle; locks; false bottoms and the drop; the display shelf and cabinets; Snikkit's fee, Wenna's weight, Bramble's dreams, Ansel's crypt, Fennick's false bottoms |
-| Crownhold | 300g | 6 | mostly blue | gems; two or three of a kind (Pell); sand (Shelly); enchantment and the Witchlight; synergies and the Crownhold Charter; Wren, Orrin's wager, Grit, Corisande's trick boxes, Sir Aldous's heirloom |
-| The Royal Emporium | 2,000g | 7 | blue and purple | Vexis's hourglass, Malbranche's due, Skrae, Silas's demon gold, Ermine's paste, the King's game, the Maw's gaze, the Lodestone, the Royal Seal |
+| Thornwick Market | 60g, once the stall has earned 120g | 5 | mostly green | slosh and rustle; locks; false bottoms and the drop; the display shelf and cabinets; Snikkit's fee, Wenna's scale and mare, Bramble's dreams, Ansel's crypt, Fennick's straw |
+| Crownhold | 300g | 6 | mostly blue | gems; two or three of a kind and the pawn ticket (Pell); sand (Shelly); enchantment and the Witchlight; synergies and the Crownhold Charter; Wren, Orrin's wager, Grit, Corisande's trick boxes, Sir Aldous's heirloom |
+| The Royal Emporium | 4,000g | 7 | blue and purple | Vexis's hourglass, Malbranche's due, Skrae, Silas's demon gold, Ermine's paste, the King's game, the Maw's gaze, the Lodestone, the Royal Seal |
 
-The Painted Sign (40g) adds a customer a day; the Curio Case (250g, Crownhold) room for a fourth curio. The Royal
-Emporium has three big sums to grow into while the dues climb: the Night Market (2,500g, two more customers a day), the
-Patrons' Book (4,000g, a fourth commission a week) and the Velvet Case (6,000g, a fifth curio, after the Curio Case).
+Each move multiplies what a customer is worth (the sim's careful player: about 8g of profit a customer at the stall,
+17g at Thornwick, 100g at Crownhold, 1,400g at the Royal Emporium), so a careful player saves for the next move before
+anything else (`Strategy.Saving`). Besides: the Painted Sign (60g) a customer a day; the Town Crier (900g, Crownhold)
+two; the Night Market (6,000g, Emporium) three; the Curio Case (500g) and the Velvet Case (10,000g) a curio slot each;
+the Patrons' Book (8,000g) two more commissions a week. And the **buyers' trades**, which multiply what everything
+sells for: Brass Scales (150g, Thornwick, +20%), the Auction Block (1,500g, Crownhold, +30%) and the Royal Warrant
+(12,000g, Emporium, +50%), together x2.34. Sellers hear of it and ask that much more of a shop known to sell high
+(`GameState.Buyers` in `Boosts.Dearer`): a trade multiplies the edge your judgment gives you, and never makes buying
+blind pay (before that was priced in, buying blind at the Emporium made 600g a visit, as much as a careful read).
+
+**The Bookkeeping Engine** (`Upgrades.Engine`). Once your purse could pay off everything left of the debt
+(`GameState.CanPayOff`), the Guild offers its counting clockwork for exactly that sum (`GameState.Cost`), first on the
+day-end cards. It marks every chest's real contents on the slip as it comes to the counter (`Appraisal.Recorded`:
+every real thing by kind, enchantment, a false bottom; not how good: that's still the opening), so there's nothing to
+shake: a run that's already won can be finished in an afternoon, still owing the Guild everything. It can't read
+through the Stranger's chains. The sim's careful player pays off instead; `--engine` starts the bot with it.
 Day one is scripted: four customers, one lesson each (a gentle shake and the slip; a hard shake for a coat; listening
 past a clank; passing when they heard everything).
 
@@ -681,68 +719,64 @@ past a clank; passing when they heard everything).
 Each style plays whole runs as Kit at level 0 with no talents: buying chests, curios (a careful player's taste,
 keeping enough back for the Guild) and upgrades (keeping Bram's working purse), delivering commissions, paying the
 Guild (pawning, or Bram's word, when short), taking Bram's stash when a day starts nearly broke, and paying off the
-whole debt as soon as it can. These are the perfect listeners; how real players get there is in *Balance across a
-career*, below. v15 rebuilt the cast and the kinds on top of v14's curve and tuned the new sellers until it held:
+whole debt as soon as it can (always paying off rather than buying the Bookkeeping Engine). These are the perfect
+listeners; how real players get there is in *Balance across a career*, below. v18's numbers:
 
 | Style | Still trading after each due, weeks 1-8 | Debt cleared | Crown Chest | Foreclosed (median week) | Thornwick | Crownhold | Royal Emporium |
 |---|---|---|---|---|---|---|---|
-| Pays their price, every chest | 100 97 81 40 18 8 3 0% | 0% | 0% | all (week 4) | day 6 | never | never |
-| One hard shake, keeps the seller's marks | 100 100 99 95 82 60 51 0% | 0% | 0% | all (week 8) | day 5 | day 13 | never |
-| Every strength, drops when safe | 100 100 100 100 97 91 87 1% | 1% | 1% | all (week 8) | day 3 | day 11 | day 17 |
-| + Witchlight and Lodestone | 100 100 100 100 98 92 91 19% | 19% | 19% | all (week 8) | day 3 | day 11 | day 17 |
-| + keeps grand things | 100 100 100 100 96 83 82 41% | 41% | 41% | all (week 8) | day 3 | day 12 | day 21 |
+| Pays their price, every chest | 100 89 65 37 23 12 4 0% | 0% | 0% | all (week 4) | day 6 | never | never |
+| One hard shake, keeps the seller's marks | 100 100 98 91 77 56 31 0% | 0% | 0% | all (week 7) | day 4 | day 13 | day 27 |
+| Every strength, drops when safe | 100 100 100 98 96 88 75 9% | 9% | 9% | 99% (week 8) | day 3 | day 11 | day 19 |
+| + Witchlight and Lodestone | 100 100 100 98 96 88 74 25% | 25% | 25% | 99% (week 8) | day 3 | day 11 | day 20 |
+| + keeps grand things | 100 100 100 98 96 89 82 38% | 38% | 38% | 96% (week 8) | day 3 | day 11 | day 20 |
 
-("Foreclosed" counts the Guild's endless interest after the debt, which catches every shop by week 10.)
+("Foreclosed" counts the Guild's endless interest after the debt, which catches nearly every shop by week 12.)
 
-With no talents, even a perfect ear clears the debt less than half the time, and only with an exhibition: what you
-keep draws the customers and the better chests that the last two weeks need. Week 8 is the wall (12,000g, twice
-week 7); a careful player who sells everything has a median 6,863g on that night, a collector 9,478g.
+The tools now matter (9% to 25%), and the exhibition more (38%). Week 8 is the wall (200,000g, nearly four times
+week 7).
 
 Week by week for the careful collector (gold on the Guild's night, before paying):
 
-| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Due | 40 | 100 | 200 | 500 | 1,300 | 2,800 | 6,000 | 12,000 | 18,000 | 27,000 |
-| Gold, 10th percentile | 84 | 176 | 320 | 611 | 760 | 693 | 6,526 | 5,748 | 11,184 | 4,197 |
-| Gold, median | 123 | 325 | 669 | 1,619 | 3,421 | 6,799 | 9,982 | 9,478 | 15,210 | 9,523 |
-| Paid | 100% | 100% | 100% | 100% | 97% | 86% | 99% | 33% | 46% | 3% |
-| At the Royal Emporium | 0% | 0% | 4% | 39% | 69% | 79% | 93% | 94% | 100% | 100% |
+| Week | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|
+| Due | 40 | 100 | 200 | 400 | 1,200 | 7,000 | 55,000 | 200,000 | 300,000 |
+| Gold, 10th percentile | 80 | 182 | 336 | 662 | 814 | 3,642 | 11,804 | 16,637 | 333,630 |
+| Gold, median | 136 | 469 | 1,915 | 4,007 | 9,388 | 36,574 | 89,485 | 121,801 | 538,668 |
+| Paid | 100% | 100% | 100% | 99% | 98% | 93% | 91% | 36% | 92% |
+| At the Royal Emporium | 0% | 1% | 17% | 48% | 84% | 93% | 96% | 97% | 100% |
 
-A careful collector fills about 21 commissions a run (some 7,600g), Bram vouches in a fifth of runs (usually week 5,
-for collectors who spent on cabinets, or are still at Thornwick: about one in six is, in week 4), and his stash opens
-less than once a run. The new sellers have to be wired into the day for that to hold: Dorrin and Snikkit come in half
-the days, Old Aldo one in four, the Maw one in ten (`SellerDef.Visits`). Before that was wired up, the Maw's one-coin
-chest (about 600g of profit) came as often as anyone, and the Royal Emporium paid a third more per customer than v14's.
+Profit per customer at each shop, for the careful collector: about 8g at the stall, 17g at Thornwick, 95g at Crownhold
+and 1,500g at the Royal Emporium. A collector fills about 19 commissions a run (11,000g), opens Bram's stash less than
+once, and needs Bram's word in about a third of runs, almost all in week 7, short of the dues that the Emporium hasn't
+had long enough to pay. Surprises: about one thing in eight comes out a step better than its chest (0.7% two or more),
+worth 27% of what the chests held (v17: 14%).
 
 What curios and synergies are worth, to the careful player with both tools who sells everything:
 
 | | Debt cleared | Median day cleared | Median gold on the night, week 4 / 6 / 8 |
 |---|---|---|---|
-| With both | 19% | 40 | 2,096 / 6,447 / 6,863 |
-| No curios | 3% | 40 | 1,767 / 5,416 / 4,926 |
-| No synergies | 6% | 40 | 1,748 / 5,140 / 4,543 |
-| Neither | 0% | - | 1,522 / 4,597 / 3,256 |
+| With both | 25% | 35 | 3,716 / 21,128 / 56,891 |
+| No curios | 18% | 35 | 3,754 / 22,710 / 52,247 |
+| No synergies | 1% | 36 | 2,990 / 5,925 / 8,035 |
+| Neither | 1% | 37 | 2,832 / 5,920 / 5,853 |
 
-On a steep curve every edge matters; they still don't add a share to sales, and those who clear with them do so on
-the eighth night, not weeks sooner.
+Synergies are now the shop's spine (a tenth a level on their kinds' sale prices, with up to three active); curios
+are a real edge (the Lucky Coin and the Four-Leaf Clover most).
 
-Surprises: a careful player sees 8% of things come out a step better than their chest and 0.5% two or more, worth 14%
-of what the chests held.
-
-Per seller, at their own place, profit per visit for a careful player with every tool, against paying their price
-blind. Every habit and every rule pays for putting up with it; only Tam (a few coins for anything), Wren (a modest sum
-when nothing's enchanted), Mags, Wenna and Mother Bramble pay a little blind, and the Maw's coin pays anyone (its
-price is the rest of the day, which the table doesn't count):
+Per seller, at their own place (with the shop's tools and buyers' trades), profit per visit for a careful player,
+against paying their price blind. Every habit and every rule pays for putting up with it; only Tam (a few coins for
+anything), Wren (a modest sum when nothing's enchanted), Mags and Wenna pay a little blind, and the Maw's coin pays
+anyone (its price is the rest of the day, which the table doesn't count):
 
 | | Tam | Penn | Hob | Mags | Dorrin | Snikkit | Wenna | Bramble | Ansel | Fennick | Wren | Orrin |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Careful | +10 | +5 | +9 | +6 | +2 | +7 | +15 | +13 | +15 | +23 | +30 | +72 |
-| Blind | +10 | 0 | 0 | +3 | 0 | -3 | +3 | +2 | -1 | -23 | +8 | -24 |
+| Careful | +13 | +5 | +11 | +7 | +2 | +9 | +16 | +18 | +21 | +17 | +61 | +114 |
+| Blind | +12 | 0 | 0 | +3 | -1 | -6 | +4 | -6 | -1 | -41 | +12 | -42 |
 
 | | Grit | Corisande | Pell | Shelly | Aldous | Vexis | Malbranche | Skrae | Ermine | Silas | Aldo | the Maw |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Careful | +125 | +33 | +104 | +24 | +31 | +44 | +31 | +77 | +34 | +84 | +112 | +599 |
-| Blind | -404 | -7 | -12 | -26 | -9 | -258 | -68 | -17 | -69 | -19 | -239 | +608 |
+| Careful | +207 | +42 | +198 | +40 | +49 | +82 | +10 | +154 | +98 | +182 | +620 | +1,481 |
+| Blind | -1,088 | -23 | -44 | -40 | -29 | -532 | -195 | -29 | -226 | -61 | -573 | +1,418 |
 
 The careful player plays the King's game only on a read it could check every way (every strength and the drop): a
 wrong read costs a quarter more than the chest held, and Hesk, who can't shake hard or drop, never plays it. It buys
@@ -768,12 +802,14 @@ they know the rules but don't yet apply them every time.
 
 | Skill (Kit, level 0) | No talents: cleared, still trading after weeks 4 / 5 / 6 / 7 | Every talent |
 |---|---|---|
-| 0.15 (a first run) | 0%; 90 / 63 / 43 / 39%, lost in week 6 | 2% |
-| 0.5 | 4%; 97 / 82 / 63 / 60% | 14% |
-| 0.75 | 20%; 99 / 91 / 75 / 75% | 53% |
-| 1 (the careful collector) | 45%; 100 / 95 / 83 / 83% | 83% |
+| 0.15 (a first run) | 10%; 81 / 68 / 57 / 41%, lost in week 7 | 18% |
+| 0.5 | 13%; 93 / 84 / 75 / 61% | 36% |
+| 0.75 | 25%; 95 / 90 / 83 / 70% | 47% |
+| 1 (the careful collector) | 42%; 99 / 95 / 89 / 83% | 75% |
 
-(0.17's figures, with the Heartsongs: without them the careful player clears 43% and 81%, as in v15.)
+(v18's figures. A first run clears one time in ten, and nearly always because a Heartsong turned up: without them
+it's 3%, and the careful player's 30%. The Heartsongs are meant to be that strong; they're also rare, about one run
+in two.)
 
 **Careers.** Each simulated player starts at skill 0 to 0.3 and improves toward their own best (0.75 to 1) at their
 own pace (a tenth to three tenths of the way each run); every run is Kit's at the highest level open, scored at the
@@ -783,19 +819,18 @@ guess; what the sim shows is the shape (`--sim`, 40 players over 30 runs):
 | Run | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 12 | 16 | 20 | 24 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Skill | 0.15 | 0.29 | 0.41 | 0.50 | 0.57 | 0.63 | 0.68 | 0.71 | 0.74 | 0.77 | 0.80 | 0.84 | 0.86 | 0.87 |
-| Cleared | 0% | 0% | 0% | 8% | 10% | 20% | 15% | 25% | 28% | 28% | 35% | 30% | 30% | 30% |
-| Lost in week (median) | 6 | 7 | 7 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 8 |
-| Challenge level | 0 | 0 | 0 | 0 | 0.1 | 0.2 | 0.4 | 0.5 | 0.8 | 1.1 | 1.6 | 2.9 | 4.5 | 5.8 |
-| Talents (of 13) | 1.8 | 3.4 | 4.3 | 5.2 | 6.1 | 6.9 | 7.5 | 8.1 | 8.7 | 9.4 | 10.4 | 12.2 | 12.9 | 13 |
-| Renown | 186 | 184 | 185 | 217 | 241 | 275 | 286 | 319 | 346 | 391 | 464 | 538 | 651 | 796 |
+| Cleared | 8% | 5% | 10% | 20% | 15% | 28% | 23% | 20% | 33% | 40% | 35% | 48% | 18% | 15% |
+| Lost in week (median) | 7 | 8 | 8 | 8 | 8 | 7 | 8 | 8 | 8 | 8 | 8 | 8 | 8 | 7 |
+| Challenge level | 0 | 0.1 | 0.1 | 0.2 | 0.4 | 0.6 | 0.9 | 1.1 | 1.3 | 1.6 | 2.2 | 3.7 | 5.1 | 5.9 |
+| Talents (of 13) | 2.1 | 3.7 | 4.7 | 5.8 | 6.7 | 7.5 | 8.0 | 8.6 | 9.3 | 10.0 | 11.0 | 12.7 | 13 | 13 |
+| Renown | 205 | 220 | 230 | 281 | 286 | 338 | 342 | 345 | 421 | 456 | 510 | 713 | 615 | 586 |
 
-The first run gets through the first five weeks and loses in week 6 with a growing purse that wasn't growing fast
-enough; the next few get to the last weeks and lose there; the debt is first cleared around the ninth run (a quarter
-of players by run 6, half by 9, three quarters by 12), with about eight talents learned. Then the levels: level 1
-around run 13, 2 around 15, 4 around 20 (every player by run 30), 6 around 27 (60%); level 8 is cleared by one in
-twelve by run 30. All nine Heartsongs are known around run 16, and the first Crown Chest sung whole comes around run
-17 (90% of players by run 30). The whole talent tree is learned around run 21, as the climb starts in earnest; renown keeps the
-score of how far a run got. A new talent comes after nearly every run early on.
+v18: the first run gets to week 7 and loses there (one in ten clears, on a Heartsong's luck); the debt is first
+cleared around the sixth run (a quarter of players by run 4, half by 6, three quarters by 9), a few runs sooner than
+0.17's ninth: bigger growth forgives a learner's mistakes a little more. Then the levels: level 1 around run 10, 2
+around 12, 4 around 17 (every player by run 30), 6 around 28 (55% by run 30); level 8 stays a wall (nobody by run
+30). All nine Heartsongs are known around run 17 and the Crown Chest is first sung whole around run 19 (78% of
+players by run 30). The whole talent tree is learned around run 18; after that the climb is the challenge levels.
 
 Getting there: v13's dues (40, 100, 300, 800, 1,400, 2,400, 3,800, 7,000) let the careful player with no talents
 clear 61% of the time and half of all careers clear by their fifth run, with a third of first-timers already short in
@@ -811,14 +846,21 @@ moved from level 6 to 8; the rest kept their places (within a few points of each
 All together, level by level: 81, 81, 72, 67, 61, 43, 31, 13, 6%. The first levels are an on-ramp for a careful player
 and bite a learner who still leans on Bram's stash and word and drops glass.
 
-**Bram's kin** on the new curve (the careful collector, 150 runs each; cleared %; 0.17, with the Heartsongs):
+**Bram's kin** on the new curve (the careful collector, 150 runs each; cleared %; v18):
 
 | | No talents | All, level 0 | Level 2 | Level 4 | Level 6 | Level 8 |
 |---|---|---|---|---|---|---|
-| Kit | 45% | 83% | 73% | 62% | 32% | 6% |
-| Hesk | 37% | 79% | 79% | 60% | 22% | 13% |
-| Rosa | 43% | 81% | 70% | 59% | 29% | 8% |
-| Isolde | 49% | 82% | 79% | 61% | 35% | 8% |
+| Kit | 42% | 75% | 68% | 53% | 23% | 9% |
+| Hesk | 31% | 64% | 64% | 52% | 17% | 9% |
+| Rosa | 43% | 77% | 73% | 64% | 29% | 14% |
+| Isolde | 49% | 82% | 80% | 67% | 30% | 13% |
+
+v18's bigger economy shrugged off the old terms (level 8 cleared 31% with every talent), so they're sharper: the
+Guild's interest a quarter (was a tenth), sharp sellers a tenth (a twentieth), thin crowds at every shop (the stall
+only), demon gold one coin in ten (twenty). Isolde's door money grows with the shop at a quarter of its pace
+(`Characters.IsoldeScale`: flat, she cleared 26% with no talents; at the shop's pace, 62%), and Rosa's hagglers no
+longer open higher for her (a seller who stays away a week is price enough when an Emporium regular is worth
+thousands).
 
 v14 set Rosa's wariness at a twentieth; v15's sellers who'd name a cheap price (Dorrin, Wenna, Malbranche) made
 haggling dearer for her than their price, so now a seller who'd name a price never holds out for more than it with
@@ -885,22 +927,38 @@ and his scale catches demon gold).
     Zara's trick boxes are Lady Corisande's, Baron Vex's clock is Vexis's hourglass, Pip's sharp ears are Skrae's, and
     Magister Orrin's dreams went to Mother Bramble while Orrin took up a wager.
 
+11. **Lies about where a chest came from (v15 to v17).** The owner, again: "figuring out whether the seller is lying"
+    is a false premise; it never changed how anyone played. v18 makes every story true, drops the honesty tally and
+    the tall tales, and gives the sellers who leaned on it a clue worth working out instead: Fennick's straw (a strength
+    later, and soft things never), Pell's ticket (a count, false bottom and all), Wenna's scale (a weight, and a mare
+    who won't be shaken hard) and Mother Bramble's dream (the dearest thing, as a sign). The Drowned Bell, which tolled
+    for lies, now counts every chest.
+
+12. **Tight numbers (v12 to v17).** Keeping every curio, synergy and talent off sale prices, and the dues to what
+    judgment alone earned, kept the balance honest but made upgrades feel optional, Heartsongs a percent here and
+    there, and growth flat. v18 lets the shop grow (qualities 1/3/10/30/100, buyers' trades, synergies on sale prices,
+    powerful Heartsongs) and the dues climb as fast; it keeps two guards: sellers price your trade in (so buying blind
+    never pays), and talents still add nothing to sales.
+
 ## Open questions
 
 - Heartsongs: is a sound you've never heard, then a reveal, the heart-racing moment it should be, and does "highly
-  recommended" read as advice rather than an order? About one a run: too often for "extremely rare", or about right?
+  recommended" read as advice rather than an order? About one run in two finds one: rare enough, and is a find that
+  can win a run a thrill or a fluke?
   Is the songbook (nine, across runs) a goal people chase, and is the ending worth it?
-- v15's stories: do players read them, and use a place as a clue (a barrow's grave goods, a goblin warren's coin)? Is
-  the ledger's tally of each seller's honesty enough to learn whom to believe, and is the "tall tale" line on the
-  results screen a satisfying reveal?
+- The stories: do players read them, and use a place as a clue (a barrow's grave goods, a goblin warren's coin)? Do
+  the stated clues read as puzzles (subtract the heard from Wenna's weight, count against Pell's ticket, read the
+  straw a strength late, decode Bramble's dream), or as homework?
+- v18's numbers: does growth feel exciting from week 4 on, and does the Bookkeeping Engine feel like a reward for a
+  won run, or like skipping the game?
 - The new rules: is Dorrin's two seconds readable with the countdown over the chest? Does a goblin's tenth feel like a
   real choice? Does the King's game (a quarter off, or a quarter more) feel like a test or a trap for a learner? The
   Maw comes one day in ten: is "everyone after him asks twice as much" a thrill to weigh, or a coin nobody can refuse?
 - Hesk never plays the King's game in the sim (no hard shake, no drop: he can't be sure of a read). Is that a fair
   cost of his back, or should the scale count as checking?
 
-- With no percentage bonuses, are curios still exciting to find? Which do players pick, and does anyone take the token
-  or the crescent?
+- Are curios still exciting next to the bigger upgrades? Which do players pick, and does anyone take the token or the
+  crescent?
 - Paying off early: does a week-7 finish feel like the reward it should, or like the story ending before Mara's last
   piece? (Keep trading, and her last ask still comes.)
 - Is drag speed a good stand-in for shake strength with a real mouse? The thresholds need playtesting; the words under

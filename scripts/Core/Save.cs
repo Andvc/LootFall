@@ -42,9 +42,8 @@ public sealed class SaveData
     public List<string> FoundEnchanted { get; set; } = new();
     public List<string> Tutored { get; set; } = new();
 
-    /// <summary>Places heard of, and each seller's stories checked: [told, true].</summary>
+    /// <summary>Places heard of.</summary>
     public List<string> Places { get; set; } = new();
-    public Dictionary<string, int[]> Stories { get; set; } = new();
     public List<string> ActiveSynergies { get; set; } = new();
     public List<SavedItem> Display { get; set; } = new();
     public List<string> SongsFound { get; set; } = new();

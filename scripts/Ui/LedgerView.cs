@@ -8,8 +8,7 @@ namespace LootFall.Ui;
 /// <summary>
 /// The shop's ledger. Sounds: one row per kind of thing your shop sees (its sound, how hard you must shake to hear it,
 /// how heavy it is, and what one is worth if it's as good as each colour of chest promises; click a row to hear it),
-/// and the rules of listening. Regulars: how each seller you've met judges a chest, trades and behaves, and how far
-/// their stories hold up, place by place. Places: where chests come from, and what each tends to hold. Collection:
+/// and the rules of listening. Regulars: how each seller you've met judges a chest, trades and behaves. Places: where chests come from, and what each tends to hold. Collection:
 /// everything you've found so far. Synergies: what the shop could be known for, how far along each is, and
 /// (at the end of a day) which are active. Songs: the Heartsongs Bram's kin have opened, once there's one to show.
 /// </summary>
@@ -170,9 +169,9 @@ public partial class LedgerView : Node2D
             }
             card.TooltipText = $"{song.Name}, from {song.From}. {song.Story}";
             card.AddChild(UiKit.MakeItemIcon(Heartsongs.Make(song, Rarity.Common), new Vector2(32, 40), 48));
+            // Who gave it is in the tooltip with its story: the card has room for what it does.
             card.AddChild(UiKit.MakeLabel(song.Name, 16, Palette.Of(Rarity.Mythic)).Place(64, 6, cardW - 72, 20));
-            card.AddChild(UiKit.MakeLabel($"From {song.From}.", 16, Palette.Muted).Wrapped().Place(64, 28, cardW - 72, 40));
-            card.AddChild(UiKit.MakeLabel(song.Effect, 16, Palette.Text).Wrapped().Place(10, 66, cardW - 18, 60));
+            card.AddChild(UiKit.MakeLabel(song.Effect, 16, Palette.Text).Wrapped().Place(64, 30, cardW - 72, 92));
             if (shown) card.AddChild(UiKit.MakeLabel("singing", 16, Palette.Gold, HorizontalAlignment.Right).Place(cardW - 100, 6, 92, 20));
         }
     }
@@ -313,32 +312,21 @@ public partial class LedgerView : Node2D
             name.TooltipText = $"{seller.Name} {seller.JudgeWord}; {trade}.";
             name.MouseFilter = Control.MouseFilterEnum.Pass;
             _page.AddChild(name);
-            var (story, trusted) = StoryLine(seller);
-            _page.AddChild(UiKit.MakeLabel(story, 16, trusted ? Palette.Good : Palette.Warn, HorizontalAlignment.Right).Place(x + 252, y + 2, 300, 20));
+            _page.AddChild(UiKit.MakeLabel($"{seller.JudgeWord}; {trade}", 16, Palette.Muted, HorizontalAlignment.Right).Place(x + 252, y + 2, 300, 20));
             _page.AddChild(UiKit.MakeLabel(seller.Habit, 16, Palette.Text).Wrapped().Place(x + 52, y + 22, 510, 70));
         }
     }
 
-    /// <summary>How far to trust what they say about where a chest came from (Bram's word), and your own tally of it.</summary>
-    (string Text, bool Trusted) StoryLine(SellerDef seller)
-    {
-        if (seller.Stories.Count == 0 && seller.Tales.Length == 0) return ("", true);
-        var (told, truths) = _state.StoriesChecked(seller.Key);
-        string word = seller.Honesty >= 1 ? "Stories: true" : seller.Honesty <= 0 ? "Stories: lies" : seller.Honesty >= 0.6f ? "Stories: mostly true"
-            : "Stories: often tall";
-        return (told == 0 ? word : $"{word} ({truths}/{told} true)", seller.Honesty >= 0.6f);
-    }
-
     /// <summary>
     /// Where chests come from, two columns of them: what each place tends to hold, and the kinds you'd mostly hear. Only
-    /// places you've heard of (a story told true, or a chest of theirs opened) are filled in.
+    /// places a seller has told you of are filled in.
     /// </summary>
     void BuildPlaces()
     {
         var kinds = Categories.UpTo(_state.Tier).ToList();
         var places = Origins.All.Where(o => _state.Places.Contains(o.Key)).ToList();
         _page.AddChild(UiKit.MakeLabel($"{places.Count} of {Origins.All.Length} places heard of. Where a chest came from says what it " +
-                                       "tends to hold; not every seller says so truthfully.", 16, Palette.Muted).Place(TableX, PanelY + 60, PanelW - 48, 20));
+                                       "tends to hold.", 16, Palette.Muted).Place(TableX, PanelY + 60, PanelW - 48, 20));
         if (places.Count == 0)
         {
             _page.AddChild(UiKit.MakeLabel("Nobody's told you where their chest came from yet.", 24, Palette.Muted, HorizontalAlignment.Center)

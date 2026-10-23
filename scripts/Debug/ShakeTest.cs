@@ -35,7 +35,8 @@ public partial class ShakeTest : Node2D
         int pairs = 0, sand = 0;
         for (int i = 0; i < Count; i++)
         {
-            var seller = rng.PickOne(Sellers.All.Where(s => s.Tier >= 3).ToArray());
+            // Every fourth from Fennick: straw moves everything a strength later.
+            var seller = i % 4 == 1 ? Sellers.Get("fennick") : rng.PickOne(Sellers.All.Where(s => s.Tier >= 3).ToArray());
             var chest = Market.CreateVisit(rng, seller, 4).Chest;
             if (i % 3 == 0) chest.AddSong(Heartsongs.Make(rng.PickOne(Heartsongs.All), chest.Quality));
             if (chest.Items.GroupBy(it => it.Category).Any(g => g.Count() > 1)) pairs++;

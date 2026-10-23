@@ -15,19 +15,38 @@ public static class Strategy
     /// <summary>
     /// Which strengths to shake at: all three, except gently and hard when there's no time or every strength after the
     /// first costs (hard hears everything firm does), or gently and firmly when the seller won't have it shaken hard (or
-    /// Hesk's back won't). A rotten chest stands one strength: hard, unless what's in their chests is mostly delicate
-    /// (a clank would drown it out). Kid gloves and a pocket watch lift the sellers' limits.
+    /// Hesk's back, or Wenna's mare, won't). A rotten chest stands one strength: hard, unless what's in their chests is
+    /// mostly delicate (a clank would drown it out). Through straw a gentle shake stirs nothing: firmly, then hard. Kid
+    /// gloves and a pocket watch lift the sellers' limits.
     /// </summary>
     public static Shake[] Levels(Visit visit, GameState state = null)
     {
-        bool hard = (state?.CanShakeHard ?? true) && !(state?.MindsHardShake(visit.Seller) ?? visit.Seller.HatesHardShake);
+        bool hard = (state?.CanShakeHardAt(visit.Seller) ?? !visit.Seller.Packhorse) && !(state?.MindsHardShake(visit.Seller) ?? visit.Seller.HatesHardShake);
         if (visit.Seller.ShakeLimit > 0) return new[] { DelicateShare(visit) > 0.5f ? Shake.Gentle : hard ? Shake.Hard : Shake.Firm };
+        if (visit.Chest.Packed) return hard ? new[] { Shake.Firm, Shake.Hard } : new[] { Shake.Firm };
         if (!hard) return new[] { Shake.Gentle, Shake.Firm };
         return Rushed(visit, state) || visit.Seller.ShakeFee > 0 ? new[] { Shake.Gentle, Shake.Hard } : Every;
     }
 
-    /// <summary>What a careful player expects in this chest: what its place holds if the seller always tells the truth, or what they usually bring.</summary>
-    static float[] Likely(Visit visit) => visit.Seller.Honesty >= 1 && visit.Origin != null ? visit.Origin.Kinds : visit.Seller.Kinds;
+    /// <summary>The gentlest shake that stirs this kind in this chest (straw muffles a strength; 4: never).</summary>
+    static int Needs(Visit visit, Category kind) => (int)Categories.Get(kind).StirsAt + (visit.Chest.Packed ? 1 : 0);
+
+    /// <summary>Whether the shaking so far could have stirred this kind (it might still be drowned out).</summary>
+    static bool CouldStir(Visit visit, Hearing hearing, Category kind) => Every.Any(l => hearing.HasTried(l, false) && (int)l >= Needs(visit, kind));
+
+    /// <summary>
+    /// Whether a clank may have drowned out something delicate: weapons sounded, and no strength was tried that stirs
+    /// delicate things but not weapons (gently, or firmly through straw), nor with the magnet holding the iron still.
+    /// </summary>
+    static bool MaybeDrowned(Visit visit, Hearing hearing) => hearing.HeardAny(Category.Arms) &&
+        !Every.Any(l => (int)l >= Needs(visit, Category.Coins) && (hearing.HasTried(l, true) || (hearing.HasTried(l, false) && (int)l < Needs(visit, Category.Arms))));
+
+    /// <summary>Every kind at this shop could have been stirred, and nothing delicate drowned out: what sounded is all there is, but a false bottom.</summary>
+    static bool HeardAll(Visit visit, Hearing hearing, int tier) =>
+        Categories.UpTo(tier).All(k => CouldStir(visit, hearing, k.Category)) && !MaybeDrowned(visit, hearing);
+
+    /// <summary>What a careful player expects in this chest: what the place it came from holds, or what the seller usually brings.</summary>
+    static float[] Likely(Visit visit) => visit.Origin?.Kinds ?? visit.Seller.Kinds;
 
     /// <summary>How much of what's likely in this chest is delicate (coin, potions, gems), at this seller's shop.</summary>
     static float DelicateShare(Visit visit)
@@ -69,11 +88,41 @@ public static class Strategy
     /// </summary>
     public static void OnFaith(Visit visit, Appraisal slip, Hearing hearing, GameState state = null)
     {
-        if (hearing.HasTried(Shake.Hard, false) || (state?.Weighs ?? false)) return;
+        if (Weighed(visit, state)) return;
         var likely = Likely(visit);
         float total = likely.Sum();
-        foreach (var kind in Categories.UpTo(slip.Tier).Where(k => k.StirsAt == Shake.Hard && slip.Count(k.Category) == 0))
+        foreach (var kind in Categories.UpTo(slip.Tier).Where(k => k.StirsAt == Shake.Hard && slip.Count(k.Category) == 0 && !CouldStir(visit, hearing, k.Category)))
             if (likely[(int)kind.Category] / total >= FaithShare) slip.Set(kind.Category, 1);
+    }
+
+    /// <summary>The Bookkeeping Engine read this chest (it can't through chains).</summary>
+    public static bool Recorded(Visit visit, GameState state) => (state?.Has(Upgrades.Engine) ?? false) && !visit.Chest.Sealed;
+
+    /// <summary>Someone counted what's inside, false bottom and all: Pell's ticket, or the Drowned Bell.</summary>
+    static bool Counted(Visit visit, GameState state) => visit.Seller.States == Clue.Articles || (state?.Shows(Heartsongs.Bell) ?? false);
+
+    /// <summary>A scale has accounted for what couldn't be heard: Hesk's, or Wenna's (she says what hers read).</summary>
+    static bool Weighed(Visit visit, GameState state) => (state?.Weighs ?? false) || visit.Seller.States == Clue.Pounds;
+
+    /// <summary>
+    /// A careful read of what the seller said besides what they heard. A weight (Wenna's game scale, or Hesk's) accounts
+    /// for what couldn't be heard; Pell's ticket counts every article, so once everything has been heard, one more is
+    /// under a false bottom; Mother Bramble dreams of the dearest thing inside, so if it never sounded, it's under one.
+    /// </summary>
+    public static void Reckon(Appraisal slip, Hearing hearing, Visit visit, GameState state = null)
+    {
+        if (Weighed(visit, state)) Weigh(slip, hearing, visit, state);
+        else if (Counted(visit, state) && HeardAll(visit, hearing, slip.Tier))
+            slip.Hidden = Market.ArticleCount(visit.Chest) > slip.Marked.Where(k => k != Category.Heartsong).Sum(slip.Count) + hearing.Spotted().Count();
+        else if (visit.Seller.States == Clue.Dream)
+        {
+            if (Market.Dearest(visit.Chest) is not Item dearest) slip.Hidden = false;
+            else if (slip.Count(dearest.Category) == 0 && HeardAll(visit, hearing, slip.Tier)) slip.Hidden = true;
+        }
+        // The Imp's Ember burns every fake true: what was caught out counts after all.
+        if (state?.Shows(Heartsongs.Ember) ?? false)
+            foreach (var kind in hearing.Spotted().GroupBy(k => k))
+                slip.Set(kind.Key, slip.Count(kind.Key) + kind.Count(), slip.Magic(kind.Key));
     }
 
     /// <summary>How much of what a seller brings has to be one kind before a careful player takes it on faith.</summary>
@@ -89,7 +138,8 @@ public static class Strategy
     {
         var seller = visit.Seller;
         int tier = slip.Tier;
-        float known = Categories.UpTo(tier).Sum(k => slip.Count(k.Category) * Characters.Pounds(k.Category)) + hearing.Spotted().Sum(Characters.FakePounds);
+        float known = Categories.UpTo(tier).Sum(k => slip.Count(k.Category) * Characters.Pounds(k.Category)) + hearing.Spotted().Sum(Characters.FakePounds) +
+                      slip.Count(Category.Heartsong) * Characters.Pounds(Category.Heartsong);
         float left = visit.Chest.Pounds - known;
         var likely = Likely(visit);
         float total = likely.Sum();
@@ -97,7 +147,7 @@ public static class Strategy
 
         // Under a false bottom: nothing, or one of the things people hide (a drop, if there was one, settles which).
         var hidden = new List<(Category? Kind, float Chance)>();
-        float hiddenChance = tier >= 2 ? seller.HiddenChance + state.Boosts.Hidden : 0;
+        float hiddenChance = tier >= 2 ? seller.HiddenChance + (state?.Boosts.Hidden ?? 0) : 0;
         if (!hearing.Hollow) hidden.Add((null, hearing.Dropped ? 1 : 1 - hiddenChance));
         if (tier >= 2 && (!hearing.Dropped || hearing.Hollow))
             foreach (var (kind, chance) in Market.HiddenOdds(tier)) hidden.Add((kind, chance * (hearing.Hollow ? 1 : hiddenChance)));
@@ -105,7 +155,7 @@ public static class Strategy
         // Gilded fakes he heard but didn't catch with the magnet: each weighs half what it should.
         bool magnet = Every.Any(l => hearing.HasTried(l, true));
         float Fakes(Category kind) => magnet ? 0 : (seller.Fakes.Contains(kind) ? seller.FakeChance : 0) +
-                                                   (kind == Category.Coins ? state.Boosts.Slugs : 0);
+                                                   (kind == Category.Coins ? state?.Boosts.Slugs ?? 0 : 0);
         int coins = slip.Count(Category.Coins), jewels = slip.Count(Category.Gems);
         float Binomial(int n, int k, float p) => k > n || (p <= 0 && k > 0) ? 0 : Choose(n, k) * MathF.Pow(p, k) * MathF.Pow(1 - p, n - k);
 
@@ -172,17 +222,20 @@ public static class Strategy
     {
         var seller = visit.Seller;
         float worth = slip.LikelyWorth(state == null ? null : state.SaleMultiplier) + (state == null ? 0 : CommissionWorth(state, slip));
-        // Hesk's scale has already accounted for what he couldn't hear.
-        bool weighed = state?.Weighs ?? false;
+        // A scale (Hesk's, or Wenna's word for hers) has already accounted for what couldn't be heard, and the Bookkeeping
+        // Engine for everything.
+        bool weighed = Weighed(visit, state) || Recorded(visit, state);
         var likely = Likely(visit);
         float total = likely.Sum();
-        // Soft things nobody shook hard enough to hear, and delicate things a clank may have drowned out (a rotten chest
-        // shaken only hard): a fair guess, from what the seller usually brings.
-        bool drowned = !hearing.HasTried(Shake.Gentle, false) && hearing.HeardAny(Category.Arms);
+        // Things nobody shook hard enough to stir (or that straw keeps still), and delicate things a clank may have drowned
+        // out (a rotten chest shaken only hard): a fair guess, from what the seller usually brings.
+        bool drowned = !Recorded(visit, state) && MaybeDrowned(visit, hearing);
         foreach (var kind in Categories.UpTo(slip.Tier).Where(k => slip.Count(k.Category) == 0))
-            if ((kind.StirsAt == Shake.Hard && !hearing.HasTried(Shake.Hard, false) && !weighed) || (kind.Delicate && drowned))
+            if ((!CouldStir(visit, hearing, kind.Category) && !weighed) || (kind.Delicate && drowned))
                 worth += likely[(int)kind.Category] / total * 2.5f * Categories.Expected(kind.Category, slip.Chest) * 0.8f;
-        if (!hearing.Dropped && !slip.Hidden && slip.Tier >= 2 && !weighed)
+        // Pell's ticket settles a false bottom once everything has been heard; so does a scale.
+        bool counted = Counted(visit, state) && HeardAll(visit, hearing, slip.Tier);
+        if (!hearing.Dropped && !slip.Hidden && slip.Tier >= 2 && !weighed && !counted)
             worth += seller.HiddenChance * Market.HiddenValue(slip.Chest, slip.Tier, expected: true);
         worth *= 1 + seller.QualityBoost * 1.2f;
         // A knight's claim on the family arms: the best of them goes for his fee. A devil's: the dearest thing, for nothing.
@@ -205,7 +258,7 @@ public static class Strategy
     public static bool WorthBuying(Visit visit, int worth, GameState state = null, Hearing hearing = null)
     {
         var seller = visit.Seller;
-        if (seller.SlipPrice) return hearing == null || (hearing.HasTried(Shake.Hard, false) && hearing.Dropped);
+        if (seller.SlipPrice) return hearing == null || Recorded(visit, state) || (hearing.HasTried(Shake.Hard, false) && hearing.Dropped);
         if (seller.Gaze > 0) return worth - visit.Ask > (state?.Queue.Sum(v => v.Price) ?? 0) * (seller.Gaze - 1) * GazeBuys;
         return worth > visit.Ask * (1 - seller.Wager * PerfectOdds);
     }
@@ -244,7 +297,7 @@ public static class Strategy
     }
 
     /// <summary>What a careful player's shop of each tier clears in a bad day's trading (about half a usual one).</summary>
-    static readonly int[] BadDay = { 0, 15, 30, 150, 300 };
+    static readonly int[] BadDay = { 0, 15, 40, 300, 5000 };
 
     /// <summary>
     /// Gold to keep back: enough to buy tomorrow's chests (Bram's advice, <see cref="ShopTiers.Working"/>), and whatever
@@ -263,10 +316,16 @@ public static class Strategy
     /// </summary>
     public static bool Affordable(GameState state, Upgrade upgrade)
     {
-        int reserve = Reserve(state, upgrade.SetsTier), cost = state.Cost(upgrade);
+        int reserve = Reserve(state, upgrade.SetsTier) + (upgrade.IsRenovation ? 0 : Saving(state)), cost = state.Cost(upgrade);
         if (!upgrade.IsRenovation && cost >= 1000) reserve += state.DueFor(state.Week + (state.PaidThisWeek ? 2 : 1));
         return state.CanBuy(upgrade) && state.Gold - cost >= reserve;
     }
+
+    /// <summary>
+    /// What a careful player puts by for the next move inward before spending on anything else: each move multiplies
+    /// what a customer is worth several times over.
+    /// </summary>
+    static int Saving(GameState state) => Upgrades.Available(state).FirstOrDefault(u => u.IsRenovation) is Upgrade next ? state.Cost(next) : 0;
 
     /// <summary>A careful player's taste in curios, best first.</summary>
     public static readonly string[] CurioOrder =
@@ -300,7 +359,7 @@ public static class Strategy
                 sell = worst;
                 price -= state.CurioValue(worst);
             }
-            if (state.Gold - price >= Reserve(state) || price == 0) return (curio, sell);
+            if (state.Gold - price >= Reserve(state) + Saving(state) || price == 0) return (curio, sell);
         }
         return (null, null);
     }
@@ -364,7 +423,7 @@ public static class Strategy
     /// </summary>
     static (bool Keep, Item Replace) Collects(GameState state, Item item, int value)
     {
-        if (!item.Displayable || state.DisplaySlots == 0 || value > item.Prestige * Characters.AdmissionPerPoint * PaybackNights) return (false, null);
+        if (!item.Displayable || state.DisplaySlots == 0 || value > item.Prestige * Characters.AdmissionPerPoint * Characters.IsoldeScale(state.Tier) * PaybackNights) return (false, null);
         Item replace = null;
         if (state.DisplayFull)
         {
