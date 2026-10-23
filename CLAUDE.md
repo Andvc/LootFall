@@ -23,8 +23,11 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 3. Visual changes: run the bot under Xvfb with `--shots=<dir>` and look at the PNGs
    (`xvfb-run -a godot --path . --rendering-driver opengl3 -- --autoplay --minutes=2 --shots=$PWD/shots`). Flags:
    `--seed=N --stage=N` (start where a sensible player would be, via `Simulation.FastForward`) `--speed=N`
-   `--minutes=N`. `--opening-demo` opens one chest of each rarity (screens `demo_*`); `--title-demo` walks the title,
-   settings, a new game and the pause menu. Moments are named in code (`Main.Moment`); the first of each is kept.
+   `--minutes=N`, and `--auto-open` (buys Auto-Open as soon as it can, with a head start from stage 10, and plays
+   with it on, so held finds and the stop switch get exercised). `--opening-demo` opens one chest of each rarity
+   (screens `demo_*`) and checks that the pause menu holds an opening and that a stray Space doesn't decide a fresh
+   card (it prints "Pause check ok" and "Space check ok"); `--title-demo` walks the title, settings, a new game and the
+   pause menu. Moments are named in code (`Main.Moment`); the first of each is kept.
    Keep screenshot folders named `shots*` (git- and export-ignored).
 4. For feel and timing, record with `--write-movie movies/x.avi --fixed-fps 30` and pull frames with ffmpeg.
 5. CI (`.github/workflows/windows-build.yml`) exports Windows and runs the bot headless for four minutes; it must

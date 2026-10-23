@@ -126,23 +126,26 @@ public sealed class Battle
         {
             BossTimeLeft = Balance.BossTime;
             Hero.Hp = Hero.MaxHp;
-            Hero.SecondWindUsed = false;
         }
+        // Second Wind comes back for every fight, wave or boss.
+        Hero.SecondWindUsed = false;
         // Swiftness: the first blow on a wave comes as soon as the wave arrives.
         Hero.Timer = Stats.Has(Effect.Swiftness) ? 0 : Math.Max(Hero.Timer, 0.2);
         Events.Add(new WaveSpawned(Foes.ToList(), boss, mimic));
     }
 
-    /// <summary>Puts a wave back as it came in (the knight fell, so it starts over when he's up).</summary>
+    /// <summary>The knight fell: the monsters still standing get their health back and step in again when he's up. The
+    /// ones he felled stay down (they've already paid out).</summary>
     public void ResetWave()
     {
-        for (int i = 0; i < Foes.Count; i++)
+        int n = 0;
+        foreach (var f in Foes)
         {
-            var f = Foes[i];
+            if (!f.Alive) continue;
             f.Hp = f.MaxHp;
             f.Burns.Clear();
             f.Stunned = 0;
-            f.Arrive = Balance.ArriveTime + Balance.ArriveStagger * i;
+            f.Arrive = Balance.ArriveTime + Balance.ArriveStagger * n++;
         }
         _pending.Clear();
     }

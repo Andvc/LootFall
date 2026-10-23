@@ -85,6 +85,16 @@ public sealed class SaveData
     public int BountiesDone { get; set; }
     public ItemData Pending { get; set; }
     public int PendingKind { get; set; }
+    /// <summary>The rarity the pending item's chest rolled before Luck bumped it (-1: its own rarity).</summary>
+    public int PendingRolled { get; set; } = -1;
+    public long BossFails { get; set; }
+    public long BossTimeouts { get; set; }
+    public long Deaths { get; set; }
+    // The boss's retry clock and the power it waits for, and the same for climbing back after a retreat.
+    public double BossCooldown { get; set; }
+    public double PowerAtFail { get; set; }
+    public double ClimbWait { get; set; }
+    public double PowerAtRetreat { get; set; }
 
     /// <summary>When it was saved (Unix seconds), so the time away can be paid out.</summary>
     public double SavedAt { get; set; }
@@ -100,6 +110,9 @@ public sealed class SaveData
         UpgradesEquipped = g.UpgradesEquipped, Board = g.Board.Select(BountyData.From).ToArray(),
         BountiesPosted = g.BountiesPosted, BountiesDone = g.BountiesDone,
         Pending = ItemData.From(g.Pending?.Item), PendingKind = (int)(g.Pending?.Kind ?? ChestKind.Wooden),
+        PendingRolled = g.Pending == null ? -1 : (int)g.Pending.Rolled,
+        BossFails = g.BossFails, BossTimeouts = g.BossTimeouts, Deaths = g.Deaths,
+        BossCooldown = g.BossCooldown, PowerAtFail = g.PowerAtFail, ClimbWait = g.ClimbWait, PowerAtRetreat = g.PowerAtRetreat,
     };
 
     public void ApplyTo(GameState g)
@@ -129,6 +142,13 @@ public sealed class SaveData
         g.BountiesPosted = BountiesPosted;
         g.BountiesDone = BountiesDone;
         foreach (var b in Board ?? Array.Empty<BountyData>()) g.Board.Add(b.ToBounty());
+        g.BossFails = BossFails;
+        g.BossTimeouts = BossTimeouts;
+        g.Deaths = Deaths;
+        g.BossCooldown = Math.Max(0, BossCooldown);
+        g.PowerAtFail = PowerAtFail;
+        g.ClimbWait = Math.Max(0, ClimbWait);
+        g.PowerAtRetreat = PowerAtRetreat;
     }
 
     static readonly JsonSerializerOptions Options = new() { WriteIndented = false };

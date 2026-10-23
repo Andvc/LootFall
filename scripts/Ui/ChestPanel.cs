@@ -23,6 +23,9 @@ public partial class ChestPanel : Node2D
     Painter _glow;
     Color _glowColor = Colors.White;
     float _glowAmount, _bob, _shakeAmount;
+    // How long the card has been up: Space only takes its choice after a moment (longer for the big ones), so mashing
+    // it to hurry an opening along doesn't sell what it reveals.
+    double _cardAge;
     Label _hint, _title;
     readonly Label[] _counts = new Label[Chests.Count];
     readonly Node2D[] _pileIcons = new Node2D[Chests.Count];
@@ -59,6 +62,8 @@ public partial class ChestPanel : Node2D
     }
     public bool Deciding => _state == State.Deciding;
     public RevealCard Card => _card;
+    /// <summary>The switch for what auto-open stops for, for the bot.</summary>
+    public Button StopButton => _stop;
 
     public ChestPanel(GameState g)
     {
@@ -142,6 +147,7 @@ public partial class ChestPanel : Node2D
             case State.Idle: OpenNext(); break;
             case State.Opening: _hurry = true; break;
             case State.Deciding:
+                if (_cardAge < (_card.Opening.Item.Rarity >= Rarity.Legendary ? 0.8 : 0.35)) break;
                 if (_card.Opening.Upgrade) DoEquip();
                 else DoSell();
                 break;
@@ -271,6 +277,7 @@ public partial class ChestPanel : Node2D
     void ShowCard(Opening o, bool animate)
     {
         _state = State.Deciding;
+        _cardAge = 0;
         // The card stands a little taller than the panel, over the bottom of the battle.
         _card = new RevealCard(o, DoEquip, DoSell) { Position = new Vector2(0, H - RevealCard.H - 2), ZIndex = 40 };
         AddChild(_card);
@@ -392,12 +399,14 @@ public partial class ChestPanel : Node2D
     async Task Wait(float seconds)
     {
         if (seconds <= 0.011f || !IsInsideTree()) return;
-        await ToSignal(GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);
+        // Not processAlways: the opening waits under the pause menu.
+        await ToSignal(GetTree().CreateTimer(seconds, false), SceneTreeTimer.SignalName.Timeout);
     }
 
     public override void _Process(double delta)
     {
         float dt = (float)delta;
+        _cardAge += delta;
         if (_state == State.Opening && _shakeAmount > 0)
         {
             _chest.Position = ChestSpot + new Vector2((float)GD.RandRange(-1.0, 1.0), (float)GD.RandRange(-1.0, 1.0)) * _shakeAmount;

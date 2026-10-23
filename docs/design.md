@@ -119,9 +119,12 @@ the screen animates and the game state pays out on; the simulation runs the same
   Vermithrax). A boss has 16× (guardian 22×) a monster's health and 1.6× (1.8×) its attack, and the knight has 30
   seconds, so bosses are mostly a damage check that survival also matters for.
 - **Auto-Boss** (on by default) fights the boss as soon as it's ready; after a loss it waits until the knight is 4%
-  stronger (at least 8 s) or 90 s have passed. The boss button does it by hand (B).
-- **Falling**: the knight gets up after two seconds and the wave starts over. Falling twice at a stage without clearing
-  a wave steps him back a stage; he climbs again after ten kills once he's stronger.
+  stronger (at least 8 s) or 90 s have passed. The boss button does it by hand (B), at once, or once a mimic in front
+  of him is beaten (its chests are never thrown away for a boss).
+- **Falling**: the knight gets up after two seconds; the monsters still standing heal and step in again, the ones he
+  felled stay down. Falling twice at a stage without clearing a wave steps him back a stage (and, across a zone's
+  edge, back to that zone's place and music); he climbs again after ten kills once he's stronger. If his thorns fell a
+  boss with the same blow that downs him, the boss counts as beaten.
 - **Monsters** hit for much less than their health would suggest (attack 2.5 against health 10 at stage 1, both ×1.18 a
   stage), so farming a stage you can't beat the boss of stays safe and quick: early versions had the knight dying
   once a minute at every wall.
@@ -155,7 +158,12 @@ Auto-Open is there for when chests pile up (and for coming back to a pile), but 
 player: anything at the stop rarity or better (epic, unless changed) waits on the counter and gets the full show.
 
 **Time away** (`ApplyOffline`): on Continue, a 90-second trial fight at the current stage measures the kill rate, and
-the time away (up to 8 hours) pays out at three quarters of it, in gold and chests, which wait to be opened.
+the time away (up to 8 hours) pays out at three quarters of it, in gold and chests, which wait to be opened. The boss's
+retry clock and the climb back after a retreat run down while away.
+
+**Saving**: every half minute, on each new stage, at pause and on quitting, to `user://save.json`: written whole to a
+side file and swapped in, with the previous save kept as `save.bak` (read instead if the save is damaged). A save this
+build can't read is never overwritten without asking: New Game says so first.
 
 ## Pacing
 
@@ -165,24 +173,25 @@ hours, `dotnet tools/simcli/bin/Release/net8.0/simcli.dll --n=12 --hours=5`):
 
 | Stage | Target | Median | 10th–90th |
 |---|---|---|---|
-| 10 (Greenwood's guardian) | 5 min | 3.6 min | 3.5–4.0 |
-| 20 | 13 min | 10.0 min | 8.9–12.8 |
-| 30 | 28 min | 28.4 min | 20.3–32.0 |
-| 40 | 50 min | 50.9 min | 36.8–60.0 |
-| 50 | 80 min | 70.0 min | 56.9–88.2 |
-| 60 (Vermithrax) | 120 min | 103.6 min | 88.0–113.7 |
-| 80 | 220 min | 178.8 min | 174.0–189.8 |
+| 10 (Greenwood's guardian) | 5 min | 3.4 min | 3.3–3.6 |
+| 20 | 13 min | 8.9 min | 7.2–12.6 |
+| 30 | 28 min | 24.9 min | 18.5–34.2 |
+| 40 | 50 min | 48.4 min | 34.9–60.4 |
+| 50 | 80 min | 78.0 min | 63.7–93.6 |
+| 60 (Vermithrax) | 120 min | 106.0 min | 90.2–127.1 |
+| 80 | 220 min | 187.7 min | 167.6–211.5 |
 
 Real players read cards and miss things, so they'll be slower than this; the first zone is meant to go quickly.
 The tuner (`--tune`) searches chest level cost, its growth, gold growth and training growth for these targets.
 
 | | 0–2 min | 2–5 | 5–10 | 10–20 | 20–40 | 40–60 | 60–90 | 90–120 | 2–3 h | 3–4 h |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Chests a minute | 17 | 16 | 11 | 9.4 | 9.2 | 9.9 | 10.6 | 10.3 | 12.3 | 11.0 |
-| Upgrades | 52% | 23% | 20% | 14% | 11% | 7% | 6% | 5% | 4.5% | 4% |
+| Chests a minute | 22 | 21 | 12 | 9.7 | 9.9 | 9.3 | 9.2 | 10.7 | 11.5 | 11.4 |
+| Upgrades | 47% | 17% | 16% | 13% | 9% | 8% | 7% | 6% | 4% | 4% |
 
-First finds (median): rare at half a minute, epic 2.5 min, legendary 11 min (2 to 21), mythic 36 min (15 to 64).
-The longest stay on one stage is about half an hour, past the sixth zone; in the first six zones walls last minutes.
+First finds (median): rare at half a minute, epic at a minute, legendary 6 min (2 to 23), mythic 51 min (12 to 87).
+The longest stay on one stage is about half an hour (median 27 min), late in the sixth zone or past it; in the first
+five zones walls last minutes. Outside boss fights the knight falls about eight times an hour (median of five hours).
 
 ## Feel
 

@@ -49,10 +49,7 @@ public partial class Hud : Node2D
         _pips = new Node2D { Position = new Vector2(640 - 5 * 26 + 4, 58) };
         AddChild(_pips);
 
-        _boss = UiKit.MakeButton("BOSS", new Color("#8a2a3a"), 16, () =>
-        {
-            if (_g.ChallengeBoss()) Main.Instance.Sfx.PlayGroup("boss", 1f, -4);
-        }).Place(1110, 52, 160, 34);
+        _boss = UiKit.MakeButton("BOSS", new Color("#8a2a3a"), 16, () => Main.Instance.Play?.FightBoss()).Place(1110, 52, 160, 34);
         AddChild(_boss);
         _autoBoss = UiKit.MakeButton("", new Color("#3a3448"), 16, () =>
         {
@@ -71,9 +68,9 @@ public partial class Hud : Node2D
         _autoBoss.Text = _g.AutoBoss ? "AUTO-BOSS ON" : "AUTO-BOSS OFF";
         UiKit.StyleButton(_autoBoss, _g.AutoBoss ? new Color("#2f6a5a") : new Color("#4a4458"));
 
-        bool ready = _g.BossReady && !_g.InBossFight;
+        bool ready = _g.BossReady && !_g.InBossFight && !_g.BossQueued;
         _boss.Disabled = !ready;
-        _boss.Text = _g.InBossFight ? "FIGHTING" : ready ? (_g.BossCooldown > 0 ? "RETRY BOSS" : "FIGHT BOSS") : "BOSS";
+        _boss.Text = _g.InBossFight ? "FIGHTING" : _g.BossQueued ? "BOSS NEXT" : ready ? (_g.BossCooldown > 0 ? "RETRY BOSS" : "FIGHT BOSS") : "BOSS";
         if (ready && !_bossWasReady)
         {
             _bossPulse?.Kill();

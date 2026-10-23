@@ -11,7 +11,4 @@ public partial class Screen : Node2D
 
     /// <summary>False once this screen has been swapped out; check it after every await.</summary>
     protected bool Alive => IsInstanceValid(this) && IsInsideTree();
-
-    protected SignalAwaiter Wait(double seconds) =>
-        ToSignal(GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);
 }

@@ -13,7 +13,9 @@ public sealed record BossAvailable : GameEvent;
 public sealed record BossStarted(Fighter Boss) : GameEvent;
 public sealed record BossFailed(bool TimedOut) : GameEvent;
 public sealed record StageCleared(int Stage, bool ZoneBoss) : GameEvent;
-public sealed record StageEntered(int Stage, bool NewZone) : GameEvent;
+/// <summary>The knight moved up a stage: <paramref name="First"/> when it's the first time (a boss beaten), not when he
+/// climbs back after a retreat.</summary>
+public sealed record StageEntered(int Stage, bool NewZone, bool First) : GameEvent;
 public sealed record Retreated(int Stage) : GameEvent;
 public sealed record MimicAppeared(Fighter Mimic) : GameEvent;
 public sealed record FeatureUnlocked(string Key) : GameEvent;
@@ -123,7 +125,10 @@ public sealed class GameState
 
     public bool BossReady => Stage == MaxStage && Kills >= Balance.KillsPerStage;
     public bool InBossFight => Battle.BossFight && Battle.InFight;
-    public double BossCooldown => _bossCooldown;
+    public double BossCooldown { get => _bossCooldown; internal set => _bossCooldown = value; }
+    internal double PowerAtFail { get => _powerAtFail; set => _powerAtFail = value; }
+    internal double ClimbWait { get => _climbWait; set => _climbWait = value; }
+    internal double PowerAtRetreat { get => _powerAtRetreat; set => _powerAtRetreat = value; }
     public int ChestTotal
     {
         get
@@ -242,7 +247,7 @@ public sealed class GameState
         {
             Stage++;
             Kills = 0;
-            Emit(new StageEntered(Stage, World.StageInZone(Stage) == 1));
+            Emit(new StageEntered(Stage, World.StageInZone(Stage) == 1, First: false));
         }
         SpawnWave();
     }
@@ -263,13 +268,18 @@ public sealed class GameState
         Battle.Spawn(World.Wave(Rng, Stage), Stage);
     }
 
-    /// <summary>The boss button: fight the stage's boss now (when it's ready).</summary>
+    /// <summary>The boss button: fight the stage's boss now (when it's ready). A mimic isn't thrown away for it: the boss
+    /// comes once the mimic is beaten (<see cref="BossQueued"/>).</summary>
     public bool ChallengeBoss()
     {
-        if (!BossReady || InBossFight || Battle.DownFor > 0) return false;
-        StartBoss();
+        if (!BossReady || InBossFight || BossQueued || Battle.DownFor > 0) return false;
+        if (Battle.Foes.Any(f => f.Mimic && f.Alive)) _bossRequested = true;
+        else StartBoss();
         return true;
     }
+
+    /// <summary>The boss was called for and comes when the wave in front of the knight is done.</summary>
+    public bool BossQueued => _bossRequested;
 
     void StartBoss()
     {
@@ -343,7 +353,7 @@ public sealed class GameState
         MaxStage = Math.Max(MaxStage, Stage);
         Kills = 0;
         _bossCooldown = 0;
-        Emit(new StageEntered(Stage, World.StageInZone(Stage) == 1));
+        Emit(new StageEntered(Stage, World.StageInZone(Stage) == 1, First: true));
         if (MaxStage == Balance.AutoOpenStage && !HasAutoOpen) Emit(new FeatureUnlocked("autoopen"));
     }
 
@@ -362,7 +372,8 @@ public sealed class GameState
     void OnHeroDown()
     {
         Deaths++;
-        if (Battle.BossFight)
+        // A boss fight is lost only if the boss still stands (thorns can fell it with the blow that downs the knight).
+        if (InBossFight)
         {
             BossOver(timedOut: false);
             return;
@@ -372,6 +383,7 @@ public sealed class GameState
         if (_deathsHere >= 2 && Stage > 1)
         {
             _deathsHere = 0;
+            _bossRequested = false;
             Stage--;
             Kills = 0;
             _climbWait = Balance.BossRetryMax;
@@ -518,6 +530,9 @@ public sealed class GameState
     /// </summary>
     public OfflineReport ApplyOffline(double seconds)
     {
+        // The boss's and the climb's clocks ran while he was away.
+        _bossCooldown = Math.Max(0, _bossCooldown - seconds);
+        _climbWait = Math.Max(0, _climbWait - seconds);
         if (seconds < 60) return null;
         seconds = Math.Min(seconds, Balance.OfflineCap);
         var rng = new Rng(Seed ^ (int)TotalKills);
@@ -579,16 +594,21 @@ public sealed class GameState
         data.ApplyTo(g);
         g.Begin();
         g.FillBoard();
-        if (data.Pending != null) g.RestorePending(data.Pending.ToItem(), (ChestKind)data.PendingKind);
+        if (data.Pending != null)
+        {
+            var item = data.Pending.ToItem();
+            var rolled = data.PendingRolled >= 0 && data.PendingRolled <= (int)item.Rarity ? (Rarity)data.PendingRolled : item.Rarity;
+            g.RestorePending(item, (ChestKind)data.PendingKind, rolled);
+        }
         return g;
     }
 
     /// <summary>Restores a chest that was opened but not decided on when the game was saved.</summary>
-    internal void RestorePending(Item item, ChestKind kind)
+    internal void RestorePending(Item item, ChestKind kind, Rarity rolled)
     {
         var current = Worn(item.Slot);
         var with = (Item[])Equipped.Clone();
         with[(int)item.Slot] = item;
-        Pending = new Opening(kind, item, item.Rarity, current, Power, HeroStats.Compute(with, Training).Power(MaxStage));
+        Pending = new Opening(kind, item, rolled, current, Power, HeroStats.Compute(with, Training).Power(MaxStage));
     }
 }

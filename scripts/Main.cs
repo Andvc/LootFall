@@ -15,7 +15,8 @@ namespace LootFall;
 /// is paid out on Continue.
 /// Command-line flags (after `--`): --sim [--n=N] [--hours=H] (balance report), --autoplay (the bot plays; nothing is
 /// saved), --seed=N, --stage=N (start at a stage with the gear a sensible player would have by then), --minutes=N (the
-/// bot stops after N minutes of play), --speed=N (game speed for the bot), --shots=DIR (screenshot each named moment
+/// bot stops after N minutes of play), --speed=N (game speed for the bot), --auto-open (the bot buys Auto-Open as soon as
+/// it can, with a head start from stage 10, and plays with it on), --shots=DIR (screenshot each named moment
 /// the first time it happens), --opening-demo (opens one chest of each rarity, then quits), --title-demo (title,
 /// settings, a new game, the pause menu), --welcome-demo (a save round trip and two hours away), --export-sounds=DIR.
 /// </summary>
@@ -24,7 +25,10 @@ public partial class Main : Node2D
     public static Main Instance { get; private set; }
 
     public const string Version = "Prototype 0.1";
-    const string SavePath = "user://save.json";
+    const string SavePath = "user://save.json", BackupPath = "user://save.bak", TempPath = "user://save.tmp";
+
+    /// <summary>There's a save file this build couldn't read (damaged, or from a newer version): starting over asks first.</summary>
+    public static bool SaveUnreadable { get; private set; }
 
     public GameState State { get; private set; }
     public Sfx Sfx { get; private set; }
@@ -104,6 +108,7 @@ public partial class Main : Node2D
             {
                 Minutes = double.TryParse(Arg(args, "--minutes"), NumberStyles.Float, CultureInfo.InvariantCulture, out var m) ? m : 5,
                 Speed = double.TryParse(Arg(args, "--speed"), NumberStyles.Float, CultureInfo.InvariantCulture, out var sp) ? sp : 1,
+                AutoOpen = args.Contains("--auto-open"),
             };
             AddChild(_bot);
         }
@@ -116,6 +121,8 @@ public partial class Main : Node2D
         {
             State = stage > 1 ? Simulation.FastForward(_seed, stage) : GameState.New(_seed);
             if (stage > 1) GD.Print($"Fast-forwarded to {World.StageName(State.MaxStage)}, chest level {State.ChestLevel}");
+            // A head start for the bot's --auto-open, so it can buy it straight away when it's already on offer.
+            if (_bot?.AutoOpen == true && Upgrades.Visible(State, Upgrade.AutoOpen)) State.Gold += Upgrades.Cost(State, Upgrade.AutoOpen);
             State.CollectEvents = true;
             StartPlaying(null);
         }
@@ -194,21 +201,39 @@ public partial class Main : Node2D
 
     // ------------------------------------------------------------------------------------------------- saving
 
+    /// <summary>The saved knight, from the save or else its backup; null if there's none this build can read.</summary>
     public static SaveData ReadSave()
     {
-        if (!FileAccess.FileExists(SavePath)) return null;
-        using var file = FileAccess.Open(SavePath, FileAccess.ModeFlags.Read);
+        var data = ReadSaveFile(SavePath) ?? ReadSaveFile(BackupPath);
+        SaveUnreadable = data == null && (FileAccess.FileExists(SavePath) || FileAccess.FileExists(BackupPath));
+        return data;
+    }
+
+    static SaveData ReadSaveFile(string path)
+    {
+        if (!FileAccess.FileExists(path)) return null;
+        using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
         return file == null ? null : SaveData.FromJson(file.GetAsText());
     }
 
-    /// <summary>Writes the knight to user://save.json (a real game only).</summary>
+    /// <summary>
+    /// Writes the knight to user://save.json (a real game only): whole to a side file first, then swapped in with the
+    /// last save kept as save.bak, so a crash or a full disk mid-write never leaves only half a save.
+    /// </summary>
     public void Save()
     {
         if (!_saving || State == null) return;
         var data = State.Save();
         data.SavedAt = Time.GetUnixTimeFromSystem();
-        using var file = FileAccess.Open(SavePath, FileAccess.ModeFlags.Write);
-        file?.StoreString(data.ToJson());
+        using (var file = FileAccess.Open(TempPath, FileAccess.ModeFlags.Write))
+        {
+            if (file == null) return;
+            bool written = file.StoreString(data.ToJson());
+            file.Close();
+            if (!written) return;
+        }
+        if (FileAccess.FileExists(SavePath)) DirAccess.RenameAbsolute(SavePath, BackupPath);
+        DirAccess.RenameAbsolute(TempPath, SavePath);
     }
 
     /// <summary>
@@ -228,6 +253,8 @@ public partial class Main : Node2D
         _bot = null;
         Music?.Stop();
         Sfx?.Release();
+        // The audio thread lets go of stopped sounds a moment later; quitting before that reports them as leaked.
+        await ToSignal(GetTree().CreateTimer(0.25, true, false, true), SceneTreeTimer.SignalName.Timeout);
         for (int i = 0; i < 3; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         GetTree().Root.Theme = null;
         UiKit.Release();
@@ -322,7 +349,25 @@ public partial class Main : Node2D
             if (play == null) return;
             var opening = State.OpenAs(rarity, rarity >= Rarity.Epic ? ChestKind.Golden : ChestKind.Wooden, lucky: rarity >= Rarity.Legendary);
             play.Chest.PresentHeld(opening);
+            bool last = rarity == Rarity.Mythic;
+            if (last)
+            {
+                // The pause menu holds an opening where it is.
+                await ToSignal(GetTree().CreateTimer(0.8), SceneTreeTimer.SignalName.Timeout);
+                OpenPause();
+                await ToSignal(GetTree().CreateTimer(2.5), SceneTreeTimer.SignalName.Timeout);
+                GD.Print(play.Chest.Deciding ? "Pause check FAILED: the opening ran on under the menu" : "Pause check ok: the opening waited");
+                Moment("demo_paused");
+                await ToSignal(GetTree().CreateTimer(0.3), SceneTreeTimer.SignalName.Timeout);
+                foreach (var menu in GetChildren().OfType<PauseMenu>()) menu.Close();
+            }
             while (IsInstanceValid(play) && !play.Chest.Deciding) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (last)
+            {
+                // Space pressed again as the card comes up (mashing to hurry the opening) doesn't take its choice.
+                play.Chest.Primary();
+                GD.Print(play.Chest.Deciding ? "Space check ok: the card stayed" : "Space check FAILED: the card was decided at once");
+            }
             await ToSignal(GetTree().CreateTimer(0.6), SceneTreeTimer.SignalName.Timeout);
             Moment($"demo_{rarity.ToString().ToLowerInvariant()}_card");
             await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);

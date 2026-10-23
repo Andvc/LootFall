@@ -16,6 +16,8 @@ public partial class Autoplay : Node
 {
     public double Minutes = 5;
     public double Speed = 1;
+    /// <summary>Saves for Auto-Open once it shows, buys it, sets it to stop for rare finds, and lets it open.</summary>
+    public bool AutoOpen;
 
     PlayScreen _play;
     double _played, _think, _cardSeen, _fpsLog = 5;
@@ -77,7 +79,16 @@ public partial class Autoplay : Node
             return;
         }
 
-        if (Policy.NextBuy(g) is Upgrade u && Upgrades.Visible(g, u))
+        if (AutoOpen && g.HasAutoOpen && g.AutoStopAt != Rarity.Rare)
+        {
+            chest.StopButton.EmitSignal(BaseButton.SignalName.Pressed);
+            GD.Print($"[{_played / 60:0.0}m] auto-open stops for {g.AutoStopAt}+");
+            return;
+        }
+
+        bool saving = AutoOpen && Upgrades.Visible(g, Upgrade.AutoOpen) && Upgrades.Open(g, Upgrade.AutoOpen);
+        var buy = saving ? (g.Gold >= Upgrades.Cost(g, Upgrade.AutoOpen) ? Upgrade.AutoOpen : null) : Policy.NextBuy(g);
+        if (buy is Upgrade u && Upgrades.Visible(g, u))
         {
             _play.Upgrades.ButtonFor(u).EmitSignal(BaseButton.SignalName.Pressed);
             GD.Print($"[{_played / 60:0.0}m] bought {Upgrades.Get(u).Name} -> {Upgrades.Level(g, u)}");

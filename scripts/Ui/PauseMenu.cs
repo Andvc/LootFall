@@ -29,7 +29,7 @@ public partial class PauseMenu : CanvasLayer
         Main.Instance.Save();
     }
 
-    void Close()
+    public void Close()
     {
         GetTree().Paused = false;
         QueueFree();

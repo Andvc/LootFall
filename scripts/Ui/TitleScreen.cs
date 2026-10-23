@@ -68,7 +68,7 @@ public partial class TitleScreen : Screen
 
     void NewGame()
     {
-        if (_save == null)
+        if (_save == null && !Main.SaveUnreadable)
         {
             Game.NewGame();
             return;
@@ -80,9 +80,10 @@ public partial class TitleScreen : Screen
         var panel = UiKit.MakePanel(Palette.Bad).Place(400, 260, 480, 180);
         layer.AddChild(panel);
         panel.AddChild(UiKit.MakeLabel("Start over?", 32, Palette.Text, HorizontalAlignment.Center, outline: 4).Place(0, 20, 480, 40));
-        panel.AddChild(UiKit.MakeLabel("Your saved knight and all their loot will be gone.", 16, Palette.Muted, HorizontalAlignment.Center).Place(0, 70, 480, 20));
+        panel.AddChild(UiKit.MakeLabel(_save != null ? "Your saved knight and all their loot will be gone." : "This version can't read the save; it will be lost.",
+            16, Palette.Muted, HorizontalAlignment.Center).Place(0, 70, 480, 20));
         panel.AddChild(UiKit.MakeButton("START OVER", Palette.Bad.Darkened(0.3f), 16, Game.NewGame).Place(60, 116, 170, 40));
-        panel.AddChild(UiKit.MakeButton("KEEP PLAYING", Palette.Good.Darkened(0.3f), 16, layer.QueueFree).Place(250, 116, 170, 40));
+        panel.AddChild(UiKit.MakeButton(_save != null ? "KEEP PLAYING" : "CANCEL", Palette.Good.Darkened(0.3f), 16, layer.QueueFree).Place(250, 116, 170, 40));
     }
 
     public override void _Process(double delta)

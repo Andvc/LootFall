@@ -25,7 +25,8 @@ C#), targeting PC. Pixel art and music from Pixel-boy's CC0 Superpowers packs, s
 3. **Open them.** Click the chest or press Space. The rarer it is, the longer it builds; Luck can bump it one step
    more. The card shows the item's stats against what's worn and the change in power.
 4. **Equip or sell.** Equip (E) puts it on and sells the old one; Sell (S) turns it into gold. Space takes whichever
-   the card recommends.
+   the card recommends, once the card has been up a moment (longer for a legendary), so mashing Space to hurry an
+   opening never sells what it reveals.
 5. **Spend the gold.** Chest Level makes new loot stronger and rarer; Might, Vigor and Haste train the knight; from the
    second zone, Auto-Open handles the small stuff and stops for anything as rare as you choose.
 6. **Bounties.** Three goals at a time (slay, open, beat bosses, find rares...), each paying a chest when done.
@@ -38,7 +39,7 @@ Close the game and the knight keeps fighting: on Continue, the time away (up to 
 |---|---|
 | Open a chest / hurry an opening / take the recommended choice | Click the chest, or Space / Enter (hold to keep opening) |
 | Equip / Sell the item on the card | E / S, or the card's buttons |
-| Fight the boss now | B, or the boss button (when it's ready) |
+| Fight the boss now | B, or the boss button (when it's ready; after the mimic, if one's in front) |
 | Auto-Boss, Auto-Open | Their switches (under the boss button; on the chest, beside the rarity it stops for) |
 | Buy an upgrade | Its button, on the right |
 | See an item's stats | Hover its slot |
@@ -64,8 +65,8 @@ dotnet build tools/simcli -c Release && \
 dotnet tools/simcli/bin/Release/net8.0/simcli.dll --tune    # fit Balance.cs to the pacing targets
 xvfb-run -a godot --path . --rendering-driver opengl3 -- \
   --autoplay --minutes=3 --shots=$PWD/shots                 # the bot plays; screenshots of each moment
-# add --stage=30 to start where a sensible player would be by then, --speed=3 to play faster
-xvfb-run -a godot --path . -- --opening-demo --shots=$PWD/shots_open   # one chest of each rarity
+# add --stage=30 to start where a sensible player would be by then, --speed=3 to play faster, --auto-open to use it
+xvfb-run -a godot --path . -- --opening-demo --shots=$PWD/shots_open   # one chest of each rarity, pause and Space checks
 xvfb-run -a godot --path . -- --title-demo --shots=$PWD/shots_title    # title, settings, a new game, pause
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```

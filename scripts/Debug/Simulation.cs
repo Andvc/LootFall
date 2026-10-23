@@ -156,7 +156,12 @@ public static class Simulation
                 run.Samples.Add((t, g.MaxStage, g.Power, g.ChestLevel, g.Might, g.Vigor, g.Haste, Gear(g)));
             }
         }
-        run.LongestWall = Math.Max(run.LongestWall, t - lastStageAt);
+        // The stay the run ends in counts too (with its own stage).
+        if (t - lastStageAt > run.LongestWall)
+        {
+            run.LongestWall = t - lastStageAt;
+            run.LongestWallStage = lastStage;
+        }
         run.Final = g;
         return run;
     }

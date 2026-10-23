@@ -45,7 +45,7 @@ public static class Fx
         particles.Position = position;
         parent.AddChild(particles);
         particles.Emitting = true;
-        parent.GetTree().CreateTimer(lifetime + 0.4).Timeout += particles.QueueFree;
+        parent.GetTree().CreateTimer(lifetime + 0.4, false).Timeout += particles.QueueFree;
     }
 
     /// <summary>A puff of dust where something lands, freed when done.</summary>
@@ -64,7 +64,7 @@ public static class Fx
         };
         parent.AddChild(dust);
         dust.Emitting = true;
-        parent.GetTree().CreateTimer(1.0).Timeout += dust.QueueFree;
+        parent.GetTree().CreateTimer(1.0, false).Timeout += dust.QueueFree;
     }
 
     /// <summary>A shockwave ring expanding from a spot.</summary>
@@ -175,7 +175,7 @@ public static class Fx
         };
         parent.AddChild(confetti);
         confetti.Emitting = true;
-        parent.GetTree().CreateTimer(2.6).Timeout += confetti.QueueFree;
+        parent.GetTree().CreateTimer(2.6, false).Timeout += confetti.QueueFree;
     }
 
     /// <summary>

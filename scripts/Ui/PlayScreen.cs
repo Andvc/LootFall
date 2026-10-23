@@ -84,6 +84,7 @@ public partial class PlayScreen : Screen
         G.Update(delta);
         foreach (var e in G.Events) Handle(e);
         G.Events.Clear();
+        UpdateHints((float)delta);
 
         _refreshTimer -= delta;
         if (_refreshTimer <= 0)
@@ -95,6 +96,15 @@ public partial class PlayScreen : Screen
             if (G.ChestLevel == 1 && G.Gold >= Core.Upgrades.Cost(G, Upgrade.ChestLevel))
                 Tip("chestlevel", "You can afford CHEST LEVEL 2: stronger, rarer loot from every chest.  (Upgrades, right)", 5);
         }
+    }
+
+    /// <summary>The boss button, or B.</summary>
+    public void FightBoss()
+    {
+        if (!G.ChallengeBoss()) return;
+        Sfx.PlayGroup("boss", 1f, -4);
+        if (G.BossQueued) Hint("The boss comes once the mimic is beaten.", 2.5f);
+        Hud.Refresh();
     }
 
     public override void _UnhandledInput(InputEvent e)
@@ -115,7 +125,7 @@ public partial class PlayScreen : Screen
                 Chest.PressSell();
                 break;
             case Key.B when !echo:
-                if (G.ChallengeBoss()) Sfx.PlayGroup("boss", 1f, -4);
+                FightBoss();
                 break;
             default:
                 return;
@@ -146,6 +156,7 @@ public partial class PlayScreen : Screen
             case BossFailed f:
                 Battle.Banner(f.TimedOut ? "TIME'S UP" : "DEFEATED", Palette.Bad, "Open chests and train, then try again", 1.2f);
                 Tip("bossfail", "Auto-Boss tries again once he's stronger.  Chest Level and training get him there.", 5);
+                Game.Moment("boss_failed", 2.4);
                 Sfx.Play("down", 1f, -4);
                 Game.Music.Play(World.Zone(G.Stage).Music, 1.5f);
                 break;
@@ -153,16 +164,17 @@ public partial class PlayScreen : Screen
                 Battle.Banner(c.ZoneBoss ? "ZONE CLEAR!" : "STAGE CLEAR", Palette.Gold, null, 0.9f);
                 Sfx.PlayGroup("victory", 1f, -4);
                 if (c.ZoneBoss) Fx.Confetti(_flyLayer, new Vector2(640, 300), 140);
-                Game.Music.Play(World.Zone(G.Stage + 1).Music, 1.5f);
+                Game.Music.Play(World.Zone(c.Stage + 1).Music, 1.5f);
                 Game.Moment(c.ZoneBoss ? "zone_clear" : "stage_clear", 0.3);
                 break;
             case StageEntered s:
-                if (s.NewZone) EnterZone(s.Stage);
+                if (s.NewZone) EnterZone(s.Stage, s.First);
                 Hud.Refresh();
                 Game.Save();
                 break;
             case Retreated r:
                 Hint($"Too strong for now: back to {World.StageName(r.Stage)} to gear up.", 3);
+                ShowZone(r.Stage);
                 break;
             case MimicAppeared:
                 Battle.Banner("A MIMIC!", Palette.Of(Rarity.Legendary), "It's guarding royal treasure", 0.8f);
@@ -178,6 +190,7 @@ public partial class PlayScreen : Screen
                 break;
             case AutoHeld h:
                 Chest.PresentHeld(h.Opening);
+                Game.Moment("auto_held", 1.5);
                 break;
             case BountyDone d:
                 OnBounty(d);
@@ -188,9 +201,18 @@ public partial class PlayScreen : Screen
         }
     }
 
-    void EnterZone(int stage)
+    /// <summary>The backdrop and music of the zone a stage is in (nothing changes within a zone).</summary>
+    void ShowZone(int stage)
     {
         Battle.SetZone(stage);
+        Game.Music.Play(World.Zone(stage).Music, 1.5f);
+    }
+
+    /// <summary>Up into a zone: its place and music, and the first time, its banner.</summary>
+    void EnterZone(int stage, bool first)
+    {
+        ShowZone(stage);
+        if (!first) return;
         var zone = World.Zone(stage);
         Battle.Banner(zone.Name.ToUpperInvariant(), Palette.Text, $"Zone {World.ZoneIndex(stage) + 1}  -  new monsters, loot +1 level", 1.6f);
         Game.Moment($"zone_{zone.Key}", 2.0);
@@ -353,29 +375,63 @@ public partial class PlayScreen : Screen
         }
         else if (u == Upgrade.AutoOpen)
         {
-            Hint("Auto-Open on: it stops for anything Epic or better.  Toggle it on the chest.", 4);
+            Hint($"Auto-Open on: it stops for anything {Rarities.Get(G.AutoStopAt).Name} or better.  Both switches are on the chest.", 4);
+            Game.Moment("auto_open", 0.6);
         }
         else Battle.PowerUp(0, Palette.Good);
     }
 
     // ------------------------------------------------------------------------------------------------- messages
 
-    readonly System.Collections.Generic.List<Label> _hints = new();
+    sealed class HintLine
+    {
+        public Label Label;
+        public double Left;
+    }
 
-    /// <summary>A line of advice over the lane for a few seconds (stacking under any still showing).</summary>
+    const float HintTop = 150, HintGap = 26;
+    readonly System.Collections.Generic.List<HintLine> _hints = new();
+
+    /// <summary>
+    /// A line of advice over the lane for a few seconds, under any still showing. Hints share the lane's band with the
+    /// banners ("DEFEATED"): while one is up they step aside, and their seconds wait for them.
+    /// </summary>
     public void Hint(string text, float seconds)
     {
-        _hints.RemoveAll(h => !IsInstanceValid(h));
-        var label = UiKit.MakeLabel(text, 16, Palette.Text, HorizontalAlignment.Center, outline: 6).Place(140, 150 + 26 * _hints.Count, 1000, 24);
+        var label = UiKit.MakeLabel(text, 16, Palette.Text, HorizontalAlignment.Center, outline: 6).Place(140, HintTop + HintGap * _hints.Count, 1000, 24);
         label.ZIndex = 70;
-        AddChild(label);
-        _hints.Add(label);
         label.Modulate = Colors.Transparent;
-        var t = label.CreateTween();
-        t.TweenProperty(label, "modulate", Colors.White, 0.25f);
-        t.TweenInterval(seconds);
-        t.TweenProperty(label, "modulate:a", 0f, 0.4f);
-        t.TweenCallback(Callable.From(label.QueueFree));
+        AddChild(label);
+        _hints.Add(new HintLine { Label = label, Left = seconds });
+    }
+
+    void UpdateHints(float dt)
+    {
+        bool banner = Battle.BannerTimeLeft > 0;
+        for (int i = _hints.Count - 1; i >= 0; i--)
+        {
+            var h = _hints[i];
+            float alpha = h.Label.Modulate.A;
+            if (banner) alpha = Mathf.MoveToward(alpha, 0, dt * 8);
+            else if (h.Left > 0)
+            {
+                alpha = Mathf.MoveToward(alpha, 1, dt * 4);
+                h.Left -= dt;
+            }
+            else if ((alpha = Mathf.MoveToward(alpha, 0, dt * 2.5f)) <= 0)
+            {
+                h.Label.QueueFree();
+                _hints.RemoveAt(i);
+                continue;
+            }
+            h.Label.Modulate = Colors.White with { A = alpha };
+        }
+        // The ones left close up under the first.
+        for (int i = 0; i < _hints.Count; i++)
+        {
+            var label = _hints[i].Label;
+            label.Position = label.Position with { Y = Mathf.MoveToward(label.Position.Y, HintTop + HintGap * i, dt * 120) };
+        }
     }
 
     void ShowWelcome(OfflineReport r)

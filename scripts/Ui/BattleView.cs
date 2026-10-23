@@ -22,6 +22,8 @@ public partial class BattleView : Node2D
     CpuParticles2D _ambience;
     ActorView _hero;
     readonly Dictionary<Fighter, ActorView> _foes = new();
+    // Where this wave's fallen were, for the gold and chests that pop out of them after their views are gone.
+    readonly Dictionary<Fighter, Vector2> _fallen = new();
     string _zone;
     readonly Random _rng = new();
 
@@ -170,6 +172,7 @@ public partial class BattleView : Node2D
         foreach (var v in _foes.Values)
             if (IsInstanceValid(v)) v.QueueFree();
         _foes.Clear();
+        _fallen.Clear();
     }
 
     // ------------------------------------------------------------------------------------------------- boss bar
@@ -206,6 +209,7 @@ public partial class BattleView : Node2D
 
     public override void _Process(double delta)
     {
+        _clock += delta;
         if (_boss != null)
         {
             _bossHp.Set((float)_boss.HpShare);
@@ -250,12 +254,10 @@ public partial class BattleView : Node2D
             case BossTimedOut:
                 break;
             case GoldGained g when g.From != null:
-                var at = _foes.TryGetValue(g.From, out var fv) ? fv.Middle : new Vector2(FrontX + 80, Ground - 60);
-                GoldDropped?.Invoke(g.Amount, at);
+                GoldDropped?.Invoke(g.Amount, SpotOf(g.From));
                 break;
             case ChestGained c when c.From != null:
-                var from = _foes.TryGetValue(c.From, out var cv) ? cv.Middle : new Vector2(FrontX + 80, Ground - 60);
-                ChestDropped?.Invoke(c.Kind, from);
+                ChestDropped?.Invoke(c.Kind, SpotOf(c.From));
                 break;
             case BossStarted b: ShowBoss(b.Boss); break;
             case BossFailed:
@@ -397,6 +399,7 @@ public partial class BattleView : Node2D
         }
         if (!_foes.TryGetValue(f, out var v)) return;
         _foes.Remove(f);
+        _fallen[f] = v.Middle;
         v.Die();
         Anims.PlayFx(_front, "poof", v.Middle + new Vector2(0, v.Height * 0.2f), Colors.White, 1.5f, scale: f.Boss ? 3 : 2);
         sfx.PlayGroup("kill", f.Boss ? 0.7f : 1f + (float)_rng.NextDouble() * 0.2f, f.Boss ? 0 : -6);
@@ -412,6 +415,10 @@ public partial class BattleView : Node2D
         Layout(walk: true, seconds: 0.35f);
     }
 
+    /// <summary>The middle of a monster, standing or just fallen.</summary>
+    Vector2 SpotOf(Fighter f) =>
+        _foes.TryGetValue(f, out var v) ? v.Middle : _fallen.TryGetValue(f, out var at) ? at : new Vector2(FrontX + 80, Ground - 60);
+
     /// <summary>A damage number (or word) popping up from a spot, kept below the boss's bar.</summary>
     void Number(string text, Vector2 at, Color color, int size, float drift = 0)
     {
@@ -422,6 +429,12 @@ public partial class BattleView : Node2D
 
     readonly Queue<(string Text, Color Color, string Sub, float Hold)> _banners = new();
     bool _bannerShowing;
+    double _clock, _bannerGoneAt;
+    // A banner's time in the band, besides its hold: popping in, and fading out.
+    const float BannerIn = 0.25f, BannerOut = 0.3f;
+
+    /// <summary>Seconds until the banner showing and those waiting are gone (a hint waits for them rather than overlap).</summary>
+    public double BannerTimeLeft => Math.Max(0, _bannerGoneAt - _clock) + _banners.Sum(b => BannerIn + b.Hold + BannerOut);
 
     /// <summary>A big line of text across the lane ("BOSS", "STAGE CLEAR"); one at a time, in the order they came.</summary>
     public void Banner(string text, Color color, string sub = null, float hold = 1.2f)
@@ -446,6 +459,7 @@ public partial class BattleView : Node2D
 
     void ShowBanner(string text, Color color, string sub, float hold)
     {
+        _bannerGoneAt = _clock + BannerIn + hold + BannerOut;
         var root = new Node2D { Position = new Vector2(0, 150), ZIndex = 60 };
         var band = new ColorRect { Color = new Color(0, 0, 0, 0.55f), MouseFilter = Control.MouseFilterEnum.Ignore }.Place(0, -10, Width, sub == null ? 70 : 100);
         root.AddChild(band);
@@ -458,10 +472,10 @@ public partial class BattleView : Node2D
         label.Scale = new Vector2(1.6f, 1.6f);
         var t = root.CreateTween();
         t.TweenProperty(root, "modulate", Colors.White, 0.12f);
-        t.Parallel().TweenProperty(label, "scale", Vector2.One, 0.25f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        t.Parallel().TweenProperty(label, "scale", Vector2.One, BannerIn).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
         t.TweenInterval(hold);
         t.TweenCallback(Callable.From(NextBanner));
-        t.TweenProperty(root, "modulate:a", 0f, 0.3f);
+        t.TweenProperty(root, "modulate:a", 0f, BannerOut);
         t.TweenCallback(Callable.From(root.QueueFree));
     }
 
