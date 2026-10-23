@@ -26,6 +26,8 @@ public partial class ChestPanel : Node2D
     // How long the card has been up: Space only takes its choice after a moment (longer for the big ones), so mashing
     // it to hurry an opening along doesn't sell what it reveals.
     double _cardAge;
+    // The "LUCKY!" that rises off the chest; the card has its own stamp, so this one goes when the card comes up.
+    Label _luckyFloat;
     Label _hint, _title;
     readonly Label[] _counts = new Label[Chests.Count];
     readonly Node2D[] _pileIcons = new Node2D[Chests.Count];
@@ -218,7 +220,7 @@ public partial class ChestPanel : Node2D
             if (lucky && !_hurry)
             {
                 await Wait(0.15f);
-                Fx.Float(_layer, "LUCKY!", ChestSpot + new Vector2(0, -90), Palette.Good, 32, rise: 40, duration: 1.2f);
+                _luckyFloat = Fx.Float(_layer, "LUCKY!", ChestSpot + new Vector2(0, -90), Palette.Good, 32, rise: 40, duration: 1.2f);
                 sfx.Play("sparkle", 1.2f, -2);
             }
             var c = Palette.Of((Rarity)r);
@@ -278,6 +280,8 @@ public partial class ChestPanel : Node2D
     {
         _state = State.Deciding;
         _cardAge = 0;
+        if (IsInstanceValid(_luckyFloat)) _luckyFloat.QueueFree();
+        _luckyFloat = null;
         // The card stands a little taller than the panel, over the bottom of the battle.
         _card = new RevealCard(o, DoEquip, DoSell) { Position = new Vector2(0, H - RevealCard.H - 2), ZIndex = 40 };
         AddChild(_card);
