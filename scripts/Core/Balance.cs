@@ -75,6 +75,9 @@ public static class Balance
 
     // Upgrades (see Upgrades.cs)
     public static double ChestLevelCost = 145, ChestLevelGrowth = 1.35;
+
+    /// <summary>The first chest level is cheap, so a new player meets it in their first couple of minutes.</summary>
+    public static double FirstChestLevelCost = 60;
     public static int MaxChestLevel = 45;
     public static double TrainCost = 10, TrainGrowth = 1.16, TrainBonus = 0.05;
     public static double HasteCost = 40, HasteGrowth = 1.35, HasteBonus = 0.02;

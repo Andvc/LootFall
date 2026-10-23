@@ -31,7 +31,7 @@ public static class Upgrades
 
     public static double Cost(GameState g, Upgrade u) => Math.Round(u switch
     {
-        Upgrade.ChestLevel => Balance.ChestLevelCost * Math.Pow(Balance.ChestLevelGrowth, g.ChestLevel - 1),
+        Upgrade.ChestLevel => g.ChestLevel == 1 ? Balance.FirstChestLevelCost : Balance.ChestLevelCost * Math.Pow(Balance.ChestLevelGrowth, g.ChestLevel - 1),
         Upgrade.Might => Balance.TrainCost * Math.Pow(Balance.TrainGrowth, g.Might),
         Upgrade.Vigor => Balance.TrainCost * Math.Pow(Balance.TrainGrowth, g.Vigor),
         Upgrade.Haste => Balance.HasteCost * Math.Pow(Balance.HasteGrowth, g.Haste),
