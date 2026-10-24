@@ -29,7 +29,7 @@ public sealed class Item
 /// Everything the hero has, from gear to prestige layers, and how it adds up to one sheet of stats. The systems and what
 /// resets them:
 /// <list type="bullet">
-/// <item>Gear (150 slots): items by depth, rarity, quality and affixes. Reset by ascension.</item>
+/// <item>Gear (149 slots): items by depth, rarity, quality and affixes. Reset by ascension.</item>
 /// <item>Forge (gold, per slot): +ForgeStep a level to the slot's flat stats, exponential cost; gold scales with depth,
 /// so forge levels track depth (a "slope" system). Reset by ascension.</item>
 /// <item>Slot ranks (materials, per slot): polynomial cost; materials are counted, not scaled, so ranks grow with time
@@ -38,7 +38,7 @@ public sealed class Item
 /// <item>Ranks and mastery feed the hero as a whole, not the slot's item: flat stats add up across slots, so a bonus that
 /// grows without bound on one slot's flats would make that slot all that matters (sum of exponentials). As a pool, every
 /// level in every slot is worth the same, and a newly opened slot is the cheapest to raise.</item>
-/// <item>Levels and talents (XP): a point a level into the 3,250-node tree, then paragon. Kept.</item>
+/// <item>Levels and talents (XP): a point a level into the 3,259-node tree, then paragon. Kept.</item>
 /// <item>Codex (first finds of slot x rarity x quality band): a little "more" each. Kept.</item>
 /// <item>Ascension and transcendence: prestige layers with their own trees.</item>
 /// </list>
@@ -53,6 +53,10 @@ public sealed class Hero
     public readonly TalentState Talents;
     public readonly LayerState Ascension, Transcendence;
 
+    /// <summary>ReferenceSlots / slot count: what each rank, mastery level and codex entry is worth, relative to its
+    /// budgeted value.</summary>
+    public readonly double PoolScale;
+
     public readonly Item[] Gear;
     public readonly int[] Forge, Rank, Mastery;
     public readonly double[] MasteryXp;
@@ -65,6 +69,8 @@ public sealed class Hero
     public static int Era(double ilvl) => ilvl < 100 ? 0 : Math.Min(Eras - 1, 1 + (int)Math.Log2(ilvl / 100));
     public readonly bool[] Codex;
     public int CodexCount;
+    /// <summary>The codex entries found, each weighted by its rarity (CodexRarityGrowth^rarity).</summary>
+    public double CodexValue;
 
     public int RunDepth = 1, EverDepth = 1, Level = 1;
     public Big Xp = Big.Zero, Gold = Big.Zero;
@@ -93,6 +99,7 @@ public sealed class Hero
         Ascension = new LayerState(LayerTree.Ascension(p));
         Transcendence = new LayerState(LayerTree.Transcendence(p));
         int n = c.SlotCount;
+        PoolScale = p.ReferenceSlots / n;
         Gear = new Item[n];
         Forge = new int[n];
         Rank = new int[n];
@@ -206,7 +213,7 @@ public sealed class Hero
         for (int s = 0; s < Gear.Length; s++)
         {
             if (!Open[s]) continue;
-            double le = (Knock == Sys.Ranks ? 0 : Rank[s] * P.RankLE) + (Knock == Sys.Mastery ? 0 : Mastery[s] * P.MasteryLE);
+            double le = ((Knock == Sys.Ranks ? 0 : Rank[s] * P.RankLE) + (Knock == Sys.Mastery ? 0 : Mastery[s] * P.MasteryLE)) * PoolScale;
             if (le == 0) continue;
             var (d, h) = PoolSplit(s);
             damage += d * le;
@@ -220,7 +227,7 @@ public sealed class Hero
     public void RebuildCodex()
     {
         CodexSheet.Clear();
-        double le = Knock == Sys.Codex ? 0 : CodexCount * P.CodexLE * (1 + Transcendence.PerkTotal(Perk.CodexPower));
+        double le = Knock == Sys.Codex ? 0 : CodexValue * P.CodexLE * PoolScale * (1 + Transcendence.PerkTotal(Perk.CodexPower));
         CodexSheet[Stat.MoreDamage] = le;
         CodexSheet[Stat.MoreHp] = le;
     }
@@ -301,6 +308,7 @@ public sealed class Hero
             if (!rng.Chance(p)) continue;
             Codex[baseKey + b] = true;
             CodexCount++;
+            CodexValue += Math.Pow(P.CodexRarityGrowth, rarity);
             found++;
         }
         return found;

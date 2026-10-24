@@ -18,6 +18,7 @@ public sealed class Profile
 
     public static Profile Active() => new() { Name = "active", CheckIn = 0 };
     public static Profile Idle() => new() { Name = "idle", CheckIn = 4 * 3600 };
+    public static Profile Daily() => new() { Name = "daily", CheckIn = 24 * 3600 };
     public static Profile NoPrestige() => new() { Name = "no-prestige", CheckIn = 0, Ascends = false, Transcends = false };
 }
 
@@ -36,14 +37,17 @@ public sealed class Sim
     readonly double[] _w = new double[Stats.Count];
     readonly Sheet _old = new(), _new = new();
     readonly Item _cand = new(), _best = new();
+    readonly double[] _forgeScore, _forgeCost;
 
     public double Time;
     /// <summary>When set, prestige decisions are written here (progsim --debug-prestige).</summary>
     public System.Collections.Generic.List<string> Log;
     double _nextLog;
     double _nextCheck, _runStart, _cycleStart, _depthProgress;
-    /// <summary>The run's depth at each decision, to tell climbing from a plateau.</summary>
+    /// <summary>The run's depth at each decision, to tell climbing from a plateau; the last run's peak and length.</summary>
     readonly List<(double Time, int Depth)> _runDepths = new();
+    int _lastPeak;
+    double _lastRun;
     /// <summary>Aether this run has earned so far (paid out by an ascension).</summary>
     Big _pendingAether = Big.Zero;
 
@@ -53,6 +57,8 @@ public sealed class Sim
         Pr = profile;
         _rng = new Rng(seed);
         H = new Hero(p, c, tree);
+        _forgeScore = new double[c.SlotCount];
+        _forgeCost = new double[c.SlotCount];
         M = new Metrics(this);
         UpdateWeights();
     }
@@ -162,17 +168,18 @@ public sealed class Sim
 
         if (gearChanged) H.Rebuild();
 
-        // Decisions, at check-ins. From the first transcendence on, the autopilot ascends in between too, by the
-        // player's own rule (the automation milestone that lets idle play keep up).
+        // Decisions, at check-ins. From the first transcendence on, the autopilot works in between: it buys forge levels
+        // and ranks as auto-buyers would and ascends by the player's own rule (the automation milestone that lets idle
+        // play keep up).
         if (Time >= _nextCheck)
         {
             _nextCheck = Time + Math.Min(Pr.CheckIn, Math.Max(60, Time / 10));
             Decide();
         }
-        else if (Pr.Ascends && H.Transcendence.Resets > 0 && TryAscend())
+        else if (H.Transcendence.Resets > 0)
         {
-            // The autopilot rebuys the forge and spends materials too, as auto-buyers would.
             if (SpendForge() | SpendRanks()) H.Rebuild();
+            if (Pr.Ascends && TryPrestige(transcend: false) && (SpendForge() | SpendRanks())) H.Rebuild();
         }
     }
 
@@ -332,8 +339,7 @@ public sealed class Sim
         ChooseFocus();
         if (changed) H.Rebuild();
         else H.Rebuild(gear: false);
-        if (Pr.Transcends && TryTranscend()) return;
-        if (Pr.Ascends) TryAscend();
+        if (Pr.Ascends) TryPrestige(transcend: Pr.Transcends);
     }
 
     /// <summary>The reach one more step of a slot's flat stats (forge or rank) is worth, per LE of step.</summary>
@@ -354,7 +360,6 @@ public sealed class Sim
 
     readonly PriorityQueue<int, double> _heap = new();
 
-    readonly double[] _forgeScore = new double[256], _forgeCost = new double[256];
 
     /// <summary>
     /// Forge levels, all at once. Costs grow by ForgeGrowth a level and value by only 1 + ForgeStep, so the k-th next
@@ -468,30 +473,47 @@ public sealed class Sim
     /// <summary>Aether an ascension would pay now (what this run has earned).</summary>
     public Big AetherNow() => H.RunDepth >= P.AscendDepth || H.EverDepth >= P.AscendDepth ? _pendingAether : Big.Zero;
 
+    /// <summary>Stardust a transcendence would pay now: what all the aether ever earned (including this run's, which a
+    /// transcendence banks first) is worth, less what earlier transcendences paid out. Waiting never forfeits any.</summary>
     public Big StardustNow()
     {
-        if (H.Ascension.CycleEarned < Big.Of(P.TransAether)) return Big.Zero;
-        return Big.Of(P.StardustBase) * Big.Pow10((H.Ascension.CycleEarned.Log10 - Math.Log10(P.TransAether)) * P.StardustExp);
+        var life = H.Ascension.Lifetime + AetherNow();
+        if (life < Big.Of(P.TransAether)) return Big.Zero;
+        return Big.Of(P.StardustBase) * Big.Pow10((life.Log10 - Math.Log10(P.TransAether)) * P.StardustExp) - H.Transcendence.Lifetime;
     }
 
-    bool TryAscend()
+    /// <summary>
+    /// The reset decision, like a player's: not before the hero is back near the last run's peak (98% of it, unless the
+    /// run has gone on four times as long as the last), not while the run is still climbing (less than 5% deeper over
+    /// its last quarter, at least ten minutes), and then only for a gain worth how long they've waited (5% deeper for a
+    /// run of the profile's patience, less in proportion for longer runs). The reset is a transcendence when that clears
+    /// the same bar and gives at least half what the run's aether would (what the stardust buys, less what wiping the
+    /// ascension tree costs after the echo: its gain lasts, an ascension's only until the next transcendence), else an
+    /// ascension.
+    /// </summary>
+    bool TryPrestige(bool transcend)
     {
         double runTime = Time - _runStart;
         _runDepths.Add((Time, H.RunDepth));
         if (runTime < 300) return false;
         var gain = AetherNow();
         if (gain < Big.Of(P.AscendMinAether)) return false;
-        // Like a player: not while the run is still climbing (less than 5% deeper over its last quarter, at least ten
-        // minutes), and then when what the aether buys takes the hero deeper by enough for how long they've waited: 5%
-        // for a run of the profile's patience, less in proportion for longer runs.
         double back = Time - Math.Max(600, 0.25 * runTime);
         int then = H.RunDepth;
         foreach (var (t, d) in _runDepths)
             if (t <= back) then = d;
             else break;
         if (H.RunDepth > 1.05 * then) return false;
-        double worth = Preview(H.Ascension, gain) / Math.Max(1, H.Reach());
-        if (worth < Math.Max(0.0005, 0.05 * Math.Min(1, Pr.Patience / runTime))) return false;
+        double reach = Math.Max(1, H.Reach());
+        if (reach < 0.98 * _lastPeak && runTime < 4 * Math.Max(Pr.Patience, _lastRun)) return false;
+        double bar = reach * Math.Max(0.0005, 0.05 * Math.Min(1, Pr.Patience / runTime));
+        double ascend = Preview(H.Ascension, gain);
+        if (transcend && TranscendNet(gain) is var net && net >= Math.Max(bar, 0.5 * ascend))
+        {
+            Transcend();
+            return true;
+        }
+        if (ascend < bar) return false;
         Ascend(gain);
         return true;
     }
@@ -545,40 +567,53 @@ public sealed class Sim
         H.Rebuild();
     }
 
-    bool TryTranscend()
+    /// <summary>What a transcendence would take the hero deeper by now (negative for a setback): what the stardust buys,
+    /// less what wiping the ascension tree costs once the echo has bought part of it back. Only once the stardust would
+    /// add at least a quarter to all that was ever earned.</summary>
+    double TranscendNet(Big runAether)
     {
-        var gain = StardustNow();
-        if (gain < Big.Of(P.TransMinStardust)) return false;
-        // Like a player: transcend once it would add a quarter to all the stardust ever earned, and only if what the
-        // stardust buys is worth what wiping the ascension tree costs (less what Aether Echo buys back at once), so a
-        // transcendence never leaves the hero weaker than before it.
-        if (gain < H.Transcendence.Lifetime * 0.25) return false;
-        double echoShare = EchoShare();
-        double lose = AscensionWorth() * (1 - Math.Pow(echoShare, 1 / (P.AscCostExp + 1)));
-        double get = Preview(H.Transcendence, gain);
-        if (Log != null && (get >= lose || Time >= _nextLog))
+        var stardust = StardustNow();
+        if (stardust < Big.Of(P.TransMinStardust) || stardust < H.Transcendence.Lifetime * 0.25) return double.NegativeInfinity;
+        // The echo is a share of the cycle's aether including this run's, against the tree the cycle's aether bought.
+        var cycle = H.Ascension.CycleEarned;
+        double echo = EchoShare() * (cycle.IsZero ? 1 : ((cycle + runAether) / cycle).ToDouble());
+        double lose = AscensionWorth() * (1 - Math.Pow(Math.Min(1, echo), 1 / (P.AscCostExp + 1)));
+        double get = Preview(H.Transcendence, stardust);
+        if (Log != null && Time >= _nextLog)
         {
             _nextLog = Time + 0.05 * Time;
-            Log.Add($"{Report.Time(Hours),6} cycle {Report.Time((Time - _cycleStart) / 3600),5}: stardust {gain} (lifetime {H.Transcendence.Lifetime}) buys {get:0} depth, wipe costs {lose:0} (echo {echoShare:0.00}), reach {H.Reach():0}{(get >= lose ? "  -> TRANSCEND" : "")}");
+            Log.Add($"{Report.Time(Hours),6} cycle {Report.Time((Time - _cycleStart) / 3600),5}: stardust {stardust} (lifetime {H.Transcendence.Lifetime}) buys {get:0} depth, wipe costs {lose:0} (echo {echo:0.00}), reach {H.Reach():0}");
         }
-        if (get < lose) return false;
+        return get - lose;
+    }
+
+    void Transcend()
+    {
+        var gain = StardustNow();
+        double before = Log != null ? Objective(H.Base) : 0;
         var t = H.Transcendence;
         t.Currency += gain;
         t.CycleEarned += gain;
         t.Lifetime += gain;
         t.Resets++;
         M.Prestige(Ev.Transcendence, Time - _cycleStart, H.RunDepth);
-        var cycleAether = H.Ascension.CycleEarned;
+        var run = AetherNow();
+        H.Ascension.Lifetime += run;
+        var cycleAether = H.Ascension.CycleEarned + run;
         H.Ascension.Wipe(H.S);
         _cycleStart = Time;
         SpendLayer(t);
         // The echo (with any Aether Echo just bought) starts the new cycle with a share of the last one's aether.
         H.Ascension.Currency = cycleAether * EchoShare();
         SpendLayer(H.Ascension);
+        if (Log != null)
+        {
+            H.Rebuild();
+            Log.Add($"{Report.Time(Hours),6} TRANSCEND for {gain} stardust: objective {before:0} before, {Objective(H.Base):0} after (same gear), record {H.EverDepth}");
+        }
         ResetRun();
         H.UpdateUnlocks();
         H.Rebuild();
-        return true;
     }
 
     double EchoShare() => Math.Min(P.TransEchoCap, P.TransEcho + H.Transcendence.PerkTotal(Perk.AetherEcho));
@@ -598,6 +633,9 @@ public sealed class Sim
     /// <summary>A new run: back to the start depth (deeper with Head Start, with basic gear there), no gear, forge or gold.</summary>
     void ResetRun()
     {
+        // The run that ends: how deep it got (depth only rises within a run) and how long it lasted.
+        _lastPeak = H.RunDepth;
+        _lastRun = Time - _runStart;
         double head = Math.Min(0.5, H.Ascension.PerkTotal(Perk.HeadStart) + H.Transcendence.PerkTotal(Perk.HeadStart));
         int start = Math.Max(1, (int)(H.EverDepth * head));
         H.RunDepth = start;
@@ -675,7 +713,7 @@ public sealed class Sim
             case Perk.AetherGain:
                 return n.Amount / (1 + H.Transcendence.PerkTotal(Perk.AetherGain)) * Math.Max(1, H.Ascension.Lifetime.Log10) * more;
             case Perk.CodexPower:
-                return n.Amount * H.CodexCount * P.CodexLE * more;
+                return n.Amount * H.CodexValue * P.CodexLE * H.PoolScale * more;
             case Perk.HeadStart:
                 return 0.5 * more;
             case Perk.ForgeDiscount:
@@ -704,7 +742,7 @@ public sealed class Sim
         double sum = 0;
         for (int s = 0; s < H.Mastery.Length; s++)
             if (H.Open[s]) sum += H.Mastery[s] * P.MasteryLE;
-        return sum;
+        return sum * H.PoolScale;
     }
 
     double RankLeTotal()
@@ -712,6 +750,6 @@ public sealed class Sim
         double sum = 0;
         for (int s = 0; s < H.Rank.Length; s++)
             if (H.Open[s]) sum += H.Rank[s] * P.RankLE;
-        return sum;
+        return sum * H.PoolScale;
     }
 }

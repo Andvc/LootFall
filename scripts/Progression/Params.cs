@@ -74,6 +74,9 @@ public sealed class Params
     /// <summary>Slot weights grow by this much per slot in unlock order (so late slots still add a share), and the eight
     /// classic slots (weapon, chest, helm, gloves, boots, ring, amulet, off hand) weigh this many times more.</summary>
     public double SlotWeightGrowth = 1.01, ClassicWeight = 3.0;
+    /// <summary>The slot count the per-slot budgets (RankLE, MasteryLE, CodexLE) are set for. With more slots each level
+    /// and entry is worth proportionally less, so adding content spreads a system's power instead of multiplying it.</summary>
+    public double ReferenceSlots = 149;
 
     // ---------------------------------------------------------------- forge (gold sink, per slot, reset by ascension)
     /// <summary>Level e of a slot costs ForgeBase * ForgeGrowth^e gold and multiplies the slot's flat stats by (1 + ForgeStep).
@@ -86,16 +89,17 @@ public sealed class Params
     /// to the hero (damage and health by the slot's offense share; see Hero.PoolSplit). Materials come from salvage,
     /// MaterialBase * MaterialRarity^rarity per item, counted rather than scaled with depth, so ranks grow with time
     /// played (a power law), not with depth.</summary>
-    public double RankLE = 0.0137, RankCost = 20, RankExp = 2.2, MaterialBase = 1, MaterialRarity = 1.25;
+    public double RankLE = 0.0091, RankCost = 20, RankExp = 2.2, MaterialBase = 1, MaterialRarity = 1.25;
 
     // ---------------------------------------------------------------- levels and talents (persistent)
     /// <summary>XP from level L to L+1 = LevelXp * LevelGrowth^(L-1).</summary>
     public double LevelXp = 12, LevelGrowth = 1.25;
     /// <summary>Talent node sizes: every node's amounts times TalentScale, times 1 + TalentRingGrowth * ring outward.</summary>
     public double TalentScale = 1.0, TalentRingGrowth = 0.1;
-    /// <summary>"More" (damage or health, by sector) per minor node and per notable, in LE at ring 0, growing with the ring.
-    /// The whole tree is worth about 250 LE.</summary>
-    public double TalentMinorLE = 0.02, TalentNotableLE = 0.2;
+    /// <summary>"More" (damage or health, by sector) per minor node and per notable, in LE at ring 0, growing with the ring;
+    /// then scaled so that all the minors and notables together give TalentBudgetLE (damage and health LE summed, so the
+    /// power, their mean, gets about half): a bigger tree spreads the same budget over more nodes.</summary>
+    public double TalentMinorLE = 0.02, TalentNotableLE = 0.2, TalentBudgetLE = 222;
     /// <summary>Paragon: once ParagonAfter of the tree is allocated (all of it), each point buys a rank instead,
     /// multiplying damage or health by this LE: the endless tail after the tree.</summary>
     public double ParagonLE = 0.07, ParagonAfter = 1.0;
@@ -103,13 +107,15 @@ public sealed class Params
     // ---------------------------------------------------------------- mastery (persistent, time-driven)
     /// <summary>Each equipped slot gains MasteryRate XP an hour (focused slots x MasteryFocus); level m needs
     /// MasteryXp * m^MasteryCurve more; each level in any slot adds MasteryLE of "more" to the hero, like ranks.</summary>
-    public double MasteryRate = 30, MasteryFocus = 5, MasteryXp = 1, MasteryCurve = 2.0, MasteryLE = 0.019;
+    public double MasteryRate = 30, MasteryFocus = 5, MasteryXp = 1, MasteryCurve = 2.0, MasteryLE = 0.0174;
     public int MasteryFocusSlots = 4;
 
     // ---------------------------------------------------------------- codex (persistent collection)
-    /// <summary>Each (slot, rarity, quality band, depth era) first found multiplies damage and health by R^CodexLE. Eras
-    /// double: items below level 100, then 100-199, 200-399, ... so the collection keeps opening as the hero goes deeper.</summary>
-    public double CodexLE = 0.0044;
+    /// <summary>Each (slot, rarity, quality band, depth era) first found multiplies damage and health by
+    /// R^(CodexLE * CodexRarityGrowth^rarity): a first Transcendent find is worth CodexRarityGrowth^11 (about twelve) times
+    /// a first Common, so the rare drops are the ones that move the collection. Eras double: items below level 100, then
+    /// 100-199, 200-399, ... so the collection keeps opening as the hero goes deeper.</summary>
+    public double CodexLE = 0.0012, CodexRarityGrowth = 1.25;
 
     // ---------------------------------------------------------------- ascension (prestige 1)
     /// <summary>Kills at or past AscendDepth earn AetherPerKill * (depth / AscendDepth)^AetherExp aether, banked until an
@@ -119,17 +125,18 @@ public sealed class Params
     public double AscendDepth = 150, AetherPerKill = 0.01, AetherExp = 1.25, AscendMinAether = 10;
     /// <summary>Ascension tree: rank k of a node costs NodeCost * (k+1)^AscCostExp aether; its "more" nodes give
     /// AscensionPower times their listed amount.</summary>
-    public double AscCostExp = 3.0, AscensionPower = 3.5;
+    public double AscCostExp = 3.0, AscensionPower = 2.6;
 
     // ---------------------------------------------------------------- transcendence (prestige 2)
-    /// <summary>Transcendence is open once this cycle's ascensions have earned TransAether aether; it pays
-    /// Stardust = StardustBase * (cycle aether / TransAether)^StardustExp. Its "more" nodes give TranscendencePower times
-    /// their listed amount.</summary>
-    public double TransAether = 5e4, StardustBase = 5, StardustExp = 0.6, TransMinStardust = 5, TranscendencePower = 20;
+    /// <summary>Transcendence is open once TransAether aether has been earned in all; stardust is owed for all the aether
+    /// ever earned, StardustBase * (lifetime aether / TransAether)^StardustExp, and a transcendence pays out what's owed
+    /// beyond earlier payouts (AdVenture Capitalist's angels work this way). Its "more" nodes give TranscendencePower
+    /// times their listed amount.</summary>
+    public double TransAether = 5e4, StardustBase = 5, StardustExp = 0.6, TransMinStardust = 5, TranscendencePower = 19.8;
     /// <summary>A transcendence wipes the ascension tree, but the new cycle starts with this share of the last cycle's
     /// aether (more with Aether Echo, up to TransEchoCap), which rebuilds share^(1/(AscCostExp+1)) of the tree at once
-    /// (0.4 gives back about 80%): a reset that sets the hero back a little, not to nothing.</summary>
-    public double TransEcho = 0.4, TransEchoCap = 0.7;
+    /// (0.5 gives back about 84%): a reset that sets the hero back a little, not to nothing.</summary>
+    public double TransEcho = 0.5, TransEchoCap = 0.75;
     /// <summary>Transcendence node costs: its stat nodes grow like stardust^(1/(TransCostExp+1)), which with StardustExp
     /// keeps them growing about as fast as the ascension tree they replace; perks that feed another layer (aether, mastery,
     /// codex) cost more steeply so that feedback stays small.</summary>

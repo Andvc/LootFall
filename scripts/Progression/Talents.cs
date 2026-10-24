@@ -17,14 +17,14 @@ public sealed class TalentNode
 }
 
 /// <summary>
-/// The talent tree: about 3,250 nodes in six sectors (Blade, Bulwark, Gale, Blood, Fortune, Ruin) and fourteen rings,
+/// The talent tree: 3,259 nodes in six sectors (Blade, Bulwark, Gale, Blood, Fortune, Ruin) and fourteen rings,
 /// like Path of Exile's 1,325-node tree but more than twice its size. A cluster is a short chain of minor nodes ending
 /// in a notable, with a side branch; the notables (a "more" multiplier each, so they keep their worth however full the
-/// percent buckets get) are the gateways to the next ring out, the clusters of a ring are
-/// chained around it, and neighbouring sectors meet at every ring, so hybrid builds have paths. Eighteen keystones (three
-/// per sector) carry the big "more" effects, each with a price. Node sizes grow with the ring, so the outer tree is worth
-/// walking to. All amounts are percents or more-LE: the tree never gives flat stats, which the absolute scale would
-/// make worthless.
+/// percent buckets get) are the gateways to the next ring out, the clusters of a ring are chained around it, and
+/// neighbouring sectors meet at every ring, so hybrid builds have paths. Eighteen keystones (three per sector) carry the
+/// big "more" effects, each with a price. Node sizes grow with the ring, so the outer tree is worth walking to, and the
+/// minors' and notables' "more" adds up to a fixed budget however big the tree is. All amounts are percents or more-LE:
+/// the tree never gives flat stats, which the absolute scale would make worthless.
 /// </summary>
 public sealed class TalentTree
 {
@@ -162,6 +162,16 @@ public sealed class TalentTree
                 previousRing = thisRing;
             }
         }
+        // The minors' and notables' "more" adds up to the budget however big the tree is.
+        double raw = 0;
+        foreach (var n in Nodes)
+            if (n.Kind is NodeKind.Minor or NodeKind.Notable)
+                for (int i = 0; i < n.Stats.Length; i++) if (Stats.IsMore(n.Stats[i])) raw += n.Amounts[i];
+        double fit = raw > 0 ? p.TalentBudgetLE / raw : 1;
+        foreach (var n in Nodes)
+            if (n.Kind is NodeKind.Minor or NodeKind.Notable)
+                for (int i = 0; i < n.Stats.Length; i++) if (Stats.IsMore(n.Stats[i])) n.Amounts[i] *= fit;
+
         // Neighbouring sectors meet at every ring: the last cluster of one links to the first of the next.
         var bySectorRing = new Dictionary<(int, int), List<TalentNode>>();
         foreach (var n in Nodes)

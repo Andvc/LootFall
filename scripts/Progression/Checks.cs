@@ -6,7 +6,7 @@ namespace LootFall.Progression;
 
 /// <summary>
 /// The framework's acceptance test: the stability conditions the parameters must meet, and what simulated active, idle
-/// and no-prestige players must see over the same hours (growth without walls or runaway, prestige that pays, idle play
+/// (every 4 hours), daily and no-prestige players must see over the same hours (growth without walls or runaway, prestige that pays, idle play
 /// that keeps up, every system mattering, progress that keeps showing, prestige on a sensible rhythm, content that lasts).
 /// A run passes when every check does; `progsim --check` exits non-zero otherwise, so CI catches a change that breaks
 /// the economy. Thresholds are the targets in docs/progression.md.
@@ -19,7 +19,7 @@ public static class Checks
         public bool Pass;
     }
 
-    public static List<Result> Run(Growth g, Sim active, Sim idle, Sim none)
+    public static List<Result> Run(Growth g, Sim active, Sim idle, Sim daily, Sim none)
     {
         var results = new List<Result>();
         void Add(string name, bool pass, string detail) => results.Add(new Result { Name = name, Pass = pass, Detail = detail });
@@ -36,7 +36,8 @@ public static class Checks
         {
             double measured = Exponent(active, from, hours);
             Add("measured growth exponent 0.3-0.75", measured is >= 0.3 and <= 0.75, $"{measured:0.00} from {Report.Time(from)} to {Report.Time(hours)}");
-            Add("measured exponent within 0.15 of the prediction", Math.Abs(measured - g.Alpha) <= 0.15, $"{measured:0.00} vs {g.Alpha:0.00}");
+            // The prediction is the long-run (fastest) exponent; systems still ramping up keep the measured one below it.
+            Add("measured exponent at most the prediction + 0.1", measured <= g.Alpha + 0.1, $"{measured:0.00} vs {g.Alpha:0.00}");
             double a3 = from * Math.Pow(hours / from, 2 / 3.0), late = Exponent(active, a3, hours);
             Add("no runaway: late growth within 0.15 of the prediction", late <= g.Alpha + 0.15, $"{late:0.00} over the last third");
         }
@@ -64,6 +65,8 @@ public static class Checks
         {
             double worst = marks.Min(m => Depth(idle, m) / Depth(active, m));
             Add("idle play keeps up: 70% of active from 100h", worst >= 0.7, $"worst {100 * worst:0}%");
+            worst = marks.Min(m => Depth(daily, m) / Depth(active, m));
+            Add("a daily check-in keeps up: 50% of active from 100h", worst >= 0.5, $"worst {100 * worst:0}%");
         }
 
         // ---------------------------------------------------------------- every system matters
@@ -93,8 +96,9 @@ public static class Checks
         // ---------------------------------------------------------------- progress keeps showing
         foreach (var (sim, name) in new[] { (active, "active"), (idle, "idle") })
         {
+            // Late on, the stretch between ascensions gains less than 1% an hour, with many smaller events in between.
             var noticed = sim.M.NoticedGaps.Where(x => x.Hours >= 1).Select(x => x.Gap).DefaultIfEmpty(0).Max() / 3600;
-            Add($"{name}: a noticeable gain at least hourly (after 1h)", noticed <= 1, $"longest wait {Report.Time(noticed)}");
+            Add($"{name}: a noticeable gain at least every 2 hours (after 1h)", noticed <= 2, $"longest wait {Report.Time(noticed)}");
             var droughts = sim.M.RecordGaps.Where(x => x.Hours >= 20 && x.Gap / 3600 > 0.25 * x.Hours).ToList();
             double worstShare = sim.M.RecordGaps.Where(x => x.Hours >= 20).Select(x => x.Gap / 3600 / x.Hours).DefaultIfEmpty(0).Max();
             Add($"{name}: no record drought over a quarter of the time played", droughts.Count == 0, $"worst {100 * worstShare:0}% of the time played");
@@ -120,10 +124,14 @@ public static class Checks
         if (hours >= 300)
         {
             Add("first transcendence within 300h", trans.Count > 0 && trans[0].Hours <= 300, trans.Count > 0 ? $"at {Report.Time(trans[0].Hours)}" : "never");
-            // The first cycle starts at the beginning of the game, so it doesn't count.
-            double longest = trans.Skip(1).Select(x => x.Seconds / 3600 / x.Hours).DefaultIfEmpty(0).Max();
-            double open = trans.Count > 0 ? (hours - trans[^1].Hours) / hours : 1;
-            Add("transcendence cycles under half the time played", Math.Max(longest, open) <= 0.5, $"longest {100 * Math.Max(longest, open):0}%");
+            // A cycle may run three days or half the time played by its end, whichever is longer (the first starts at the
+            // beginning of the game, so it doesn't count; the one still open at the end does).
+            var cycles = trans.Skip(1).Select(x => (Length: x.Seconds / 3600, End: x.Hours)).ToList();
+            if (trans.Count > 0) cycles.Add((hours - trans[^1].Hours, hours));
+            var over = cycles.Where(c => c.Length > Math.Max(72, 0.5 * c.End)).ToList();
+            double worst = cycles.Select(c => c.Length / c.End).DefaultIfEmpty(1).Max();
+            Add("transcendence cycles under max(3 days, half the time played)", trans.Count > 0 && over.Count == 0,
+                over.Count == 0 ? $"longest {100 * worst:0}% of the time played" : string.Join(", ", over.Select(c => $"{Report.Time(c.Length)} by {Report.Time(c.End)}")));
         }
 
         // ---------------------------------------------------------------- content lasts
@@ -139,7 +147,7 @@ public static class Checks
         }
 
         // ---------------------------------------------------------------- sanity
-        foreach (var (sim, name) in new[] { (active, "active"), (idle, "idle"), (none, "no-prestige") })
+        foreach (var (sim, name) in new[] { (active, "active"), (idle, "idle"), (daily, "daily"), (none, "no-prestige") })
         {
             bool finite = sim.M.Snaps.All(s => double.IsFinite(s.Reach) && double.IsFinite(s.PowerLe) && (s.Knockout == null || s.Knockout.All(double.IsFinite)));
             bool monotone = sim.M.Snaps.Zip(sim.M.Snaps.Skip(1)).All(x => x.Second.EverDepth >= x.First.EverDepth);

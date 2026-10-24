@@ -1,0 +1,26 @@
+name: Progression check
+
+# The progression framework's acceptance test (scripts/Progression/Checks.cs): 3,000 simulated hours for an active, an
+# idle and a never-prestiging player, checked for stability, growth without walls or runaway, prestige that pays, idle
+# play that keeps up, every system mattering, progress that keeps showing and content that lasts.
+on:
+  push:
+    branches: [main, "prototype/**"]
+    paths: ["scripts/Progression/**", "tools/progsim/**", ".github/workflows/progression.yml"]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Acceptance test
+        run: |
+          dotnet build tools/progsim -c Release
+          dotnet tools/progsim/bin/Release/net8.0/progsim.dll --check --hours=3000

@@ -44,7 +44,7 @@ public sealed class AffixDef
 }
 
 /// <summary>
-/// The reference content at full scale: 150 equipment slots from head to toe (more than any game on the market: ten
+/// The reference content at full scale: 149 equipment slots from head to toe (more than any game on the market: ten
 /// rings, ten toe rings, earrings, tattoos, trinkets, a familiar and a mount, celestial slots for the late game), twelve
 /// rarity tiers, and the affix catalog. Generated from a few rules so the counts can grow without retuning by hand.
 /// </summary>
@@ -57,9 +57,11 @@ public sealed class Content
 
     public int SlotCount => Slots.Length;
 
-    static readonly (SlotKind Kind, string Name)[] SlotList = BuildSlotList();
+    readonly (SlotKind Kind, string Name)[] _list;
 
-    static (SlotKind, string)[] BuildSlotList()
+    /// <summary>The reference slot list, or one padded out to <paramref name="target"/> slots with generated ones (to test
+    /// how the framework scales with content).</summary>
+    static (SlotKind, string)[] BuildSlotList(int target)
     {
         var l = new List<(SlotKind, string)>();
         void Add(SlotKind k, params string[] names) { foreach (var n in names) l.Add((k, n)); }
@@ -79,6 +81,10 @@ public sealed class Content
         Add(SlotKind.Companion, "Familiar", "Familiar's Collar", "Mount", "Saddle", "Barding", "Reins", "Banner", "Lantern", "Totem", "Satchel");
         Add(SlotKind.Celestial, "Halo", "Wings", "Aura", "Starcrown", "Comet", "Nebula", "Eclipse", "Zenith");
         foreach (var c in new[] { "Ram", "Bull", "Twins", "Crab", "Lion", "Maiden", "Scales", "Archer" }) Add(SlotKind.Celestial, $"Constellation of the {c}");
+        int celestial = l.Count(x => x.Item1 == SlotKind.Celestial);
+        string[] extra = { "Rune", "Sigil", "Ward", "Bead", "Glyph", "Seal" };
+        SlotKind[] extraKind = { SlotKind.Accessory, SlotKind.Trinket, SlotKind.Tattoo, SlotKind.Jewelry, SlotKind.Tattoo, SlotKind.Trinket };
+        for (int i = 0; l.Count < target; i++) l.Insert(l.Count - celestial, (extraKind[i % 6], $"{extra[i % 6]} {i / 6 + 1}"));
         return l.ToArray();
     }
 
@@ -99,10 +105,10 @@ public sealed class Content
     /// fills gradually; celestial slots last (prestige nodes open those).</summary>
     static readonly string[] ClassicSlots = { "Main Hand", "Breastplate", "Helm", "Left Gauntlet", "Left Boot", "Left Index Ring", "Amulet", "Off Hand" };
 
-    static int[] UnlockOrder(Rng rng)
+    int[] UnlockOrder(Rng rng)
     {
-        var order = ClassicSlots.Select(n => Array.FindIndex(SlotList, s => s.Name == n)).ToList();
-        var byKind = SlotList.Select((s, i) => (s.Kind, i)).Where(x => !order.Contains(x.i) && x.Kind != SlotKind.Celestial)
+        var order = ClassicSlots.Select(n => Array.FindIndex(_list, s => s.Name == n)).ToList();
+        var byKind = _list.Select((s, i) => (s.Kind, i)).Where(x => !order.Contains(x.i) && x.Kind != SlotKind.Celestial)
             .GroupBy(x => x.Kind).Select(g => new Queue<int>(g.Select(x => x.i).OrderBy(_ => rng.NextDouble()))).ToList();
         while (byKind.Any(q => q.Count > 0))
         {
@@ -115,7 +121,7 @@ public sealed class Content
                 pick -= q.Count;
             }
         }
-        order.AddRange(SlotList.Select((s, i) => (s.Kind, i)).Where(x => x.Kind == SlotKind.Celestial).Select(x => x.i));
+        order.AddRange(_list.Select((s, i) => (s.Kind, i)).Where(x => x.Kind == SlotKind.Celestial).Select(x => x.i));
         return order.ToArray();
     }
 
@@ -128,12 +134,16 @@ public sealed class Content
     {
         scale ??= new ContentScale();
         var rng = new Rng(seed);
-        var order = UnlockOrder(rng);
-        int depthSlots = order.Count(i => SlotList[i].Kind != SlotKind.Celestial);
+        _list = BuildSlotList(scale.Slots);
+        var order = UnlockOrder(rng).ToList();
+        // Fewer slots than the reference list: the last to unlock (before the celestial ones) go.
+        while (scale.Slots > 0 && order.Count > scale.Slots)
+            order.RemoveAt(order.FindLastIndex(i => _list[i].Kind != SlotKind.Celestial));
+        int depthSlots = order.Count(i => _list[i].Kind != SlotKind.Celestial);
         var slots = new List<SlotDef>();
-        for (int k = 0; k < order.Length; k++)
+        for (int k = 0; k < order.Count; k++)
         {
-            var (kind, name) = SlotList[order[k]];
+            var (kind, name) = _list[order[k]];
             var rule = KindRule(kind);
             int unlock = kind == SlotKind.Celestial ? 0
                 : k < scale.StartSlots ? 1
@@ -193,9 +203,12 @@ public sealed class Content
     public int AffixVariants => Affixes.Sum(a => a.Names.Length) * Enum.GetValues<SlotKind>().Length;
 }
 
-/// <summary>How the content's unlocks spread over depth (separate from Params so the tuner leaves the content alone).</summary>
+/// <summary>How much content there is and how its unlocks spread over depth (separate from Params so the tuner leaves
+/// the content alone).</summary>
 public sealed class ContentScale
 {
+    /// <summary>Slots in all (0: the reference list of 149; fewer drops the last to unlock, more adds generated ones).</summary>
+    public int Slots;
     public int StartSlots = 4;
     public double SlotFirstDepth = 3, SlotLastDepth = 12000;
 }
