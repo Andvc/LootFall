@@ -64,7 +64,7 @@ if (args.Contains("--check"))
     Console.WriteLine($"  {growth}");
     foreach (var r in results) Console.WriteLine($"  {(r.Pass ? "pass" : "FAIL")}  {r.Name,-58} {r.Detail}");
     int failed = results.Count(r => !r.Pass);
-    if (arg("json", null) is { } path) Export.Write(path, growth, players, results, cc, ct);
+    if (arg("json", null) is { } path) Export.Write(path, cp, growth, players, results, cc, ct);
     Console.WriteLine(failed == 0 ? $"All {results.Count} checks pass ({clock.Elapsed.TotalSeconds:0}s)." : $"{failed} of {results.Count} checks FAIL ({clock.Elapsed.TotalSeconds:0}s).");
     return failed == 0 ? 0 : 1;
 }
@@ -242,13 +242,14 @@ static class Sweep
 }
 
 /// <summary>The check's runs as JSON, for charting: each player's snapshots (with knockouts where taken), prestige
-/// events and longest waits, the stability analysis and the check results.</summary>
+/// events, longest waits and milestones, the stability analysis and the check results.</summary>
 static class Export
 {
-    public static void Write(string path, Growth g, Sim[] players, List<Checks.Result> results, Content content, TalentTree tree)
+    public static void Write(string path, Params p, Growth g, Sim[] players, List<Checks.Result> results, Content content, TalentTree tree)
     {
         var doc = new Dictionary<string, object>
         {
+            ["params"] = typeof(Params).GetFields().ToDictionary(f => f.Name, f => f.GetValue(p)),
             ["content"] = new { slots = content.SlotCount, rarities = Content.RarityNames.Length, affixVariants = content.AffixVariants, talentNodes = tree.Nodes.Count },
             ["growth"] = new { g.Premium, g.ForgeSlope, g.TreeSlope, g.ParagonSlope, g.LoopGain, g.PrestigeFeedback, g.Alpha, systems = g.Systems.Select(x => new { x.System, x.Exponent }) },
             ["systems"] = Enumerable.Range(0, (int)Sys.Count).Select(i => ((Sys)i).ToString()),
@@ -267,6 +268,8 @@ static class Export
                 prestige = s.M.Prestiges.Select(x => new { h = Math.Round(x.Hours, 3), run = Math.Round(x.Seconds / 3600, 3), depth = x.Depth, kind = x.Kind.ToString() }),
                 recordGaps = s.M.RecordGaps.Where(x => x.Gap > 600).Select(x => new { h = Math.Round(x.Hours, 3), gap = Math.Round(x.Gap / 3600, 3) }),
                 noticedGaps = s.M.NoticedGaps.Where(x => x.Gap > 600).Select(x => new { h = Math.Round(x.Hours, 3), gap = Math.Round(x.Gap / 3600, 3) }),
+                treeFull = Math.Round(s.M.TreeFullHours, 3),
+                rarityUnlocks = s.M.RarityUnlocks.Select(x => new { tier = x.Tier, h = Math.Round(x.Hours, 3) }),
             }),
         };
         System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(doc));

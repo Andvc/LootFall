@@ -33,6 +33,11 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 4. For feel and timing, record with `--write-movie movies/x.avi --fixed-fps 30` and pull frames with ffmpeg.
 5. CI (`.github/workflows/windows-build.yml`) exports Windows and runs the bot headless for four minutes; it must
    print "Autoplay finished". Wine here can't run the .exe; use the run's artifact.
+6. Progression framework (`scripts/Progression`, `docs/progression.md`): `dotnet build tools/progsim -c Release &&
+   dotnet tools/progsim/bin/Release/net8.0/progsim.dll --check` must print "All N checks pass" (CI runs it too,
+   `.github/workflows/progression.yml`; about 20 s). `--profile=active|idle|daily|no-prestige --hours=N` prints one
+   player's report, `--set=Name=value` tries a parameter, `--tune` refits the open-ended systems' knobs, `--sweep` and
+   `--content-sweep` rerun the check with each knob -20%/+25% and with less and more content (15 and 3 minutes).
 
 ## Conventions
 
@@ -43,6 +48,12 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
   decides outcomes. Process `Battle.Events` by index: handling one can start a wave and add more.
 - Item level comes from the chest level (plus zone and kind), not the stage; gold grows more slowly per stage than
   monsters. Both stop progress from snowballing (see "Pacing" in `docs/design.md`); re-run the sim if either changes.
+- The progression framework (`scripts/Progression`, engine-free, not yet used by the game) is the numerical foundation
+  for the big version: 149 slots, 12 rarities, a 3,259-node talent tree, forge, ranks, mastery, codex and two prestige
+  layers. Every number is in `Params.cs`; power is measured in LE (log base R of a multiplier). Keep the loop gain and
+  the prestige feedback (`Growth.cs`) well under 1; anything per-slot that grows without bound goes into the pool
+  (ranks, mastery), never onto a slot's flat stats; new content goes through the budgets (`ReferenceSlots`,
+  `TalentBudgetLE`); update the simulated player (`Sim.cs`) with any new system or rule.
 - `Policy` is the sensible player for the sim, the fast-forward and the bot: update it with any rule or upgrade.
 - Anything added to `GameState` that should survive closing goes in `SaveData` (bump `CurrentVersion` if old saves
   can't be read).
@@ -72,4 +83,5 @@ Run `tools/setup-cloud.sh` (add `--export-templates` before exporting). It insta
 
 - Sounds and music were chosen by name and by analysis, not by ear.
 - The Windows .exe has the default Godot icon.
-- One hero, no prestige layer yet (see "Not yet" in `docs/design.md`).
+- One hero, no prestige layer in the game yet (see "Not yet" in `docs/design.md`); the progression framework has two,
+  but the game doesn't use the framework yet.

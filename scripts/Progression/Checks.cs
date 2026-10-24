@@ -36,7 +36,8 @@ public static class Checks
         {
             double measured = Exponent(active, from, hours);
             Add("measured growth exponent 0.3-0.75", measured is >= 0.3 and <= 0.75, $"{measured:0.00} from {Report.Time(from)} to {Report.Time(hours)}");
-            // The prediction is the long-run (fastest) exponent; systems still ramping up keep the measured one below it.
+            // The prediction is the long-run exponent of the fastest system; while the others are still ramping up the
+            // measured one sits a little off it, so only a clear excess fails.
             Add("measured exponent at most the prediction + 0.1", measured <= g.Alpha + 0.1, $"{measured:0.00} vs {g.Alpha:0.00}");
             double a3 = from * Math.Pow(hours / from, 2 / 3.0), late = Exponent(active, a3, hours);
             Add("no runaway: late growth within 0.15 of the prediction", late <= g.Alpha + 0.15, $"{late:0.00} over the last third");
@@ -137,8 +138,8 @@ public static class Checks
         // ---------------------------------------------------------------- content lasts
         var last = active.M.Snaps[^1];
         int depthSlots = active.H.C.Slots.Count(s => s.UnlockDepth > 0);
-        var firstFull = active.M.Snaps.FirstOrDefault(s => s.Nodes >= active.H.Tree.Nodes.Count);
-        Add("talent tree full, but not before 100h", firstFull == null ? hours < 3000 : firstFull.Hours >= 100, firstFull == null ? $"{last.Nodes} of {active.H.Tree.Nodes.Count} nodes" : $"full at {Report.Time(firstFull.Hours)}");
+        double full = active.M.TreeFullHours;
+        Add("talent tree full, but not before 100h", full < 0 ? hours < 3000 : full >= 100, full < 0 ? $"{last.Nodes} of {active.H.Tree.Nodes.Count} nodes" : $"full at {Report.Time(full)}");
         if (hours >= 3000)
         {
             int open = active.H.C.Slots.Count(s => s.UnlockDepth > 0 && active.H.Open[s.Index]);

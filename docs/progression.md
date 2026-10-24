@@ -83,7 +83,7 @@ Every source lands in a few channels (`Stats.cs`), and the channels combine one 
   monsters grow and never passes its cap (crit 75%, multi-hit 50%, armour 85%, dodge 60%, block 50%).
 
 **Why ranks and mastery are a pool.** Flat stats add across slots, so if one slot's bonus exceeds the others' by Δ LE
-it holds R^Δ / (R^Δ + N − 1) of the total: with 149 slots, 44% at Δ = 50 and 99.99% at Δ = 100. Any bonus that grows
+it holds R^Δ / (R^Δ + N − 1) of the total: with 149 slots, 44% at Δ = 50 and 99% at Δ = 100. Any bonus that grows
 without bound on one slot's flat stats therefore makes that slot all that matters (an early version ended with one slot
 at rank 2,000 while the average was 70). As a pool, every rank and mastery level in any slot multiplies the hero's
 damage or health by the same amount (by the slot's offense share), polynomial costs make spreading the levels the best
@@ -104,7 +104,7 @@ every slot within a few levels of the others.
 | Paragon | points after the tree | | more damage or health per point | never | depth |
 | Codex (114,432 entries) | first finds | | more for each slot × rarity × quality band × era found, rarer worth more | never | log(depth), rarity |
 | Ascension (40 + 6 nodes) | aether (kills past depth 150) | (rank+1)^3 | more, gold, XP, item find, quantity, mastery and material gains, head start | transcendence | aether^0.25 |
-| Transcendence (27 nodes) | stardust (from a cycle's aether) | stats (rank+1)^1.4, gains (rank+1)^3 | big more, aether, mastery and codex gains, echo, head start | | stardust^0.42 |
+| Transcendence (27 nodes) | stardust (from all aether ever earned) | stats (rank+1)^1.4, gains (rank+1)^3 | big more, aether, mastery and codex gains, echo, head start | | stardust^0.42 |
 
 ## Stability
 
@@ -140,13 +140,14 @@ as a power of time:
 | System | Exponent | Why |
 |---|---|---|
 | Ascension | β τ | ranks ∝ aether^β |
-| Transcendence | 0.6 τ / (1.4 + 1) | stardust ∝ cycle aether^0.6, stat ranks ∝ stardust^(1/2.4) |
+| Transcendence | 0.6 τ / (1.4 + 1) | stardust ∝ lifetime aether^0.6, stat ranks ∝ stardust^(1/2.4) |
 | Mastery | (1 + max(β, μ) τ) / (2 + 1) | XP is time × a gain the trees multiply; levels ∝ XP^(1/3) |
 | Ranks | (1 + β τ) / (2.2 + 1) | materials are counted per item × a gain the ascension tree multiplies |
 
 Depth grows like the fastest of them, so α is the fixed point α = max(...)(α): **α ≈ 0.49**. The exponents are
 deliberately close together (0.46 to 0.49), so no system's share runs away from the others over thousands of hours.
-The check compares the prediction with the simulation; the measured exponent from 300 to 3,000 hours is within 0.15.
+The check compares the prediction with the simulation: over the last tenfold stretch of a run (from 100 hours at
+least) the measured exponent may pass the prediction by at most 0.1, and over the last third by at most 0.15.
 
 ## Prestige
 
@@ -156,13 +157,14 @@ Vigor, Golden Path, Scholar, Seeker, Bounty, Discipline, Salvager), cheap Awaken
 first ascension pay at once, Head Start (begin a run at up to half the deepest depth), Forgemaster, Second Focus and
 Forge Memory.
 
-**Transcendence** wipes the ascension tree for stardust = 5 × (cycle aether / 50,000)^0.6. The new cycle starts with
-40% of the last cycle's aether (more with Aether Echo, up to 70%), which rebuilds about 80% of the tree at once: a
-setback, not a wipe, so droughts stay short. Its tree: Starforged Might and Vigor (the strongest multipliers in the
-game), Aether Flow, Eternal Discipline, Resonance, Stellar Fortune, Celestial Slots (the sixteen celestial slots),
-Aether Echo and Starlit Path. The late rarity tiers (Celestial to Transcendent) are milestones: a depth and one more
-transcendence each. The first transcendence brings the **autopilot**: ascensions by the player's own rule while they're
-away, so idle play keeps up.
+**Transcendence** wipes the ascension tree for stardust: 5 × (lifetime aether / 50,000)^0.6, less what earlier
+transcendences paid, so each pays for the aether earned since the one before. The new cycle starts with 50% of the last
+cycle's aether (more with Aether Echo, up to 75%), which rebuilds about 84% of the tree's power at once (its power goes
+as aether^(1/4)): a setback, not a wipe, so droughts stay short. Its tree: Starforged Might and Vigor (the strongest
+multipliers in the game), Aether Flow, Eternal Discipline, Resonance, Stellar Fortune, Celestial Slots (the sixteen
+celestial slots, two a rank), Aether Echo and Starlit Path. The late rarity tiers (Celestial to Transcendent) are
+milestones: a depth and one more transcendence each. The first transcendence brings the **autopilot**: forge levels,
+ranks and ascensions by the player's own rule while they're away, so idle play keeps up.
 
 ## The simulated player
 
@@ -171,44 +173,80 @@ The policy (`Sim.cs`) stands in for a sensible player:
 - **Weights**: what a unit of each stat is worth now, by finite differences of its objective (half how deep it can
   push, half how deep it farms comfortably). Utility stats (gold, items, XP, materials, quantity) are worth 30% of an
   equal multiplier on power.
-- **Gear**: equips strict upgrades, salvages the rest, notes first finds. Drops are sampled in aggregate (a Poisson
-  count per slot and rarity, the best quality of n drops in one draw), so a 3,000-hour run takes seconds.
+- **Gear** goes on at every step, for every player: an item at least as good in every stat at once; items that trade
+  some stats for others (better by the weights) together, only if the hero comes out ahead by the objective itself,
+  else the best half of them, a quarter and so on. Scored one by one against the same totals, a hundred slots' trades
+  add up past the balance between damage and health, and an idle player came back to a hero three depths weaker. The
+  rest is salvaged and first finds are noted. Drops are sampled in aggregate (a Poisson count per slot and rarity, the
+  best quality of n drops in one draw), so a 3,000-hour run takes seconds.
 - **Forge**: water-filling. Costs grow ×1.8 a level and value only ×1.012, so the best buys fill every slot up to a
   common level; a bisection finds it for the gold on hand.
 - **Ranks**: best value per material (in practice the cheapest, newest slots first). **Focus**: the least-mastered
   worn slots. **Talents**: the best value per point among paths up to eight nodes long, so notables and keystones get
   walked to; paragon once the tree is full.
-- **Ascension**: not while the run is still climbing (less than 5% deeper over its last quarter), then when what the
-  aether buys takes the hero deeper by enough for how long they've waited: 5% for a half-hour run, 5%/n for one n
-  times as long.
-- **Transcendence**: when it would add a quarter to all the stardust ever earned and what the stardust buys is worth
-  at least what wiping the ascension tree costs, less what the echo buys back at once: a transcendence never leaves
-  the hero weaker.
+- **Resets**: one decision for both layers. Not before the run is five minutes old and has the minimum aether; not
+  while it's still climbing (more than 5% deeper than a quarter of the run ago, or ten minutes); not before the hero is
+  back to 98% of the last run's peak, unless the run has lasted four times as long as the last one (two hours at
+  least); then only for a gain worth the wait: what the aether buys must take the hero deeper by 3% for a half-hour
+  run, 3%/n for one n times as long (at least 0.05%). It transcends instead when the stardust is at least a quarter of
+  all ever earned and what it buys, less what wiping the tree costs and the echo buys back at once, is worth that bar
+  and half what ascending would give: a transcendence never leaves the hero weaker.
+- **Between check-ins** (idle, daily) nothing is decided until the first transcendence; from then on the autopilot buys
+  forge levels and ranks and ascends by the same rule (it never transcends). Talent points wait for the next check-in.
 - **Prestige trees**: greedy by value per cost, saving for a one-off that's the best buy but out of reach.
 
 ## The acceptance test
 
-`progsim --check` runs the four players for 3,000 hours and checks (`Checks.cs`):
+`progsim --check` runs the four players for 3,000 hours (`--hours=N` for another length) and checks (`Checks.cs`). A
+depth at a mark is read at the mark: the sim's steps land on every snapshot, and there is one at each mark.
 
 - **Stability**: loop gain ≤ 0.6, prestige feedback ≤ 0.7, predicted exponent 0.3 to 0.7.
-- **Growth**: the measured exponent from 300 to 3,000 hours is 0.3 to 0.75 and within 0.15 of the prediction; the last
-  third doesn't run faster than the prediction + 0.15 (no runaway); a new record in every window (no wall); depth
-  within ranges at 1, 10, 100 and 1,000 hours.
-- **Prestige pays**: twice the depth of never prestiging by the end, and never behind it from 20 hours on.
-- **Idle keeps up**: the four-hourly player at 70% of the active one from 100 hours, the daily one at 50%.
-- **Every system matters**: gear 1%, codex 2%, and forge, ranks, mastery, talents and paragon, ascension and
-  transcendence each 3% to 40% of power at the end.
-- **Progress keeps showing**: a noticeable gain (reach up 0.1 depth, about 1% more power) at least every two hours; no
-  record drought longer than a quarter of the time played.
-- **Rhythm**: median ascension runs between 15 minutes and the longer of a day and 2% of the time played; the first
-  transcendence within 300 hours; transcendence cycles under half the time played.
-- **Content lasts**: the talent tree full, but not before 100 hours; every depth slot open and rarity at Divine or
-  better by 3,000 hours.
+- **Growth**: over the last tenfold stretch (from 100 hours at least) the measured exponent is 0.3 to 0.75 and at most
+  the prediction + 0.1; over the last third at most the prediction + 0.15 (no runaway); a new record between every two
+  marks (no wall); depth at 1, 10, 100 and 1,000 hours within 100-600, 800-4,000, 3,000-10,000 and 8,000-25,000.
+- **Prestige pays**: twice the depth of never prestiging by the end (from 500 hours), and never below 90% of it from
+  20 hours on.
+- **Idle keeps up**: the four-hourly player at 70% of the active one at every mark from 100 hours, the daily one at 50%.
+- **Every system matters**: gear at least 1%, codex 2%, and forge, ranks, mastery, talents and paragon, ascension and
+  transcendence 3% each, and none over 40% of power at the end.
+- **Progress keeps showing**, for the active and the idle player: a noticeable gain (reach up 0.1 depth, monsters
+  about 1% stronger) at least every two hours after the first; no record drought longer than a quarter of the time
+  played (from 20 hours).
+- **Rhythm**: in every window from 50 hours, the median ascension run between 15 minutes and the longer of a day and 2%
+  of the time played; the first transcendence within 300 hours; transcendence cycles under the longer of three days
+  and half the time played (the first doesn't count, the one still open at the end does).
+- **Content lasts**: the talent tree full, but not before 100 hours (noted when it happens); every depth slot open and
+  rarity at Divine or better by the end of a 3,000-hour run.
 - **Sanity**: numbers finite, records never go back.
 
 ## Results
 
-(Filled in from the final runs.)
+`progsim --check --hours=10000` (seed 1; about a minute for the four players) passes all 37 checks, and so do seeds 2
+and 3 over 3,000 hours (depth at 1,000 hours 15,269, 15,789 and 15,489 for seeds 1 to 3). Deepest depth:
+
+| Player | 1h | 10h | 100h | 1,000h | 3,000h | 10,000h | Ascensions | Transcendences |
+|---|---|---|---|---|---|---|---|---|
+| Active | 329 | 1,759 | 5,449 | 15,269 | 25,379 | 47,499 | 293 | 23 |
+| Idle (every 4 hours) | 291 | 1,773 | 5,009 | 16,069 | 25,539 | 44,039 | 288 | 22 |
+| Daily | 291 | 1,773 | 4,779 | 15,479 | 24,909 | 40,679 | 220 | 19 |
+| Never prestiges | 329 | 1,759 | 2,389 | 3,214 | 3,905 | 5,109 | | |
+
+- **Growth**: depth grows like t^0.49 from 1,000 to 10,000 hours, the predicted exponent (0.45 from 100 to 1,000 hours,
+  while the prestige systems ramp up; 0.56 over the last third, with transcendence cycles' jumps in it). Loop gain
+  0.27, prestige feedback 0.46.
+- **Prestige pays** ×9.3 at 10,000 hours. The first ascension comes at 10.5 hours, the first transcendence at 32.8.
+- **Idle keeps up**: the four-hourly player stays at 92% of the active one or better from 100 hours (and is briefly
+  ahead around 1,000 hours, by when each resets), the daily one at 85%.
+- **Shares of power** at 10,000 hours: transcendence 22.5%, ranks 18.1%, forge 16.0%, mastery 14.2%, ascension 13.4%,
+  talents and paragon 10.6%, codex 3.5%, gear 1.6%. Gear carries half the power at 1 hour, talents 43% at 10 hours.
+- **Rhythm**: median ascension runs of 6 hours (10-100h), 13 (100-1,000h), 22 (1,000-3,000h) and 35 (3,000-10,000h);
+  median transcendence cycles of 100, 266 and 805 hours in the last three windows.
+- **Progress keeps showing**: the longest wait for a noticeable gain is an hour for the active player and 50 minutes
+  for the idle one; the worst record drought is 16-17% of the time played. Late on (3,000-10,000h) an hour brings about
+  380 upgrades, 7,400 forge levels, 7 ranks, 3 mastery levels, a level and 3 new records.
+- **Content lasts**: the talent tree fills at 407 hours (paragon then runs to 13,000 points); the rarities unlock from
+  Ascended at 10.5 hours to Transcendent at 459; all 133 depth slots are open by the end, and 6 of the 16 celestial
+  slots, which the transcendence tree opens two at a time, so 10,000 hours in there is still gear to unlock.
 
 ## Extending it
 

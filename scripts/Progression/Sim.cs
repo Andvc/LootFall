@@ -12,7 +12,7 @@ public sealed class Profile
     /// Check-ins are a tenth of the time played apart until they reach it: everyone plays the first hour.</summary>
     public double CheckIn;
     public bool Ascends = true, Transcends = true;
-    /// <summary>A run of this length (seconds) ascends for 5% more depth; one n times as long for 5% over n: the
+    /// <summary>A run of this length (seconds) ascends for 3% more depth; one n times as long for 3% over n: the
     /// longer the player has waited, the smaller the gain they'll take.</summary>
     public double Patience = 1800;
 
@@ -35,8 +35,11 @@ public sealed class Sim
     readonly Params P;
     readonly Rng _rng;
     readonly double[] _w = new double[Stats.Count];
-    readonly Sheet _old = new(), _new = new();
+    readonly Sheet _old = new(), _new = new(), _trial = new();
     readonly Item _cand = new(), _best = new();
+    /// <summary>A step's trades waiting for <see cref="Trade"/>: slot and score, and the item by slot.</summary>
+    readonly List<(int Slot, double Score)> _trades = new();
+    readonly Item[] _tradeItems;
     readonly double[] _forgeScore, _forgeCost;
 
     public double Time;
@@ -59,6 +62,7 @@ public sealed class Sim
         H = new Hero(p, c, tree);
         _forgeScore = new double[c.SlotCount];
         _forgeCost = new double[c.SlotCount];
+        _tradeItems = new Item[c.SlotCount];
         M = new Metrics(this);
         UpdateWeights();
     }
@@ -72,12 +76,14 @@ public sealed class Sim
         while (Time < end)
         {
             double dt = Math.Clamp(Time / 400, 1, maxStep);
-            dt = Math.Min(dt, end - Time);
+            // Steps land on the end and on each snapshot, so every mark is measured where it is.
+            dt = Math.Min(dt, (M.NextSnap > Time ? Math.Min(end, M.NextSnap) : end) - Time);
             Step(dt);
             Time += dt;
             M.AfterStep(dt);
         }
-        M.Snapshot(force: true);
+        if (M.Snaps[^1].Hours < Hours - 1e-9) M.Snapshot(force: true);
+        else M.Snaps[^1].Knockout ??= M.Knockouts(M.Snaps[^1].Reach);
     }
 
     // ---------------------------------------------------------------- one step
@@ -200,7 +206,9 @@ public sealed class Sim
     // ---------------------------------------------------------------- loot
 
     /// <summary>Samples <paramref name="count"/> drops at item level <paramref name="ilvl"/>: a Poisson count per slot,
-    /// then per rarity; only the best couple of candidates per slot are rolled. Returns whether gear changed.</summary>
+    /// then per rarity; only the best couple of candidates per slot are rolled. An item at least as good in every stat
+    /// goes on at once; one that trades some stats for others waits for <see cref="Trade"/>. Returns whether gear
+    /// changed.</summary>
     bool Drops(double count, double ilvl)
     {
         if (count <= 0 || H.OpenCount == 0) return false;
@@ -244,15 +252,78 @@ public sealed class Sim
             }
             if (any && (H.Gear[s] == null || bestScore > 1e-9))
             {
-                H.Gear[s] ??= new Item();
-                H.Gear[s].CopyFrom(_best);
-                changed = true;
-                M.Upgrade(bestScore);
+                if (H.Gear[s] == null || Dominates(s, _best))
+                {
+                    H.Gear[s] ??= new Item();
+                    H.Gear[s].CopyFrom(_best);
+                    changed = true;
+                    M.Upgrade(bestScore);
+                }
+                else
+                {
+                    (_tradeItems[s] ??= new Item()).CopyFrom(_best);
+                    _trades.Add((s, bestScore));
+                }
             }
         }
         H.Materials += materials;
         if (changed) H.RebuildGear();
+        if (_trades.Count > 0 && Trade())
+        {
+            H.RebuildGear();
+            changed = true;
+        }
         return changed;
+    }
+
+    /// <summary>Whether an item is at least as good as what slot <paramref name="s"/> wears in every stat, so it can't
+    /// make the hero weaker whatever the balance (<c>_old</c> holds what the slot gives now).</summary>
+    bool Dominates(int s, Item it)
+    {
+        _new.Clear();
+        H.Contribute(s, it, _new);
+        for (int i = 0; i < Stats.Count; i++)
+            if (_new.V[i] < _old.V[i] - 1e-12) return false;
+        return true;
+    }
+
+    /// <summary>Puts on the step's trades (items better by the weights, worse in some stat) if together they leave the
+    /// hero ahead by the objective itself, else the best half of them, a quarter and so on. Scored one by one against the
+    /// same totals, a hundred slots' trades add up past the balance between damage and health the weights were taken
+    /// at, and the hero ends up weaker (a player away for hours would come back to that).</summary>
+    bool Trade()
+    {
+        H.Rebuild();
+        double before = Objective(H.Total, H.Base);
+        _trades.Sort((a, b) => b.Score.CompareTo(a.Score));
+        bool done = false;
+        for (int take = _trades.Count; take > 0 && !done; take /= 2)
+        {
+            _trial.CopyFrom(H.Total);
+            for (int j = 0; j < take; j++)
+            {
+                int s = _trades[j].Slot;
+                _old.Clear();
+                H.Contribute(s, H.Gear[s], _old);
+                _new.Clear();
+                H.Contribute(s, _tradeItems[s], _new);
+                for (int i = 0; i < Stats.Count; i++)
+                {
+                    double o = _old.V[i], n = _new.V[i];
+                    if (!Stats.IsFlat((Stat)i)) _trial.V[i] += n - o;
+                    else if (o > Scale.None || n > Scale.None) _trial.V[i] = H.S.Add(H.S.Sub(_trial.V[i], o), n);
+                }
+            }
+            if (Objective(_trial, H.Fight.Prepare(_trial)) < before) continue;
+            for (int j = 0; j < take; j++)
+            {
+                H.Gear[_trades[j].Slot].CopyFrom(_tradeItems[_trades[j].Slot]);
+                M.Upgrade(_trades[j].Score);
+            }
+            done = true;
+        }
+        _trades.Clear();
+        return done;
     }
 
     /// <summary>How much reach an item adds over what the slot wears (stat weights times the exact change in each total).</summary>
@@ -313,7 +384,9 @@ public sealed class Sim
 
     /// <summary>What the policy maximizes: half how deep the hero can push, half how deep they farm comfortably (kill speed
     /// is income, so offense matters even when a push is held back by defense).</summary>
-    double Objective(in Combat.Base b) => 0.5 * (H.Fight.Reach(H.Total, b) + H.Fight.FarmReach(H.Total, b));
+    double Objective(in Combat.Base b) => Objective(H.Total, b);
+
+    double Objective(Sheet t, in Combat.Base b) => 0.5 * (H.Fight.Reach(t, b) + H.Fight.FarmReach(t, b));
 
     /// <summary>LE per unit of more damage and health (reach per LE), for valuing prestige perks.</summary>
     public double WeightMore { get; private set; }
@@ -485,7 +558,7 @@ public sealed class Sim
     /// <summary>
     /// The reset decision, like a player's: not before the hero is back near the last run's peak (98% of it, unless the
     /// run has gone on four times as long as the last), not while the run is still climbing (less than 5% deeper over
-    /// its last quarter, at least ten minutes), and then only for a gain worth how long they've waited (5% deeper for a
+    /// its last quarter, at least ten minutes), and then only for a gain worth how long they've waited (3% deeper for a
     /// run of the profile's patience, less in proportion for longer runs). The reset is a transcendence when that clears
     /// the same bar and gives at least half what the run's aether would (what the stardust buys, less what wiping the
     /// ascension tree costs after the echo: its gain lasts, an ascension's only until the next transcendence), else an
@@ -506,7 +579,7 @@ public sealed class Sim
         if (H.RunDepth > 1.05 * then) return false;
         double reach = Math.Max(1, H.Reach());
         if (reach < 0.98 * _lastPeak && runTime < 4 * Math.Max(Pr.Patience, _lastRun)) return false;
-        double bar = reach * Math.Max(0.0005, 0.05 * Math.Min(1, Pr.Patience / runTime));
+        double bar = reach * Math.Max(0.0005, 0.03 * Math.Min(1, Pr.Patience / runTime));
         double ascend = Preview(H.Ascension, gain);
         if (transcend && TranscendNet(gain) is var net && net >= Math.Max(bar, 0.5 * ascend))
         {

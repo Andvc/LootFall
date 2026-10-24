@@ -42,9 +42,13 @@ public sealed class Metrics
     public readonly List<(double Hours, int Depth)> Records = new();
     public readonly List<(double Hours, double Score)> Upgrades = new();
     public int Allocated, Paragon;
+    /// <summary>When the talent tree was first full (hours, negative until it is) and when each rarity tier unlocked:
+    /// noted as they happen, not read off the snapshots.</summary>
+    public double TreeFullHours = -1;
+    public readonly List<(int Tier, double Hours)> RarityUnlocks = new();
 
     double _noticedBase, _noticedTime, _majorBase, _majorTime, _recordTime, _nextSnap = 60;
-    int _snapIndex;
+    int _snapIndex, _rarity = -1;
     public double LastReach;
 
     public Metrics(Sim sim) => _sim = sim;
@@ -63,6 +67,12 @@ public sealed class Metrics
     {
         Allocated = allocated;
         Paragon = paragon;
+        if (TreeFullHours < 0 && allocated >= _sim.H.Tree.Nodes.Count) TreeFullHours = _sim.Hours;
+    }
+
+    void NoteRarity()
+    {
+        while (_rarity < _sim.H.MaxRarity) RarityUnlocks.Add((++_rarity, _sim.Hours));
     }
 
     public void DepthRecord(int depth)
@@ -87,6 +97,7 @@ public sealed class Metrics
     {
         double reach = _sim.H.Reach();
         LastReach = reach;
+        NoteRarity();
         if (_resetPending)
         {
             _noticedBase = _majorBase = reach;
@@ -110,14 +121,33 @@ public sealed class Metrics
         if (_sim.Time >= _nextSnap) Snapshot();
     }
 
-    /// <summary>Takes a snapshot (every sixteenth of a decade of time, plus every 100 hours late); knockouts every fourth.</summary>
+    /// <summary>When the next snapshot is due (seconds). The sim's steps land on it, so a report mark is measured at the
+    /// mark, not at the snapshot before it.</summary>
+    public double NextSnap => _nextSnap;
+
+    /// <summary>The first snapshot time after <paramref name="t"/>: the next sixteenth of a decade, whole 100 hours or
+    /// report mark, whichever comes first.</summary>
+    static double NextSnapAfter(double t)
+    {
+        double grid = 60 * Math.Pow(10, (Math.Floor(16 * Math.Log10((t + 1) / 60)) + 1) / 16);
+        double next = Math.Min(grid, Math.Ceiling((t + 1) / 360000) * 360000);
+        foreach (var mark in Report.Marks)
+            if (mark * 3600 > t + 1) return Math.Min(next, mark * 3600);
+        return next;
+    }
+
+    static bool AtMark(double t) => Array.Exists(Report.Marks, m => Math.Abs(m * 3600 - t) < 1e-3);
+
+    /// <summary>Takes a snapshot (every sixteenth of a decade of time, every 100 hours and at each report mark);
+    /// knockouts every fourth and at the marks.</summary>
     public void Snapshot(bool force = false)
     {
         if (!force)
         {
             _snapIndex++;
-            _nextSnap = Math.Min(60 * Math.Pow(10, _snapIndex / 16.0), Math.Ceiling((_sim.Time + 1) / 360000) * 360000);
+            _nextSnap = NextSnapAfter(_sim.Time);
         }
+        NoteRarity();
         var h = _sim.H;
         double reach = h.Reach();
         var f = h.Fight.At(h.Total, h.Base, Math.Max(1, reach));
@@ -157,7 +187,7 @@ public sealed class Metrics
             KillRate = h.Fight.KillRate(h.Fight.At(h.Total, h.Base, Math.Max(1, FarmDepth)), Math.Max(1, FarmDepth)),
             Totals = (double[])_totals.Clone(),
         };
-        if (force || KnockoutEverySnapshot || _snapIndex % 4 == 0) snap.Knockout = Knockouts(reach);
+        if (force || KnockoutEverySnapshot || _snapIndex % 4 == 0 || AtMark(_sim.Time)) snap.Knockout = Knockouts(reach);
         Snaps.Add(snap);
     }
 
