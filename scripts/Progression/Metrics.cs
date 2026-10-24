@@ -16,23 +16,26 @@ public sealed class Snap
     public int RunDepth, EverDepth, FarmDepth, Level, Nodes, Paragon, Slots, MaxRarity, Codex, Ascensions, Transcendences;
     /// <summary>LE each system gives (power lost without it at the current reach), in Sys order, or null.</summary>
     public double[] Knockout;
+    /// <summary>How many of each event so far (Ev order).</summary>
+    public double[] Totals;
 }
 
 /// <summary>The systems knockouts measure, in order.</summary>
 public enum Sys : byte { Rarity, Affixes, Forge, Ranks, Mastery, Talents, Paragon, Codex, Ascension, Transcendence, Count }
 
 /// <summary>
-/// What the simulator records: snapshots at log-spaced times (with knockouts, the reach each system is worth), events
-/// per hour, and how often the player sees progress: a "noticed" gain is reach up 0.1 depth (about 1% more power) since
-/// the last one, a "major" gain a whole depth (about 11%), a record a depth never reached before. The gaps between them
-/// are the framework's measure of whether progress stays tangible.
+/// What the simulator records: snapshots at log-spaced times (with knockouts, the reach each system is worth, and the
+/// running count of each event), and how often the player sees progress: a "noticed" gain is reach up 0.1 depth
+/// (about 1% more power) since the last one, a "major" gain a whole depth (about 11%), a record a depth never reached
+/// before. The gaps between them are the framework's measure of whether progress stays tangible.
 /// </summary>
 public sealed class Metrics
 {
     readonly Sim _sim;
+    /// <summary>Knockouts at every snapshot instead of every fourth (for the tuner, which averages them).</summary>
+    public bool KnockoutEverySnapshot;
     public double Kills;
     public int FarmDepth;
-    public readonly List<double[]> Hourly = new();
     public readonly List<Snap> Snaps = new();
     public readonly List<(double Hours, double Gap)> NoticedGaps = new(), MajorGaps = new(), RecordGaps = new();
     public readonly List<(double Hours, double Seconds, int Depth, Ev Kind)> Prestiges = new();
@@ -46,14 +49,9 @@ public sealed class Metrics
 
     public Metrics(Sim sim) => _sim = sim;
 
-    double[] Bucket()
-    {
-        int h = (int)(_sim.Time / 3600);
-        while (Hourly.Count <= h) Hourly.Add(new double[(int)Ev.Count]);
-        return Hourly[h];
-    }
+    readonly double[] _totals = new double[(int)Ev.Count];
 
-    public void Count(Ev e, double n = 1) => Bucket()[(int)e] += n;
+    public void Count(Ev e, double n = 1) => _totals[(int)e] += n;
 
     public void Upgrade(double score)
     {
@@ -157,8 +155,9 @@ public sealed class Metrics
             RankAvg = open == 0 ? 0 : rank / open,
             MasteryAvg = open == 0 ? 0 : mastery / open,
             KillRate = h.Fight.KillRate(h.Fight.At(h.Total, h.Base, Math.Max(1, FarmDepth)), Math.Max(1, FarmDepth)),
+            Totals = (double[])_totals.Clone(),
         };
-        if (force || _snapIndex % 4 == 0) snap.Knockout = Knockouts(reach);
+        if (force || KnockoutEverySnapshot || _snapIndex % 4 == 0) snap.Knockout = Knockouts(reach);
         Snaps.Add(snap);
     }
 

@@ -30,11 +30,14 @@ public sealed class Item
 /// resets them:
 /// <list type="bullet">
 /// <item>Gear (150 slots): items by depth, rarity, quality and affixes. Reset by ascension.</item>
-/// <item>Forge (gold, per slot): +ForgeStep a level, exponential cost; gold scales with depth, so forge levels track
-/// depth (a "slope" system). Reset by ascension.</item>
+/// <item>Forge (gold, per slot): +ForgeStep a level to the slot's flat stats, exponential cost; gold scales with depth,
+/// so forge levels track depth (a "slope" system). Reset by ascension.</item>
 /// <item>Slot ranks (materials, per slot): polynomial cost; materials are counted, not scaled, so ranks grow with time
 /// played (a power law). Kept.</item>
 /// <item>Mastery (time, per slot): XP an hour while the slot is worn, polynomial curve; a power law in time. Kept.</item>
+/// <item>Ranks and mastery feed the hero as a whole, not the slot's item: flat stats add up across slots, so a bonus that
+/// grows without bound on one slot's flats would make that slot all that matters (sum of exponentials). As a pool, every
+/// level in every slot is worth the same, and a newly opened slot is the cheapest to raise.</item>
 /// <item>Levels and talents (XP): a point a level into the 3,250-node tree, then paragon. Kept.</item>
 /// <item>Codex (first finds of slot x rarity x quality band): a little "more" each. Kept.</item>
 /// <item>Ascension and transcendence: prestige layers with their own trees.</item>
@@ -72,7 +75,7 @@ public sealed class Hero
     public Sys Knock = Sys.Count;
 
     /// <summary>The hero's stats from each source, and in total.</summary>
-    public readonly Sheet GearSheet = new(), CodexSheet = new(), Total = new();
+    public readonly Sheet GearSheet = new(), SlotSheet = new(), CodexSheet = new(), Total = new();
     public Combat.Base Base;
 
     // Precomputed LE constants.
@@ -138,18 +141,19 @@ public sealed class Hero
                 opened++;
             }
         }
-        int byDepth = 0;
         foreach (var r in C.Rarities)
-            if (r.UnlockDepth > 0 && EverDepth >= r.UnlockDepth) byDepth = r.Tier;
-        MaxRarity = Math.Max(byDepth, Math.Max((int)Ascension.PerkTotal(Perk.RarityUnlock), (int)Transcendence.PerkTotal(Perk.RarityUnlock)));
+            if (EverDepth >= r.UnlockDepth && Ascension.Resets >= r.Ascensions && Transcendence.Resets >= r.Transcendences) MaxRarity = Math.Max(MaxRarity, r.Tier);
         return opened;
     }
 
     // ---------------------------------------------------------------- what a slot gives
 
-    /// <summary>LE added to every flat stat of a slot by its forge, rank and mastery.</summary>
-    public double SlotBonus(int s) =>
-        (Knock == Sys.Forge ? 0 : Forge[s] * _forgeStepLe) + (Knock == Sys.Ranks ? 0 : Rank[s] * P.RankLE) + (Knock == Sys.Mastery ? 0 : Mastery[s] * P.MasteryLE);
+    /// <summary>LE added to every flat stat of a slot by its forge.</summary>
+    public double SlotBonus(int s) => Knock == Sys.Forge ? 0 : Forge[s] * _forgeStepLe;
+
+    /// <summary>"More" a level of rank or mastery in slot <paramref name="s"/> gives: damage and health by the slot's offense
+    /// share, twice the LE in all (so the mean of the two, the power, rises by the LE).</summary>
+    public (double Damage, double Hp) PoolSplit(int s) => (2 * C.Slots[s].Offense, 2 * (1 - C.Slots[s].Offense));
 
     /// <summary>Percent affixes grow slowly with item level: 1 + growth * ln(1 + ilvl / scale).</summary>
     public double TierMult(double ilvl) => 1 + P.AffixTierGrowth * Math.Log(1 + ilvl / P.AffixTierScale);
@@ -195,6 +199,24 @@ public sealed class Hero
             if (Open[s] && Gear[s] != null) Contribute(s, Gear[s], GearSheet);
     }
 
+    /// <summary>Recomputes what ranks and mastery give the hero (after either changes).</summary>
+    public void RebuildSlots()
+    {
+        double damage = 0, hp = 0;
+        for (int s = 0; s < Gear.Length; s++)
+        {
+            if (!Open[s]) continue;
+            double le = (Knock == Sys.Ranks ? 0 : Rank[s] * P.RankLE) + (Knock == Sys.Mastery ? 0 : Mastery[s] * P.MasteryLE);
+            if (le == 0) continue;
+            var (d, h) = PoolSplit(s);
+            damage += d * le;
+            hp += h * le;
+        }
+        SlotSheet.Clear();
+        SlotSheet[Stat.MoreDamage] = damage;
+        SlotSheet[Stat.MoreHp] = hp;
+    }
+
     public void RebuildCodex()
     {
         CodexSheet.Clear();
@@ -207,8 +229,10 @@ public sealed class Hero
     public void Rebuild(bool gear = true)
     {
         if (gear) RebuildGear();
+        RebuildSlots();
         RebuildCodex();
         Total.CopyFrom(GearSheet);
+        Total.AddAll(S, SlotSheet);
         // The talent sheet holds the tree and the paragon ranks; a knockout takes away one or the other.
         if (Knock != Sys.Talents) Total.AddAll(S, Talents.Sheet);
         double sign = Knock == Sys.Talents ? 1 : Knock == Sys.Paragon ? -1 : 0;

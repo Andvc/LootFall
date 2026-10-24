@@ -12,6 +12,9 @@ public sealed class Profile
     /// Check-ins are a tenth of the time played apart until they reach it: everyone plays the first hour.</summary>
     public double CheckIn;
     public bool Ascends = true, Transcends = true;
+    /// <summary>A run of this length (seconds) ascends for 5% more depth; one n times as long for 5% over n: the
+    /// longer the player has waited, the smaller the gain they'll take.</summary>
+    public double Patience = 1800;
 
     public static Profile Active() => new() { Name = "active", CheckIn = 0 };
     public static Profile Idle() => new() { Name = "idle", CheckIn = 4 * 3600 };
@@ -35,10 +38,14 @@ public sealed class Sim
     readonly Item _cand = new(), _best = new();
 
     public double Time;
+    /// <summary>When set, prestige decisions are written here (progsim --debug-prestige).</summary>
+    public System.Collections.Generic.List<string> Log;
+    double _nextLog;
     double _nextCheck, _runStart, _cycleStart, _depthProgress;
+    /// <summary>The run's depth at each decision, to tell climbing from a plateau.</summary>
+    readonly List<(double Time, int Depth)> _runDepths = new();
     /// <summary>Aether this run has earned so far (paid out by an ascension).</summary>
     Big _pendingAether = Big.Zero;
-    int _ascensionsThisCycle;
 
     public Sim(Params p, Content c, TalentTree tree, Profile profile, int seed)
     {
@@ -155,11 +162,17 @@ public sealed class Sim
 
         if (gearChanged) H.Rebuild();
 
-        // Decisions, at check-ins.
+        // Decisions, at check-ins. From the first transcendence on, the autopilot ascends in between too, by the
+        // player's own rule (the automation milestone that lets idle play keep up).
         if (Time >= _nextCheck)
         {
             _nextCheck = Time + Math.Min(Pr.CheckIn, Math.Max(60, Time / 10));
             Decide();
+        }
+        else if (Pr.Ascends && H.Transcendence.Resets > 0 && TryAscend())
+        {
+            // The autopilot rebuys the forge and spends materials too, as auto-buyers would.
+            if (SpendForge() | SpendRanks()) H.Rebuild();
         }
     }
 
@@ -341,79 +354,107 @@ public sealed class Sim
 
     readonly PriorityQueue<int, double> _heap = new();
 
+    readonly double[] _forgeScore = new double[256], _forgeCost = new double[256];
+
+    /// <summary>
+    /// Forge levels, all at once. Costs grow by ForgeGrowth a level and value by only 1 + ForgeStep, so the k-th next
+    /// level of slot s is worth log(value/cost) - k * slope (log10 units): the best buys fill every slot up to a common
+    /// "water level", which a bisection finds for the gold on hand. That is what buying the best level one at a time
+    /// does, without millions of single purchases.
+    /// </summary>
     bool SpendForge()
     {
-        bool bought = false;
-        for (int round = 0; round < 50; round++)
+        if (H.Gold.IsZero) return false;
+        int n = H.Gear.Length;
+        double g = P.ForgeGrowth, slope = Math.Log10(g) - Math.Log10(1 + P.ForgeStep), step = H.S.Le(1 + P.ForgeStep);
+        double top = double.NegativeInfinity;
+        for (int s = 0; s < n; s++)
         {
-            _heap.Clear();
-            double step = H.S.Le(1 + P.ForgeStep);
-            for (int s = 0; s < H.Gear.Length; s++)
+            _forgeScore[s] = double.NegativeInfinity;
+            if (!H.Open[s] || H.Gear[s] == null) continue;
+            double v = SlotValue(s) * step;
+            if (v <= 0) continue;
+            _forgeCost[s] = H.ForgeCost(s).Log10;
+            _forgeScore[s] = Math.Log10(v) - _forgeCost[s];
+            top = Math.Max(top, _forgeScore[s]);
+        }
+        if (top == double.NegativeInfinity) return false;
+        int Levels(int s, double level) => _forgeScore[s] < level ? 0 : (int)Math.Floor((_forgeScore[s] - level) / slope) + 1;
+        Big Spent(double level)
+        {
+            var sum = Big.Zero;
+            for (int s = 0; s < n; s++)
             {
-                if (!H.Open[s] || H.Gear[s] == null) continue;
-                double v = SlotValue(s) * step;
-                if (v <= 0) continue;
-                _heap.Enqueue(s, -(Math.Log10(v) - H.ForgeCost(s).Log10));
+                int k = Levels(s, level);
+                if (k > 0) sum += Big.Pow10(_forgeCost[s]) * ((Big.Pow(g, k) - Big.One) / (g - 1));
             }
-            int boughtThisRound = 0;
-            while (_heap.Count > 0 && boughtThisRound < 64)
-            {
-                int s = _heap.Dequeue();
-                var cost = H.ForgeCost(s);
-                if (cost > H.Gold) break;
-                H.Gold -= cost;
-                H.Forge[s]++;
-                boughtThisRound++;
-                M.Count(Ev.Forge);
-                double v = SlotValue(s) * step;
-                if (v > 0) _heap.Enqueue(s, -(Math.Log10(v) - H.ForgeCost(s).Log10));
-            }
-            if (boughtThisRound == 0) break;
+            return sum;
+        }
+        // The highest water level buys only the single best level; lower it until the gold runs out, then bisect.
+        double hi = top;
+        if (Spent(hi) > H.Gold) return false;
+        double drop = slope, lo = top - drop;
+        while (Spent(lo) <= H.Gold && drop < 1e7)
+        {
+            hi = lo;
+            drop *= 2;
+            lo = top - drop;
+        }
+        for (int i = 0; i < 50 && hi - lo > 1e-9; i++)
+        {
+            double mid = 0.5 * (hi + lo);
+            if (Spent(mid) <= H.Gold) hi = mid;
+            else lo = mid;
+        }
+        bool bought = false;
+        for (int s = 0; s < n; s++)
+        {
+            int k = Levels(s, hi);
+            if (k <= 0) continue;
+            H.Gold -= Big.Pow10(_forgeCost[s]) * ((Big.Pow(g, k) - Big.One) / (g - 1));
+            H.Forge[s] += k;
+            M.Count(Ev.Forge, k);
             bought = true;
-            H.Rebuild();
         }
         return bought;
     }
 
+    /// <summary>The reach a level of rank or mastery in slot <paramref name="s"/> is worth, per LE.</summary>
+    double PoolValue(int s)
+    {
+        var (d, h) = H.PoolSplit(s);
+        return d * _w[(int)Stat.MoreDamage] + h * _w[(int)Stat.MoreHp];
+    }
+
+    /// <summary>Ranks: the best value per material first. Every slot's rank is worth about the same, so this evens them out,
+    /// cheapest (newest) slots first.</summary>
     bool SpendRanks()
     {
+        _heap.Clear();
+        for (int s = 0; s < H.Gear.Length; s++)
+            if (H.Open[s]) _heap.Enqueue(s, -(PoolValue(s) / H.RankCost(s)));
         bool bought = false;
-        for (int round = 0; round < 20; round++)
+        while (_heap.Count > 0)
         {
-            _heap.Clear();
-            for (int s = 0; s < H.Gear.Length; s++)
-            {
-                if (!H.Open[s] || H.Gear[s] == null) continue;
-                double v = SlotValue(s) * P.RankLE;
-                if (v <= 0) continue;
-                _heap.Enqueue(s, -(v / H.RankCost(s)));
-            }
-            int boughtThisRound = 0;
-            while (_heap.Count > 0 && boughtThisRound < 64)
-            {
-                int s = _heap.Dequeue();
-                double cost = H.RankCost(s);
-                if (cost > H.Materials) break;
-                H.Materials -= cost;
-                H.Rank[s]++;
-                boughtThisRound++;
-                M.Count(Ev.Rank);
-                double v = SlotValue(s) * P.RankLE;
-                if (v > 0) _heap.Enqueue(s, -(v / H.RankCost(s)));
-            }
-            if (boughtThisRound == 0) break;
+            int s = _heap.Dequeue();
+            double cost = H.RankCost(s);
+            if (cost > H.Materials) break;
+            H.Materials -= cost;
+            H.Rank[s]++;
             bought = true;
-            H.Rebuild();
+            M.Count(Ev.Rank);
+            _heap.Enqueue(s, -(PoolValue(s) / H.RankCost(s)));
         }
         return bought;
     }
 
+    /// <summary>Focus goes where a level is cheapest for what it's worth: the least-mastered worn slots.</summary>
     void ChooseFocus()
     {
         Array.Clear(H.Focus);
         _heap.Clear();
         for (int s = 0; s < H.Gear.Length; s++)
-            if (H.Open[s] && H.Gear[s] != null) _heap.Enqueue(s, -SlotValue(s));
+            if (H.Open[s] && H.Gear[s] != null) _heap.Enqueue(s, -(PoolValue(s) / H.MasteryNeed(s)));
         for (int k = 0; k < H.FocusSlots && _heap.Count > 0; k++) H.Focus[_heap.Dequeue()] = true;
     }
 
@@ -429,20 +470,65 @@ public sealed class Sim
 
     public Big StardustNow()
     {
-        if (_ascensionsThisCycle < P.TransMinAscensions || H.Ascension.CycleEarned < Big.Of(P.TransAether)) return Big.Zero;
+        if (H.Ascension.CycleEarned < Big.Of(P.TransAether)) return Big.Zero;
         return Big.Of(P.StardustBase) * Big.Pow10((H.Ascension.CycleEarned.Log10 - Math.Log10(P.TransAether)) * P.StardustExp);
     }
 
-    void TryAscend()
+    bool TryAscend()
     {
-        var gain = AetherNow();
-        if (gain < Big.Of(P.AscendMinAether)) return;
-        // Like a player: reset once it would double this cycle's aether, or once the run has gone on a while (a tenth of
-        // all the time played, at least an hour) and pays a quarter of it.
         double runTime = Time - _runStart;
-        bool doubles = gain >= H.Ascension.CycleEarned;
-        bool long_ = runTime >= Math.Max(3600, 0.1 * Time) && gain >= H.Ascension.CycleEarned * 0.25;
-        if (doubles || long_) Ascend(gain);
+        _runDepths.Add((Time, H.RunDepth));
+        if (runTime < 300) return false;
+        var gain = AetherNow();
+        if (gain < Big.Of(P.AscendMinAether)) return false;
+        // Like a player: not while the run is still climbing (less than 5% deeper over its last quarter, at least ten
+        // minutes), and then when what the aether buys takes the hero deeper by enough for how long they've waited: 5%
+        // for a run of the profile's patience, less in proportion for longer runs.
+        double back = Time - Math.Max(600, 0.25 * runTime);
+        int then = H.RunDepth;
+        foreach (var (t, d) in _runDepths)
+            if (t <= back) then = d;
+            else break;
+        if (H.RunDepth > 1.05 * then) return false;
+        double worth = Preview(H.Ascension, gain) / Math.Max(1, H.Reach());
+        if (worth < Math.Max(0.0005, 0.05 * Math.Min(1, Pr.Patience / runTime))) return false;
+        Ascend(gain);
+        return true;
+    }
+
+    /// <summary>How much deeper (in depth) spending <paramref name="extra"/> more of a layer's currency would take the
+    /// hero: the same greedy order as SpendLayer, with every node valued as it is now, and nothing bought.</summary>
+    double Preview(LayerState layer, Big extra)
+    {
+        var nodes = layer.Tree.Nodes;
+        int count = nodes.Count;
+        Span<double> value = stackalloc double[count], score = stackalloc double[count];
+        Span<int> rank = stackalloc int[count];
+        var currency = layer.Currency + extra;
+        for (int i = 0; i < count; i++)
+        {
+            var n = nodes[i];
+            rank[i] = layer.Ranks[i];
+            value[i] = n.RequiresDepth > H.EverDepth ? 0 : NodeValue(n);
+            score[i] = value[i] > 0 ? Math.Log10(value[i]) - n.Cost(rank[i]).Log10 : double.NegativeInfinity;
+        }
+        double gained = 0;
+        for (int guard = 0; guard < 10000; guard++)
+        {
+            int best = -1;
+            for (int i = 0; i < count; i++)
+                if (score[i] > double.NegativeInfinity && (best < 0 || score[i] > score[best])) best = i;
+            if (best < 0) break;
+            var n = nodes[best];
+            var cost = n.Cost(rank[best]);
+            // Spending only goes down, so a node out of reach (or at its last rank) stays out.
+            if (cost > currency || n.MaxRank > 0 && rank[best] >= n.MaxRank) { score[best] = double.NegativeInfinity; continue; }
+            currency -= cost;
+            rank[best]++;
+            gained += value[best];
+            score[best] = Math.Log10(value[best]) - n.Cost(rank[best]).Log10;
+        }
+        return gained;
     }
 
     void Ascend(Big gain)
@@ -452,7 +538,6 @@ public sealed class Sim
         a.CycleEarned += gain;
         a.Lifetime += gain;
         a.Resets++;
-        _ascensionsThisCycle++;
         M.Prestige(Ev.Ascension, Time - _runStart, H.RunDepth);
         ResetRun();
         SpendLayer(a);
@@ -464,28 +549,56 @@ public sealed class Sim
     {
         var gain = StardustNow();
         if (gain < Big.Of(P.TransMinStardust)) return false;
-        // Transcend once it would double all the stardust ever earned (cycles lengthen as the total grows).
-        if (gain < H.Transcendence.Lifetime) return false;
+        // Like a player: transcend once it would add a quarter to all the stardust ever earned, and only if what the
+        // stardust buys is worth what wiping the ascension tree costs (less what Aether Echo buys back at once), so a
+        // transcendence never leaves the hero weaker than before it.
+        if (gain < H.Transcendence.Lifetime * 0.25) return false;
+        double echoShare = EchoShare();
+        double lose = AscensionWorth() * (1 - Math.Pow(echoShare, 1 / (P.AscCostExp + 1)));
+        double get = Preview(H.Transcendence, gain);
+        if (Log != null && (get >= lose || Time >= _nextLog))
+        {
+            _nextLog = Time + 0.05 * Time;
+            Log.Add($"{Report.Time(Hours),6} cycle {Report.Time((Time - _cycleStart) / 3600),5}: stardust {gain} (lifetime {H.Transcendence.Lifetime}) buys {get:0} depth, wipe costs {lose:0} (echo {echoShare:0.00}), reach {H.Reach():0}{(get >= lose ? "  -> TRANSCEND" : "")}");
+        }
+        if (get < lose) return false;
         var t = H.Transcendence;
         t.Currency += gain;
         t.CycleEarned += gain;
         t.Lifetime += gain;
         t.Resets++;
         M.Prestige(Ev.Transcendence, Time - _cycleStart, H.RunDepth);
+        var cycleAether = H.Ascension.CycleEarned;
         H.Ascension.Wipe(H.S);
-        _ascensionsThisCycle = 0;
         _cycleStart = Time;
-        ResetRun();
         SpendLayer(t);
+        // The echo (with any Aether Echo just bought) starts the new cycle with a share of the last one's aether.
+        H.Ascension.Currency = cycleAether * EchoShare();
+        SpendLayer(H.Ascension);
+        ResetRun();
         H.UpdateUnlocks();
         H.Rebuild();
         return true;
     }
 
+    double EchoShare() => Math.Min(P.TransEchoCap, P.TransEcho + H.Transcendence.PerkTotal(Perk.AetherEcho));
+
+    /// <summary>How much deeper (in the policy's objective) the ascension tree's stats take the hero now.</summary>
+    double AscensionWorth()
+    {
+        double with = Objective(H.Base);
+        H.Knock = Sys.Ascension;
+        H.Rebuild(gear: false);
+        double without = Objective(H.Base);
+        H.Knock = Sys.Count;
+        H.Rebuild(gear: false);
+        return Math.Max(0, with - without);
+    }
+
     /// <summary>A new run: back to the start depth (deeper with Head Start, with basic gear there), no gear, forge or gold.</summary>
     void ResetRun()
     {
-        double head = Math.Min(0.5, H.Ascension.PerkTotal(Perk.HeadStart));
+        double head = Math.Min(0.5, H.Ascension.PerkTotal(Perk.HeadStart) + H.Transcendence.PerkTotal(Perk.HeadStart));
         int start = Math.Max(1, (int)(H.EverDepth * head));
         H.RunDepth = start;
         _depthProgress = 0;
@@ -502,29 +615,37 @@ public sealed class Sim
             }
         }
         _runStart = Time;
+        _runDepths.Clear();
         _pendingAether = Big.Zero;
         H.Rebuild();
         UpdateWeights();
     }
 
-    /// <summary>Buys a layer's ranks: the best value per cost first, while affordable.</summary>
+    /// <summary>Buys a layer's ranks: the best value per cost first, while affordable. When the best buy is a one-off
+    /// (a node with a single rank, like a rarity tier) that's out of reach, it saves for it instead of spending on
+    /// small ranks, as a player would.</summary>
     void SpendLayer(LayerState layer)
     {
         H.Rebuild();
         UpdateWeights();
         for (int guard = 0; guard < 10000; guard++)
         {
-            LayerNode best = null;
-            double bestScore = double.NegativeInfinity;
+            LayerNode best = null, saveFor = null;
+            double bestScore = double.NegativeInfinity, saveScore = double.NegativeInfinity;
             foreach (var n in layer.Tree.Nodes)
             {
-                if (!layer.CanBuy(n, H.EverDepth)) continue;
+                bool open = (n.MaxRank == 0 || layer.Ranks[n.Id] < n.MaxRank) && H.EverDepth >= n.RequiresDepth;
+                if (!open) continue;
                 double v = NodeValue(n);
                 if (v <= 0) continue;
                 double score = Math.Log10(v) - n.Cost(layer.Ranks[n.Id]).Log10;
-                if (score > bestScore) { bestScore = score; best = n; }
+                if (layer.CanBuy(n, H.EverDepth))
+                {
+                    if (score > bestScore) { bestScore = score; best = n; }
+                }
+                else if (n.MaxRank == 1 && score > saveScore) { saveScore = score; saveFor = n; }
             }
-            if (best == null) break;
+            if (best == null || saveFor != null && saveScore > bestScore) break;
             layer.Buy(best, H.S);
             M.Count(Ev.LayerRank);
         }
@@ -568,30 +689,29 @@ public sealed class Sim
                 for (int s = 0; s < H.Forge.Length; s++) if (H.Open[s]) { forge += H.Forge[s]; open++; }
                 return n.Amount * forge / Math.Max(1, open) * H.S.Le(1 + P.ForgeStep) * more;
             }
-            case Perk.RarityUnlock:
-                return n.Amount > H.MaxRarity ? 100 * more : 0;
             case Perk.SlotUnlock:
                 return 20 * more;
+            case Perk.AetherEcho:
+                return 2 * more;
             default:
                 return 0;
         }
     }
 
+    /// <summary>The power (LE) all mastery and all ranks give now.</summary>
     double MasteryLeTotal()
     {
         double sum = 0;
-        int n = 0;
         for (int s = 0; s < H.Mastery.Length; s++)
-            if (H.Open[s]) { sum += H.Mastery[s] * P.MasteryLE; n++; }
-        return n == 0 ? 0 : sum / n;
+            if (H.Open[s]) sum += H.Mastery[s] * P.MasteryLE;
+        return sum;
     }
 
     double RankLeTotal()
     {
         double sum = 0;
-        int n = 0;
         for (int s = 0; s < H.Rank.Length; s++)
-            if (H.Open[s]) { sum += H.Rank[s] * P.RankLE; n++; }
-        return n == 0 ? 0 : sum / n;
+            if (H.Open[s]) sum += H.Rank[s] * P.RankLE;
+        return sum;
     }
 }

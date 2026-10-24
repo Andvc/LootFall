@@ -19,14 +19,14 @@ public enum Perk : byte
     MaterialGain,
     /// <summary>Codex entries count x more per rank.</summary>
     CodexPower,
-    /// <summary>Opens a rarity tier (Amount is the tier).</summary>
-    RarityUnlock,
     /// <summary>Opens Amount more celestial slots per rank.</summary>
     SlotUnlock,
     /// <summary>One more mastery focus slot per rank.</summary>
     ExtraFocus,
     /// <summary>Keep this share of forge levels through an ascension (per rank).</summary>
     ForgeKeep,
+    /// <summary>Adds this share to the last cycle's aether each new cycle starts with (Params.TransEcho).</summary>
+    AetherEcho,
 }
 
 public sealed class LayerNode
@@ -71,9 +71,9 @@ public sealed class LayerTree
         string[] tiers = { "I", "II", "III", "IV", "V" };
         for (int k = 0; k < tiers.Length; k++)
         {
-            double c = Math.Pow(10, k), g = 1 + k;
-            t.Add($"Ascendant Might {tiers[k]}", Stat.MoreDamage, Perk.None, 0.6 * g, 1 * c, e);
-            t.Add($"Ascendant Vigor {tiers[k]}", Stat.MoreHp, Perk.None, 0.6 * g, 1 * c, e);
+            double c = Math.Pow(10, k), g = 1 + k, m = p.AscensionPower;
+            t.Add($"Ascendant Might {tiers[k]}", Stat.MoreDamage, Perk.None, 0.6 * g * m, 1 * c, e);
+            t.Add($"Ascendant Vigor {tiers[k]}", Stat.MoreHp, Perk.None, 0.6 * g * m, 1 * c, e);
             t.Add($"Golden Path {tiers[k]}", Stat.GoldFind, Perk.None, 0.25 * g, 2 * c, e);
             t.Add($"Scholar {tiers[k]}", Stat.XpGain, Perk.None, 0.2 * g, 2 * c, e);
             t.Add($"Seeker {tiers[k]}", Stat.ItemFind, Perk.None, 0.15 * g, 3 * c, e);
@@ -81,33 +81,34 @@ public sealed class LayerTree
             t.Add($"Discipline {tiers[k]}", Stat.MoreDamage, Perk.MasteryGain, 0.15 * g, 2 * c, e);
             t.Add($"Salvager {tiers[k]}", Stat.MoreDamage, Perk.MaterialGain, 0.2 * g, 2 * c, e);
         }
+        // The first ascensions' payoff: cheap, strong and soon full, so the first reset is worth it at once.
+        t.Add("Awakened Edge", Stat.MoreDamage, Perk.None, 1.0, 2, 1.5, 6);
+        t.Add("Awakened Heart", Stat.MoreHp, Perk.None, 1.0, 2, 1.5, 6);
         t.Add("Head Start", Stat.MoreDamage, Perk.HeadStart, 0.02, 5, 1.6, 25);
         t.Add("Forgemaster", Stat.MoreDamage, Perk.ForgeDiscount, 0.05, 10, 2.0, 10);
         t.Add("Second Focus", Stat.MoreDamage, Perk.ExtraFocus, 1, 50, 3.0, 4);
         t.Add("Forge Memory", Stat.MoreDamage, Perk.ForgeKeep, 0.05, 8, 2.0, 10);
-        t.Add("Ascended Rarity", Stat.MoreDamage, Perk.RarityUnlock, 6, 200, 1, 1, 150);
         return t;
     }
 
     public static LayerTree Transcendence(Params p)
     {
         var t = new LayerTree("Transcendence");
-        double e = p.TransCostExp;
+        double e = p.TransCostExp, pe = p.TransPerkCostExp;
         string[] tiers = { "I", "II", "III", "IV" };
         for (int k = 0; k < tiers.Length; k++)
         {
-            double c = Math.Pow(10, k), g = 1 + k;
-            t.Add($"Starforged Might {tiers[k]}", Stat.MoreDamage, Perk.None, 3.0 * g, 1 * c, e);
-            t.Add($"Starforged Vigor {tiers[k]}", Stat.MoreHp, Perk.None, 3.0 * g, 1 * c, e);
-            t.Add($"Aether Flow {tiers[k]}", Stat.MoreDamage, Perk.AetherGain, 1.0 * g, 2 * c, e);
-            t.Add($"Eternal Discipline {tiers[k]}", Stat.MoreDamage, Perk.MasteryGain, 0.3 * g, 2 * c, e);
-            t.Add($"Resonance {tiers[k]}", Stat.MoreDamage, Perk.CodexPower, 0.1 * g, 3 * c, e);
+            double c = Math.Pow(10, k), g = 1 + k, m = p.TranscendencePower;
+            t.Add($"Starforged Might {tiers[k]}", Stat.MoreDamage, Perk.None, 2.0 * g * m, 1 * c, e);
+            t.Add($"Starforged Vigor {tiers[k]}", Stat.MoreHp, Perk.None, 2.0 * g * m, 1 * c, e);
+            t.Add($"Aether Flow {tiers[k]}", Stat.MoreDamage, Perk.AetherGain, 1.0 * g, 2 * c, pe);
+            t.Add($"Eternal Discipline {tiers[k]}", Stat.MoreDamage, Perk.MasteryGain, 0.3 * g, 2 * c, pe);
+            t.Add($"Resonance {tiers[k]}", Stat.MoreDamage, Perk.CodexPower, 0.05 * g, 3 * c, pe);
             t.Add($"Stellar Fortune {tiers[k]}", Stat.ItemFind, Perk.None, 0.3 * g, 3 * c, e);
         }
         t.Add("Celestial Slots", Stat.MoreDamage, Perk.SlotUnlock, 2, 4, 1.8, 8);
-        int[] rarityDepth = { 600, 1500, 3000, 6000, 10000 };
-        for (int r = 7; r <= 11; r++)
-            t.Add($"{Content.RarityNames[r]} Rarity", Stat.MoreDamage, Perk.RarityUnlock, r, 20 * Math.Pow(4, r - 7), 1, 1, rarityDepth[r - 7]);
+        t.Add("Aether Echo", Stat.MoreDamage, Perk.AetherEcho, 0.05, 3, 1.5, 6);
+        t.Add("Starlit Path", Stat.MoreDamage, Perk.HeadStart, 0.04, 4, 1.5, 5);
         return t;
     }
 }
@@ -130,18 +131,6 @@ public sealed class LayerState
 
     public double PerkTotal(Perk perk) => _perks[(int)perk];
 
-    /// <summary>The highest rarity tier any bought RarityUnlock node opens (-1 if none).</summary>
-    public int RarityUnlocked
-    {
-        get
-        {
-            int best = -1;
-            foreach (var n in Tree.Nodes)
-                if (n.Perk == Perk.RarityUnlock && Ranks[n.Id] > 0) best = Math.Max(best, (int)n.Amount);
-            return best;
-        }
-    }
-
     public bool CanBuy(LayerNode n, int maxDepthEver) =>
         (n.MaxRank == 0 || Ranks[n.Id] < n.MaxRank) && maxDepthEver >= n.RequiresDepth && Currency >= n.Cost(Ranks[n.Id]);
 
@@ -161,12 +150,12 @@ public sealed class LayerState
             int r = Ranks[n.Id];
             if (r == 0) continue;
             if (n.Perk == Perk.None) Sheet.Add(sc, n.Stat, n.Amount * r);
-            else if (n.Perk == Perk.RarityUnlock) _perks[(int)n.Perk] = Math.Max(_perks[(int)n.Perk], n.Amount);
             else _perks[(int)n.Perk] += n.Amount * r;
         }
     }
 
-    /// <summary>Back to nothing (a higher layer reset this one): ranks and currency go, lifetime stays.</summary>
+    /// <summary>Back to nothing (a higher layer reset this one): ranks and currency go; the lifetime total and the count
+    /// of resets stay.</summary>
     public void Wipe(Scale sc)
     {
         Array.Clear(Ranks);

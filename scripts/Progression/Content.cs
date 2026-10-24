@@ -24,14 +24,15 @@ public sealed class SlotDef
     public double PoolTotal;
 }
 
-/// <summary>One rarity tier: how many LE it adds to an item, how many affixes, when it opens.</summary>
+/// <summary>One rarity tier: how many affixes, and the milestone that opens it.</summary>
 public sealed class RarityDef
 {
     public int Tier;
     public string Name;
     public int Affixes;
-    /// <summary>Opens at this max depth (0 = only through a prestige node).</summary>
-    public int UnlockDepth;
+    /// <summary>Opens once the deepest depth reached is at least this and the hero has ascended at least Ascensions
+    /// times and transcended at least Transcendences times: the late tiers are what the prestige layers open.</summary>
+    public int UnlockDepth, Ascensions, Transcendences;
 }
 
 /// <summary>A percent affix's base size per stat (before the item level's tier growth and the roll).</summary>
@@ -96,10 +97,11 @@ public sealed class Content
 
     /// <summary>The order slots open in: the eight classics first, then the kinds interleaved so every part of the body
     /// fills gradually; celestial slots last (prestige nodes open those).</summary>
+    static readonly string[] ClassicSlots = { "Main Hand", "Breastplate", "Helm", "Left Gauntlet", "Left Boot", "Left Index Ring", "Amulet", "Off Hand" };
+
     static int[] UnlockOrder(Rng rng)
     {
-        var first = new[] { "Main Hand", "Breastplate", "Helm", "Left Gauntlet", "Left Boot", "Left Index Ring", "Amulet", "Off Hand" };
-        var order = first.Select(n => Array.FindIndex(SlotList, s => s.Name == n)).ToList();
+        var order = ClassicSlots.Select(n => Array.FindIndex(SlotList, s => s.Name == n)).ToList();
         var byKind = SlotList.Select((s, i) => (s.Kind, i)).Where(x => !order.Contains(x.i) && x.Kind != SlotKind.Celestial)
             .GroupBy(x => x.Kind).Select(g => new Queue<int>(g.Select(x => x.i).OrderBy(_ => rng.NextDouble()))).ToList();
         while (byKind.Any(q => q.Count > 0))
@@ -142,7 +144,7 @@ public sealed class Content
                 Name = name,
                 Kind = kind,
                 Offense = name == "Off Hand" ? 0.5 : rule.Offense,
-                Weight = rule.Weight * Math.Pow(p.SlotWeightGrowth, k),
+                Weight = rule.Weight * Math.Pow(p.SlotWeightGrowth, k) * (k < ClassicSlots.Length ? p.ClassicWeight : 1),
                 UnlockDepth = unlock,
                 Pool = rule.Pool.Select(x => x.Item1).ToArray(),
                 PoolWeights = rule.Pool.Select(x => x.Item2).ToArray(),
@@ -151,8 +153,13 @@ public sealed class Content
         }
         Slots = slots.ToArray();
 
-        int[] rarityDepth = { 1, 1, 3, 10, 30, 80, 0, 0, 0, 0, 0, 0 };
-        Rarities = RarityNames.Select((n, i) => new RarityDef { Tier = i, Name = n, Affixes = i, UnlockDepth = rarityDepth[i] }).ToArray();
+        // Depth opens the first six tiers in the first hour; Ascended needs an ascension, and each tier after it one more
+        // transcendence (and a depth that comes with it).
+        int[] rarityDepth = { 1, 1, 3, 10, 30, 80, 150, 600, 1500, 3000, 6000, 10000 };
+        Rarities = RarityNames.Select((n, i) => new RarityDef
+        {
+            Tier = i, Name = n, Affixes = i, UnlockDepth = rarityDepth[i], Ascensions = i >= 6 ? 1 : 0, Transcendences = Math.Max(0, i - 6),
+        }).ToArray();
 
         Affixes = new[]
         {

@@ -22,6 +22,9 @@ public static class Report
 
     static string F(double v, string fmt = "0.0") => v.ToString(fmt, Inv);
 
+    /// <summary>A number given as its log10, short: 0 as "-", else like 3.2e5.</summary>
+    static string Sci(double log10) => log10 <= 0 ? "-" : $"{Math.Pow(10, log10 - Math.Floor(log10)).ToString("0.0", Inv)}e{Math.Floor(log10)}";
+
     public static readonly double[] Marks = { 1 / 60.0, 5 / 60.0, 0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 3000, 5000, 10000 };
 
     public static string Write(Sim sim, Content content, TalentTree tree)
@@ -33,17 +36,18 @@ public static class Report
         sb.AppendLine($"  content: {content.SlotCount} equipment slots, {Content.RarityNames.Length} rarity tiers, {content.AffixVariants} affix variants, " +
                       $"{tree.Nodes.Count} talent nodes (+ endless paragon), {h.Ascension.Tree.Nodes.Count} ascension and {h.Transcendence.Tree.Nodes.Count} transcendence nodes, " +
                       $"{h.Codex.Length} codex entries");
+        sb.AppendLine($"  stability: {Growth.Analyze(h.P, tree)}");
         sb.AppendLine();
 
         // ---------------------------------------------------------------- timeline
         sb.AppendLine("== The hero over time");
-        sb.AppendLine("      time   ever  run   reach  level  nodes paragon slots rarity codex  asc trans  forge  rank mastery  powerLE");
+        sb.AppendLine("      time   ever  run   reach  level  nodes paragon slots rarity codex  asc trans  forge  rank mastery  powerLE aether stardust");
         foreach (var mark in Marks)
         {
             if (mark > sim.Hours + 1e-9) break;
             var s = m.Snaps.LastOrDefault(x => x.Hours <= mark + 1e-9);
             if (s == null) continue;
-            sb.AppendLine($"  {Time(mark),8} {s.EverDepth,6} {s.RunDepth,4} {F(s.Reach),7} {s.Level,6} {s.Nodes,6} {s.Paragon,7} {s.Slots,5} {Content.RarityNames[s.MaxRarity],-6} {s.Codex,5} {s.Ascensions,4} {s.Transcendences,5} {F(s.ForgeAvg),6} {F(s.RankAvg),5} {F(s.MasteryAvg),7} {F(s.PowerLe, "0"),8}");
+            sb.AppendLine($"  {Time(mark),8} {s.EverDepth,6} {s.RunDepth,4} {F(s.Reach),7} {s.Level,6} {s.Nodes,6} {s.Paragon,7} {s.Slots,5} {Content.RarityNames[s.MaxRarity],-6} {s.Codex,5} {s.Ascensions,4} {s.Transcendences,5} {F(s.ForgeAvg),6} {F(s.RankAvg),5} {F(s.MasteryAvg),7} {F(s.PowerLe, "0"),8} {Sci(s.AetherLog),6} {Sci(s.StardustLog),8}");
         }
         sb.AppendLine();
 
@@ -59,12 +63,15 @@ public static class Report
             double span = end - prev;
             var startSnap = m.Snaps.LastOrDefault(x => x.Hours <= prev + 1e-9) ?? m.Snaps[0];
             var endSnap = m.Snaps.LastOrDefault(x => x.Hours <= end + 1e-9) ?? m.Snaps[^1];
-            double[] counts = Sum(m, prev, end);
+            // Event rates from the running totals between the snapshots nearest the window's ends.
+            double snapSpan = Math.Max(1e-9, endSnap.Hours - startSnap.Hours);
+            var counts = new double[(int)Ev.Count];
+            for (int i = 0; i < counts.Length; i++) counts[i] = (endSnap.Totals[i] - startSnap.Totals[i]) / snapSpan * span;
             var noticed = m.NoticedGaps.Where(g => g.Hours > prev && g.Hours <= end).Select(g => g.Gap).ToList();
             var major = m.MajorGaps.Where(g => g.Hours > prev && g.Hours <= end).Select(g => g.Gap).ToList();
             var record = m.RecordGaps.Where(g => g.Hours > prev && g.Hours <= end).Select(g => g.Gap).ToList();
             sb.AppendLine($"  {Time(prev),5}-{Time(end),-6} {endSnap.EverDepth - startSnap.EverDepth,7} {F(noticed.Count / span, "0.0"),8} {Gap(noticed, 0.5),6}/{Gap(noticed, 1),-6} {F(major.Count / span, "0.00"),8} {Gap(major, 1),7}  {F(record.Count / span, "0.0"),6} {Gap(record, 1),7} " +
-                          $"{F(counts[(int)Ev.Upgrade] / span, "0"),9} {F(counts[(int)Ev.Level] / span, "0.0"),6} {F(counts[(int)Ev.Forge] / span, "0"),6} {F(counts[(int)Ev.Rank] / span, "0.0"),6} {F(counts[(int)Ev.Mastery] / span, "0.0"),7} {F(counts[(int)Ev.Codex] / span, "0.0"),5} {counts[(int)Ev.Ascension],4} {counts[(int)Ev.Transcendence],5}");
+                          $"{F(counts[(int)Ev.Upgrade] / span, "0"),9} {F(counts[(int)Ev.Level] / span, "0.0"),6} {F(counts[(int)Ev.Forge] / span, "0"),6} {F(counts[(int)Ev.Rank] / span, "0.0"),6} {F(counts[(int)Ev.Mastery] / span, "0.0"),7} {F(counts[(int)Ev.Codex] / span, "0.0"),5} {endSnap.Totals[(int)Ev.Ascension] - startSnap.Totals[(int)Ev.Ascension],4} {endSnap.Totals[(int)Ev.Transcendence] - startSnap.Totals[(int)Ev.Transcendence],5}");
             prev = mark;
         }
         sb.AppendLine();
@@ -109,20 +116,6 @@ public static class Report
             sb.AppendLine();
         }
         return sb.ToString();
-    }
-
-    public static double[] Sum(Metrics m, double fromHours, double toHours)
-    {
-        var sum = new double[(int)Ev.Count];
-        int a = (int)Math.Floor(fromHours), b = (int)Math.Ceiling(toHours);
-        for (int hr = a; hr < b && hr < m.Hourly.Count; hr++)
-        {
-            // Partial hours at the edges count in proportion.
-            double lo = Math.Max(hr, fromHours), hi = Math.Min(hr + 1, toHours);
-            double share = Math.Max(0, hi - lo);
-            for (int i = 0; i < sum.Length; i++) sum[i] += m.Hourly[hr][i] * share;
-        }
-        return sum;
     }
 
     static string Gap(List<double> gaps, double q)
