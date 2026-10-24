@@ -247,6 +247,13 @@ and 3 over 3,000 hours (depth at 1,000 hours 15,269, 15,789 and 15,489 for seeds
 - **Content lasts**: the talent tree fills at 407 hours (paragon then runs to 13,000 points); the rarities unlock from
   Ascended at 10.5 hours to Transcendent at 459; all 133 depth slots are open by the end, and 6 of the 16 celestial
   slots, which the transcendence tree opens two at a time, so 10,000 hours in there is still gear to unlock.
+- **Robustness**: `--sweep` moves each of 35 parameters 20% down and 25% up (ForgeGrowth and LevelGrowth by their rate,
+  the part above one) and reruns the 3,000-hour check: 67 of the 70 variants pass every check. Across them the loop
+  gain stays at most 0.33 and the prestige feedback at most 0.54, depth grows between t^0.42 and t^0.56, and none hits
+  a wall. The three that miss a target: monsters' premium 20% lower (depth 26,919 at 1,000 hours, past the pacing
+  range), aether's exponent 20% lower (ascension runs grow too long) and stardust's exponent 25% higher (a predicted
+  exponent of 0.74). `--content-sweep` (60 to 300 slots, 8 to 22 talent rings) passes 8 of 9: with 8 rings the tree's
+  1,279 nodes fill before 100 hours.
 
 ## Extending it
 
