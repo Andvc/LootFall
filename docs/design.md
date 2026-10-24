@@ -14,7 +14,7 @@ kill can drop another chest: open, equip, see it land, earn more.
 
 ## Why this loop (and what the old one taught)
 
-The previous prototype (`prototype/chest-loop`) was about deducing what's inside a chest from its sounds before buying
+The previous prototype (now its own game, Keywright, in Andvc/keywright) was about deducing what's inside a chest from its sounds before buying
 it. The deduction was the work and the opening the reward, and the reward came only after the work went well. This one
 keeps the opening at the centre and cuts the distance to its payoff to nothing: every chest is yours, every opening is
 a roll you watch happen, and the result has an immediate, visible consequence in a fight that's always running. The

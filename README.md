@@ -8,8 +8,8 @@ change colour, the power number jumps, the next monster dies faster, and a legen
 meteors, a barrier) goes off in the fight. Sell it and it's gold for a better chest level, training, and a helper that
 opens chests for you and stops for the big ones. Stronger gear, further stages, more gold, more chests.
 
-**Status:** Prototype 0.1, a fresh start on the `prototype/loot-battle` branch (the shake-and-deduce shop is on
-`prototype/chest-loop`). Playable from the title to the endless stages past the sixth zone: 24 kinds of monster in six
+**Status:** Prototype 0.1, a fresh start (the shake-and-deduce shop that used to live on a branch here is now its own
+game, [Keywright](https://github.com/Andvc/keywright)). Playable from the title to the endless stages past the sixth zone: 24 kinds of monster in six
 zones, stage bosses and six guardians, eight gear slots, six rarities, 14 legendary powers, four kinds of chest, chest
 levels, training, Auto-Boss and Auto-Open, saves with time-away earnings, music per zone. Built with Godot 4.7 (.NET /
 C#), targeting PC. Pixel art and music from Pixel-boy's CC0 Superpowers packs, sounds from Kenney's CC0 packs (see
@@ -71,5 +71,5 @@ xvfb-run -a godot --path . -- --title-demo --shots=$PWD/shots_title    # title, 
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```
 
-Add `--write-movie movies/play.avi --fixed-fps 30` to record. Every push to `prototype/**` exports a Windows build
+Add `--write-movie movies/play.avi --fixed-fps 30` to record. Every push to `main` or a `prototype/**` branch exports a Windows build
 and smoke-tests it on GitHub Actions (download it from the run's artifacts).

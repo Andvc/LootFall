@@ -3,8 +3,9 @@
 Solo-developed PC game (Godot 4.7.2 .NET, C#, 2D, GL Compatibility renderer), an incremental loot game: a knight
 auto-battles through zones, monsters drop chests, chests open into gear, gear shows up in the fight. The owner knows
 Unity/C# and works through cloud sessions rather than locally, so changes must be verified here, not left for them to
-test. This branch (`prototype/loot-battle`) replaced the shake-and-deduce shop on `prototype/chest-loop`; nothing is
-shared with it but the toolchain.
+test. `main` is this game. The shake-and-deduce shop that used to share this repository (on a branch) is now its own
+game, Keywright, in Andvc/keywright; the two share nothing but the toolchain, and each keeps its files in its own
+`app_userdata` folder.
 
 ## Setup in a fresh container
 
