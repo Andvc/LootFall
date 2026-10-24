@@ -1,0 +1,305 @@
+using System;
+
+namespace LootFall.Progression;
+
+/// <summary>An item: its level, rarity, quality roll and affix rolls. Its numbers are computed from these and the slot
+/// it's in (Hero.Contribute), never stored, so the same item reads right wherever the formulas move.</summary>
+public sealed class Item
+{
+    public const int MaxAffixes = 12;
+    public double Ilvl;
+    public int Rarity;
+    public double Quality;
+    public int Affixes;
+    public readonly Stat[] Stats = new Stat[MaxAffixes];
+    public readonly double[] Rolls = new double[MaxAffixes];
+
+    public void CopyFrom(Item o)
+    {
+        Ilvl = o.Ilvl;
+        Rarity = o.Rarity;
+        Quality = o.Quality;
+        Affixes = o.Affixes;
+        Array.Copy(o.Stats, Stats, MaxAffixes);
+        Array.Copy(o.Rolls, Rolls, MaxAffixes);
+    }
+}
+
+/// <summary>
+/// Everything the hero has, from gear to prestige layers, and how it adds up to one sheet of stats. The systems and what
+/// resets them:
+/// <list type="bullet">
+/// <item>Gear (150 slots): items by depth, rarity, quality and affixes. Reset by ascension.</item>
+/// <item>Forge (gold, per slot): +ForgeStep a level, exponential cost; gold scales with depth, so forge levels track
+/// depth (a "slope" system). Reset by ascension.</item>
+/// <item>Slot ranks (materials, per slot): polynomial cost; materials are counted, not scaled, so ranks grow with time
+/// played (a power law). Kept.</item>
+/// <item>Mastery (time, per slot): XP an hour while the slot is worn, polynomial curve; a power law in time. Kept.</item>
+/// <item>Levels and talents (XP): a point a level into the 3,250-node tree, then paragon. Kept.</item>
+/// <item>Codex (first finds of slot x rarity x quality band): a little "more" each. Kept.</item>
+/// <item>Ascension and transcendence: prestige layers with their own trees.</item>
+/// </list>
+/// </summary>
+public sealed class Hero
+{
+    public readonly Params P;
+    public readonly Content C;
+    public readonly Scale S;
+    public readonly Combat Fight;
+    public readonly TalentTree Tree;
+    public readonly TalentState Talents;
+    public readonly LayerState Ascension, Transcendence;
+
+    public readonly Item[] Gear;
+    public readonly int[] Forge, Rank, Mastery;
+    public readonly double[] MasteryXp;
+    public readonly bool[] Open, Focus;
+    public int OpenCount;
+
+    public const int QualityBands = 4, Eras = 16;
+
+    /// <summary>The codex era of an item level: 0 below 100, then one per doubling.</summary>
+    public static int Era(double ilvl) => ilvl < 100 ? 0 : Math.Min(Eras - 1, 1 + (int)Math.Log2(ilvl / 100));
+    public readonly bool[] Codex;
+    public int CodexCount;
+
+    public int RunDepth = 1, EverDepth = 1, Level = 1;
+    public Big Xp = Big.Zero, Gold = Big.Zero;
+    public double Materials;
+    public int MaxRarity;
+
+    /// <summary>A system switched off for a knockout measurement (Sys.Count means none).</summary>
+    public Sys Knock = Sys.Count;
+
+    /// <summary>The hero's stats from each source, and in total.</summary>
+    public readonly Sheet GearSheet = new(), CodexSheet = new(), Total = new();
+    public Combat.Base Base;
+
+    // Precomputed LE constants.
+    readonly double _forgeStepLe, _damageBudget, _hpBudget, _armorBudget, _ratingBudget, _affixShare;
+    readonly double[] _slotWeightLe, _slotDamageLe, _slotHpLe, _slotArmorLe;
+
+    public Hero(Params p, Content c, TalentTree tree)
+    {
+        P = p;
+        C = c;
+        S = new Scale(p.R);
+        Fight = new Combat(p);
+        Tree = tree;
+        Talents = new TalentState(tree, p);
+        Ascension = new LayerState(LayerTree.Ascension(p));
+        Transcendence = new LayerState(LayerTree.Transcendence(p));
+        int n = c.SlotCount;
+        Gear = new Item[n];
+        Forge = new int[n];
+        Rank = new int[n];
+        Mastery = new int[n];
+        MasteryXp = new double[n];
+        Open = new bool[n];
+        Focus = new bool[n];
+        Codex = new bool[n * Content.RarityNames.Length * QualityBands * Eras];
+        _forgeStepLe = S.Le(1 + p.ForgeStep);
+        _damageBudget = S.Le(p.DamagePerBudget);
+        _hpBudget = S.Le(p.HpPerBudget);
+        _armorBudget = S.Le(p.ArmorPerBudget);
+        _ratingBudget = S.Le(p.RatingPerBudget);
+        _affixShare = S.Le(p.FlatAffixShare);
+        _slotWeightLe = new double[n];
+        _slotDamageLe = new double[n];
+        _slotHpLe = new double[n];
+        _slotArmorLe = new double[n];
+        for (int s = 0; s < n; s++)
+        {
+            var d = c.Slots[s];
+            _slotWeightLe[s] = S.Le(d.Weight);
+            _slotDamageLe[s] = d.Offense > 0 ? S.Le(d.Offense) + _damageBudget : Scale.None;
+            _slotHpLe[s] = d.Offense < 1 ? S.Le(1 - d.Offense) + _hpBudget : Scale.None;
+            _slotArmorLe[s] = d.Offense < 1 ? S.Le(1 - d.Offense) + _armorBudget : Scale.None;
+        }
+        UpdateUnlocks();
+        Rebuild();
+    }
+
+    // ---------------------------------------------------------------- unlocks
+
+    /// <summary>Opens the slots and rarity tiers the deepest depth and the layers allow. Returns how many slots opened.</summary>
+    public int UpdateUnlocks()
+    {
+        int opened = 0;
+        int celestial = (int)Transcendence.PerkTotal(Perk.SlotUnlock);
+        int celestialSeen = 0;
+        foreach (var d in C.Slots)
+        {
+            bool open = d.Kind == SlotKind.Celestial ? celestialSeen++ < celestial : EverDepth >= d.UnlockDepth;
+            if (open && !Open[d.Index])
+            {
+                Open[d.Index] = true;
+                OpenCount++;
+                opened++;
+            }
+        }
+        int byDepth = 0;
+        foreach (var r in C.Rarities)
+            if (r.UnlockDepth > 0 && EverDepth >= r.UnlockDepth) byDepth = r.Tier;
+        MaxRarity = Math.Max(byDepth, Math.Max((int)Ascension.PerkTotal(Perk.RarityUnlock), (int)Transcendence.PerkTotal(Perk.RarityUnlock)));
+        return opened;
+    }
+
+    // ---------------------------------------------------------------- what a slot gives
+
+    /// <summary>LE added to every flat stat of a slot by its forge, rank and mastery.</summary>
+    public double SlotBonus(int s) =>
+        (Knock == Sys.Forge ? 0 : Forge[s] * _forgeStepLe) + (Knock == Sys.Ranks ? 0 : Rank[s] * P.RankLE) + (Knock == Sys.Mastery ? 0 : Mastery[s] * P.MasteryLE);
+
+    /// <summary>Percent affixes grow slowly with item level: 1 + growth * ln(1 + ilvl / scale).</summary>
+    public double TierMult(double ilvl) => 1 + P.AffixTierGrowth * Math.Log(1 + ilvl / P.AffixTierScale);
+
+    /// <summary>Adds what <paramref name="it"/> gives in slot <paramref name="s"/> to <paramref name="into"/>.</summary>
+    public void Contribute(int s, Item it, Sheet into, bool slotBonus = true)
+    {
+        double ipl = it.Ilvl - 1 + (Knock == Sys.Rarity ? 0 : P.RarityLE * it.Rarity + P.QualityLE * it.Quality);
+        double b = ipl + _slotWeightLe[s] + (slotBonus ? SlotBonus(s) : 0);
+        if (_slotDamageLe[s] > Scale.None) into.Add(S, Stat.FlatDamage, b + _slotDamageLe[s]);
+        if (_slotHpLe[s] > Scale.None)
+        {
+            into.Add(S, Stat.FlatHp, b + _slotHpLe[s]);
+            into.Add(S, Stat.Armor, b + _slotArmorLe[s]);
+        }
+        double tier = TierMult(it.Ilvl);
+        for (int i = 0; i < (Knock == Sys.Affixes ? 0 : it.Affixes); i++)
+        {
+            var stat = it.Stats[i];
+            double m = 0.7 + 0.6 * it.Rolls[i];
+            if (Stats.IsFlat(stat))
+            {
+                double per = stat switch
+                {
+                    Stat.FlatDamage => _damageBudget,
+                    Stat.FlatHp => _hpBudget,
+                    Stat.Armor => _armorBudget,
+                    _ => _ratingBudget,
+                };
+                into.Add(S, stat, b + _affixShare + per + S.Le(m));
+            }
+            else into.Add(S, stat, C.PercentBase(stat) * tier * m);
+        }
+    }
+
+    // ---------------------------------------------------------------- totals
+
+    /// <summary>Recomputes the gear sheet (after any change to gear, forge, ranks or mastery).</summary>
+    public void RebuildGear()
+    {
+        GearSheet.Clear();
+        for (int s = 0; s < Gear.Length; s++)
+            if (Open[s] && Gear[s] != null) Contribute(s, Gear[s], GearSheet);
+    }
+
+    public void RebuildCodex()
+    {
+        CodexSheet.Clear();
+        double le = Knock == Sys.Codex ? 0 : CodexCount * P.CodexLE * (1 + Transcendence.PerkTotal(Perk.CodexPower));
+        CodexSheet[Stat.MoreDamage] = le;
+        CodexSheet[Stat.MoreHp] = le;
+    }
+
+    /// <summary>Recomputes the total sheet and the depth-independent combat numbers.</summary>
+    public void Rebuild(bool gear = true)
+    {
+        if (gear) RebuildGear();
+        RebuildCodex();
+        Total.CopyFrom(GearSheet);
+        // The talent sheet holds the tree and the paragon ranks; a knockout takes away one or the other.
+        if (Knock != Sys.Talents) Total.AddAll(S, Talents.Sheet);
+        double sign = Knock == Sys.Talents ? 1 : Knock == Sys.Paragon ? -1 : 0;
+        Total[Stat.MoreDamage] += sign * Talents.ParagonDamage * P.ParagonLE;
+        Total[Stat.MoreHp] += sign * Talents.ParagonHp * P.ParagonLE;
+        if (Knock != Sys.Ascension) Total.AddAll(S, Ascension.Sheet);
+        if (Knock != Sys.Transcendence) Total.AddAll(S, Transcendence.Sheet);
+        Total.AddAll(S, CodexSheet);
+        Base = Fight.Prepare(Total);
+    }
+
+    /// <summary>How deep the hero can push now (continuous).</summary>
+    public double Reach() => Fight.Reach(Total, Base);
+
+    // ---------------------------------------------------------------- items
+
+    readonly double[] _rarityOdds = new double[Content.RarityNames.Length];
+
+    /// <summary>The chance of each rarity tier for one drop, from the falloff and item find.</summary>
+    public double[] RarityOdds()
+    {
+        double find = Total[Stat.ItemFind];
+        double tilt = Math.Log(1 + Math.Max(0, find)) * P.ItemFindTilt;
+        double total = 0;
+        for (int r = 0; r < _rarityOdds.Length; r++)
+        {
+            _rarityOdds[r] = r > MaxRarity ? 0 : Math.Exp(-r * Math.Log(P.RarityFalloff) + r * tilt);
+            total += _rarityOdds[r];
+        }
+        for (int r = 0; r < _rarityOdds.Length; r++) _rarityOdds[r] /= total;
+        return _rarityOdds;
+    }
+
+    /// <summary>Rolls an item for slot <paramref name="s"/> with the given level, rarity and quality.</summary>
+    public void Roll(Rng rng, int s, double ilvl, int rarity, double quality, Item into)
+    {
+        var def = C.Slots[s];
+        into.Ilvl = ilvl;
+        into.Rarity = rarity;
+        into.Quality = quality;
+        into.Affixes = Math.Min(Item.MaxAffixes, C.Rarities[rarity].Affixes);
+        for (int i = 0; i < into.Affixes; i++)
+        {
+            double pick = rng.NextDouble() * def.PoolTotal;
+            int k = 0;
+            while (k < def.Pool.Length - 1 && pick >= def.PoolWeights[k]) pick -= def.PoolWeights[k++];
+            into.Stats[i] = def.Pool[k];
+            into.Rolls[i] = rng.NextDouble();
+        }
+    }
+
+    public static int Band(double quality) => quality < 0.8 ? 0 : quality < 0.95 ? 1 : quality < 0.99 ? 2 : 3;
+
+    static readonly double[] BandWidth = { 0.8, 0.15, 0.04, 0.01 };
+    static readonly double[] BandLow = { 0, 0.8, 0.95, 0.99 };
+
+    /// <summary>Marks codex entries found among <paramref name="count"/> drops of one slot and rarity. Returns new entries.</summary>
+    public int Discover(Rng rng, int s, int rarity, double count, double ilvl)
+    {
+        int found = 0;
+        int baseKey = ((Era(ilvl) * C.SlotCount + s) * Content.RarityNames.Length + rarity) * QualityBands;
+        for (int b = 0; b < QualityBands; b++)
+        {
+            if (Codex[baseKey + b]) continue;
+            double p = 1 - Math.Pow(1 - BandWidth[b], count);
+            if (!rng.Chance(p)) continue;
+            Codex[baseKey + b] = true;
+            CodexCount++;
+            found++;
+        }
+        return found;
+    }
+
+    public static double BandStart(int band) => BandLow[band];
+
+    // ---------------------------------------------------------------- costs
+
+    public Big ForgeCost(int s) => Big.Of(P.ForgeBase) * Big.Pow(P.ForgeGrowth, Forge[s]) * (1 - Math.Min(0.5, Ascension.PerkTotal(Perk.ForgeDiscount)));
+
+    public double RankCost(int s) => P.RankCost * Math.Pow(Rank[s] + 1, P.RankExp);
+
+    public Big XpToNext() => Big.Of(P.LevelXp) * Big.Pow(P.LevelGrowth, Level - 1);
+
+    /// <summary>Gold, XP and materials per kill at depth d (boss kills are worth BossReward kills).</summary>
+    public Big GoldPerKill(double d) => Big.Pow10(Math.Log10(P.GoldBase) + P.GoldGrowth * (d - 1) * Math.Log10(P.R)) * (1 + Total[Stat.GoldFind]);
+    public Big XpPerKill(double d) => Big.Pow10(Math.Log10(P.XpBase) + P.XpGrowth * (d - 1) * Math.Log10(P.R)) * (1 + Total[Stat.XpGain]);
+
+    public double MaterialPerItem(int rarity) => P.MaterialBase * Math.Pow(P.MaterialRarity, rarity) * (1 + Total[Stat.MaterialFind]) * (1 + Ascension.PerkTotal(Perk.MaterialGain));
+
+    public double MasteryNeed(int s) => P.MasteryXp * Math.Pow(Mastery[s] + 1, P.MasteryCurve);
+
+    public int FocusSlots => P.MasteryFocusSlots + (int)Ascension.PerkTotal(Perk.ExtraFocus);
+    public double MasteryGain => 1 + Ascension.PerkTotal(Perk.MasteryGain) + Transcendence.PerkTotal(Perk.MasteryGain);
+}
