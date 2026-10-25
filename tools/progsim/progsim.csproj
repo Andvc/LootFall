@@ -11,5 +11,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../scripts/Progression/**/*.cs" />
+    <Compile Include="../../scripts/Game/**/*.cs" />
   </ItemGroup>
 </Project>

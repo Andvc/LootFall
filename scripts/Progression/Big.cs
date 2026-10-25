@@ -37,6 +37,9 @@ public readonly struct Big : IComparable<Big>, IEquatable<Big>
 
     public static Big Of(double value) => Normalize(value, 0);
 
+    /// <summary>A number from its mantissa and exponent (as saved).</summary>
+    public static Big FromParts(double mantissa, long exponent) => Normalize(mantissa, exponent);
+
     /// <summary>10 to the power <paramref name="log10"/>.</summary>
     public static Big Pow10(double log10)
     {

@@ -14,6 +14,7 @@ using LootFall.Progression;
 // progsim --content-sweep [--hours=3000]: the check with fewer and more slots and talent rings (see Sweep below).
 // progsim --tune [--hours=1000]: fits the open-ended systems' power knobs to their targets (see Tuner below).
 // progsim --sweep [--hours=3000]: the check with each key parameter 20% lower and 25% higher (see Sweep below).
+// progsim --game [--hours=N]: plays the game's session headless and checks its pace, saves and time away (GameTest.cs).
 var arg = (string name, string fallback) => args.FirstOrDefault(a => a.StartsWith($"--{name}="))?.Split('=', 2)[1] ?? fallback;
 double hours = double.Parse(arg("hours", args.Contains("--tune") ? "1000" : "3000"), CultureInfo.InvariantCulture);
 int seed = int.Parse(arg("seed", "1"), CultureInfo.InvariantCulture);
@@ -49,6 +50,8 @@ if (args.Contains("--sweep") || args.Contains("--content-sweep"))
     Sweep.Run(hours, seed, content: args.Contains("--content-sweep"));
     return 0;
 }
+
+if (args.Contains("--game")) return GameTest.Run(hours, seed);
 
 if (args.Contains("--check"))
 {

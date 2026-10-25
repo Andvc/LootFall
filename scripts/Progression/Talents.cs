@@ -344,6 +344,110 @@ public sealed class TalentState
         return (best, bestScore);
     }
 
+    /// <summary>Paragon opens once most of the tree is taken: the tree is the build, paragon the endless tail.</summary>
+    public bool ParagonOpen => AllocatedCount >= P.ParagonAfter * _tree.Nodes.Count;
+
+    /// <summary>The untaken nodes on the shortest path from what's taken to <paramref name="id"/>, nearest first (empty
+    /// when it's taken or can't be reached): what clicking a node takes, as far as the points go.</summary>
+    public List<int> PathTo(int id)
+    {
+        var path = new List<int>();
+        if (Allocated[id]) return path;
+        int n = Allocated.Length;
+        var parent = new int[n];
+        var seen = new bool[n];
+        var queue = new Queue<int>();
+        for (int i = 0; i < n; i++)
+        {
+            if (!Allocated[i]) continue;
+            foreach (int nb in _tree.Nodes[i].Links)
+            {
+                if (Allocated[nb] || seen[nb]) continue;
+                seen[nb] = true;
+                parent[nb] = -1;
+                queue.Enqueue(nb);
+            }
+        }
+        while (queue.Count > 0)
+        {
+            int v = queue.Dequeue();
+            if (v == id)
+            {
+                for (int u = id; u >= 0; u = parent[u]) path.Add(u);
+                path.Reverse();
+                return path;
+            }
+            foreach (int nb in _tree.Nodes[v].Links)
+            {
+                if (Allocated[nb] || seen[nb]) continue;
+                seen[nb] = true;
+                parent[nb] = v;
+                queue.Enqueue(nb);
+            }
+        }
+        return path;
+    }
+
+    /// <summary>Takes the path to <paramref name="id"/> as far as the points go; returns how many nodes were taken.</summary>
+    public int Take(int id, Scale sc)
+    {
+        int taken = 0;
+        foreach (int v in PathTo(id))
+        {
+            if (Points == 0) break;
+            Allocated[v] = true;
+            AllocatedCount++;
+            Points--;
+            Spent++;
+            taken++;
+        }
+        if (taken > 0) Rebuild(sc);
+        return taken;
+    }
+
+    /// <summary>Puts up to <paramref name="count"/> unspent points into paragon damage or health, once it's open.</summary>
+    public int TakeParagon(bool damage, int count, Scale sc)
+    {
+        if (!ParagonOpen) return 0;
+        count = Math.Min(count, Points);
+        if (count <= 0) return 0;
+        if (damage) ParagonDamage += count;
+        else ParagonHp += count;
+        Points -= count;
+        Spent += count;
+        Rebuild(sc);
+        return count;
+    }
+
+    /// <summary>Takes everything back (paragon too): every point spent is unspent again.</summary>
+    public void Refund(Scale sc)
+    {
+        Array.Clear(Allocated);
+        Allocated[0] = true;
+        AllocatedCount = 1;
+        Points += Spent;
+        Spent = 0;
+        ParagonDamage = 0;
+        ParagonHp = 0;
+        Rebuild(sc);
+    }
+
+    /// <summary>Restores allocation from a save; the counts follow from it.</summary>
+    public void Restore(bool[] allocated, int points, int paragonDamage, int paragonHp, Scale sc)
+    {
+        Array.Clear(Allocated);
+        int count = 0;
+        for (int i = 0; i < Allocated.Length && i < allocated.Length; i++)
+            if (allocated[i]) { Allocated[i] = true; count++; }
+        Allocated[0] = true;
+        AllocatedCount = Math.Max(1, count);
+        Points = points;
+        ParagonDamage = paragonDamage;
+        ParagonHp = paragonHp;
+        Spent = AllocatedCount - 1 + paragonDamage + paragonHp;
+        Rebuild(sc);
+    }
+
     /// <summary>Recomputes the sheet from the allocated nodes and paragon ranks.</summary>
     public void Rebuild(Scale sc)
     {

@@ -9,6 +9,13 @@ public sealed class Rng
 
     public Rng(int seed) => _s = 0x9E3779B97F4A7C15UL ^ (ulong)(uint)seed * 0xBF58476D1CE4E5B9UL | 1UL;
 
+    /// <summary>The generator's state, to save and restore (never zero).</summary>
+    public ulong State
+    {
+        get => _s;
+        set => _s = value == 0 ? 1UL : value;
+    }
+
     ulong NextU()
     {
         _s ^= _s >> 12;

@@ -29,7 +29,7 @@ public enum Sys : byte { Rarity, Affixes, Forge, Ranks, Mastery, Talents, Parago
 /// (about 1% more power) since the last one, a "major" gain a whole depth (about 11%), a record a depth never reached
 /// before. The gaps between them are the framework's measure of whether progress stays tangible.
 /// </summary>
-public sealed class Metrics
+public sealed class Metrics : IWorldEvents
 {
     readonly Sim _sim;
     /// <summary>Knockouts at every snapshot instead of every fourth (for the tuner, which averages them).</summary>
@@ -82,6 +82,8 @@ public sealed class Metrics
         Records.Add((_sim.Hours, depth));
         _recordTime = _sim.Time;
     }
+
+    void IWorldEvents.Record(int depth) => DepthRecord(depth);
 
     public void Prestige(Ev kind, double seconds, int depth)
     {

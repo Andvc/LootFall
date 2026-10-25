@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace LootFall.Progression;
 
@@ -300,18 +301,52 @@ public sealed class Hero
     public int Discover(Rng rng, int s, int rarity, double count, double ilvl)
     {
         int found = 0;
-        int baseKey = ((Era(ilvl) * C.SlotCount + s) * Content.RarityNames.Length + rarity) * QualityBands;
+        int baseKey = CodexKey(Era(ilvl), s, rarity, 0);
         for (int b = 0; b < QualityBands; b++)
         {
             if (Codex[baseKey + b]) continue;
             double p = 1 - Math.Pow(1 - BandWidth[b], count);
             if (!rng.Chance(p)) continue;
-            Codex[baseKey + b] = true;
-            CodexCount++;
-            CodexValue += Math.Pow(P.CodexRarityGrowth, rarity);
+            Mark(baseKey + b);
             found++;
         }
         return found;
+    }
+
+    /// <summary>The same draws as the other overload, but the entries found are listed in <paramref name="found"/> for
+    /// whoever opens the drops to <see cref="Mark"/>, not marked now.</summary>
+    public void Discover(Rng rng, int s, int rarity, double count, double ilvl, List<int> found)
+    {
+        int baseKey = CodexKey(Era(ilvl), s, rarity, 0);
+        for (int b = 0; b < QualityBands; b++)
+        {
+            if (Codex[baseKey + b]) continue;
+            double p = 1 - Math.Pow(1 - BandWidth[b], count);
+            if (rng.Chance(p)) found.Add(baseKey + b);
+        }
+    }
+
+    /// <summary>The codex entry for an era, slot, rarity and quality band.</summary>
+    public int CodexKey(int era, int slot, int rarity, int band) => ((era * C.SlotCount + slot) * Content.RarityNames.Length + rarity) * QualityBands + band;
+
+    /// <summary>The era, slot, rarity and quality band of a codex entry.</summary>
+    public (int Era, int Slot, int Rarity, int Band) CodexEntry(int key)
+    {
+        int band = key % QualityBands;
+        key /= QualityBands;
+        int rarity = key % Content.RarityNames.Length;
+        key /= Content.RarityNames.Length;
+        return (key / C.SlotCount, key % C.SlotCount, rarity, band);
+    }
+
+    /// <summary>Marks a codex entry found; false if it already was.</summary>
+    public bool Mark(int key)
+    {
+        if (Codex[key]) return false;
+        Codex[key] = true;
+        CodexCount++;
+        CodexValue += Math.Pow(P.CodexRarityGrowth, CodexEntry(key).Rarity);
+        return true;
     }
 
     public static double BandStart(int band) => BandLow[band];
