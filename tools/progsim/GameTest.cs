@@ -118,23 +118,7 @@ static class GameTest
             $"{s.H.Ascension.Resets} ascensions: depth {before} -> {s.H.RunDepth} in 5m, {leapt} in {cues[(int)Cue.Leap]} leaps");
     }
 
-    /// <summary>Plays <paramref name="seconds"/> as a sensible active player.</summary>
-    static void Play(Session s, double seconds)
-    {
-        double end = s.Time + seconds;
-        while (s.Time < end - 1e-6)
-        {
-            s.Tick(1.0);
-            s.Events.Clear();
-            if (s.Pile.Waiting.Count > 0) s.OpenAll();
-            if ((int)s.Time % 10 == 0)
-            {
-                if (s.Unlocked(Feature.Forge)) s.ForgeAll();
-                if (s.Unlocked(Feature.Ranks)) s.RankAll();
-            }
-            if ((int)s.Time % 60 == 0) s.AutoPrestige(transcend: true);
-        }
-    }
+    static void Play(Session s, double seconds) => SensiblePlayer.Play(s, seconds);
 
     static bool Same(Session a, Session b) =>
         a.H.RunDepth == b.H.RunDepth && a.H.EverDepth == b.H.EverDepth && a.H.Level == b.H.Level && a.H.Gold.Equals(b.H.Gold)

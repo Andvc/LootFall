@@ -6,15 +6,17 @@ config_version=5
 [application]
 
 config/name="LootFall"
-config/description="Open chests, gear up your knight, and watch every upgrade land in battle."
+config/description="A knight fights ever deeper; monsters drop chests; chests open into gear; gear shows up in the fight."
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 config/icon="res://assets/ui/icon.png"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1600
+window/size/window_height_override=900
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 
@@ -24,13 +26,20 @@ project/assembly_name="LootFall"
 
 [gui]
 
-theme/custom_font="res://assets/fonts/kenney_mini.ttf"
+theme/custom_font="res://assets/fonts/BarlowSemiCondensed-Medium.ttf"
+theme/default_font_size=22
+
+[importer_defaults]
+
+texture={
+"mipmaps/generate": true
+}
 
 [rendering]
 
-textures/canvas_textures/default_texture_filter=0
-2d/snap/snap_2d_transforms_to_pixel=true
-2d/snap/snap_2d_vertices_to_pixel=true
+gl_compatibility/item_buffer_size=65536
+
+textures/canvas_textures/default_texture_filter=3
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-environment/defaults/default_clear_color=Color(0.067, 0.059, 0.094, 1)
+environment/defaults/default_clear_color=Color(0.067, 0.059, 0.09, 1)

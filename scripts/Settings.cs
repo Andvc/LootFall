@@ -1,10 +1,12 @@
 using Godot;
+using LootFall.Game;
 
 namespace LootFall;
 
 /// <summary>
-/// The player's settings, kept in user://settings.cfg: volumes (master, music, effects), fullscreen, and how much the
-/// screen shakes and flashes.
+/// The player's settings, kept in user://settings.cfg: volumes, fullscreen, how much the lane shakes, how strong flashes
+/// are, whether damage numbers show, and how numbers are written (docs/art-direction.md: clutter has its own
+/// switches).
 /// </summary>
 public static class Settings
 {
@@ -12,13 +14,17 @@ public static class Settings
 
     /// <summary>0 to 1.</summary>
     public static float Volume { get; set; } = 0.8f;
-    public static float MusicVolume { get; set; } = 0.55f;
-    public static float SfxVolume { get; set; } = 0.9f;
+    public static float MusicVolume { get; set; } = 0.5f;
+    public static float SfxVolume { get; set; } = 0.85f;
 
     public static bool Fullscreen { get; set; }
 
-    /// <summary>How strong screen shake and flashes are: 1 full, 0.5 reduced, 0 off.</summary>
+    /// <summary>Screen shake: 1 full, 0.5 reduced, 0 off.</summary>
     public static float Shake { get; set; } = 1f;
+    /// <summary>Flashes: 1 full, 0.5 reduced, 0 off.</summary>
+    public static float Flashes { get; set; } = 1f;
+    public static bool DamageNumbers { get; set; } = true;
+    public static Notation Notation { get => Format.Notation; set => Format.Notation = value; }
 
     public static void Load()
     {
@@ -30,6 +36,9 @@ public static class Settings
             SfxVolume = (float)file.GetValue("audio", "sfx", SfxVolume);
             Fullscreen = (bool)file.GetValue("video", "fullscreen", Fullscreen);
             Shake = (float)file.GetValue("video", "shake", Shake);
+            Flashes = (float)file.GetValue("video", "flashes", Flashes);
+            DamageNumbers = (bool)file.GetValue("video", "damage_numbers", DamageNumbers);
+            Notation = (Notation)(int)file.GetValue("game", "notation", (int)Notation);
         }
         Apply();
     }
@@ -42,6 +51,9 @@ public static class Settings
         file.SetValue("audio", "sfx", SfxVolume);
         file.SetValue("video", "fullscreen", Fullscreen);
         file.SetValue("video", "shake", Shake);
+        file.SetValue("video", "flashes", Flashes);
+        file.SetValue("video", "damage_numbers", DamageNumbers);
+        file.SetValue("game", "notation", (int)Notation);
         file.Save(Path);
     }
 
@@ -61,7 +73,7 @@ public static class Settings
         SetBus("Master", Volume);
         SetBus("Music", MusicVolume);
         SetBus("Sfx", SfxVolume);
-        // Headless runs (the sim) have no window to change.
+        // Headless runs have no window to change.
         if (DisplayServer.GetName() != "headless")
             DisplayServer.WindowSetMode(Fullscreen ? DisplayServer.WindowMode.Fullscreen : DisplayServer.WindowMode.Windowed);
     }
@@ -73,5 +85,5 @@ public static class Settings
         AudioServer.SetBusMute(bus, volume <= 0.001f);
     }
 
-    public static string ShakeWord => Shake >= 1f ? "Full" : Shake > 0f ? "Reduced" : "Off";
+    public static string Level(float v) => v >= 1f ? "Full" : v > 0f ? "Reduced" : "Off";
 }

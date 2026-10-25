@@ -62,6 +62,11 @@ public static class Format
 
     public static string Int(long v) => v < 1000 ? v.ToString(Inv) : Num((double)v);
 
+    /// <summary>A count that's whole on screen (gold, shards, experience): below a thousand it's rounded down.</summary>
+    public static string Count(Big b) => b.Log10 < 3 ? Math.Floor(b.ToDouble()).ToString("0", Inv) : Num(b);
+
+    public static string Count(double v) => Math.Abs(v) < 1000 ? Math.Floor(v).ToString("0", Inv) : Num(v);
+
     /// <summary>A whole number with thousands separators (depths, levels, counts).</summary>
     public static string Whole(long v) => v.ToString("#,0", Inv);
 

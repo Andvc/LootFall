@@ -48,50 +48,50 @@ public static class Bestiary
         new()
         {
             Key = "greenwood", Name = "Greenwood",
-            Monsters = new[] { M("slime", "Moss Slime", Body.Hopper, 0.55), M("wolf", "Grey Wolf", Body.Walker, 0.7), M("boar", "Thornback Boar", Body.Walker, 0.75), M("treant", "Sapling Treant", Body.Heavy, 1.1) },
-            Guardian = M("old_tusk", "Old Tusk", Body.Heavy, 1.6),
+            Monsters = new[] { M("bloblet", "Bloblet", Body.Hopper, 0.62), M("toadstool", "Toadstool Shambler", Body.Walker, 0.9), M("moss_hound", "Moss Hound", Body.Walker, 0.85), M("thicket_glutton", "Thicket Glutton", Body.Walker, 0.85) },
+            Guardian = M("old_tusk", "Old Tusk", Body.Heavy, 1.7),
         },
         new()
         {
             Key = "dunes", Name = "Sunscorch Dunes",
-            Monsters = new[] { M("scorpion", "Dune Scorpion", Body.Walker, 0.6), M("viper", "Sand Viper", Body.Slither, 0.5), M("mummy", "Wrapped Dead", Body.Walker, 1.0), M("vulture", "Bone Vulture", Body.Flyer, 0.7) },
-            Guardian = M("sand_warlord", "The Sand Warlord", Body.Walker, 1.5),
+            Monsters = new[] { M("dune_scorpion", "Dune Scorpion", Body.Walker, 0.8), M("sand_raptor", "Sand Raptor", Body.Walker, 0.95), M("carrion_harpy", "Carrion Harpy", Body.Flyer, 0.9), M("stitched_dead", "Stitched Dead", Body.Walker, 0.95) },
+            Guardian = M("sand_warlord", "The Sand Warlord", Body.Walker, 1.6),
         },
         new()
         {
             Key = "frostpeak", Name = "Frostpeak",
-            Monsters = new[] { M("ice_wolf", "Rime Wolf", Body.Walker, 0.75), M("wisp", "Frost Wisp", Body.Flyer, 0.5), M("yeti", "Yeti", Body.Heavy, 1.2), M("ice_golem", "Ice Golem", Body.Heavy, 1.15) },
-            Guardian = M("frost_giant", "The Frost Giant", Body.Heavy, 1.8),
+            Monsters = new[] { M("snow_biter", "Snow Biter", Body.Hopper, 0.8), M("rime_wolf", "Rime Wolf", Body.Walker, 0.95), M("frost_siren", "Frost Siren", Body.Flyer, 0.95), M("rime_stalker", "Rime Stalker", Body.Walker, 1.0) },
+            Guardian = M("frost_warden", "The Frost Warden", Body.Heavy, 1.7),
         },
         new()
         {
-            Key = "coast", Name = "Sunken Coast",
-            Monsters = new[] { M("crab", "Reef Crab", Body.Walker, 0.55), M("drowned", "The Drowned", Body.Walker, 1.0), M("siren", "Siren", Body.Flyer, 0.9), M("octopus", "Tidal Octopus", Body.Slither, 0.9) },
-            Guardian = M("deep_one", "The Deep One", Body.Heavy, 1.8),
+            Key = "mire", Name = "Drowned Mire",
+            Monsters = new[] { M("tide_shrimp", "Tide Shrimp", Body.Slither, 1.0), M("drowned_maiden", "Drowned Maiden", Body.Flyer, 1.0), M("bog_gawker", "Bog Gawker", Body.Hopper, 0.85), M("pale_grasper", "Pale Grasper", Body.Walker, 0.95) },
+            Guardian = M("deep_one", "The Deep One", Body.Heavy, 1.7),
         },
         new()
         {
             Key = "ashlands", Name = "Ashlands",
-            Monsters = new[] { M("imp", "Ember Imp", Body.Flyer, 0.55), M("salamander", "Salamander", Body.Slither, 0.7), M("magma_golem", "Magma Golem", Body.Heavy, 1.2), M("hellhound", "Hellhound", Body.Walker, 0.8) },
-            Guardian = M("cinder_colossus", "The Cinder Colossus", Body.Heavy, 1.9),
+            Monsters = new[] { M("cinder_phoenix", "Cinder Phoenix", Body.Flyer, 0.9), M("lavamander", "Lavamander", Body.Slither, 1.0), M("magma_worm", "Magma Worm", Body.Slither, 1.0), M("spined_hellbeast", "Spined Hellbeast", Body.Walker, 1.0) },
+            Guardian = M("cinder_colossus", "The Cinder Colossus", Body.Heavy, 1.8),
         },
         new()
         {
             Key = "ruins", Name = "Fallen Ruins",
-            Monsters = new[] { M("skeleton", "Risen Soldier", Body.Walker, 1.0), M("ghost", "Restless Shade", Body.Flyer, 0.85), M("gargoyle", "Gargoyle", Body.Flyer, 0.9), M("mimic", "Mimic", Body.Hopper, 0.7) },
-            Guardian = M("mimic_king", "The Mimic King", Body.Hopper, 1.6),
+            Monsters = new[] { M("risen_knight", "Risen Knight", Body.Walker, 1.0), M("restless_shade", "Restless Shade", Body.Flyer, 1.0), M("living_armor", "Living Armour", Body.Heavy, 1.05), M("dark_priest", "Dark Priest", Body.Walker, 1.0) },
+            Guardian = M("gilded_maiden", "The Gilded Maiden", Body.Walker, 1.5),
         },
         new()
         {
             Key = "caverns", Name = "Deep Caverns",
-            Monsters = new[] { M("bat", "Cave Bat", Body.Flyer, 0.5), M("spider", "Broodmother's Spawn", Body.Walker, 0.7), M("troll", "Cave Troll", Body.Heavy, 1.3), M("drake", "Young Drake", Body.Walker, 1.0) },
-            Guardian = M("vermithrax", "Vermithrax", Body.Flyer, 2.0),
+            Monsters = new[] { M("batmadillo", "Batmadillo", Body.Walker, 1.0), M("pale_ravager", "Pale Ravager", Body.Walker, 0.95), M("swine_thug", "Swine Thug", Body.Heavy, 1.1), M("chained_horror", "Chained Horror", Body.Walker, 1.0) },
+            Guardian = M("vermithrax", "Vermithrax", Body.Walker, 1.8),
         },
         new()
         {
             Key = "starfall", Name = "Starfall Rift",
-            Monsters = new[] { M("void_eye", "Void Eye", Body.Flyer, 0.6), M("star_spawn", "Star Spawn", Body.Hopper, 0.7), M("shade_knight", "Shade Knight", Body.Walker, 1.05), M("construct", "Astral Construct", Body.Heavy, 1.2) },
-            Guardian = M("hollow_star", "The Hollow Star", Body.Flyer, 2.0),
+            Monsters = new[] { M("cycloper", "Cycloper", Body.Walker, 0.8), M("rift_wolf", "Rift Wolf", Body.Walker, 1.0), M("crystalis", "Crystalis", Body.Heavy, 1.1), M("mangler", "Mangler", Body.Flyer, 0.9) },
+            Guardian = M("hollow_star", "The Hollow Star", Body.Heavy, 1.9),
         },
     };
 

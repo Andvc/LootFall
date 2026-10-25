@@ -1,0 +1,50 @@
+{
+ "ashlands": {
+  "ground": "#433435",
+  "skyHorizon": "#463331",
+  "skyTop": "#402d2c",
+  "source": "ancientbeast: assets/locations/Desolated Canyon.jpg"
+ },
+ "caverns": {
+  "ground": "#7a6e6c",
+  "skyHorizon": "#4e4646",
+  "skyTop": "#2c272a",
+  "source": "ancientbeast: assets/locations/Shadow Cave.jpg"
+ },
+ "dunes": {
+  "ground": "#533c2c",
+  "skyHorizon": "#69523c",
+  "skyTop": "#b29f86",
+  "source": "valyriatear: data/battles/battle_scenes/desert_background.png"
+ },
+ "frostpeak": {
+  "ground": "#878f9c",
+  "skyHorizon": "#747b86",
+  "skyTop": "#707682",
+  "source": "ancientbeast: assets/locations/Frozen Wall.jpg"
+ },
+ "greenwood": {
+  "ground": "#526344",
+  "skyHorizon": "#717b5a",
+  "skyTop": "#42453c",
+  "source": "valyriatear: data/battles/battle_scenes/forest_background.png"
+ },
+ "mire": {
+  "ground": "#42474d",
+  "skyHorizon": "#55565f",
+  "skyTop": "#333850",
+  "source": "valyriatear: data/battles/battle_scenes/forest_background_evening.png"
+ },
+ "ruins": {
+  "ground": "#565054",
+  "skyHorizon": "#575054",
+  "skyTop": "#5d5657",
+  "source": "valyriatear: data/battles/battle_scenes/mountain_shrine.png"
+ },
+ "starfall": {
+  "ground": "#836c91",
+  "skyHorizon": "#6e577a",
+  "skyTop": "#74608d",
+  "source": "ancientbeast: assets/locations/Dragon Bones.jpg"
+ }
+}

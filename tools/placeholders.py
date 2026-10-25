@@ -1,0 +1,413 @@
+#!/usr/bin/env python3
+"""Builds LootFall's placeholder art from GitHub-hosted packs: stand-ins for the AI-made final art, processed the way
+docs/art-direction.md describes ("Placeholders"), so they stage the inked cel look and exercise the same code paths.
+
+  monsters   Ancient Beast's painted creatures, matted (rembg), cropped, outlined in ink, turned to face left
+             -> assets/monsters/<key>.png and assets/monsters/monsters.json (size and foot point of each)
+  backdrops  painted scenes from Valyria Tear and Ancient Beast, cut to the lane's band, desaturated, value-compressed
+             and softened -> assets/backdrops/<realm>.jpg and assets/backdrops/realms.json (colours sampled for the
+             sky, ground and foreground the game draws itself)
+  icons      game-icons silhouettes filled with the family's material ramp, lit from the top left, outlined in ink
+             -> assets/icons/<family>.png
+  vfx        Kenney's Particle Pack (white on transparent) -> assets/vfx/<name>.png
+  fonts      Cinzel, Barlow Semi Condensed and Lilita One from google/fonts (final, not placeholders)
+
+Usage: python3 tools/placeholders.py [--cache DIR] [--only monsters,backdrops,icons,vfx,fonts]
+Needs Pillow; rembg (monsters) and cairosvg (icons). Sources are fetched by blobless sparse checkouts into the cache.
+The monster and realm keys must match scripts/Game/Bestiary.cs, the icon families Describe.Family in
+scripts/Game/Describe.cs.
+"""
+import argparse
+import json
+import os
+import re
+import subprocess
+import urllib.request
+
+from PIL import Image, ImageChops, ImageFilter, ImageOps
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS = os.path.join(ROOT, "assets")
+
+INK = (0x15, 0x10, 0x1F)
+
+SOURCES = {
+    "ancientbeast": ("https://github.com/FreezingMoon/AncientBeast.git", ["assets/units/artwork", "assets/locations"]),
+    "valyriatear": ("https://github.com/ValyriaTear/ValyriaTear.git", ["data/battles/battle_scenes"]),
+    "game-icons": ("https://github.com/game-icons/icons.git", None),
+    "kenney": ("https://github.com/ETdoFresh/kenney.nl.git", ["particlePack_1.1"]),
+}
+
+FONTS = {
+    "Cinzel.ttf": "ofl/cinzel/Cinzel%5Bwght%5D.ttf",
+    "BarlowSemiCondensed-Medium.ttf": "ofl/barlowsemicondensed/BarlowSemiCondensed-Medium.ttf",
+    "BarlowSemiCondensed-SemiBold.ttf": "ofl/barlowsemicondensed/BarlowSemiCondensed-SemiBold.ttf",
+    "BarlowSemiCondensed-Bold.ttf": "ofl/barlowsemicondensed/BarlowSemiCondensed-Bold.ttf",
+    "LilitaOne-Regular.ttf": "ofl/lilitaone/LilitaOne-Regular.ttf",
+}
+FONT_LICENCES = {"Cinzel-OFL.txt": "ofl/cinzel/OFL.txt", "Barlow-OFL.txt": "ofl/barlowsemicondensed/OFL.txt",
+                 "LilitaOne-OFL.txt": "ofl/lilitaone/OFL.txt"}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Monsters: bestiary key -> (Ancient Beast artwork, faces right in the source and must be flipped)
+# ---------------------------------------------------------------------------------------------------------------------
+MONSTERS = {
+    # Greenwood
+    "bloblet": ("Gumble", False), "toadstool": ("Toxic Shroom", False), "moss_hound": ("Moss Hound", True),
+    "thicket_glutton": ("Papa Eggplant", True), "old_tusk": ("Stomper", False),
+    # Sunscorch Dunes
+    "dune_scorpion": ("Scorpius", False), "sand_raptor": ("Uncle Fungus", False), "carrion_harpy": ("Scavenger", False),
+    "stitched_dead": ("Mr. Stitches", False), "sand_warlord": ("Golden Wyrm", False),
+    # Frostpeak
+    "snow_biter": ("Snow Bunny", False), "rime_wolf": ("Vehemoth", False), "frost_siren": ("Deep Beauty", True),
+    "rime_stalker": ("Knightmare", True), "frost_warden": ("Royal Guard", False),
+    # Drowned Mire
+    "tide_shrimp": ("Blue Shrimp", False), "drowned_maiden": ("Miss Creeper", False), "bog_gawker": ("Swampler", False),
+    "pale_grasper": ("Headless", True), "deep_one": ("Flayed", False),
+    # Ashlands
+    "cinder_phoenix": ("Volpyr", False), "lavamander": ("Lavamander", False), "magma_worm": ("Infernal", False),
+    "spined_hellbeast": ("Spikes", True), "cinder_colossus": ("Vulcan", False),
+    # Fallen Ruins
+    "risen_knight": ("Greedy Knight", False), "restless_shade": ("Shadow Leech", False),
+    "living_armor": ("Living Armor", False), "dark_priest": ("Dark Priest", False), "gilded_maiden": ("Gilded Maiden", False),
+    # Deep Caverns
+    "batmadillo": ("Batmadillo", True), "pale_ravager": ("Abolished", False), "swine_thug": ("Swine Thug", True),
+    "chained_horror": ("Horn Head", False), "vermithrax": ("Chimera", True),
+    # Starfall Rift
+    "cycloper": ("Cycloper", False), "rift_wolf": ("Cyber Wolf", True), "crystalis": ("Crystalis", False),
+    "mangler": ("Mangler", False), "hollow_star": ("Metalist", False),
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Backdrops: realm -> (source, file, crop box in the source, tint, how far toward the tint)
+# ---------------------------------------------------------------------------------------------------------------------
+BACKDROPS = {
+    "greenwood": ("valyriatear", "data/battles/battle_scenes/forest_background.png", (0, 0, 1024, 307), (70, 110, 80), 0.15),
+    "dunes": ("valyriatear", "data/battles/battle_scenes/desert_background.png", (0, 60, 1024, 367), (190, 140, 90), 0.12),
+    "frostpeak": ("ancientbeast", "assets/locations/Frozen Wall.jpg", (0, 0, 1920, 576), (150, 175, 210), 0.2),
+    "mire": ("valyriatear", "data/battles/battle_scenes/forest_background_evening.png", (0, 0, 1026, 308), (70, 90, 120), 0.25),
+    "ashlands": ("ancientbeast", "assets/locations/Desolated Canyon.jpg", (0, 0, 1920, 576), (140, 60, 50), 0.15),
+    "ruins": ("valyriatear", "data/battles/battle_scenes/mountain_shrine.png", (0, 0, 1024, 307), (110, 100, 120), 0.2),
+    "caverns": ("ancientbeast", "assets/locations/Shadow Cave.jpg", (0, 0, 1920, 576), (70, 60, 80), 0.3),
+    "starfall": ("ancientbeast", "assets/locations/Dragon Bones.jpg", (0, 0, 1920, 576), (80, 60, 140), 0.55),
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Icons: item family -> (game-icons file, material). Families as Describe.Family names them.
+# ---------------------------------------------------------------------------------------------------------------------
+TATTOO = "ink"
+ICONS = {
+    "main_hand": ("lorc/broadsword", "steel"), "off_hand": ("willdabeast/round-shield", "iron"),
+    "sidearm": ("skoll/gladius", "steel"), "bow": ("lorc/pocket-bow", "wood"), "quiver": ("delapouite/quiver", "leather"),
+    "throwing_knives": ("lorc/thrown-daggers", "steel"),
+    "helm": ("lorc/visored-helm", "steel"), "breastplate": ("lorc/breastplate", "steel"), "tunic": ("lorc/mail-shirt", "iron"),
+    "cloak": ("lucasms/cloak", "cloth"), "mantle": ("delapouite/cape", "cloth"), "tabard": ("lorc/robe", "cloth"),
+    "belt": ("lucasms/belt", "leather"), "tassets": ("delapouite/metal-skirt", "iron"), "gorget": ("delapouite/heavy-collar", "iron"),
+    "visor": ("delapouite/overlord-helm", "steel"), "hood": ("lorc/hood", "cloth"), "greaves": ("delapouite/greaves", "steel"),
+    "faulds": ("delapouite/belt-armor", "iron"), "pauldron": ("delapouite/shoulder-armor", "steel"),
+    "gauntlet": ("delapouite/gauntlet", "steel"), "vambrace": ("delapouite/bracer", "leather"),
+    "elbow_guard": ("delapouite/elbow-pad", "iron"), "cuisse": ("delapouite/leg-armor", "steel"),
+    "kneeguard": ("delapouite/knee-pad", "iron"), "shin_guard": ("skoll/bracers", "iron"), "boot": ("lorc/leather-boot", "leather"),
+    "amulet": ("lorc/gem-pendant", "gold"), "necklace": ("delapouite/pearl-necklace", "gold"),
+    "choker": ("delapouite/heart-necklace", "gold"), "circlet": ("delapouite/tiara", "gold"),
+    "diadem": ("delapouite/jewel-crown", "gold"), "nose_ring": ("delapouite/ring", "gold"), "hair_pin": ("lorc/comb", "gold"),
+    "earring": ("delapouite/drop-earrings", "gold"), "bracelet": ("delapouite/double-necklace", "gold"),
+    "armlet": ("delapouite/arm-bandage", "gold"), "anklet": ("delapouite/primitive-necklace", "gold"),
+    "ring": ("delapouite/diamond-ring", "gold"), "toe_ring": ("skoll/big-diamond-ring", "gold"),
+    "brooch": ("delapouite/ribbon-medal", "gold"), "cloak_pin": ("delapouite/tribal-pendant", "gold"),
+    "sash": ("delapouite/bow-tie-ribbon", "cloth"), "scabbard": ("delapouite/scabbard", "leather"),
+    "bandolier": ("lorc/belt-buckles", "leather"), "monocle": ("lorc/spectacles", "gold"),
+    "locket": ("delapouite/pendant-key", "gold"), "signet": ("lorc/skull-signet", "gold"), "keyring": ("delapouite/keyring", "iron"),
+    "phylactery": ("lorc/skull-in-jar", "bone"), "pouch": ("seregacthtuf/pouch-with-beads", "leather"),
+    "garter": ("delapouite/headband-knot", "cloth"), "spurs": ("lorc/steeltoe-boots", "iron"),
+    "charm": ("lorc/charm", "gold"), "relic": ("lorc/relic-blade", "bone"), "talisman": ("skoll/pentacle", "gold"),
+    "idol": ("lorc/totem-head", "wood"),
+    "brow_tattoo": ("lorc/tribal-mask", TATTOO), "neck_tattoo": ("lorc/spiral-bloom", TATTOO),
+    "chest_tattoo": ("lorc/star-swirl", TATTOO), "back_tattoo": ("delapouite/snake-spiral", TATTOO),
+    "shoulder_tattoo": ("lorc/scarab-beetle", TATTOO), "arm_tattoo": ("lorc/ankh", TATTOO),
+    "hand_tattoo": ("lorc/crystal-shine", TATTOO), "thigh_tattoo": ("lorc/feather-wound", TATTOO),
+    "calf_tattoo": ("lorc/spiral-thrust", TATTOO),
+    "familiar": ("lorc/raven", "cloth"), "familiars_collar": ("lorc/spiked-collar", "leather"),
+    "mount": ("delapouite/horse-head", "leather"), "saddle": ("delapouite/saddle", "leather"),
+    "barding": ("willdabeast/chain-mail", "iron"), "reins": ("delapouite/bowen-knot", "leather"),
+    "banner": ("delapouite/knight-banner", "cloth"), "lantern": ("lorc/lantern", "iron"), "totem": ("delapouite/totem", "wood"),
+    "satchel": ("delapouite/shoulder-bag", "leather"),
+    "halo": ("lorc/spiked-halo", "astral"), "wings": ("lorc/angel-wings", "astral"), "aura": ("lorc/aura", "astral"),
+    "starcrown": ("delapouite/imperial-crown", "astral"), "comet": ("lorc/comet-spark", "astral"),
+    "nebula": ("delapouite/galaxy", "astral"), "eclipse": ("lorc/eclipse", "astral"), "zenith": ("lorc/sun-radiations", "astral"),
+    "constellation": ("delapouite/star-formation", "astral"),
+    # Not a slot: the fallback for any family without its own picture, and the chest.
+    "unknown": ("lorc/crystal-ball", "iron"), "chest": ("delapouite/chest", "wood"),
+}
+
+# Shadow, mid, light, highlight (None: no highlight). Shared with docs/art-direction.md's ramp library.
+RAMPS = {
+    "iron": ("#3b3f4a", "#646b78", "#959dab", "#d4dae4"),
+    "steel": ("#47506a", "#7a87a3", "#b4c0d6", "#eef3fb"),
+    "leather": ("#4a2f22", "#7a5038", "#a77552", None),
+    "cloth": ("#3a2b45", "#5f4a72", "#8a76a0", None),
+    "gold": ("#7a4f12", "#c48a22", "#f2c45a", "#fff2bf"),
+    "wood": ("#4b3220", "#7b5534", "#a77a4e", None),
+    "bone": ("#7d7462", "#b8ad94", "#e6dcc4", None),
+    "ink": ("#123a44", "#1f6b75", "#3fa3a8", "#a8f0ea"),
+    "astral": ("#4a5a8a", "#8aa2d8", "#cfe0ff", "#ffffff"),
+}
+
+VFX = {
+    "spark1": "spark_01", "spark2": "spark_02", "spark3": "spark_03", "spark4": "spark_04", "spark5": "spark_05",
+    "spark6": "spark_06", "spark7": "spark_07", "star1": "star_01", "star2": "star_02", "star4": "star_04", "star6": "star_06",
+    "glow": "circle_05", "ring1": "circle_01", "ring2": "circle_02", "flare": "flare_01", "light1": "light_01",
+    "light2": "light_02", "light3": "light_03", "magic1": "magic_01", "magic2": "magic_02", "magic3": "magic_03",
+    "magic4": "magic_04", "magic5": "magic_05", "slash1": "slash_01", "slash2": "slash_02", "slash3": "slash_03",
+    "slash4": "slash_04", "smoke1": "smoke_01", "smoke2": "smoke_02", "smoke3": "smoke_04", "smoke4": "smoke_07",
+    "scorch": "scorch_01", "muzzle1": "muzzle_01", "muzzle2": "muzzle_02", "fire1": "fire_01", "fire2": "fire_02",
+    "dirt1": "dirt_01", "dirt2": "dirt_02", "scratch": "scratch_01",
+}
+
+
+def hex_rgb(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Fetching
+# ---------------------------------------------------------------------------------------------------------------------
+
+def fetch(cache, name):
+    url, folders = SOURCES[name]
+    path = os.path.join(cache, name)
+    if not os.path.isdir(path):
+        if folders is None:
+            subprocess.run(["git", "clone", "-q", "--depth=1", url, path], check=True)
+        else:
+            subprocess.run(["git", "clone", "-q", "--depth=1", "--filter=blob:none", "--sparse", url, path], check=True)
+    if folders:
+        subprocess.run(["git", "-C", path, "sparse-checkout", "set", *folders], check=True)
+    return path
+
+
+def download(url, dest):
+    if os.path.exists(dest):
+        return
+    with urllib.request.urlopen(url, timeout=60) as r, open(dest, "wb") as f:
+        f.write(r.read())
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Shared processing (the same steps the AI pipeline's import runs)
+# ---------------------------------------------------------------------------------------------------------------------
+
+def crop_to_alpha(im, threshold=40, pad=0):
+    a = im.split()[3].point(lambda v: 255 if v > threshold else 0)
+    box = a.getbbox()
+    if box is None:
+        return im
+    x0, y0, x1, y1 = box
+    return im.crop((max(0, x0 - pad), max(0, y0 - pad), min(im.width, x1 + pad), min(im.height, y1 + pad)))
+
+
+def ink_outline(im, width):
+    """Puts one uniform ink outline round everything opaque (rounded, antialiased), the inked cel look's first rule."""
+    pad = width + 2
+    canvas = Image.new("RGBA", (im.width + 2 * pad, im.height + 2 * pad), (0, 0, 0, 0))
+    canvas.paste(im, (pad, pad))
+    solid = canvas.split()[3].point(lambda v: 255 if v > 110 else 0)
+    grown = solid.filter(ImageFilter.GaussianBlur(width * 0.55)).point(lambda v: 255 if v > 6 else 0)
+    grown = grown.filter(ImageFilter.GaussianBlur(0.7))
+    ink = Image.new("RGBA", canvas.size, INK + (0,))
+    ink.putalpha(grown)
+    return Image.alpha_composite(ink, canvas)
+
+
+def foot_point(im):
+    """Where it stands: the middle of what's drawn in its lowest rows."""
+    a = im.split()[3]
+    w, h = im.size
+    px = a.load()
+    bottom = None
+    for y in range(h - 1, -1, -1):
+        if any(px[x, y] > 128 for x in range(0, w, 2)):
+            bottom = y
+            break
+    if bottom is None:
+        return w // 2, h - 1
+    band = max(1, h // 25)
+    xs = [x for y in range(max(0, bottom - band), bottom + 1) for x in range(w) if px[x, y] > 128]
+    return (min(xs) + max(xs)) // 2, bottom
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Monsters
+# ---------------------------------------------------------------------------------------------------------------------
+
+def build_monsters(cache):
+    from rembg import new_session, remove
+    src = os.path.join(fetch(cache, "ancientbeast"), "assets/units/artwork")
+    out = os.path.join(ASSETS, "monsters")
+    os.makedirs(out, exist_ok=True)
+    session = new_session("isnet-general-use")
+    info = {}
+    for key, (name, flip) in MONSTERS.items():
+        im = Image.open(os.path.join(src, name + ".jpg")).convert("RGB")
+        cut = remove(im, session=session)
+        # Smoke and haze round painted creatures go: keep what's clearly there, a little punchier than the source.
+        r, g, b, a = cut.split()
+        a = a.point(lambda v: 0 if v < 60 else min(255, int((v - 60) * 255 / 120)))
+        rgb = Image.merge("RGB", (r, g, b))
+        rgb = ImageOps.autocontrast(rgb, cutoff=1)
+        cut = Image.merge("RGBA", (*rgb.split(), a))
+        cut = crop_to_alpha(cut, threshold=60)
+        if flip:
+            cut = ImageOps.mirror(cut)
+        cut = ink_outline(cut, max(4, round(cut.height * 0.014)))
+        cut.save(os.path.join(out, key + ".png"), optimize=True)
+        fx, fy = foot_point(cut)
+        info[key] = {"w": cut.width, "h": cut.height, "footX": fx, "footY": fy, "source": name}
+        print(f"  monster {key:18s} {name:14s} {cut.width}x{cut.height}")
+    with open(os.path.join(out, "monsters.json"), "w") as f:
+        json.dump(info, f, indent=1, sort_keys=True)
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Backdrops
+# ---------------------------------------------------------------------------------------------------------------------
+
+def grade(im, tint, toward):
+    """The two-layer rule: backdrops desaturated, values compressed into 15-75%, softened, nudged toward the realm's
+    colour, so anything outlined in front of them reads first."""
+    import numpy as np
+    hsv = np.asarray(im.convert("HSV"), dtype=np.float32) / 255.0
+    hsv[..., 1] *= 0.5
+    v = 0.15 + hsv[..., 2] * 0.6
+    hsv[..., 2] = v
+    rgb = np.asarray(Image.fromarray((hsv * 255).astype(np.uint8), "HSV").convert("RGB"), dtype=np.float32) / 255.0
+    t = np.array(tint, dtype=np.float32) / 255.0
+    rgb = rgb * (1 - toward) + t[None, None, :] * toward * (0.4 + v)[..., None]
+    out = Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8), "RGB")
+    return out.filter(ImageFilter.GaussianBlur(1.2))
+
+
+def average(im, box):
+    region = im.crop(box).resize((1, 1), Image.Resampling.BOX)
+    return "#%02x%02x%02x" % region.getpixel((0, 0))[:3]
+
+
+def build_backdrops(cache):
+    out = os.path.join(ASSETS, "backdrops")
+    os.makedirs(out, exist_ok=True)
+    realms = {}
+    for realm, (source, path, box, tint, toward) in BACKDROPS.items():
+        root = fetch(cache, source)
+        im = Image.open(os.path.join(root, path)).convert("RGB").crop(box)
+        im = im.resize((1920, 576), Image.Resampling.LANCZOS)
+        im = grade(im, tint, toward)
+        im.save(os.path.join(out, realm + ".jpg"), quality=88)
+        realms[realm] = {
+            "skyTop": average(im, (0, 0, 1920, 40)),
+            "skyHorizon": average(im, (0, 250, 1920, 300)),
+            "ground": average(im, (0, 520, 1920, 576)),
+            "source": f"{source}: {path}",
+        }
+        print(f"  backdrop {realm:10s} {path}")
+    with open(os.path.join(out, "realms.json"), "w") as f:
+        json.dump(realms, f, indent=1, sort_keys=True)
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Icons
+# ---------------------------------------------------------------------------------------------------------------------
+
+def silhouette(svg_path, size):
+    import cairosvg
+    with open(svg_path) as f:
+        svg = f.read()
+    # Each game-icons file draws a black square, then the white shape: keep only the shape.
+    svg = re.sub(r'<path d="M0 0h512v512H0z"\s*/>', "", svg, count=1)
+    svg = svg.replace('fill="#fff"', 'fill="#ffffff"')
+    png = cairosvg.svg2png(bytestring=svg.encode(), output_width=size, output_height=size)
+    import io
+    im = Image.open(io.BytesIO(png)).convert("RGBA")
+    return im.split()[3]
+
+
+def shift(mask, dx, dy):
+    return ImageChops.offset(mask, dx, dy)
+
+
+def inked_icon(mask, material, size=256):
+    """A cel-shaded icon from a silhouette: the material's mid tone, its light along the top-left edges, its shadow along
+    the bottom-right, a thin highlight for metals, and the ink outline."""
+    shadow, mid, light, hi = RAMPS[material]
+    m = mask.point(lambda v: 255 if v > 127 else 0)
+    k = max(2, size // 40)
+    lit = ImageChops.subtract(m, shift(m, k, k))          # top-left edges: nothing just up-left of them
+    dark = ImageChops.subtract(m, shift(m, -k, -k))       # bottom-right edges
+    img = Image.new("RGBA", m.size, hex_rgb(mid) + (0,))
+    img.putalpha(m)
+    for colour, region in ((shadow, dark), (light, lit)):
+        layer = Image.new("RGBA", m.size, hex_rgb(colour) + (255,))
+        img.paste(layer, (0, 0), region)
+    if hi:
+        edge = ImageChops.subtract(m, shift(m, k // 2, k // 2))
+        thin = ImageChops.multiply(edge, shift(lit, k // 2, k // 2).point(lambda v: 255 if v > 0 else 0))
+        img.paste(Image.new("RGBA", m.size, hex_rgb(hi) + (255,)), (0, 0), thin)
+    img.putalpha(m.filter(ImageFilter.GaussianBlur(0.6)))
+    return img
+
+
+def build_icons(cache):
+    root = fetch(cache, "game-icons")
+    out = os.path.join(ASSETS, "icons")
+    os.makedirs(out, exist_ok=True)
+    size = 256
+    for family, (svg, material) in ICONS.items():
+        mask = silhouette(os.path.join(root, svg + ".svg"), 1024).resize((size - 40, size - 40), Image.Resampling.LANCZOS)
+        icon = inked_icon(mask, material, size - 40)
+        icon = ink_outline(icon, 9)
+        canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        canvas.alpha_composite(icon, ((size - icon.width) // 2, (size - icon.height) // 2))
+        canvas.save(os.path.join(out, family + ".png"), optimize=True)
+    print(f"  icons: {len(ICONS)} families")
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Effects and fonts
+# ---------------------------------------------------------------------------------------------------------------------
+
+def build_vfx(cache):
+    root = os.path.join(fetch(cache, "kenney"), "particlePack_1.1", "PNG (Transparent)")
+    out = os.path.join(ASSETS, "vfx")
+    os.makedirs(out, exist_ok=True)
+    for name, src in VFX.items():
+        im = Image.open(os.path.join(root, src + ".png")).convert("RGBA")
+        im = im.resize((256, 256), Image.Resampling.LANCZOS)
+        im.save(os.path.join(out, name + ".png"), optimize=True)
+    print(f"  vfx: {len(VFX)} textures")
+
+
+def build_fonts(cache):
+    out = os.path.join(ASSETS, "fonts")
+    os.makedirs(out, exist_ok=True)
+    for name, path in {**FONTS, **FONT_LICENCES}.items():
+        download("https://raw.githubusercontent.com/google/fonts/main/" + path, os.path.join(out, name))
+    print(f"  fonts: {', '.join(FONTS)}")
+
+
+BUILDERS = {"monsters": build_monsters, "backdrops": build_backdrops, "icons": build_icons, "vfx": build_vfx,
+            "fonts": build_fonts}
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--cache", default=os.path.join(os.path.expanduser("~"), ".cache", "lootfall-placeholders"))
+    p.add_argument("--only", default=",".join(BUILDERS))
+    args = p.parse_args()
+    os.makedirs(args.cache, exist_ok=True)
+    for name in args.only.split(","):
+        print(name)
+        BUILDERS[name](args.cache)
+
+
+if __name__ == "__main__":
+    main()

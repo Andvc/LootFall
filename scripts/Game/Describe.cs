@@ -31,6 +31,22 @@ public static class Describe
     /// <summary>The slot's base noun without its side ("Left Index Ring" reads "Index Ring").</summary>
     public static string Base(string slot) => slot.StartsWith("Left ") ? slot[5..] : slot.StartsWith("Right ") ? slot[6..] : slot;
 
+    /// <summary>
+    /// The item family a slot's picture comes from (assets/icons/{family}.png, docs/art-direction.md "Items and icons"):
+    /// left and right share one design, the finger rings and the toe rings a family each, each trinket kind one, the
+    /// constellations one. About 85 in all.
+    /// </summary>
+    public static string Family(string slot)
+    {
+        var b = Base(slot);
+        if (b.EndsWith("Toe Ring")) return "toe_ring";
+        if (b.EndsWith(" Ring") && b != "Nose Ring") return "ring";
+        if (b.StartsWith("Constellation")) return "constellation";
+        foreach (var t in new[] { "Charm", "Relic", "Talisman", "Idol" })
+            if (b.StartsWith(t + " ")) return t.ToLowerInvariant();
+        return b.ToLowerInvariant().Replace("'", "").Replace(' ', '_');
+    }
+
     /// <summary>An item's name: a prefix from its first affix, the era's material and the slot, a suffix from another
     /// affix ("Savage Mithril Helm of the Hawk"). Commons have no affixes and are plain ("Iron Helm").</summary>
     public static string Name(Content c, int slot, Item it)
@@ -50,6 +66,53 @@ public static class Describe
             if (prefix != null && suffix != null) break;
         }
         return (prefix != null ? prefix + " " : "") + baseName + (suffix != null ? " " + suffix : "");
+    }
+
+    /// <summary>Where on the body (or the camp) a slot sits, for the armoury's grouping: head to toe, then the hands and
+    /// feet with their ten rings each.</summary>
+    public static string Region(SlotDef s)
+    {
+        string n = s.Name;
+        bool Has(params string[] words)
+        {
+            foreach (var w in words)
+                if (n.Contains(w)) return true;
+            return false;
+        }
+        switch (s.Kind)
+        {
+            case SlotKind.Weapon:
+                return "In hand and at the belt";
+            case SlotKind.Armor:
+                if (Has("Helm", "Visor", "Hood", "Gorget")) return "Head";
+                if (Has("Breastplate", "Tunic", "Tabard", "Cloak", "Mantle")) return "Body";
+                if (Has("Pauldron", "Vambrace", "Elbow", "Gauntlet")) return "Arms";
+                if (Has("Belt", "Tassets", "Faulds")) return "Waist";
+                if (Has("Boot")) return "Feet";
+                return "Legs";
+            case SlotKind.Jewelry:
+                if (n.EndsWith("Toe Ring")) return n.StartsWith("Left") ? "Left foot" : "Right foot";
+                if (n.EndsWith(" Ring") && n != "Nose Ring") return n.StartsWith("Left") ? "Left hand" : "Right hand";
+                if (Has("Amulet", "Necklace", "Choker")) return "Neck";
+                if (Has("Bracelet", "Armlet")) return "Arms";
+                if (Has("Anklet")) return "Ankles";
+                return "Head";
+            case SlotKind.Trinket:
+                return n.Split(' ')[0] + "s";
+            case SlotKind.Tattoo:
+                if (Has("Brow", "Neck")) return "Head and neck";
+                if (Has("Chest", "Back")) return "Body";
+                if (Has("Shoulder", "Arm", "Hand")) return "Arms";
+                return "Legs";
+            case SlotKind.Companion:
+                if (Has("Familiar")) return "The familiar";
+                if (Has("Mount", "Saddle", "Barding", "Reins")) return "The mount";
+                return "The camp";
+            case SlotKind.Celestial:
+                return n.StartsWith("Constellation") ? "Constellations" : "The heavens";
+            default:
+                return "Carried";
+        }
     }
 
     static string[] AffixNames(Content c, Stat s)

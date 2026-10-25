@@ -1,0 +1,282 @@
+{
+ "batmadillo": {
+  "footX": 146,
+  "footY": 491,
+  "h": 494,
+  "source": "Batmadillo",
+  "w": 411
+ },
+ "bloblet": {
+  "footX": 157,
+  "footY": 477,
+  "h": 480,
+  "source": "Gumble",
+  "w": 398
+ },
+ "bog_gawker": {
+  "footX": 55,
+  "footY": 517,
+  "h": 520,
+  "source": "Swampler",
+  "w": 328
+ },
+ "carrion_harpy": {
+  "footX": 294,
+  "footY": 424,
+  "h": 429,
+  "source": "Scavenger",
+  "w": 409
+ },
+ "chained_horror": {
+  "footX": 192,
+  "footY": 424,
+  "h": 429,
+  "source": "Horn Head",
+  "w": 272
+ },
+ "cinder_colossus": {
+  "footX": 186,
+  "footY": 525,
+  "h": 530,
+  "source": "Vulcan",
+  "w": 413
+ },
+ "cinder_phoenix": {
+  "footX": 228,
+  "footY": 504,
+  "h": 507,
+  "source": "Volpyr",
+  "w": 406
+ },
+ "crystalis": {
+  "footX": 175,
+  "footY": 493,
+  "h": 498,
+  "source": "Crystalis",
+  "w": 359
+ },
+ "cycloper": {
+  "footX": 65,
+  "footY": 416,
+  "h": 419,
+  "source": "Cycloper",
+  "w": 200
+ },
+ "dark_priest": {
+  "footX": 124,
+  "footY": 516,
+  "h": 520,
+  "source": "Dark Priest",
+  "w": 251
+ },
+ "deep_one": {
+  "footX": 197,
+  "footY": 516,
+  "h": 520,
+  "source": "Flayed",
+  "w": 369
+ },
+ "drowned_maiden": {
+  "footX": 131,
+  "footY": 528,
+  "h": 531,
+  "source": "Miss Creeper",
+  "w": 226
+ },
+ "dune_scorpion": {
+  "footX": 263,
+  "footY": 516,
+  "h": 520,
+  "source": "Scorpius",
+  "w": 396
+ },
+ "frost_siren": {
+  "footX": 174,
+  "footY": 516,
+  "h": 519,
+  "source": "Deep Beauty",
+  "w": 369
+ },
+ "frost_warden": {
+  "footX": 200,
+  "footY": 490,
+  "h": 493,
+  "source": "Royal Guard",
+  "w": 414
+ },
+ "gilded_maiden": {
+  "footX": 38,
+  "footY": 514,
+  "h": 518,
+  "source": "Gilded Maiden",
+  "w": 288
+ },
+ "hollow_star": {
+  "footX": 149,
+  "footY": 528,
+  "h": 531,
+  "source": "Metalist",
+  "w": 406
+ },
+ "lavamander": {
+  "footX": 61,
+  "footY": 522,
+  "h": 527,
+  "source": "Lavamander",
+  "w": 407
+ },
+ "living_armor": {
+  "footX": 197,
+  "footY": 468,
+  "h": 472,
+  "source": "Living Armor",
+  "w": 407
+ },
+ "magma_worm": {
+  "footX": 144,
+  "footY": 474,
+  "h": 478,
+  "source": "Infernal",
+  "w": 398
+ },
+ "mangler": {
+  "footX": 343,
+  "footY": 470,
+  "h": 473,
+  "source": "Mangler",
+  "w": 363
+ },
+ "moss_hound": {
+  "footX": 110,
+  "footY": 535,
+  "h": 538,
+  "source": "Moss Hound",
+  "w": 403
+ },
+ "old_tusk": {
+  "footX": 180,
+  "footY": 452,
+  "h": 455,
+  "source": "Stomper",
+  "w": 403
+ },
+ "pale_grasper": {
+  "footX": 183,
+  "footY": 453,
+  "h": 458,
+  "source": "Headless",
+  "w": 396
+ },
+ "pale_ravager": {
+  "footX": 239,
+  "footY": 406,
+  "h": 410,
+  "source": "Abolished",
+  "w": 404
+ },
+ "restless_shade": {
+  "footX": 101,
+  "footY": 508,
+  "h": 511,
+  "source": "Shadow Leech",
+  "w": 330
+ },
+ "rift_wolf": {
+  "footX": 203,
+  "footY": 429,
+  "h": 433,
+  "source": "Cyber Wolf",
+  "w": 342
+ },
+ "rime_stalker": {
+  "footX": 313,
+  "footY": 506,
+  "h": 510,
+  "source": "Knightmare",
+  "w": 354
+ },
+ "rime_wolf": {
+  "footX": 167,
+  "footY": 510,
+  "h": 513,
+  "source": "Vehemoth",
+  "w": 402
+ },
+ "risen_knight": {
+  "footX": 102,
+  "footY": 521,
+  "h": 524,
+  "source": "Greedy Knight",
+  "w": 273
+ },
+ "sand_raptor": {
+  "footX": 226,
+  "footY": 513,
+  "h": 518,
+  "source": "Uncle Fungus",
+  "w": 375
+ },
+ "sand_warlord": {
+  "footX": 89,
+  "footY": 502,
+  "h": 507,
+  "source": "Golden Wyrm",
+  "w": 387
+ },
+ "snow_biter": {
+  "footX": 98,
+  "footY": 517,
+  "h": 520,
+  "source": "Snow Bunny",
+  "w": 368
+ },
+ "spined_hellbeast": {
+  "footX": 361,
+  "footY": 499,
+  "h": 533,
+  "source": "Spikes",
+  "w": 411
+ },
+ "stitched_dead": {
+  "footX": 156,
+  "footY": 493,
+  "h": 496,
+  "source": "Mr. Stitches",
+  "w": 324
+ },
+ "swine_thug": {
+  "footX": 216,
+  "footY": 509,
+  "h": 512,
+  "source": "Swine Thug",
+  "w": 380
+ },
+ "thicket_glutton": {
+  "footX": 240,
+  "footY": 511,
+  "h": 516,
+  "source": "Papa Eggplant",
+  "w": 418
+ },
+ "tide_shrimp": {
+  "footX": 307,
+  "footY": 479,
+  "h": 483,
+  "source": "Blue Shrimp",
+  "w": 418
+ },
+ "toadstool": {
+  "footX": 202,
+  "footY": 515,
+  "h": 518,
+  "source": "Toxic Shroom",
+  "w": 381
+ },
+ "vermithrax": {
+  "footX": 280,
+  "footY": 504,
+  "h": 508,
+  "source": "Chimera",
+  "w": 402
+ }
+}
