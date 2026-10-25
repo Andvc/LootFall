@@ -25,6 +25,10 @@ static class GameTest
         }
 
         Console.WriteLine($"Game check: a new game played for {Report.Time(hours)} (seed {seed})");
+        var layout = new TreeLayout(new TalentTree(new Params()));
+        var tree = new TalentTree(new Params());
+        var (gap, ga, gb) = layout.Closest();
+        Check("the talent tree's map has room for every node", gap >= 30, $"closest two {gap:0} px apart ({tree.Nodes[ga].Kind} r{tree.Nodes[ga].Ring} s{tree.Nodes[ga].Sector}, {tree.Nodes[gb].Kind} r{tree.Nodes[gb].Ring} s{tree.Nodes[gb].Sector}), {2 * layout.Radius:0} px across");
         var s = Session.NewGame(seed);
         var sim = new Sim(new Params(), new Content(new Params()), new TalentTree(new Params()), Profile.Active(), seed);
         int mark = 0;
