@@ -151,7 +151,7 @@ public partial class Armoury : Overlay
             bool open = h.Open[s];
             if (s == _selected) c.DrawStyleBox(Ui.Frame(Colors.Transparent, Look.Gold, 14, 3, 0, 0), r.Grow(5));
             ItemTile.Draw(c, r, Describe.Family(def.Name), open && it != null ? it.Rarity : -1, it?.Affixes ?? 0, forge: open ? h.Forge[s] : 0,
-                rank: open ? h.Rank[s] : 0, locked: !open, time: _t);
+                rank: open ? h.Rank[s] : 0, locked: !open, time: _t, tier: ItemTile.Tier(it));
             if (open && h.Focus[s]) Ink.Glint(c, r.Position + new Vector2(Tile - 10, 10), 9, Look.Xp);
             if (!open)
                 c.DrawString(Look.Numbers, r.Position + new Vector2(0, Tile + 16), def.UnlockDepth > 0 ? $"depth {Format.Whole(def.UnlockDepth)}" : "transcend",
@@ -175,7 +175,7 @@ public partial class Armoury : Overlay
         _detail.AddChild(face);
         float y = 20;
         var tile = new Canvas(q => ItemTile.Draw(q, new Rect2(0, 0, 128, 128), Describe.Family(def.Name), open && it != null ? it.Rarity : -1, it?.Affixes ?? 0,
-            locked: !open, time: _t)).Place(20, y, 128, 128);
+            locked: !open, time: _t, tier: ItemTile.Tier(it))).Place(20, y, 128, 128);
         _detail.AddChild(tile);
         _detail.AddChild(Ui.Text(def.Name, Look.Sub, Look.Text, Look.Display).Wrapped().Place(164, y, 290, 80));
         _detail.AddChild(Ui.Text(Describe.Region(def), Look.Small, Look.Muted, Look.Ui).Place(164, y + 84, 290, 26));

@@ -72,8 +72,14 @@ public static class Assets
         return art;
     }
 
-    /// <summary>An item family's icon (Describe.Family), or the fallback.</summary>
-    public static Texture2D Icon(string family) => Tex($"res://assets/icons/{family}.png") ?? Tex("res://assets/icons/unknown.png");
+    /// <summary>An item family's icon (Describe.Family) at an art tier (Ink.ArtTier; tiers 1-4 are {family}_t2.png to
+    /// _t5.png): the nearest tier drawn at or below it, else the family's base picture, else the fallback.</summary>
+    public static Texture2D Icon(string family, int tier = 0)
+    {
+        for (int t = tier; t >= 1; t--)
+            if (Tex($"res://assets/icons/{family}_t{t + 1}.png") is { } tex) return tex;
+        return Tex($"res://assets/icons/{family}.png") ?? Tex("res://assets/icons/unknown.png");
+    }
 
     public static Texture2D Backdrop(string realm) => Tex($"res://assets/backdrops/{realm}.jpg");
 

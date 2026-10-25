@@ -240,8 +240,8 @@ The pipeline follows four rules:
    ramps, not by independent generations.
 3. **Keyed alpha.** Art is generated on a flat key colour (`#00ff00`), or once on white and once on black. The repo
    mattes it, so no provider's transparency is trusted. For art with a painted background, `rembg` is the fallback.
-4. **Scripted acceptance.** `tools/art.py import` mattes, crops and centres each picture, normalises its outline and
-   snaps it toward the ramps. It then checks the bounding-box fill, the light direction (the brightest quadrant) and
+4. **Scripted acceptance.** `tools/art.py import` mattes, crops and centres each picture, gives it the ink outline and
+   flattens its fills to a few flat steps (48 colours, no dithering). It then checks the bounding-box fill, the light direction (the brightest quadrant) and
    whether it reads at display size, and writes a contact sheet. The bot's screenshots then judge it in context.
 
 Generation runs wherever the owner runs the models: their own machine, or a GitHub Actions workflow with API keys as

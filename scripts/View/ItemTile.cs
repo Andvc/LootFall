@@ -12,9 +12,13 @@ namespace LootFall.View;
 /// </summary>
 public static class ItemTile
 {
-    /// <summary>Draws an item tile in <paramref name="r"/>. <paramref name="rarity"/> -1 draws an empty slot.</summary>
+    /// <summary>The art tier an item's picture is drawn at: its era's (Ink.ArtTier).</summary>
+    public static int Tier(Item it) => it == null ? 0 : Ink.ArtTier(Hero.Era(it.Ilvl));
+
+    /// <summary>Draws an item tile in <paramref name="r"/>. <paramref name="rarity"/> -1 draws an empty slot; <paramref name="tier"/>
+    /// picks the family's picture for the item's era (<see cref="Tier"/>).</summary>
     public static void Draw(CanvasItem c, Rect2 r, string family, int rarity, int affixes = 0, bool isNew = false, bool upgrade = false,
-        int forge = 0, int rank = 0, int mastery = 0, bool locked = false, bool numeral = true, float time = 0)
+        int forge = 0, int rank = 0, int mastery = 0, bool locked = false, bool numeral = true, float time = 0, int tier = 0)
     {
         float s = r.Size.X;
         var face = rarity >= 0 ? Look.TierFace(rarity) : new Color("#15111d");
@@ -51,7 +55,7 @@ public static class ItemTile
         // The picture.
         if (family != null)
         {
-            var tex = Assets.Icon(family);
+            var tex = Assets.Icon(family, tier);
             if (tex != null)
             {
                 var inner = r.Grow(-s * 0.12f);

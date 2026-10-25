@@ -129,8 +129,8 @@ public partial class ChestTray : Control
         {
             if (flown++ >= 4) break;
             var family = Describe.Family(_g.S.C.Slots[card.Slot].Name);
-            int rarity = card.Item.Rarity;
-            var icon = new Painter(p => ItemTile.Draw(p, new Rect2(-28, -28, 56, 56), family, rarity, numeral: false)) { Position = at };
+            int rarity = card.Item.Rarity, tier = ItemTile.Tier(card.Item);
+            var icon = new Painter(p => ItemTile.Draw(p, new Rect2(-28, -28, 56, 56), family, rarity, numeral: false, tier: tier)) { Position = at };
             _g.Fly.AddChild(icon);
             var target = _g.Tiles.TileCentre(_g.S.C.Slots[card.Slot].Kind);
             Fx.Fly(icon, target, 0.6f + flown * 0.06f, 140, () => _g.Tiles.Ping(_g.S.C.Slots[card.Slot].Kind, rarity));
@@ -263,7 +263,7 @@ public partial class KindTiles : Control
             float age = (float)(now - when);
             var r = new Rect2(X0 + i * 86, Y0 + 2 * (TileH + Gap) + 30, 78, 78);
             if (r.End.X > X0 + 4 * (TileW + Gap)) break;
-            ItemTile.Draw(c, r, Describe.Family(_g.S.C.Slots[card.Slot].Name), card.Item.Rarity, card.Item.Affixes, card.New && age < 30, card.Equipped && age < 30, numeral: true, time: _t);
+            ItemTile.Draw(c, r, Describe.Family(_g.S.C.Slots[card.Slot].Name), card.Item.Rarity, card.Item.Affixes, card.New && age < 30, card.Equipped && age < 30, numeral: true, time: _t, tier: ItemTile.Tier(card.Item));
         }
     }
 

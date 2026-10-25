@@ -101,7 +101,7 @@ public partial class CodexScreen : Overlay
             int col = row / 12;
             float x = col * 490, y = sy + 20 + (row % 12) * 34;
             if (x > 1000) break;
-            ItemTile.Draw(c, new Rect2(x, y, 28, 28), Describe.Family(s.Name), h.Gear[s.Index]?.Rarity ?? -1, numeral: false);
+            ItemTile.Draw(c, new Rect2(x, y, 28, 28), Describe.Family(s.Name), h.Gear[s.Index]?.Rarity ?? -1, numeral: false, tier: ItemTile.Tier(h.Gear[s.Index]));
             c.DrawString(Look.Ui, new Vector2(x + 36, y + 21), s.Name, HorizontalAlignment.Left, 190, 16, Look.Text);
             for (int r = 0; r < Look.Tiers; r++)
             {

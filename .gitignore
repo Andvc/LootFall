@@ -14,3 +14,9 @@ build/
 shots*/
 movies/
 __pycache__/
+
+# Art pipeline: generated originals and review sheets (tools/art.py)
+art/incoming/
+art/contact_sheet.png
+art/sheet_*.png
+art/sources.json.bak

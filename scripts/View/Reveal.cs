@@ -189,7 +189,7 @@ public partial class Reveal : Overlay
             var r = new Rect2(0, 0, CardW, CardH);
             var face = Ui.Frame(Look.TierFace(it.Rarity).Lerp(new Color("#120e18"), 0.25f), Look.Tier(it.Rarity), 12, 3, 10, 0);
             p.DrawStyleBox(face, r);
-            ItemTile.Draw(p, new Rect2(CardW / 2 - 56, 18, 112, 112), family, it.Rarity, it.Affixes, card.New, card.Equipped, time: _t);
+            ItemTile.Draw(p, new Rect2(CardW / 2 - 56, 18, 112, 112), family, it.Rarity, it.Affixes, card.New, card.Equipped, time: _t, tier: ItemTile.Tier(it));
         }).Place(0, 0, CardW, CardH);
         // A light face (Eternal's silver) takes dark ink.
         bool light = Look.TierFace(it.Rarity).Luminance > 0.55f;

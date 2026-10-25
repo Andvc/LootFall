@@ -156,7 +156,7 @@ public partial class WelcomeBack : Overlay
             var c = best[i];
             var family = Describe.Family(g.S.C.Slots[c.Slot].Name);
             float t = 0;
-            var tile = new Canvas(q => ItemTile.Draw(q, new Rect2(0, 0, 120, 120), family, c.Item.Rarity, c.Item.Affixes, c.New, c.Equipped, time: t += 0.016f))
+            var tile = new Canvas(q => ItemTile.Draw(q, new Rect2(0, 0, 120, 120), family, c.Item.Rarity, c.Item.Affixes, c.New, c.Equipped, time: t += 0.016f, tier: ItemTile.Tier(c.Item)))
                 .Place(660 + (i % 3) * 140, 170 + (i / 3) * 190, 120, 120);
             tile.TooltipText = Describe.Name(g.S.C, c.Slot, c.Item);
             tile.MouseFilter = MouseFilterEnum.Pass;

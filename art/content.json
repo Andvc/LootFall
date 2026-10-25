@@ -1,0 +1,979 @@
+{
+  "realms": [
+    {
+      "key": "greenwood",
+      "name": "Greenwood",
+      "era": 0,
+      "monsters": [
+        {
+          "key": "bloblet",
+          "name": "Bloblet",
+          "body": "Hopper",
+          "size": 0.62
+        },
+        {
+          "key": "toadstool",
+          "name": "Toadstool Shambler",
+          "body": "Walker",
+          "size": 0.9
+        },
+        {
+          "key": "moss_hound",
+          "name": "Moss Hound",
+          "body": "Walker",
+          "size": 0.85
+        },
+        {
+          "key": "thicket_glutton",
+          "name": "Thicket Glutton",
+          "body": "Walker",
+          "size": 0.85
+        }
+      ],
+      "guardian": {
+        "key": "old_tusk",
+        "name": "Old Tusk",
+        "body": "Heavy",
+        "size": 1.7
+      }
+    },
+    {
+      "key": "dunes",
+      "name": "Sunscorch Dunes",
+      "era": 1,
+      "monsters": [
+        {
+          "key": "dune_scorpion",
+          "name": "Dune Scorpion",
+          "body": "Walker",
+          "size": 0.8
+        },
+        {
+          "key": "sand_raptor",
+          "name": "Sand Raptor",
+          "body": "Walker",
+          "size": 0.95
+        },
+        {
+          "key": "carrion_harpy",
+          "name": "Carrion Harpy",
+          "body": "Flyer",
+          "size": 0.9
+        },
+        {
+          "key": "stitched_dead",
+          "name": "Stitched Dead",
+          "body": "Walker",
+          "size": 0.95
+        }
+      ],
+      "guardian": {
+        "key": "sand_warlord",
+        "name": "The Sand Warlord",
+        "body": "Walker",
+        "size": 1.6
+      }
+    },
+    {
+      "key": "frostpeak",
+      "name": "Frostpeak",
+      "era": 2,
+      "monsters": [
+        {
+          "key": "snow_biter",
+          "name": "Snow Biter",
+          "body": "Hopper",
+          "size": 0.8
+        },
+        {
+          "key": "rime_wolf",
+          "name": "Rime Wolf",
+          "body": "Walker",
+          "size": 0.95
+        },
+        {
+          "key": "frost_siren",
+          "name": "Frost Siren",
+          "body": "Flyer",
+          "size": 0.95
+        },
+        {
+          "key": "rime_stalker",
+          "name": "Rime Stalker",
+          "body": "Walker",
+          "size": 1
+        }
+      ],
+      "guardian": {
+        "key": "frost_warden",
+        "name": "The Frost Warden",
+        "body": "Heavy",
+        "size": 1.7
+      }
+    },
+    {
+      "key": "mire",
+      "name": "Drowned Mire",
+      "era": 3,
+      "monsters": [
+        {
+          "key": "tide_shrimp",
+          "name": "Tide Shrimp",
+          "body": "Slither",
+          "size": 1
+        },
+        {
+          "key": "drowned_maiden",
+          "name": "Drowned Maiden",
+          "body": "Flyer",
+          "size": 1
+        },
+        {
+          "key": "bog_gawker",
+          "name": "Bog Gawker",
+          "body": "Hopper",
+          "size": 0.85
+        },
+        {
+          "key": "pale_grasper",
+          "name": "Pale Grasper",
+          "body": "Walker",
+          "size": 0.95
+        }
+      ],
+      "guardian": {
+        "key": "deep_one",
+        "name": "The Deep One",
+        "body": "Heavy",
+        "size": 1.7
+      }
+    },
+    {
+      "key": "ashlands",
+      "name": "Ashlands",
+      "era": 4,
+      "monsters": [
+        {
+          "key": "cinder_phoenix",
+          "name": "Cinder Phoenix",
+          "body": "Flyer",
+          "size": 0.9
+        },
+        {
+          "key": "lavamander",
+          "name": "Lavamander",
+          "body": "Slither",
+          "size": 1
+        },
+        {
+          "key": "magma_worm",
+          "name": "Magma Worm",
+          "body": "Slither",
+          "size": 1
+        },
+        {
+          "key": "spined_hellbeast",
+          "name": "Spined Hellbeast",
+          "body": "Walker",
+          "size": 1
+        }
+      ],
+      "guardian": {
+        "key": "cinder_colossus",
+        "name": "The Cinder Colossus",
+        "body": "Heavy",
+        "size": 1.8
+      }
+    },
+    {
+      "key": "ruins",
+      "name": "Fallen Ruins",
+      "era": 5,
+      "monsters": [
+        {
+          "key": "risen_knight",
+          "name": "Risen Knight",
+          "body": "Walker",
+          "size": 1
+        },
+        {
+          "key": "restless_shade",
+          "name": "Restless Shade",
+          "body": "Flyer",
+          "size": 1
+        },
+        {
+          "key": "living_armor",
+          "name": "Living Armour",
+          "body": "Heavy",
+          "size": 1.05
+        },
+        {
+          "key": "dark_priest",
+          "name": "Dark Priest",
+          "body": "Walker",
+          "size": 1
+        }
+      ],
+      "guardian": {
+        "key": "gilded_maiden",
+        "name": "The Gilded Maiden",
+        "body": "Walker",
+        "size": 1.5
+      }
+    },
+    {
+      "key": "caverns",
+      "name": "Deep Caverns",
+      "era": 6,
+      "monsters": [
+        {
+          "key": "batmadillo",
+          "name": "Batmadillo",
+          "body": "Walker",
+          "size": 1
+        },
+        {
+          "key": "pale_ravager",
+          "name": "Pale Ravager",
+          "body": "Walker",
+          "size": 0.95
+        },
+        {
+          "key": "swine_thug",
+          "name": "Swine Thug",
+          "body": "Heavy",
+          "size": 1.1
+        },
+        {
+          "key": "chained_horror",
+          "name": "Chained Horror",
+          "body": "Walker",
+          "size": 1
+        }
+      ],
+      "guardian": {
+        "key": "vermithrax",
+        "name": "Vermithrax",
+        "body": "Walker",
+        "size": 1.8
+      }
+    },
+    {
+      "key": "starfall",
+      "name": "Starfall Rift",
+      "era": 7,
+      "monsters": [
+        {
+          "key": "cycloper",
+          "name": "Cycloper",
+          "body": "Walker",
+          "size": 0.8
+        },
+        {
+          "key": "rift_wolf",
+          "name": "Rift Wolf",
+          "body": "Walker",
+          "size": 1
+        },
+        {
+          "key": "crystalis",
+          "name": "Crystalis",
+          "body": "Heavy",
+          "size": 1.1
+        },
+        {
+          "key": "mangler",
+          "name": "Mangler",
+          "body": "Flyer",
+          "size": 0.9
+        }
+      ],
+      "guardian": {
+        "key": "hollow_star",
+        "name": "The Hollow Star",
+        "body": "Heavy",
+        "size": 1.9
+      }
+    }
+  ],
+  "families": [
+    {
+      "family": "main_hand",
+      "kind": "Weapon",
+      "slots": [
+        "Main Hand"
+      ]
+    },
+    {
+      "family": "breastplate",
+      "kind": "Armor",
+      "slots": [
+        "Breastplate"
+      ]
+    },
+    {
+      "family": "helm",
+      "kind": "Armor",
+      "slots": [
+        "Helm"
+      ]
+    },
+    {
+      "family": "gauntlet",
+      "kind": "Armor",
+      "slots": [
+        "Left Gauntlet",
+        "Right Gauntlet"
+      ]
+    },
+    {
+      "family": "boot",
+      "kind": "Armor",
+      "slots": [
+        "Left Boot",
+        "Right Boot"
+      ]
+    },
+    {
+      "family": "ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Index Ring",
+        "Left Middle Ring",
+        "Right Middle Ring",
+        "Right Index Ring",
+        "Left Ring Ring",
+        "Right Thumb Ring",
+        "Right Little Ring",
+        "Left Little Ring",
+        "Left Thumb Ring",
+        "Right Ring Ring"
+      ]
+    },
+    {
+      "family": "amulet",
+      "kind": "Jewelry",
+      "slots": [
+        "Amulet"
+      ]
+    },
+    {
+      "family": "off_hand",
+      "kind": "Weapon",
+      "slots": [
+        "Off Hand"
+      ]
+    },
+    {
+      "family": "vambrace",
+      "kind": "Armor",
+      "slots": [
+        "Right Vambrace",
+        "Left Vambrace"
+      ]
+    },
+    {
+      "family": "brooch",
+      "kind": "Accessory",
+      "slots": [
+        "Brooch"
+      ]
+    },
+    {
+      "family": "greaves",
+      "kind": "Armor",
+      "slots": [
+        "Greaves"
+      ]
+    },
+    {
+      "family": "charm",
+      "kind": "Trinket",
+      "slots": [
+        "Charm III",
+        "Charm V",
+        "Charm I",
+        "Charm II",
+        "Charm IV",
+        "Charm VI"
+      ]
+    },
+    {
+      "family": "keyring",
+      "kind": "Accessory",
+      "slots": [
+        "Keyring"
+      ]
+    },
+    {
+      "family": "bow",
+      "kind": "Weapon",
+      "slots": [
+        "Bow"
+      ]
+    },
+    {
+      "family": "shoulder_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Shoulder Tattoo",
+        "Left Shoulder Tattoo"
+      ]
+    },
+    {
+      "family": "talisman",
+      "kind": "Trinket",
+      "slots": [
+        "Talisman III",
+        "Talisman I",
+        "Talisman II",
+        "Talisman IV",
+        "Talisman VI",
+        "Talisman V"
+      ]
+    },
+    {
+      "family": "relic",
+      "kind": "Trinket",
+      "slots": [
+        "Relic III",
+        "Relic VI",
+        "Relic II",
+        "Relic I",
+        "Relic V",
+        "Relic IV"
+      ]
+    },
+    {
+      "family": "familiars_collar",
+      "kind": "Companion",
+      "slots": [
+        "Familiar\u0027s Collar"
+      ]
+    },
+    {
+      "family": "bracelet",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Bracelet",
+        "Left Bracelet"
+      ]
+    },
+    {
+      "family": "garter",
+      "kind": "Accessory",
+      "slots": [
+        "Right Garter",
+        "Left Garter"
+      ]
+    },
+    {
+      "family": "tabard",
+      "kind": "Armor",
+      "slots": [
+        "Tabard"
+      ]
+    },
+    {
+      "family": "toe_ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Little Toe Ring",
+        "Left Ring Toe Ring",
+        "Left Middle Toe Ring",
+        "Right Thumb Toe Ring",
+        "Right Index Toe Ring",
+        "Left Thumb Toe Ring",
+        "Right Middle Toe Ring",
+        "Right Ring Toe Ring",
+        "Right Little Toe Ring",
+        "Left Index Toe Ring"
+      ]
+    },
+    {
+      "family": "belt",
+      "kind": "Armor",
+      "slots": [
+        "Belt"
+      ]
+    },
+    {
+      "family": "anklet",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Anklet",
+        "Left Anklet"
+      ]
+    },
+    {
+      "family": "chest_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Chest Tattoo"
+      ]
+    },
+    {
+      "family": "arm_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Arm Tattoo",
+        "Left Arm Tattoo"
+      ]
+    },
+    {
+      "family": "calf_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Calf Tattoo",
+        "Left Calf Tattoo"
+      ]
+    },
+    {
+      "family": "mount",
+      "kind": "Companion",
+      "slots": [
+        "Mount"
+      ]
+    },
+    {
+      "family": "totem",
+      "kind": "Companion",
+      "slots": [
+        "Totem"
+      ]
+    },
+    {
+      "family": "phylactery",
+      "kind": "Accessory",
+      "slots": [
+        "Phylactery"
+      ]
+    },
+    {
+      "family": "pauldron",
+      "kind": "Armor",
+      "slots": [
+        "Left Pauldron",
+        "Right Pauldron"
+      ]
+    },
+    {
+      "family": "lantern",
+      "kind": "Companion",
+      "slots": [
+        "Lantern"
+      ]
+    },
+    {
+      "family": "kneeguard",
+      "kind": "Armor",
+      "slots": [
+        "Left Kneeguard",
+        "Right Kneeguard"
+      ]
+    },
+    {
+      "family": "cloak_pin",
+      "kind": "Accessory",
+      "slots": [
+        "Cloak Pin"
+      ]
+    },
+    {
+      "family": "idol",
+      "kind": "Trinket",
+      "slots": [
+        "Idol IV",
+        "Idol I",
+        "Idol III",
+        "Idol II",
+        "Idol V",
+        "Idol VI"
+      ]
+    },
+    {
+      "family": "mantle",
+      "kind": "Armor",
+      "slots": [
+        "Mantle"
+      ]
+    },
+    {
+      "family": "diadem",
+      "kind": "Jewelry",
+      "slots": [
+        "Diadem"
+      ]
+    },
+    {
+      "family": "reins",
+      "kind": "Companion",
+      "slots": [
+        "Reins"
+      ]
+    },
+    {
+      "family": "faulds",
+      "kind": "Armor",
+      "slots": [
+        "Faulds"
+      ]
+    },
+    {
+      "family": "hood",
+      "kind": "Armor",
+      "slots": [
+        "Hood"
+      ]
+    },
+    {
+      "family": "sidearm",
+      "kind": "Weapon",
+      "slots": [
+        "Sidearm"
+      ]
+    },
+    {
+      "family": "barding",
+      "kind": "Companion",
+      "slots": [
+        "Barding"
+      ]
+    },
+    {
+      "family": "thigh_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Thigh Tattoo",
+        "Right Thigh Tattoo"
+      ]
+    },
+    {
+      "family": "earring",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Earring",
+        "Right Earring"
+      ]
+    },
+    {
+      "family": "elbow_guard",
+      "kind": "Armor",
+      "slots": [
+        "Right Elbow Guard",
+        "Left Elbow Guard"
+      ]
+    },
+    {
+      "family": "hair_pin",
+      "kind": "Jewelry",
+      "slots": [
+        "Hair Pin"
+      ]
+    },
+    {
+      "family": "bandolier",
+      "kind": "Accessory",
+      "slots": [
+        "Bandolier"
+      ]
+    },
+    {
+      "family": "nose_ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Nose Ring"
+      ]
+    },
+    {
+      "family": "spurs",
+      "kind": "Accessory",
+      "slots": [
+        "Spurs"
+      ]
+    },
+    {
+      "family": "shin_guard",
+      "kind": "Armor",
+      "slots": [
+        "Right Shin Guard",
+        "Left Shin Guard"
+      ]
+    },
+    {
+      "family": "locket",
+      "kind": "Accessory",
+      "slots": [
+        "Locket"
+      ]
+    },
+    {
+      "family": "neck_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Neck Tattoo"
+      ]
+    },
+    {
+      "family": "necklace",
+      "kind": "Jewelry",
+      "slots": [
+        "Necklace"
+      ]
+    },
+    {
+      "family": "satchel",
+      "kind": "Companion",
+      "slots": [
+        "Satchel"
+      ]
+    },
+    {
+      "family": "tassets",
+      "kind": "Armor",
+      "slots": [
+        "Tassets"
+      ]
+    },
+    {
+      "family": "sash",
+      "kind": "Accessory",
+      "slots": [
+        "Sash"
+      ]
+    },
+    {
+      "family": "signet",
+      "kind": "Accessory",
+      "slots": [
+        "Signet"
+      ]
+    },
+    {
+      "family": "pouch",
+      "kind": "Accessory",
+      "slots": [
+        "Right Pouch",
+        "Left Pouch"
+      ]
+    },
+    {
+      "family": "cloak",
+      "kind": "Armor",
+      "slots": [
+        "Cloak"
+      ]
+    },
+    {
+      "family": "visor",
+      "kind": "Armor",
+      "slots": [
+        "Visor"
+      ]
+    },
+    {
+      "family": "banner",
+      "kind": "Companion",
+      "slots": [
+        "Banner"
+      ]
+    },
+    {
+      "family": "familiar",
+      "kind": "Companion",
+      "slots": [
+        "Familiar"
+      ]
+    },
+    {
+      "family": "back_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Back Tattoo"
+      ]
+    },
+    {
+      "family": "tunic",
+      "kind": "Armor",
+      "slots": [
+        "Tunic"
+      ]
+    },
+    {
+      "family": "hand_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Hand Tattoo",
+        "Right Hand Tattoo"
+      ]
+    },
+    {
+      "family": "throwing_knives",
+      "kind": "Weapon",
+      "slots": [
+        "Throwing Knives"
+      ]
+    },
+    {
+      "family": "cuisse",
+      "kind": "Armor",
+      "slots": [
+        "Right Cuisse",
+        "Left Cuisse"
+      ]
+    },
+    {
+      "family": "saddle",
+      "kind": "Companion",
+      "slots": [
+        "Saddle"
+      ]
+    },
+    {
+      "family": "gorget",
+      "kind": "Armor",
+      "slots": [
+        "Gorget"
+      ]
+    },
+    {
+      "family": "armlet",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Armlet",
+        "Left Armlet"
+      ]
+    },
+    {
+      "family": "quiver",
+      "kind": "Weapon",
+      "slots": [
+        "Quiver"
+      ]
+    },
+    {
+      "family": "circlet",
+      "kind": "Jewelry",
+      "slots": [
+        "Circlet"
+      ]
+    },
+    {
+      "family": "scabbard",
+      "kind": "Accessory",
+      "slots": [
+        "Scabbard"
+      ]
+    },
+    {
+      "family": "brow_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Brow Tattoo"
+      ]
+    },
+    {
+      "family": "monocle",
+      "kind": "Accessory",
+      "slots": [
+        "Monocle"
+      ]
+    },
+    {
+      "family": "choker",
+      "kind": "Jewelry",
+      "slots": [
+        "Choker"
+      ]
+    },
+    {
+      "family": "halo",
+      "kind": "Celestial",
+      "slots": [
+        "Halo"
+      ]
+    },
+    {
+      "family": "wings",
+      "kind": "Celestial",
+      "slots": [
+        "Wings"
+      ]
+    },
+    {
+      "family": "aura",
+      "kind": "Celestial",
+      "slots": [
+        "Aura"
+      ]
+    },
+    {
+      "family": "starcrown",
+      "kind": "Celestial",
+      "slots": [
+        "Starcrown"
+      ]
+    },
+    {
+      "family": "comet",
+      "kind": "Celestial",
+      "slots": [
+        "Comet"
+      ]
+    },
+    {
+      "family": "nebula",
+      "kind": "Celestial",
+      "slots": [
+        "Nebula"
+      ]
+    },
+    {
+      "family": "eclipse",
+      "kind": "Celestial",
+      "slots": [
+        "Eclipse"
+      ]
+    },
+    {
+      "family": "zenith",
+      "kind": "Celestial",
+      "slots": [
+        "Zenith"
+      ]
+    },
+    {
+      "family": "constellation",
+      "kind": "Celestial",
+      "slots": [
+        "Constellation of the Ram",
+        "Constellation of the Bull",
+        "Constellation of the Twins",
+        "Constellation of the Crab",
+        "Constellation of the Lion",
+        "Constellation of the Maiden",
+        "Constellation of the Scales",
+        "Constellation of the Archer"
+      ]
+    }
+  ],
+  "eras": [
+    "Iron",
+    "Steel",
+    "Silvered",
+    "Runed",
+    "Mithril",
+    "Adamant",
+    "Dragonbone",
+    "Starsteel",
+    "Voidforged",
+    "Sunforged",
+    "Astral",
+    "Celestium",
+    "Aetherium",
+    "Eternium",
+    "Primeval",
+    "Godforged"
+  ]
+}

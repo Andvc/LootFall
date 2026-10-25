@@ -154,14 +154,8 @@ RAMPS = {
 }
 
 VFX = {
-    "spark1": "spark_01", "spark2": "spark_02", "spark3": "spark_03", "spark4": "spark_04", "spark5": "spark_05",
-    "spark6": "spark_06", "spark7": "spark_07", "star1": "star_01", "star2": "star_02", "star4": "star_04", "star6": "star_06",
-    "glow": "circle_05", "ring1": "circle_01", "ring2": "circle_02", "flare": "flare_01", "light1": "light_01",
-    "light2": "light_02", "light3": "light_03", "magic1": "magic_01", "magic2": "magic_02", "magic3": "magic_03",
-    "magic4": "magic_04", "magic5": "magic_05", "slash1": "slash_01", "slash2": "slash_02", "slash3": "slash_03",
-    "slash4": "slash_04", "smoke1": "smoke_01", "smoke2": "smoke_02", "smoke3": "smoke_04", "smoke4": "smoke_07",
-    "scorch": "scorch_01", "muzzle1": "muzzle_01", "muzzle2": "muzzle_02", "fire1": "fire_01", "fire2": "fire_02",
-    "dirt1": "dirt_01", "dirt2": "dirt_02", "scratch": "scratch_01",
+    "spark1": "spark_01", "spark2": "spark_02", "spark3": "spark_03", "star1": "star_01", "star2": "star_02",
+    "glow": "circle_05", "slash1": "slash_01", "slash2": "slash_02", "smoke1": "smoke_01",
 }
 
 
