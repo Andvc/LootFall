@@ -173,7 +173,10 @@ A gear piece changes shape only within its slot's envelope, so the knight always
 On the equipment screen he is a different picture: the delivered figure, about seven heads tall, bare but for linen
 braies, from the front and from behind, with close-ups of the head, hands and feet
 ([art-handoff-equipment.md](art-handoff-equipment.md)). He is drawn in the same style, and code paints what he wears
-over it, by layer, in the same three-step light (see [equipment.md](equipment.md), "The figure").
+over it, by layer, in the same three-step light (see [equipment.md](equipment.md), "The figure"). Phase 2 of the
+handoff ([art-handoff-equipment-pieces.md](art-handoff-equipment-pieces.md)) replaces those fills with pictures: a
+sharp plate of the bare body for each region, and every piece painted as it's worn, in neutral materials whose plain
+steel code recolours for each era.
 
 ## Monsters
 
@@ -307,7 +310,7 @@ Every placeholder will be replaced. They exist to stage the look and exercise th
 | Backdrops | Valyria Tear battle scenes (CC0, CC BY-SA 3.0, GPL), Ancient Beast locations (CC BY-SA 4.0) | Banded, desaturated, value-compressed, softened. Sky gradient, ground band and foreground silhouettes drawn in code. |
 | Item icons | game-icons (CC BY 3.0) silhouettes | Filled with the family's material ramp, lit from the top left, outlined in ink |
 | The knight | Drawn in code: inked shapes on the real rig | The rig, its pivots and its clips are final; only the parts are stand-ins |
-| The equipment screen's knight | Final (phase 1 of its handoff): the figure, the close-ups, two backdrops and the slot glyphs | Keyed and cut by `tools/equipment_art.py import`, mapped by `tools/equipment_map.py`; the worn pieces are painted by code until phase 2 brings their pictures |
+| The equipment screen's knight | Final (phase 1 of its handoff): the figure, the close-ups, two backdrops and the slot glyphs | Keyed and cut by `tools/equipment_art.py import`, mapped by `tools/equipment_map.py`; the worn pieces are painted by code until phase 2 brings their pictures ([art-handoff-equipment-pieces.md](art-handoff-equipment-pieces.md), checked by `tools/equipment_pieces.py`) |
 | Effects | Kenney Particle Pack (CC0) | Greyscale, tinted in code |
 | Sounds and music | Kenney (CC0) and Superpowers (CC0), as before | |
 | Fonts | Cinzel, Barlow Semi Condensed, Lilita One (OFL) | Final |

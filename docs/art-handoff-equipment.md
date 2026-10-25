@@ -7,7 +7,8 @@ each file, is in [`art/equipment/handoff.json`](../art/equipment/handoff.json).
 
 **Status: delivered and in the game.** All ten files arrived on 25 October 2026
 ([the delivery's notes](equipment-art-delivery-20261025.md)) and pass the checker. They're imported, mapped and drawn
-by the equipment screen (see "What was done with it" below). Phase 2, the pieces' own pictures, is next.
+by the equipment screen (see "What was done with it" below). Phase 2, the bare body region by region and every
+piece's own picture, is specified in [art-handoff-equipment-pieces.md](art-handoff-equipment-pieces.md).
 
 The style rules are in [art-direction.md](art-direction.md). What the slots are and how they work is in
 [equipment.md](equipment.md).
@@ -264,21 +265,13 @@ onto him.
    - the zoom moves from the whole figure into each region, and into the close-ups;
    - front and back show side by side, and every step in and out is animated.
 
-## Phase 2, for planning: the worn pieces on the figure
+## Phase 2: the pieces, worn and bare
 
-This comes next. A second list will give a mask for each kind of piece, cut from the mapped areas (the union of the
-sites a piece covers, on each view it shows on).
-
-- **What:** a picture of each kind of piece as it's worn, painted onto the figure or a close-up page. For example, the
-  great helm on the head, or rings on each finger.
-- **Method:**
-  - Each overlay is made by editing the matching figure or page inside the mask I provide.
-  - The importer keeps only what changed inside the mask, so every overlay lines up with the figure exactly.
-- **Size:** there are 314 families of piece. About 150 of them are big enough to need a picture on the figure (helms,
-  breastplates, cloaks, pauldrons, gauntlets, boots, weapons, wings and so on), mostly from the front, and some from
-  behind or on a close-up page.
-- **Stays in code:** rarity colours, enchantment glows, gem sparkle, paint tints, and the smallest pieces (studs, the
-  thinnest rings).
+Specified in [art-handoff-equipment-pieces.md](art-handoff-equipment-pieces.md), with every file listed in
+[art-handoff-equipment-pieces-list.md](art-handoff-equipment-pieces-list.md):
+- a sharp picture of the bare body for each region page (the plates);
+- every piece as it's worn, painted on the figure, the plates and the close-ups, each with its mask;
+- the held pieces, the companions and the parts set in pieces, drawn on their own.
 
 ## Not in this handoff
 

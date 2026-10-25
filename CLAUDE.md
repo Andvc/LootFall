@@ -74,6 +74,9 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
    - `python3 tools/equipment_map.py` maps the body's sites and every slot onto it (docs/equipment.md, "The figure").
      Run it after a site or slot is added or renamed: it must report 0 problems. Look at `shots_map/`, then run
      `godot --headless --path . --import`.
+   - Phase 2, the bare regions and every piece as worn, is specified in `docs/art-handoff-equipment-pieces.md`.
+     `python3 tools/equipment_pieces.py spec` and `list` rewrite its file list (`art/equipment/handoff-pieces.json`,
+     `docs/art-handoff-equipment-pieces-list.md`) after pieces or the map change; `check` validates deliveries.
 
 ## Conventions
 
@@ -139,7 +142,7 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
 - **The knight** on the lane is a code-drawn rig (`HeroRig.cs`) whose look follows his gear (`GearLook`). On the
   equipment screen he is the delivered art (`PaperDoll`, `assets/equipment/`), with what counts painted over the areas
   it covers by its layer (`Coverage`, `assets/shaders/figure.gdshader`) and an ink line round it (`Outlines`). Pieces'
-  own pictures on the figure come with phase 2 of the art handoff.
+  own pictures come with phase 2 of the art handoff (`docs/art-handoff-equipment-pieces.md`).
 - **Monsters** are single pictures moved by body plan (`MonsterActor.cs`).
 - **Final art** will be AI-generated and comes in through the pipeline:
   - `tools/art.py manifest` lists every asset with its sizes and prompt;

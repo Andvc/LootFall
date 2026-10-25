@@ -21,5 +21,7 @@ art/contact_sheet.png
 art/sheet_*.png
 art/sources.json.bak
 
-# The equipment art checker's review sheet (tools/equipment_art.py sheet)
+# The equipment art checker's review sheet (tools/equipment_art.py sheet), and what phase 2's pieces are painted on
+# (tools/equipment_pieces.py inputs)
 art/equipment/review.png
+art/equipment/inputs/

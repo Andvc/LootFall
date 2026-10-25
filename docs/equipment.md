@@ -311,6 +311,8 @@ The game check (`progsim --game`) still checks that the session works: chests, t
 | `tools/equipment_art.py check` | The equipment screen's delivered art against its spec ([art-handoff-equipment.md](art-handoff-equipment.md)) |
 | `tools/equipment_art.py import` | The checked art into `assets/equipment/`: keyed, each view cut out, the backdrops and the glyph atlas |
 | `tools/equipment_map.py` | The map of the art (sites, slot points, pages, what covers what) into `assets/equipment/`, checked, with review sheets in `shots_map/` |
+| `tools/equipment_pieces.py spec`, `list` | Phase 2's art: every file to make for the bare regions and the pieces as worn, written to `art/equipment/handoff-pieces.json` and [the full list](art-handoff-equipment-pieces-list.md) ([art-handoff-equipment-pieces.md](art-handoff-equipment-pieces.md)) |
+| `tools/equipment_pieces.py inputs`, `check`, `sheet` | What each file is painted on (bases, masks, guides in `art/equipment/inputs/`), the delivered files against the spec, and review sheets |
 
 ## Adding a piece
 
@@ -324,5 +326,7 @@ The game check (`progsim --game`) still checks that the session works: chests, t
 4. A new slot needs a point on the art, and a new site an area: run `python3 tools/art.py manifest`, then add the
    site's cut lines and seed in `tools/equipment_map.py` (and a point for the slot if spreading it over its site
    won't do), run it until it reports no problems, check `shots_map/`, and run `godot --headless --path . --import`.
-   On the figure a piece is painted by its layer; a picture of its own comes with phase 2.
+   On the figure a piece is painted by its layer until its own pictures arrive: give it a design in
+   `tools/equipment_pieces.py` (`FAMILIES`, or `BOARD_FAMILIES` for a piece set in another), then run its `spec` and
+   `list` to add its files to [the phase-2 list](art-handoff-equipment-pieces-list.md).
 5. Run `progsim --anatomy` (validation, exactness, speed) and the screens demo, and look at the region.
