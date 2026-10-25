@@ -1,0 +1,2791 @@
+{
+  "about": "The equipment screen's art (docs/art-handoff-equipment.md). Upload each file to art/equipment/<id>.png and run `python3 tools/equipment_art.py check` before uploading.",
+  "style": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border.",
+  "knight": "The same man every time: a human knight-at-arms in his early thirties, athletic and strong but not bulky, about seven heads tall (realistic heroic proportions), warm medium skin (shadow #9c5f48, mid #d08b6a, light #f0b693), dark brown hair pulled back into one braid that hangs behind his head so both ears are fully visible, a short full beard, a calm neutral expression with the eyes open and looking straight at the viewer, no scars, no tattoos, no jewellery, no piercings. He wears only plain undyed linen braies (short drawers ending at mid-thigh; shadow #8f8270, mid #b9ad9b, light #ddd3c4): no armour, no shirt, no shoes, no belt, no weapon.",
+  "figure_framing": {
+    "centre_x": 1080,
+    "top": 380,
+    "bottom": 3600,
+    "tolerance": 48,
+    "max_width": 1900
+  },
+  "limits": {
+    "border_key": 0.97,
+    "symmetry": 0.86,
+    "back_fit": 0.85,
+    "outline": 0.75,
+    "spill": 0.004,
+    "backdrop_saturation": 0.4,
+    "backdrop_mean": 0.36,
+    "backdrop_p95": 0.75,
+    "backdrop_centre_std": 0.13
+  },
+  "assets": [
+    {
+      "id": "figure_front",
+      "kind": "figure",
+      "size": [
+        2160,
+        3840
+      ],
+      "refs": [],
+      "use": "The knight as the equipment screen shows him from the front: the whole-body view, the zoomed regions of the head, torso, arms, waist and legs, the main screen's small figure, and the base every region and slot is mapped on.",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Full-body reference figure for an equipment diagram, orthographic front view, perfectly symmetric pose. The same man every time: a human knight-at-arms in his early thirties, athletic and strong but not bulky, about seven heads tall (realistic heroic proportions), warm medium skin (shadow #9c5f48, mid #d08b6a, light #f0b693), dark brown hair pulled back into one braid that hangs behind his head so both ears are fully visible, a short full beard, a calm neutral expression with the eyes open and looking straight at the viewer, no scars, no tattoos, no jewellery, no piercings. He wears only plain undyed linen braies (short drawers ending at mid-thigh; shadow #8f8270, mid #b9ad9b, light #ddd3c4): no armour, no shirt, no shoes, no belt, no weapon. He stands straight, facing the viewer, feet shoulder-width apart and turned very slightly outward, all ten toes visible. His arms hang straight and away from the body at about 25 degrees, so no part of an arm touches the torso or the hips; the hands are open and flat with all five fingers spread apart, and the backs of the hands face the viewer (palms turned backward), every fingernail visible. The anatomy reads clearly as flat shapes: collarbones, pectorals, the breastbone line, the ribs at the sides, the solar plexus, the stomach muscles, the navel, the flanks, hip bones, kneecaps, shins and ankle bones. The canvas is 2160 by 3840 pixels: the figure is centred on the vertical middle line, the top of his hair is 380 px from the top, the soles of his feet are 3600 px from the top, and nothing is cut off. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.",
+      "file": "art/equipment/figure_front.png"
+    },
+    {
+      "id": "figure_back",
+      "kind": "figure",
+      "size": [
+        2160,
+        3840
+      ],
+      "refs": [
+        "figure_front.png"
+      ],
+      "mirror_of": "figure_front",
+      "use": "The same figure turned round: the back, the back of the head, the backs of the limbs and the palms.",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. The same man as in the reference image, with identical proportions, pose, braid, braies, skin colours and line style, seen from directly behind (orthographic back view), on the same 2160 by 3840 canvas with the same framing, so that his silhouette mirrored left to right lines up with the reference. Clearly drawn as flat shapes: the braid hanging down the back of the head, the nape, both shoulder blades, the spine, the sides of the back, the small of the back, the backs of the arms and elbows, the palms (which face the viewer from behind), the backs of the knees, the calves and the heels. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.",
+      "file": "art/equipment/figure_back.png"
+    },
+    {
+      "id": "head_page",
+      "kind": "page",
+      "size": [
+        3520,
+        2352
+      ],
+      "views": 3,
+      "refs": [
+        "figure_front.png"
+      ],
+      "use": "The head's close-up, shown when the camera zooms into the head: the face, the ears from the side, the hair.",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the head and neck of the same man as in the reference image, at large size, three views side by side on one canvas, each centred in its own third with clear empty space between them and at the same scale: on the left his right profile, in the middle the front view, on the right his left profile. Each view runs from the top of the hair to the base of the neck, where it ends in a clean straight cut. The ears are drawn in full in the profiles (lobe, rim and upper tip clearly separate), the braid hangs behind, the eyebrows, eyes, nose with both nostrils, lips (closed) and the short beard are crisp. Neutral expression, eyes open. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.",
+      "file": "art/equipment/head_page.png"
+    },
+    {
+      "id": "hand_right_page",
+      "kind": "page",
+      "size": [
+        3520,
+        2352
+      ],
+      "views": 2,
+      "refs": [
+        "figure_front.png"
+      ],
+      "use": "The right hand's close-up: rings, knuckle rings and fingertips, the glove, plate and jewel on the back of the hand, the palm.",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the right hand of the same man as in the reference image, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the back of the right hand, on the right its palm. In both the hand is open and flat, fingers spread apart and pointing straight up, the thumb on the left in the back view and on the right in the palm view. Knuckles, every finger joint and every fingernail are crisp; the wrist and the lower part of the forearm are included and end in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.",
+      "file": "art/equipment/hand_right_page.png"
+    },
+    {
+      "id": "hand_left_page",
+      "kind": "page",
+      "size": [
+        3520,
+        2352
+      ],
+      "views": 2,
+      "refs": [
+        "figure_front.png",
+        "hand_right_page.png"
+      ],
+      "use": "The left hand's close-up, as the right's.",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the left hand of the same man as in the reference image, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the back of the left hand, on the right its palm. In both the hand is open and flat, fingers spread apart and pointing straight up, the thumb on the right in the back view and on the left in the palm view. Knuckles, every finger joint and every fingernail are crisp; the wrist and the lower part of the forearm are included and end in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.",
+      "file": "art/equipment/hand_left_page.png"
+    },
+    {
+      "id": "foot_right_page",
+      "kind": "page",
+      "size": [
+        3520,
+        2352
+      ],
+      "views": 2,
+      "refs": [
+        "figure_front.png"
+      ],
+      "use": "The right foot's close-up: the five toe rings, the toenails, the top of the foot and the sole.",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the right foot of the same man as in the reference image, bare, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the top of the right foot seen from directly above, on the right its sole seen from directly below. In both the toes point straight up the canvas and are spread slightly apart, with the big toe on the left in the top view and on the right in the sole view; every toe and toenail is crisp; the ankle is included and ends in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.",
+      "file": "art/equipment/foot_right_page.png"
+    },
+    {
+      "id": "foot_left_page",
+      "kind": "page",
+      "size": [
+        3520,
+        2352
+      ],
+      "views": 2,
+      "refs": [
+        "figure_front.png",
+        "foot_right_page.png"
+      ],
+      "use": "The left foot's close-up, as the right's.",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the left foot of the same man as in the reference image, bare, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the top of the left foot seen from directly above, on the right its sole seen from directly below. In both the toes point straight up the canvas and are spread slightly apart, with the big toe on the right in the top view and on the left in the sole view; every toe and toenail is crisp; the ankle is included and ends in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.",
+      "file": "art/equipment/foot_left_page.png"
+    },
+    {
+      "id": "stage_backdrop",
+      "kind": "backdrop",
+      "size": [
+        2560,
+        1920
+      ],
+      "refs": [],
+      "use": "Behind the figure on the equipment screen; it stays still while the camera zooms into the figure.",
+      "prompt": "Painted background for a 2D fantasy game's equipment screen: the inside of a dim armourer's fitting room at night, seen straight on. Stone walls, a tall arched window with cold moonlight on the far left, armour stands and racks of weapons and banners as soft shapes far back at the sides, warm candlelight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, with a calm, almost empty darker middle where a figure will stand in front of it, and a soft vignette. No people, no figure, no mannequin in the middle, no text, no frame. 2560 by 1920 pixels.",
+      "file": "art/equipment/stage_backdrop.png"
+    },
+    {
+      "id": "board_backdrop",
+      "kind": "backdrop",
+      "size": [
+        2560,
+        1920
+      ],
+      "refs": [],
+      "use": "Behind a piece and its own slots (a helm with its crest, visor and gem sockets).",
+      "prompt": "Painted background seen from directly above: an armourer's workbench, a dark worn leather work mat filling the middle, a few tools (pliers, a small hammer, a jeweller's loupe, rivets, a whetstone) and scraps of leather only at the edges, warm lamplight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, the middle empty and calm because a piece and its slots are drawn on top of it. No text, no frame. 2560 by 1920 pixels.",
+      "file": "art/equipment/board_backdrop.png"
+    },
+    {
+      "id": "slot_glyphs",
+      "kind": "glyphs",
+      "size": [
+        2560,
+        1024
+      ],
+      "grid": [
+        5,
+        2
+      ],
+      "refs": [],
+      "glyphs": [
+        "skin",
+        "under",
+        "mail",
+        "armor",
+        "over",
+        "adorn",
+        "hold",
+        "graft",
+        "beyond",
+        "mod"
+      ],
+      "use": "One glyph for each kind of slot, drawn inside the slot markers on the figure (tinted by code).",
+      "prompt": "A sheet of ten simple, bold game interface glyphs, solid white silhouettes with no outline, no shading and no colour, each centred in its own cell of an invisible grid of five columns and two rows, each filling about 60% of its cell and never touching another, readable when shrunk to 16 pixels. In reading order: 1. a drop of ink with a small swirl inside (ink on the skin: tattoos, sigils, kohl); 2. a quilted padded square with stitched diamond lines (cloth worn under: shirts, gloves, socks); 3. four interlinked rings of chain mail; 4. a curved plate of armour with two rivets (plate armour); 5. a hanging cloak with a clasp at the top (worn over everything: cloaks, tabards, hoods); 6. a finger ring with a cut gemstone (jewellery); 7. a sword, point up, slightly diagonal (held: weapons, shields, an orb); 8. a curved horn (grown from the body: horns, wings, a tail, gills); 9. a four-pointed star inside a thin orbit ring (around the body: aura, orbiting stones, the heavens); 10. a round socket holding a small gem, with three prongs (a piece's own slot: gems, runes, fittings). Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. 2560 by 1024 pixels.",
+      "file": "art/equipment/slot_glyphs.png"
+    }
+  ],
+  "sites": [
+    {
+      "key": "scalp",
+      "name": "Scalp",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "scalp.skin",
+          "name": "Scalp ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "scalp.under",
+          "name": "Cap",
+          "layer": "Under"
+        },
+        {
+          "key": "scalp.head",
+          "name": "Headwear",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "hair",
+      "name": "Hair",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "hair.pin1",
+          "name": "Hair pin",
+          "layer": "Adorn"
+        },
+        {
+          "key": "hair.pin2",
+          "name": "Second hair pin",
+          "layer": "Adorn"
+        },
+        {
+          "key": "hair.ribbon",
+          "name": "Ribbon",
+          "layer": "Adorn"
+        },
+        {
+          "key": "hair.beads",
+          "name": "Braid beads",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "brow",
+      "name": "Brow",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "brow.skin",
+          "name": "Brow ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "brow.band",
+          "name": "Brow band",
+          "layer": "Armor"
+        },
+        {
+          "key": "brow.jewel",
+          "name": "Forehead jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.eye",
+      "name": "Right eye",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.eye.skin",
+          "name": "Kohl",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.eye.adorn",
+          "name": "Lens",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.eye.brow",
+          "name": "Eyebrow ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.ear",
+      "name": "Right ear",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ear.lobe",
+          "name": "Lobe",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ear.helix",
+          "name": "Helix",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ear.tip",
+          "name": "Ear tip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.cheek",
+      "name": "Right cheek",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.cheek.skin",
+          "name": "Cheek ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.cheek.armor",
+          "name": "Cheek guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.cheek.adorn",
+          "name": "Cheek gem",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.eye",
+      "name": "Left eye",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.eye.skin",
+          "name": "Kohl",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.eye.adorn",
+          "name": "Lens",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.eye.brow",
+          "name": "Eyebrow ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.ear",
+      "name": "Left ear",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ear.lobe",
+          "name": "Lobe",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ear.helix",
+          "name": "Helix",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ear.tip",
+          "name": "Ear tip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.cheek",
+      "name": "Left cheek",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.cheek.skin",
+          "name": "Cheek ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.cheek.armor",
+          "name": "Cheek guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.cheek.adorn",
+          "name": "Cheek gem",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "face",
+      "name": "Face",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "face.mask",
+          "name": "Mask",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "nose",
+      "name": "Nose",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "nose.bridge",
+          "name": "Bridge",
+          "layer": "Armor"
+        },
+        {
+          "key": "nose.septum",
+          "name": "Septum",
+          "layer": "Adorn"
+        },
+        {
+          "key": "nose.nostrilR",
+          "name": "Right nostril",
+          "layer": "Adorn"
+        },
+        {
+          "key": "nose.nostrilL",
+          "name": "Left nostril",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "mouth",
+      "name": "Mouth",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "mouth.armor",
+          "name": "Mouth guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "mouth.lip",
+          "name": "Lip",
+          "layer": "Adorn"
+        },
+        {
+          "key": "mouth.teeth",
+          "name": "Teeth",
+          "layer": "Adorn"
+        },
+        {
+          "key": "mouth.tongue",
+          "name": "Tongue",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "chin",
+      "name": "Chin",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "chin.skin",
+          "name": "Chin ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "chin.armor",
+          "name": "Chin guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "chin.adorn",
+          "name": "Beard rings",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "nape",
+      "name": "Nape",
+      "region": "Head",
+      "back": true,
+      "slots": [
+        {
+          "key": "nape.skin",
+          "name": "Nape ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "nape.under",
+          "name": "Neck cloth",
+          "layer": "Under"
+        },
+        {
+          "key": "nape.armor",
+          "name": "Nape guard",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "horns",
+      "name": "Horns",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "horns.graft",
+          "name": "Horns",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "halo",
+      "name": "Above the head",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "halo.halo",
+          "name": "Halo",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "neck",
+      "name": "Neck",
+      "region": "Neck",
+      "back": false,
+      "slots": [
+        {
+          "key": "neck.skin",
+          "name": "Neck ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "neck.under",
+          "name": "Scarf",
+          "layer": "Under"
+        },
+        {
+          "key": "neck.armor",
+          "name": "Gorget",
+          "layer": "Armor"
+        },
+        {
+          "key": "neck.ring",
+          "name": "Neck ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "throat",
+      "name": "Throat",
+      "region": "Neck",
+      "back": false,
+      "slots": [
+        {
+          "key": "throat.skin",
+          "name": "Throat ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "throat.jewel",
+          "name": "Throat jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "collar",
+      "name": "Base of the neck",
+      "region": "Neck",
+      "back": false,
+      "slots": [
+        {
+          "key": "collar.chain",
+          "name": "Necklace",
+          "layer": "Adorn"
+        },
+        {
+          "key": "collar.chain2",
+          "name": "Second necklace",
+          "layer": "Adorn"
+        },
+        {
+          "key": "collar.pendant",
+          "name": "Pendant",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.clavicle",
+      "name": "Right collarbone",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.clavicle.skin",
+          "name": "Collarbone ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.clavicle.adorn",
+          "name": "Collarbone stud",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.clavicle",
+      "name": "Left collarbone",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.clavicle.skin",
+          "name": "Collarbone ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.clavicle.adorn",
+          "name": "Collarbone stud",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.pec",
+      "name": "Left breast",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.pec.skin",
+          "name": "Breast ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.pec.armor",
+          "name": "Pectoral plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.pec.medal1",
+          "name": "Medal",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.pec.medal2",
+          "name": "Second medal",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.pec.medal3",
+          "name": "Third medal",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.pec",
+      "name": "Right breast",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.pec.skin",
+          "name": "Breast ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.pec.armor",
+          "name": "Pectoral plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.pec.badge",
+          "name": "Badge",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "sternum",
+      "name": "Breastbone",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "sternum.skin",
+          "name": "Breastbone ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "sternum.armor",
+          "name": "Placard",
+          "layer": "Armor"
+        },
+        {
+          "key": "sternum.adorn",
+          "name": "Brooch",
+          "layer": "Adorn"
+        },
+        {
+          "key": "sternum.graft",
+          "name": "Soul gem",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "heart",
+      "name": "Heart",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "heart.skin",
+          "name": "Heart ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "heart.graft",
+          "name": "Heart",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "R.ribs",
+      "name": "Right ribs",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ribs.skin",
+          "name": "Rib ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.ribs.armor",
+          "name": "Rib guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.ribs.adorn",
+          "name": "Rib chain",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ribs.graft",
+          "name": "Gills",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "L.ribs",
+      "name": "Left ribs",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ribs.skin",
+          "name": "Rib ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.ribs.armor",
+          "name": "Rib guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.ribs.adorn",
+          "name": "Rib chain",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ribs.graft",
+          "name": "Gills",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "plexus",
+      "name": "Solar plexus",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "plexus.skin",
+          "name": "Plexus ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "plexus.armor",
+          "name": "Plexus disc",
+          "layer": "Armor"
+        },
+        {
+          "key": "plexus.adorn",
+          "name": "Plexus gem",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "stomach",
+      "name": "Stomach",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "stomach.skin",
+          "name": "Stomach ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "stomach.armor",
+          "name": "Plackart",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "navel",
+      "name": "Navel",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "navel.skin",
+          "name": "Navel ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "navel.adorn",
+          "name": "Navel ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.flank",
+      "name": "Right flank",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.flank.skin",
+          "name": "Flank ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.flank.armor",
+          "name": "Side plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.flank.hold",
+          "name": "Side sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.flank",
+      "name": "Left flank",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.flank.skin",
+          "name": "Flank ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.flank.armor",
+          "name": "Side plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.flank.hold",
+          "name": "Side sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "lowbelly",
+      "name": "Lower belly",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "lowbelly.skin",
+          "name": "Lower belly ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "lowbelly.adorn",
+          "name": "Belly chain",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "torso",
+      "name": "The whole torso",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "torso.under",
+          "name": "Shirt",
+          "layer": "Under"
+        },
+        {
+          "key": "torso.mail",
+          "name": "Mail",
+          "layer": "Mail"
+        },
+        {
+          "key": "torso.over",
+          "name": "Tabard",
+          "layer": "Over"
+        },
+        {
+          "key": "torso.strap",
+          "name": "Strap",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.blade",
+      "name": "Right shoulder blade",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.blade.skin",
+          "name": "Shoulder blade ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.blade.armor",
+          "name": "Scapula plate",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.blade",
+      "name": "Left shoulder blade",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.blade.skin",
+          "name": "Shoulder blade ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.blade.armor",
+          "name": "Scapula plate",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "upspine",
+      "name": "Upper spine",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "upspine.skin",
+          "name": "Upper spine ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "upspine.armor",
+          "name": "Spine guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "upspine.adorn",
+          "name": "Spine piercings",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "midspine",
+      "name": "Middle of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "midspine.skin",
+          "name": "Mid-back ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "midspine.graft",
+          "name": "Dorsal spines",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "R.lat",
+      "name": "Right side of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.lat.skin",
+          "name": "Back side ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.lat.armor",
+          "name": "Lat guard",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.lat",
+      "name": "Left side of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.lat.skin",
+          "name": "Back side ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.lat.armor",
+          "name": "Lat guard",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "lumbar",
+      "name": "Small of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "lumbar.skin",
+          "name": "Lower back ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "lumbar.armor",
+          "name": "Lumbar plate",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.kidney",
+      "name": "Right kidney",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.kidney.skin",
+          "name": "Kidney ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.kidney.armor",
+          "name": "Kidney guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.kidney.hold",
+          "name": "Kidney dagger",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.kidney",
+      "name": "Left kidney",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.kidney.skin",
+          "name": "Kidney ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.kidney.armor",
+          "name": "Kidney guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.kidney.hold",
+          "name": "Kidney dagger",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "back",
+      "name": "The whole back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "back.over",
+          "name": "Cloak",
+          "layer": "Over"
+        },
+        {
+          "key": "back.mount",
+          "name": "Carried on the back",
+          "layer": "Hold"
+        },
+        {
+          "key": "back.wings",
+          "name": "Wings",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "tail",
+      "name": "Tail",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "tail.graft",
+          "name": "Tail",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "waist",
+      "name": "Waist",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "waist.skin",
+          "name": "Waist ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "waist.under",
+          "name": "Sash",
+          "layer": "Under"
+        },
+        {
+          "key": "waist.armor",
+          "name": "Fauld",
+          "layer": "Armor"
+        },
+        {
+          "key": "waist.belt",
+          "name": "Belt",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.hip",
+      "name": "Right hip",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.hip.skin",
+          "name": "Hip ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.hip.armor",
+          "name": "Tasset",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.hip.hang",
+          "name": "Hanging sheath",
+          "layer": "Hold"
+        },
+        {
+          "key": "R.hip.adorn",
+          "name": "Hip chain",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.hip",
+      "name": "Left hip",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.hip.skin",
+          "name": "Hip ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.hip.armor",
+          "name": "Tasset",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.hip.hang",
+          "name": "Hanging sheath",
+          "layer": "Hold"
+        },
+        {
+          "key": "L.hip.adorn",
+          "name": "Hip chain",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "groin",
+      "name": "Groin",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "groin.armor",
+          "name": "Codpiece",
+          "layer": "Armor"
+        },
+        {
+          "key": "groin.over",
+          "name": "Loincloth",
+          "layer": "Over"
+        }
+      ]
+    },
+    {
+      "key": "seat",
+      "name": "Seat",
+      "region": "Waist",
+      "back": true,
+      "slots": [
+        {
+          "key": "seat.armor",
+          "name": "Culet",
+          "layer": "Armor"
+        },
+        {
+          "key": "seat.pouch",
+          "name": "Rear pouch",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.shoulder",
+      "name": "Right shoulder",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.shoulder.skin",
+          "name": "Shoulder ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.shoulder.armor",
+          "name": "Pauldron",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.shoulder.over",
+          "name": "Shoulder cape",
+          "layer": "Over"
+        },
+        {
+          "key": "R.shoulder.perch",
+          "name": "Perch",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.armpit",
+      "name": "Right armpit",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.armpit.armor",
+          "name": "Besagew",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.upperarm",
+      "name": "Right upper arm",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.upperarm.skin",
+          "name": "Upper arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.upperarm.under",
+          "name": "Sleeve",
+          "layer": "Under"
+        },
+        {
+          "key": "R.upperarm.mail",
+          "name": "Mail sleeve",
+          "layer": "Mail"
+        },
+        {
+          "key": "R.upperarm.armor",
+          "name": "Rerebrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.upperarm.adorn",
+          "name": "Armlet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.triceps",
+      "name": "Back of the right upper arm",
+      "region": "Right arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.triceps.skin",
+          "name": "Back of the arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.triceps.adorn",
+          "name": "Arm cuff",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.elbow",
+      "name": "Right elbow",
+      "region": "Right arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.elbow.skin",
+          "name": "Elbow ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.elbow.armor",
+          "name": "Couter",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.elbow.spike",
+          "name": "Elbow spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.forearm",
+      "name": "Right forearm",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.forearm.skin",
+          "name": "Forearm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.forearm.under",
+          "name": "Wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "R.forearm.armor",
+          "name": "Vambrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.forearm.blade",
+          "name": "Hidden blade",
+          "layer": "Hold"
+        },
+        {
+          "key": "R.forearm.sheath",
+          "name": "Forearm sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.wrist",
+      "name": "Right wrist",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.wrist.skin",
+          "name": "Wrist ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.wrist.armor",
+          "name": "Bracer",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.wrist.bangle1",
+          "name": "Bracelet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.wrist.bangle2",
+          "name": "Second bracelet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.hand",
+      "name": "Back of the right hand",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.hand.skin",
+          "name": "Hand ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.hand.under",
+          "name": "Glove",
+          "layer": "Under"
+        },
+        {
+          "key": "R.hand.armor",
+          "name": "Hand plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.hand.adorn",
+          "name": "Hand jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.palm",
+      "name": "Right palm",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.palm.skin",
+          "name": "Palm sigil",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.palm.adorn",
+          "name": "Palm crystal",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.grip",
+      "name": "Right grip",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.grip.hold",
+          "name": "Main hand",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.fingers",
+      "name": "Right fingers",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.fingers.skin",
+          "name": "Finger ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "R.thumb",
+      "name": "Right thumb",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.thumb.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.thumb.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.thumb.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.index",
+      "name": "Right index finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.index.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.index.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.index.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.middle",
+      "name": "Right middle finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.middle.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.middle.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.middle.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.ring",
+      "name": "Right ring finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ring.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ring.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ring.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.little",
+      "name": "Right little finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.little.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.little.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.little.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.thigh",
+      "name": "Right thigh",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.thigh.skin",
+          "name": "Thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.thigh.under",
+          "name": "Breeches",
+          "layer": "Under"
+        },
+        {
+          "key": "R.thigh.mail",
+          "name": "Chausses",
+          "layer": "Mail"
+        },
+        {
+          "key": "R.thigh.armor",
+          "name": "Cuisse",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.thigh.adorn",
+          "name": "Garter",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.outthigh",
+      "name": "Outside of the right thigh",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.outthigh.skin",
+          "name": "Outer thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.outthigh.hold",
+          "name": "Thigh sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.hamstring",
+      "name": "Back of the right thigh",
+      "region": "Right leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.hamstring.skin",
+          "name": "Back of the thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.hamstring.adorn",
+          "name": "Thigh strap",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.knee",
+      "name": "Right knee",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.knee.skin",
+          "name": "Knee ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.knee.under",
+          "name": "Knee wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "R.knee.armor",
+          "name": "Poleyn",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.kneepit",
+      "name": "Back of the right knee",
+      "region": "Right leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.kneepit.skin",
+          "name": "Knee pit ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "R.shin",
+      "name": "Right shin",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.shin.skin",
+          "name": "Shin ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.shin.under",
+          "name": "Leg wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "R.shin.armor",
+          "name": "Greave",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.calf",
+      "name": "Right calf",
+      "region": "Right leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.calf.skin",
+          "name": "Calf ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.calf.armor",
+          "name": "Calf guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.calf.adorn",
+          "name": "Calf band",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.ankle",
+      "name": "Right ankle",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ankle.skin",
+          "name": "Ankle ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.ankle.under",
+          "name": "Ankle wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "R.ankle.armor",
+          "name": "Ankle guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.ankle.anklet1",
+          "name": "Anklet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ankle.anklet2",
+          "name": "Second anklet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.foot",
+      "name": "Top of the right foot",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.foot.skin",
+          "name": "Foot ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.foot.under",
+          "name": "Sock",
+          "layer": "Under"
+        },
+        {
+          "key": "R.foot.armor",
+          "name": "Sabaton",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.foot.adorn",
+          "name": "Foot charm",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.sole",
+      "name": "Right sole",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.sole.sole",
+          "name": "Sole",
+          "layer": "Under"
+        }
+      ]
+    },
+    {
+      "key": "R.heel",
+      "name": "Right heel",
+      "region": "Right foot",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.heel.skin",
+          "name": "Heel ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.heel.spike",
+          "name": "Heel spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.toetips",
+      "name": "Right toenails",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toetips.tips",
+          "name": "Toenails",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.bigtoe",
+      "name": "Right big toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.bigtoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.toe2",
+      "name": "Right second toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toe2.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.toe3",
+      "name": "Right middle toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toe3.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.toe4",
+      "name": "Right fourth toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toe4.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.littletoe",
+      "name": "Right little toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.littletoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.shoulder",
+      "name": "Left shoulder",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.shoulder.skin",
+          "name": "Shoulder ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.shoulder.armor",
+          "name": "Pauldron",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.shoulder.over",
+          "name": "Shoulder cape",
+          "layer": "Over"
+        },
+        {
+          "key": "L.shoulder.perch",
+          "name": "Perch",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.armpit",
+      "name": "Left armpit",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.armpit.armor",
+          "name": "Besagew",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.upperarm",
+      "name": "Left upper arm",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.upperarm.skin",
+          "name": "Upper arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.upperarm.under",
+          "name": "Sleeve",
+          "layer": "Under"
+        },
+        {
+          "key": "L.upperarm.mail",
+          "name": "Mail sleeve",
+          "layer": "Mail"
+        },
+        {
+          "key": "L.upperarm.armor",
+          "name": "Rerebrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.upperarm.adorn",
+          "name": "Armlet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.triceps",
+      "name": "Back of the left upper arm",
+      "region": "Left arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.triceps.skin",
+          "name": "Back of the arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.triceps.adorn",
+          "name": "Arm cuff",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.elbow",
+      "name": "Left elbow",
+      "region": "Left arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.elbow.skin",
+          "name": "Elbow ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.elbow.armor",
+          "name": "Couter",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.elbow.spike",
+          "name": "Elbow spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.forearm",
+      "name": "Left forearm",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.forearm.skin",
+          "name": "Forearm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.forearm.under",
+          "name": "Wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "L.forearm.armor",
+          "name": "Vambrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.forearm.blade",
+          "name": "Hidden blade",
+          "layer": "Hold"
+        },
+        {
+          "key": "L.forearm.sheath",
+          "name": "Forearm sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.wrist",
+      "name": "Left wrist",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.wrist.skin",
+          "name": "Wrist ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.wrist.armor",
+          "name": "Bracer",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.wrist.bangle1",
+          "name": "Bracelet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.wrist.bangle2",
+          "name": "Second bracelet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.hand",
+      "name": "Back of the left hand",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.hand.skin",
+          "name": "Hand ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.hand.under",
+          "name": "Glove",
+          "layer": "Under"
+        },
+        {
+          "key": "L.hand.armor",
+          "name": "Hand plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.hand.adorn",
+          "name": "Hand jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.palm",
+      "name": "Left palm",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.palm.skin",
+          "name": "Palm sigil",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.palm.adorn",
+          "name": "Palm crystal",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.grip",
+      "name": "Left grip",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.grip.hold",
+          "name": "Off hand",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.fingers",
+      "name": "Left fingers",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.fingers.skin",
+          "name": "Finger ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "L.thumb",
+      "name": "Left thumb",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.thumb.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.thumb.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.thumb.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.index",
+      "name": "Left index finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.index.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.index.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.index.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.middle",
+      "name": "Left middle finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.middle.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.middle.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.middle.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.ring",
+      "name": "Left ring finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ring.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ring.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ring.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.little",
+      "name": "Left little finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.little.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.little.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.little.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.thigh",
+      "name": "Left thigh",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.thigh.skin",
+          "name": "Thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.thigh.under",
+          "name": "Breeches",
+          "layer": "Under"
+        },
+        {
+          "key": "L.thigh.mail",
+          "name": "Chausses",
+          "layer": "Mail"
+        },
+        {
+          "key": "L.thigh.armor",
+          "name": "Cuisse",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.thigh.adorn",
+          "name": "Garter",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.outthigh",
+      "name": "Outside of the left thigh",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.outthigh.skin",
+          "name": "Outer thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.outthigh.hold",
+          "name": "Thigh sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.hamstring",
+      "name": "Back of the left thigh",
+      "region": "Left leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.hamstring.skin",
+          "name": "Back of the thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.hamstring.adorn",
+          "name": "Thigh strap",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.knee",
+      "name": "Left knee",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.knee.skin",
+          "name": "Knee ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.knee.under",
+          "name": "Knee wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "L.knee.armor",
+          "name": "Poleyn",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.kneepit",
+      "name": "Back of the left knee",
+      "region": "Left leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.kneepit.skin",
+          "name": "Knee pit ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "L.shin",
+      "name": "Left shin",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.shin.skin",
+          "name": "Shin ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.shin.under",
+          "name": "Leg wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "L.shin.armor",
+          "name": "Greave",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.calf",
+      "name": "Left calf",
+      "region": "Left leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.calf.skin",
+          "name": "Calf ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.calf.armor",
+          "name": "Calf guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.calf.adorn",
+          "name": "Calf band",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.ankle",
+      "name": "Left ankle",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ankle.skin",
+          "name": "Ankle ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.ankle.under",
+          "name": "Ankle wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "L.ankle.armor",
+          "name": "Ankle guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.ankle.anklet1",
+          "name": "Anklet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ankle.anklet2",
+          "name": "Second anklet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.foot",
+      "name": "Top of the left foot",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.foot.skin",
+          "name": "Foot ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.foot.under",
+          "name": "Sock",
+          "layer": "Under"
+        },
+        {
+          "key": "L.foot.armor",
+          "name": "Sabaton",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.foot.adorn",
+          "name": "Foot charm",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.sole",
+      "name": "Left sole",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.sole.sole",
+          "name": "Sole",
+          "layer": "Under"
+        }
+      ]
+    },
+    {
+      "key": "L.heel",
+      "name": "Left heel",
+      "region": "Left foot",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.heel.skin",
+          "name": "Heel ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.heel.spike",
+          "name": "Heel spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.toetips",
+      "name": "Left toenails",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toetips.tips",
+          "name": "Toenails",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.bigtoe",
+      "name": "Left big toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.bigtoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.toe2",
+      "name": "Left second toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toe2.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.toe3",
+      "name": "Left middle toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toe3.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.toe4",
+      "name": "Left fourth toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toe4.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.littletoe",
+      "name": "Left little toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.littletoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "aura",
+      "name": "Aura",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "aura.aura",
+          "name": "Aura",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "orbit",
+      "name": "Orbit",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "orbit.stone1",
+          "name": "Orbit I",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone2",
+          "name": "Orbit II",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone3",
+          "name": "Orbit III",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone4",
+          "name": "Orbit IV",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone5",
+          "name": "Orbit V",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone6",
+          "name": "Orbit VI",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "shadow",
+      "name": "Shadow",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "shadow.shadow",
+          "name": "Shadow",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "companion",
+      "name": "At your side",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "companion.familiar",
+          "name": "Familiar",
+          "layer": "Beyond"
+        },
+        {
+          "key": "companion.steed",
+          "name": "Steed",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "heavens",
+      "name": "The heavens",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "heavens.star1",
+          "name": "Constellation I",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star2",
+          "name": "Constellation II",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star3",
+          "name": "Constellation III",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star4",
+          "name": "Constellation IV",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star5",
+          "name": "Constellation V",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star6",
+          "name": "Constellation VI",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star7",
+          "name": "Constellation VII",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star8",
+          "name": "Constellation VIII",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.comet",
+          "name": "Comet",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.eclipse",
+          "name": "Eclipse",
+          "layer": "Beyond"
+        }
+      ]
+    }
+  ]
+}

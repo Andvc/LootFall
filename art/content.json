@@ -328,28 +328,6 @@
       ]
     },
     {
-      "family": "cloak",
-      "kind": "Accessory",
-      "slots": [
-        "Cloak"
-      ]
-    },
-    {
-      "family": "off_hand",
-      "kind": "Weapon",
-      "slots": [
-        "Off-Hand Blade"
-      ]
-    },
-    {
-      "family": "vambrace",
-      "kind": "Armor",
-      "slots": [
-        "Left Vambrace",
-        "Right Vambrace"
-      ]
-    },
-    {
       "family": "gauntlet",
       "kind": "Armor",
       "slots": [
@@ -358,49 +336,28 @@
       ]
     },
     {
-      "family": "spaulder",
-      "kind": "Armor",
-      "slots": [
-        "Right Spaulder",
-        "Left Spaulder"
-      ]
-    },
-    {
-      "family": "trousers",
+      "family": "cloak",
       "kind": "Accessory",
       "slots": [
-        "Trousers"
+        "Cloak"
       ]
     },
     {
-      "family": "amulet",
-      "kind": "Jewelry",
-      "slots": [
-        "Amulet"
-      ]
-    },
-    {
-      "family": "couter",
+      "family": "cuisse",
       "kind": "Armor",
       "slots": [
-        "Right Couter",
-        "Left Couter"
+        "Right Cuisse",
+        "Left Cuisse"
       ]
     },
     {
-      "family": "toe_ring",
+      "family": "bracelet",
       "kind": "Jewelry",
       "slots": [
-        "Right Big Toe Ring",
-        "Right Second Toe Ring",
-        "Left Fourth Toe Ring",
-        "Left Big Toe Ring",
-        "Left Middle Toe Ring",
-        "Right Little Toe Ring",
-        "Left Little Toe Ring",
-        "Left Second Toe Ring",
-        "Right Fourth Toe Ring",
-        "Right Middle Toe Ring"
+        "Left Bracelet",
+        "Right Bracelet",
+        "Left Second Bracelet",
+        "Right Second Bracelet"
       ]
     },
     {
@@ -413,167 +370,19 @@
       ]
     },
     {
-      "family": "ring",
-      "kind": "Jewelry",
-      "slots": [
-        "Right Index Ring",
-        "Left Index Ring",
-        "Right Little Ring",
-        "Left Ring Ring",
-        "Right Thumb Ring",
-        "Right Middle Ring",
-        "Right Ring Ring",
-        "Left Middle Ring",
-        "Left Thumb Ring",
-        "Left Little Ring"
-      ]
-    },
-    {
-      "family": "great_helm",
-      "kind": "Armor",
-      "slots": [
-        "Great Helm"
-      ]
-    },
-    {
-      "family": "poleyn",
-      "kind": "Armor",
-      "slots": [
-        "Right Poleyn",
-        "Left Poleyn"
-      ]
-    },
-    {
-      "family": "bracelet",
-      "kind": "Jewelry",
-      "slots": [
-        "Left Bracelet",
-        "Right Bracelet",
-        "Right Second Bracelet",
-        "Left Second Bracelet"
-      ]
-    },
-    {
-      "family": "bracer",
-      "kind": "Armor",
-      "slots": [
-        "Right Bracer",
-        "Left Bracer"
-      ]
-    },
-    {
       "family": "greave",
       "kind": "Armor",
       "slots": [
-        "Right Greave",
-        "Left Greave"
+        "Left Greave",
+        "Right Greave"
       ]
     },
     {
-      "family": "gorget",
+      "family": "pectoral_plate",
       "kind": "Armor",
       "slots": [
-        "Gorget"
-      ]
-    },
-    {
-      "family": "belt",
-      "kind": "Accessory",
-      "slots": [
-        "Belt"
-      ]
-    },
-    {
-      "family": "circlet",
-      "kind": "Jewelry",
-      "slots": [
-        "Circlet"
-      ]
-    },
-    {
-      "family": "anklet",
-      "kind": "Jewelry",
-      "slots": [
-        "Left Anklet",
-        "Right Anklet",
-        "Right Second Anklet",
-        "Left Second Anklet"
-      ]
-    },
-    {
-      "family": "hood",
-      "kind": "Accessory",
-      "slots": [
-        "Hood"
-      ]
-    },
-    {
-      "family": "pauldron",
-      "kind": "Armor",
-      "slots": [
-        "Left Pauldron",
-        "Right Pauldron"
-      ]
-    },
-    {
-      "family": "tabard",
-      "kind": "Accessory",
-      "slots": [
-        "Tabard"
-      ]
-    },
-    {
-      "family": "necklace",
-      "kind": "Jewelry",
-      "slots": [
-        "Necklace"
-      ]
-    },
-    {
-      "family": "rerebrace",
-      "kind": "Armor",
-      "slots": [
-        "Left Rerebrace",
-        "Right Rerebrace"
-      ]
-    },
-    {
-      "family": "sandal",
-      "kind": "Accessory",
-      "slots": [
-        "Right Sandal",
-        "Left Sandal"
-      ]
-    },
-    {
-      "family": "glove",
-      "kind": "Accessory",
-      "slots": [
-        "Right Glove",
-        "Left Glove"
-      ]
-    },
-    {
-      "family": "shield",
-      "kind": "Armor",
-      "slots": [
-        "Shield"
-      ]
-    },
-    {
-      "family": "tasset",
-      "kind": "Armor",
-      "slots": [
-        "Right Tasset",
-        "Left Tasset"
-      ]
-    },
-    {
-      "family": "cuisse",
-      "kind": "Armor",
-      "slots": [
-        "Right Cuisse",
-        "Left Cuisse"
+        "Right Pectoral Plate",
+        "Left Pectoral Plate"
       ]
     },
     {
@@ -585,273 +394,26 @@
       ]
     },
     {
-      "family": "nail_lacquer",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Nail Lacquer",
-        "Right Nail Lacquer"
-      ]
-    },
-    {
-      "family": "kohl",
-      "kind": "Tattoo",
-      "slots": [
-        "Right Eye Kohl",
-        "Left Eye Kohl"
-      ]
-    },
-    {
-      "family": "gem",
-      "kind": "Jewelry",
-      "slots": [
-        "Left Pauldron Gem",
-        "Second Blade Gem",
-        "Right Pauldron Gem",
-        "Shield Gem",
-        "Right Circlet Stone",
-        "Right Cuff Gem",
-        "Right Index Ring Stone",
-        "Left Breastplate Gem",
-        "Left Circlet Stone",
-        "Blade Gem",
-        "Left Vambrace Gem",
-        "Left Ring Ring Stone",
-        "Circlet Stone",
-        "Brow Gem II",
-        "Right Thumb Ring Stone",
-        "Right Vambrace Gem",
-        "Off-Hand Gem",
-        "Second Shield Gem",
-        "Right Breastplate Gem",
-        "Brow Gem I",
-        "Right Little Ring Stone",
-        "Left Index Ring Stone",
-        "Brow Gem III",
-        "Left Mask Gem",
-        "Right Ring Ring Stone",
-        "Left Cuff Gem",
-        "Amulet Stone",
-        "Breastplate Gem",
-        "Focus Core",
-        "Right Middle Ring Stone",
-        "Left Thumb Ring Stone",
-        "Crown Point Gem III",
-        "Crown Point Gem IV",
-        "Pommel Stone",
-        "Crown Point Gem I",
-        "Crown Gem",
-        "Crest Jewel",
-        "Crown Point Gem II",
-        "Right Mask Gem",
-        "Iris Gem",
-        "Left Middle Ring Stone",
-        "Left Little Ring Stone",
-        "Crown Band Gem I",
-        "Crown Band Gem III",
-        "Crown Band Gem II",
-        "Crown Point Gem V",
-        "Left Wing Gem",
-        "Right Wing Gem",
-        "Halo Gem III",
-        "Halo Gem I",
-        "Halo Gem VI",
-        "Halo Gem IV",
-        "Halo Gem V",
-        "Halo Gem II"
-      ]
-    },
-    {
-      "family": "ankle_guard",
-      "kind": "Armor",
-      "slots": [
-        "Left Ankle Guard",
-        "Right Ankle Guard"
-      ]
-    },
-    {
-      "family": "knuckle_ring",
-      "kind": "Jewelry",
-      "slots": [
-        "Left Middle Knuckle Ring",
-        "Left Little Knuckle Ring",
-        "Right Index Knuckle Ring",
-        "Right Middle Knuckle Ring",
-        "Right Ring Knuckle Ring",
-        "Right Thumb Knuckle Ring",
-        "Right Little Knuckle Ring",
-        "Left Ring Knuckle Ring",
-        "Left Thumb Knuckle Ring",
-        "Left Index Knuckle Ring"
-      ]
-    },
-    {
-      "family": "backplate",
-      "kind": "Armor",
-      "slots": [
-        "Backplate"
-      ]
-    },
-    {
-      "family": "septum_ring",
-      "kind": "Jewelry",
-      "slots": [
-        "Septum Ring"
-      ]
-    },
-    {
-      "family": "paint",
-      "kind": "Accessory",
-      "slots": [
-        "Right Vambrace Paint",
-        "Backplate Paint",
-        "Left Greave Paint",
-        "Left Vambrace Paint",
-        "Right Pauldron Paint",
-        "Left Pauldron Paint",
-        "Right Gauntlet Paint",
-        "Helm Paint",
-        "Left Gauntlet Paint",
-        "Right Sabaton Paint",
-        "Left Boot Paint",
-        "Right Boot Paint",
-        "Right Greave Paint",
-        "Mask Paint",
-        "Left Sabaton Paint",
-        "Horn Paint"
-      ]
-    },
-    {
-      "family": "ankle_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Ankle Tattoo",
-        "Right Ankle Tattoo"
-      ]
-    },
-    {
-      "family": "nape_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Nape Tattoo"
-      ]
-    },
-    {
-      "family": "nasal_helm",
-      "kind": "Armor",
-      "slots": [
-        "Nasal Helm"
-      ]
-    },
-    {
-      "family": "rune",
-      "kind": "Tattoo",
-      "slots": [
-        "Blade Rune I",
-        "Right Vambrace Rune",
-        "Left Second Vambrace Rune",
-        "Left Amulet Rune",
-        "Backplate Rune",
-        "Right Amulet Rune",
-        "Off-Hand Rune II",
-        "Blade Rune III",
-        "Right Breastplate Rune",
-        "Left Vambrace Rune",
-        "Right Second Vambrace Rune",
-        "Hem Rune II",
-        "Hem Rune I",
-        "Right Palm Rune",
-        "Left Breastplate Rune",
-        "Left Palm Rune",
-        "Hem Rune III",
-        "Focus Rune II",
-        "Blade Rune II",
-        "Left Greave Rune",
-        "Off-Hand Rune I",
-        "Right Greave Rune",
-        "Focus Rune I",
-        "Focus Rune III",
-        "Blade Rune IV",
-        "Blade Rune V"
-      ]
-    },
-    {
-      "family": "spike",
+      "family": "kidney_dagger",
       "kind": "Weapon",
       "slots": [
-        "Right Knuckle Spike II",
-        "Right Second Pauldron Spike",
-        "Left Pauldron Spike",
-        "Left Knee Spike",
-        "Right Knee Spike",
-        "Right Knuckle Spike IV",
-        "Left Knuckle Spike III",
-        "Left Knuckle Spike I",
-        "Right Knuckle Spike III",
-        "Right Pauldron Spike",
-        "Left Toe Spike",
-        "Right Toe Spike",
-        "Shield Spikes",
-        "Left Knuckle Spike II",
-        "Right Knuckle Spike I",
-        "Left Knuckle Spike IV",
-        "Left Second Pauldron Spike"
+        "Right Kidney Dagger",
+        "Left Kidney Dagger"
       ]
     },
     {
-      "family": "shield_rim",
+      "family": "tasset",
       "kind": "Armor",
       "slots": [
-        "Shield Rim"
+        "Right Tasset",
+        "Left Tasset"
       ]
     },
     {
-      "family": "knuckleduster",
-      "kind": "Weapon",
+      "family": "plackart",
+      "kind": "Armor",
       "slots": [
-        "Left Knuckleduster",
-        "Right Knuckleduster"
-      ]
-    },
-    {
-      "family": "enchantment",
-      "kind": "Tattoo",
-      "slots": [
-        "Right Pauldron Enchantment",
-        "Helm Enchantment",
-        "Shield Enchantment",
-        "Off-Hand Enchantment",
-        "Right Gauntlet Enchantment",
-        "Left Glove Enchantment",
-        "Hood Enchantment",
-        "Blade Enchantment",
-        "Right Sabaton Enchantment",
-        "Right Greave Enchantment",
-        "Amulet Enchantment",
-        "Left Vambrace Enchantment",
-        "Lens Enchantment",
-        "Quiver Enchantment",
-        "Left Greave Enchantment",
-        "Left Sole Enchantment",
-        "Left Gauntlet Enchantment",
-        "Right Sole Enchantment",
-        "Belt Enchantment",
-        "Right Vambrace Enchantment",
-        "Breastplate Enchantment",
-        "Tabard Enchantment",
-        "Right Glove Enchantment",
-        "Backplate Enchantment",
-        "Hat Enchantment",
-        "Left Pauldron Enchantment",
-        "Cloak Enchantment",
-        "Left Sabaton Enchantment",
-        "Mask Enchantment",
-        "Familiar Enchantment",
-        "Focus Enchantment",
-        "Crown Enchantment",
-        "Third Eye Enchantment",
-        "Banner Enchantment",
-        "Wing Enchantment",
-        "Tail Enchantment"
+        "Plackart"
       ]
     },
     {
@@ -862,110 +424,127 @@
       ]
     },
     {
-      "family": "brow_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Brow Tattoo"
-      ]
-    },
-    {
-      "family": "breeches",
+      "family": "glove",
       "kind": "Accessory",
       "slots": [
-        "Right Breeches",
-        "Left Breeches"
+        "Left Glove",
+        "Right Glove"
       ]
     },
     {
-      "family": "bevor",
+      "family": "bracer",
       "kind": "Armor",
       "slots": [
-        "Bevor"
+        "Left Bracer",
+        "Right Bracer"
       ]
     },
     {
-      "family": "fingerless_glove",
-      "kind": "Accessory",
-      "slots": [
-        "Left Fingerless Glove",
-        "Right Fingerless Glove"
-      ]
-    },
-    {
-      "family": "nose_stud",
-      "kind": "Jewelry",
-      "slots": [
-        "Left Nose Stud",
-        "Right Nose Stud"
-      ]
-    },
-    {
-      "family": "potion",
-      "kind": "Trinket",
-      "slots": [
-        "Potion III",
-        "Potion IV",
-        "Potion I",
-        "Potion II"
-      ]
-    },
-    {
-      "family": "chin_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Chin Tattoo"
-      ]
-    },
-    {
-      "family": "sock",
-      "kind": "Accessory",
-      "slots": [
-        "Left Sock",
-        "Right Sock"
-      ]
-    },
-    {
-      "family": "great_weapon",
-      "kind": "Weapon",
-      "slots": [
-        "Great Weapon"
-      ]
-    },
-    {
-      "family": "scarf",
-      "kind": "Accessory",
-      "slots": [
-        "Scarf"
-      ]
-    },
-    {
-      "family": "crossguard",
-      "kind": "Weapon",
-      "slots": [
-        "Crossguard",
-        "Off-Hand Guard"
-      ]
-    },
-    {
-      "family": "helix_ring",
-      "kind": "Jewelry",
-      "slots": [
-        "Left Helix Ring",
-        "Right Helix Ring"
-      ]
-    },
-    {
-      "family": "mouth_guard",
+      "family": "great_helm",
       "kind": "Armor",
       "slots": [
-        "Mouth Guard"
+        "Great Helm"
       ]
     },
     {
-      "family": "mantle",
+      "family": "pauldron",
+      "kind": "Armor",
+      "slots": [
+        "Left Pauldron",
+        "Right Pauldron"
+      ]
+    },
+    {
+      "family": "trousers",
       "kind": "Accessory",
       "slots": [
-        "Mantle"
+        "Trousers"
+      ]
+    },
+    {
+      "family": "ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Index Ring",
+        "Left Index Ring",
+        "Right Little Ring",
+        "Right Middle Ring",
+        "Left Ring Ring",
+        "Left Little Ring",
+        "Left Middle Ring",
+        "Right Thumb Ring",
+        "Right Ring Ring",
+        "Left Thumb Ring"
+      ]
+    },
+    {
+      "family": "sandal",
+      "kind": "Accessory",
+      "slots": [
+        "Left Sandal",
+        "Right Sandal"
+      ]
+    },
+    {
+      "family": "hood",
+      "kind": "Accessory",
+      "slots": [
+        "Hood"
+      ]
+    },
+    {
+      "family": "poleyn",
+      "kind": "Armor",
+      "slots": [
+        "Left Poleyn",
+        "Right Poleyn"
+      ]
+    },
+    {
+      "family": "anklet",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Anklet",
+        "Right Anklet",
+        "Left Second Anklet",
+        "Right Second Anklet"
+      ]
+    },
+    {
+      "family": "couter",
+      "kind": "Armor",
+      "slots": [
+        "Left Couter",
+        "Right Couter"
+      ]
+    },
+    {
+      "family": "vambrace",
+      "kind": "Armor",
+      "slots": [
+        "Right Vambrace",
+        "Left Vambrace"
+      ]
+    },
+    {
+      "family": "amulet",
+      "kind": "Jewelry",
+      "slots": [
+        "Amulet"
+      ]
+    },
+    {
+      "family": "tabard",
+      "kind": "Accessory",
+      "slots": [
+        "Tabard"
+      ]
+    },
+    {
+      "family": "shirt",
+      "kind": "Accessory",
+      "slots": [
+        "Shirt"
       ]
     },
     {
@@ -977,6 +556,80 @@
       ]
     },
     {
+      "family": "toe_ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Big Toe Ring",
+        "Left Big Toe Ring",
+        "Right Fourth Toe Ring",
+        "Right Second Toe Ring",
+        "Left Fourth Toe Ring",
+        "Left Second Toe Ring",
+        "Right Middle Toe Ring",
+        "Left Middle Toe Ring",
+        "Left Little Toe Ring",
+        "Right Little Toe Ring"
+      ]
+    },
+    {
+      "family": "backplate",
+      "kind": "Armor",
+      "slots": [
+        "Backplate"
+      ]
+    },
+    {
+      "family": "baldric",
+      "kind": "Accessory",
+      "slots": [
+        "Baldric"
+      ]
+    },
+    {
+      "family": "gorget",
+      "kind": "Armor",
+      "slots": [
+        "Gorget"
+      ]
+    },
+    {
+      "family": "off_hand",
+      "kind": "Weapon",
+      "slots": [
+        "Off-Hand Blade"
+      ]
+    },
+    {
+      "family": "spaulder",
+      "kind": "Armor",
+      "slots": [
+        "Right Spaulder",
+        "Left Spaulder"
+      ]
+    },
+    {
+      "family": "shield",
+      "kind": "Armor",
+      "slots": [
+        "Shield"
+      ]
+    },
+    {
+      "family": "circlet",
+      "kind": "Jewelry",
+      "slots": [
+        "Circlet"
+      ]
+    },
+    {
+      "family": "rerebrace",
+      "kind": "Armor",
+      "slots": [
+        "Left Rerebrace",
+        "Right Rerebrace"
+      ]
+    },
+    {
       "family": "monocle",
       "kind": "Accessory",
       "slots": [
@@ -984,262 +637,50 @@
       ]
     },
     {
-      "family": "toenail_paint",
-      "kind": "Tattoo",
-      "slots": [
-        "Right Toenail Paint",
-        "Left Toenail Paint"
-      ]
-    },
-    {
-      "family": "embroidery",
-      "kind": "Accessory",
-      "slots": [
-        "Left Glove Embroidery",
-        "Tabard Embroidery",
-        "Cloak Embroidery",
-        "Hood Embroidery",
-        "Right Glove Embroidery"
-      ]
-    },
-    {
-      "family": "bangle_stack",
+      "family": "knuckle_ring",
       "kind": "Jewelry",
       "slots": [
-        "Left Bangle Stack",
-        "Right Bangle Stack"
+        "Right Index Knuckle Ring",
+        "Right Little Knuckle Ring",
+        "Left Middle Knuckle Ring",
+        "Left Index Knuckle Ring",
+        "Right Ring Knuckle Ring",
+        "Left Little Knuckle Ring",
+        "Left Thumb Knuckle Ring",
+        "Left Ring Knuckle Ring",
+        "Right Middle Knuckle Ring",
+        "Right Thumb Knuckle Ring"
       ]
     },
     {
-      "family": "blade_oil",
-      "kind": "Trinket",
-      "slots": [
-        "Blade Oil",
-        "Off-Hand Oil"
-      ]
-    },
-    {
-      "family": "pouch",
-      "kind": "Trinket",
-      "slots": [
-        "Pouch III",
-        "Pocket IV",
-        "Pocket II",
-        "Pouch IV",
-        "Pocket I",
-        "Pouch I",
-        "Pocket III",
-        "Pouch II"
-      ]
-    },
-    {
-      "family": "neck_cloth",
+      "family": "eyepatch",
       "kind": "Accessory",
       "slots": [
-        "Neck Cloth"
+        "Eyepatch"
       ]
     },
     {
-      "family": "backpack",
-      "kind": "Trinket",
+      "family": "ring_tattoo",
+      "kind": "Tattoo",
       "slots": [
-        "Backpack"
+        "Left Ring Tattoo",
+        "Right Ring Tattoo"
       ]
     },
     {
-      "family": "heraldry",
-      "kind": "Accessory",
+      "family": "thigh_tattoo",
+      "kind": "Tattoo",
       "slots": [
-        "Heraldry",
-        "Shield Heraldry",
-        "Tabard Heraldry",
-        "Banner Sigil"
+        "Right Thigh Tattoo",
+        "Left Thigh Tattoo"
       ]
     },
     {
       "family": "ear_cuff",
       "kind": "Jewelry",
       "slots": [
-        "Right Ear Cuff",
-        "Left Ear Cuff"
-      ]
-    },
-    {
-      "family": "charm",
-      "kind": "Trinket",
-      "slots": [
-        "Left Bangle Charm III",
-        "Belt Charm II",
-        "Necklace Charm III",
-        "Necklace Charm I",
-        "Left Bangle Charm II",
-        "Necklace Charm II",
-        "Belt Charm I",
-        "Left Bangle Charm I",
-        "Right Bangle Charm I",
-        "Right Bangle Charm II",
-        "Belt Charm III",
-        "Right Bangle Charm III",
-        "Familiar Charm"
-      ]
-    },
-    {
-      "family": "shirt",
-      "kind": "Accessory",
-      "slots": [
-        "Shirt"
-      ]
-    },
-    {
-      "family": "sabaton",
-      "kind": "Armor",
-      "slots": [
-        "Right Sabaton",
-        "Left Sabaton"
-      ]
-    },
-    {
-      "family": "mail_sleeve",
-      "kind": "Armor",
-      "slots": [
-        "Right Mail Sleeve",
-        "Left Mail Sleeve"
-      ]
-    },
-    {
-      "family": "forearm_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Right Forearm Tattoo",
-        "Left Forearm Tattoo"
-      ]
-    },
-    {
-      "family": "shoulder_familiar",
-      "kind": "Companion",
-      "slots": [
-        "Right Shoulder Familiar"
-      ]
-    },
-    {
-      "family": "spectacles",
-      "kind": "Accessory",
-      "slots": [
-        "Spectacles"
-      ]
-    },
-    {
-      "family": "medal",
-      "kind": "Trinket",
-      "slots": [
-        "Medal III",
-        "Medal II",
-        "Medal I"
-      ]
-    },
-    {
-      "family": "lining",
-      "kind": "Accessory",
-      "slots": [
-        "Breastplate Lining",
-        "Cloak Lining",
-        "Hood Lining",
-        "Helm Lining"
-      ]
-    },
-    {
-      "family": "knee_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Knee Tattoo",
-        "Right Knee Tattoo"
-      ]
-    },
-    {
-      "family": "leg_wraps",
-      "kind": "Accessory",
-      "slots": [
-        "Right Leg Wraps",
-        "Left Leg Wraps"
-      ]
-    },
-    {
-      "family": "back_scabbard",
-      "kind": "Weapon",
-      "slots": [
-        "Back Scabbard"
-      ]
-    },
-    {
-      "family": "neck_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Neck Tattoo"
-      ]
-    },
-    {
-      "family": "thumb_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Thumb Tattoo",
-        "Right Thumb Tattoo"
-      ]
-    },
-    {
-      "family": "besagew",
-      "kind": "Armor",
-      "slots": [
-        "Right Besagew",
-        "Left Besagew"
-      ]
-    },
-    {
-      "family": "garter",
-      "kind": "Jewelry",
-      "slots": [
-        "Right Garter",
-        "Left Garter"
-      ]
-    },
-    {
-      "family": "grip_wrap",
-      "kind": "Accessory",
-      "slots": [
-        "Grip Wrap"
-      ]
-    },
-    {
-      "family": "cheek_fitting",
-      "kind": "Armor",
-      "slots": [
-        "Left Cheek Fitting",
-        "Right Cheek Fitting"
-      ]
-    },
-    {
-      "family": "shoulder_lantern",
-      "kind": "Trinket",
-      "slots": [
-        "Left Shoulder Lantern"
-      ]
-    },
-    {
-      "family": "beard_rings",
-      "kind": "Jewelry",
-      "slots": [
-        "Beard Rings"
-      ]
-    },
-    {
-      "family": "buckle",
-      "kind": "Jewelry",
-      "slots": [
-        "Right Boot Buckle",
-        "Belt Buckle",
-        "Left Second Boot Buckle",
-        "Left Boot Buckle",
-        "Hat Buckle",
-        "Right Second Boot Buckle"
+        "Left Ear Cuff",
+        "Right Ear Cuff"
       ]
     },
     {
@@ -1250,97 +691,56 @@
       ]
     },
     {
-      "family": "wizard_hat",
-      "kind": "Accessory",
-      "slots": [
-        "Wizard Hat"
-      ]
-    },
-    {
-      "family": "plackart",
-      "kind": "Armor",
-      "slots": [
-        "Plackart"
-      ]
-    },
-    {
-      "family": "chest_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Chest Tattoo"
-      ]
-    },
-    {
-      "family": "aventail",
-      "kind": "Armor",
-      "slots": [
-        "Aventail"
-      ]
-    },
-    {
-      "family": "elbow_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Elbow Tattoo",
-        "Right Elbow Tattoo"
-      ]
-    },
-    {
-      "family": "thimble",
-      "kind": "Accessory",
-      "slots": [
-        "Left Thimble",
-        "Right Thimble"
-      ]
-    },
-    {
-      "family": "foot_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Right Foot Tattoo",
-        "Left Foot Tattoo"
-      ]
-    },
-    {
-      "family": "faulds_and_tassets",
-      "kind": "Armor",
-      "slots": [
-        "Faulds and Tassets"
-      ]
-    },
-    {
-      "family": "scalp_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Scalp Tattoo"
-      ]
-    },
-    {
-      "family": "bedroll",
-      "kind": "Accessory",
-      "slots": [
-        "Bedroll"
-      ]
-    },
-    {
-      "family": "coif",
-      "kind": "Armor",
-      "slots": [
-        "Coif"
-      ]
-    },
-    {
-      "family": "shield_straps",
-      "kind": "Accessory",
-      "slots": [
-        "Shield Straps"
-      ]
-    },
-    {
-      "family": "lip_ring",
+      "family": "eyebrow_ring",
       "kind": "Jewelry",
       "slots": [
-        "Lip Ring"
+        "Left Eyebrow Ring",
+        "Right Eyebrow Ring"
+      ]
+    },
+    {
+      "family": "collarbone_stud",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Collarbone Stud",
+        "Left Collarbone Stud"
+      ]
+    },
+    {
+      "family": "bridge_stud",
+      "kind": "Jewelry",
+      "slots": [
+        "Bridge Stud"
+      ]
+    },
+    {
+      "family": "nasal_helm",
+      "kind": "Armor",
+      "slots": [
+        "Nasal Helm"
+      ]
+    },
+    {
+      "family": "spike",
+      "kind": "Weapon",
+      "slots": [
+        "Right Knuckle Spike III",
+        "Right Knuckle Spike I",
+        "Left Knuckle Spike I",
+        "Right Pauldron Spike",
+        "Left Knuckle Spike II",
+        "Right Knuckle Spike II",
+        "Shield Spikes",
+        "Left Knuckle Spike III",
+        "Right Second Pauldron Spike",
+        "Left Pauldron Spike",
+        "Left Toe Spike",
+        "Right Knee Spike",
+        "Left Knuckle Spike IV",
+        "Left Second Pauldron Spike",
+        "Right Knuckle Spike IV",
+        "Left Knee Spike",
+        "Right Toe Spike"
       ]
     },
     {
@@ -1351,84 +751,86 @@
       ]
     },
     {
-      "family": "hand_plate",
-      "kind": "Armor",
-      "slots": [
-        "Left Hand Plate",
-        "Right Hand Plate"
-      ]
-    },
-    {
-      "family": "pommel",
+      "family": "great_weapon",
       "kind": "Weapon",
       "slots": [
-        "Pommel",
-        "Off-Hand Pommel"
+        "Great Weapon"
       ]
     },
     {
-      "family": "toe_cap",
-      "kind": "Armor",
-      "slots": [
-        "Left Toe Cap",
-        "Right Toe Cap"
-      ]
-    },
-    {
-      "family": "cheek_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Cheek Tattoo",
-        "Right Cheek Tattoo"
-      ]
-    },
-    {
-      "family": "plume",
-      "kind": "Accessory",
-      "slots": [
-        "Helm Plume",
-        "Steed Plume"
-      ]
-    },
-    {
-      "family": "quiver",
-      "kind": "Weapon",
-      "slots": [
-        "Quiver"
-      ]
-    },
-    {
-      "family": "crest",
-      "kind": "Armor",
-      "slots": [
-        "Helm Crest",
-        "Left Pauldron Crest",
-        "Right Pauldron Crest"
-      ]
-    },
-    {
-      "family": "arm_wraps",
-      "kind": "Accessory",
-      "slots": [
-        "Left Arm Wraps",
-        "Right Arm Wraps"
-      ]
-    },
-    {
-      "family": "thigh_sheath",
-      "kind": "Weapon",
-      "slots": [
-        "Right Thigh Sheath",
-        "Left Thigh Sheath"
-      ]
-    },
-    {
-      "family": "clasp",
+      "family": "gem",
       "kind": "Jewelry",
       "slots": [
-        "Cloak Clasp",
-        "Necklace Clasp",
-        "Hood Clasp"
+        "Left Index Ring Stone",
+        "Left Circlet Stone",
+        "Shield Gem",
+        "Brow Gem II",
+        "Focus Core",
+        "Left Pauldron Gem",
+        "Breastplate Gem",
+        "Circlet Stone",
+        "Left Ring Ring Stone",
+        "Brow Gem III",
+        "Left Cuff Gem",
+        "Second Shield Gem",
+        "Left Vambrace Gem",
+        "Off-Hand Gem",
+        "Right Cuff Gem",
+        "Right Pauldron Gem",
+        "Right Mask Gem",
+        "Amulet Stone",
+        "Right Index Ring Stone",
+        "Brow Gem I",
+        "Right Vambrace Gem",
+        "Right Little Ring Stone",
+        "Left Mask Gem",
+        "Second Blade Gem",
+        "Left Little Ring Stone",
+        "Right Breastplate Gem",
+        "Left Breastplate Gem",
+        "Right Circlet Stone",
+        "Left Thumb Ring Stone",
+        "Pommel Stone",
+        "Right Middle Ring Stone",
+        "Right Ring Ring Stone",
+        "Iris Gem",
+        "Blade Gem",
+        "Left Middle Ring Stone",
+        "Crown Gem",
+        "Crest Jewel",
+        "Right Thumb Ring Stone",
+        "Crown Band Gem I",
+        "Crown Point Gem III",
+        "Crown Point Gem II",
+        "Crown Point Gem I",
+        "Crown Point Gem IV",
+        "Crown Point Gem V",
+        "Crown Band Gem III",
+        "Left Wing Gem",
+        "Crown Band Gem II",
+        "Right Wing Gem",
+        "Halo Gem I",
+        "Halo Gem III",
+        "Halo Gem VI",
+        "Halo Gem II",
+        "Halo Gem IV",
+        "Halo Gem V"
+      ]
+    },
+    {
+      "family": "hip_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Hip Tattoo",
+        "Right Hip Tattoo"
+      ]
+    },
+    {
+      "family": "thigh_strap",
+      "kind": "Accessory",
+      "slots": [
+        "Right Thigh Strap",
+        "Left Thigh Strap"
       ]
     },
     {
@@ -1440,27 +842,932 @@
       ]
     },
     {
-      "family": "wrist_tattoo",
+      "family": "knee_pit_tattoo",
       "kind": "Tattoo",
       "slots": [
-        "Right Wrist Tattoo",
-        "Left Wrist Tattoo"
+        "Left Knee Pit Tattoo",
+        "Right Knee Pit Tattoo"
       ]
     },
     {
-      "family": "shoulder_tattoo",
+      "family": "lining",
+      "kind": "Accessory",
+      "slots": [
+        "Helm Lining",
+        "Breastplate Lining",
+        "Cloak Lining",
+        "Hood Lining"
+      ]
+    },
+    {
+      "family": "heart_tattoo",
       "kind": "Tattoo",
       "slots": [
-        "Right Shoulder Tattoo",
-        "Left Shoulder Tattoo"
+        "Heart Tattoo"
       ]
     },
     {
       "family": "knee_wrap",
       "kind": "Accessory",
       "slots": [
-        "Left Knee Wrap",
-        "Right Knee Wrap"
+        "Right Knee Wrap",
+        "Left Knee Wrap"
+      ]
+    },
+    {
+      "family": "arming_sleeve",
+      "kind": "Accessory",
+      "slots": [
+        "Right Arming Sleeve",
+        "Left Arming Sleeve"
+      ]
+    },
+    {
+      "family": "nose_stud",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Nose Stud",
+        "Right Nose Stud"
+      ]
+    },
+    {
+      "family": "shoulder_familiar",
+      "kind": "Companion",
+      "slots": [
+        "Right Shoulder Familiar"
+      ]
+    },
+    {
+      "family": "cheek_guard",
+      "kind": "Armor",
+      "slots": [
+        "Left Cheek Guard",
+        "Right Cheek Guard"
+      ]
+    },
+    {
+      "family": "nape_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Nape Tattoo"
+      ]
+    },
+    {
+      "family": "embroidery",
+      "kind": "Accessory",
+      "slots": [
+        "Hood Embroidery",
+        "Left Glove Embroidery",
+        "Cloak Embroidery",
+        "Right Glove Embroidery",
+        "Tabard Embroidery"
+      ]
+    },
+    {
+      "family": "choker",
+      "kind": "Jewelry",
+      "slots": [
+        "Choker"
+      ]
+    },
+    {
+      "family": "plume",
+      "kind": "Accessory",
+      "slots": [
+        "Helm Plume",
+        "Steed Plume"
+      ]
+    },
+    {
+      "family": "enchantment",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Greave Enchantment",
+        "Right Gauntlet Enchantment",
+        "Lens Enchantment",
+        "Blade Enchantment",
+        "Breastplate Enchantment",
+        "Right Sole Enchantment",
+        "Left Gauntlet Enchantment",
+        "Cloak Enchantment",
+        "Belt Enchantment",
+        "Left Sole Enchantment",
+        "Left Vambrace Enchantment",
+        "Right Pauldron Enchantment",
+        "Amulet Enchantment",
+        "Right Greave Enchantment",
+        "Hood Enchantment",
+        "Right Vambrace Enchantment",
+        "Left Sabaton Enchantment",
+        "Tabard Enchantment",
+        "Left Pauldron Enchantment",
+        "Left Glove Enchantment",
+        "Right Glove Enchantment",
+        "Hat Enchantment",
+        "Helm Enchantment",
+        "Off-Hand Enchantment",
+        "Shield Enchantment",
+        "Focus Enchantment",
+        "Backplate Enchantment",
+        "Quiver Enchantment",
+        "Mask Enchantment",
+        "Tail Enchantment",
+        "Familiar Enchantment",
+        "Right Sabaton Enchantment",
+        "Banner Enchantment",
+        "Crown Enchantment",
+        "Third Eye Enchantment",
+        "Wing Enchantment"
+      ]
+    },
+    {
+      "family": "kohl",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Eye Kohl",
+        "Left Eye Kohl"
+      ]
+    },
+    {
+      "family": "calf_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Calf Tattoo",
+        "Left Calf Tattoo"
+      ]
+    },
+    {
+      "family": "rune",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Vambrace Rune",
+        "Left Greave Rune",
+        "Right Breastplate Rune",
+        "Hem Rune I",
+        "Backplate Rune",
+        "Hem Rune III",
+        "Off-Hand Rune I",
+        "Left Amulet Rune",
+        "Right Vambrace Rune",
+        "Right Second Vambrace Rune",
+        "Blade Rune I",
+        "Right Amulet Rune",
+        "Blade Rune II",
+        "Left Palm Rune",
+        "Focus Rune III",
+        "Off-Hand Rune II",
+        "Right Greave Rune",
+        "Focus Rune II",
+        "Blade Rune III",
+        "Left Second Vambrace Rune",
+        "Right Palm Rune",
+        "Left Breastplate Rune",
+        "Focus Rune I",
+        "Hem Rune II",
+        "Blade Rune IV",
+        "Blade Rune V"
+      ]
+    },
+    {
+      "family": "thigh_sheath",
+      "kind": "Weapon",
+      "slots": [
+        "Right Thigh Sheath",
+        "Left Thigh Sheath"
+      ]
+    },
+    {
+      "family": "arm_harness",
+      "kind": "Armor",
+      "slots": [
+        "Left Arm Harness",
+        "Right Arm Harness"
+      ]
+    },
+    {
+      "family": "paint",
+      "kind": "Accessory",
+      "slots": [
+        "Right Gauntlet Paint",
+        "Helm Paint",
+        "Left Vambrace Paint",
+        "Right Pauldron Paint",
+        "Mask Paint",
+        "Right Vambrace Paint",
+        "Right Boot Paint",
+        "Backplate Paint",
+        "Left Gauntlet Paint",
+        "Left Greave Paint",
+        "Left Pauldron Paint",
+        "Right Greave Paint",
+        "Left Boot Paint",
+        "Left Sabaton Paint",
+        "Right Sabaton Paint",
+        "Horn Paint"
+      ]
+    },
+    {
+      "family": "lip_ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Lip Ring"
+      ]
+    },
+    {
+      "family": "ear_chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Ear Chain",
+        "Right Ear Chain"
+      ]
+    },
+    {
+      "family": "ankle_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Ankle Tattoo",
+        "Right Ankle Tattoo"
+      ]
+    },
+    {
+      "family": "gambeson",
+      "kind": "Armor",
+      "slots": [
+        "Gambeson"
+      ]
+    },
+    {
+      "family": "buckle",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Second Boot Buckle",
+        "Right Boot Buckle",
+        "Left Boot Buckle",
+        "Belt Buckle",
+        "Hat Buckle",
+        "Harness Buckle",
+        "Right Second Boot Buckle"
+      ]
+    },
+    {
+      "family": "loincloth",
+      "kind": "Accessory",
+      "slots": [
+        "Loincloth"
+      ]
+    },
+    {
+      "family": "medal",
+      "kind": "Trinket",
+      "slots": [
+        "Medal III",
+        "Medal I",
+        "Medal II"
+      ]
+    },
+    {
+      "family": "shoulder_lantern",
+      "kind": "Trinket",
+      "slots": [
+        "Left Shoulder Lantern"
+      ]
+    },
+    {
+      "family": "toe_cap",
+      "kind": "Armor",
+      "slots": [
+        "Right Toe Cap",
+        "Left Toe Cap"
+      ]
+    },
+    {
+      "family": "scapula_plate",
+      "kind": "Armor",
+      "slots": [
+        "Right Scapula Plate",
+        "Left Scapula Plate"
+      ]
+    },
+    {
+      "family": "leg_harness",
+      "kind": "Armor",
+      "slots": [
+        "Left Leg Harness",
+        "Right Leg Harness"
+      ]
+    },
+    {
+      "family": "arming_cap",
+      "kind": "Accessory",
+      "slots": [
+        "Arming Cap"
+      ]
+    },
+    {
+      "family": "septum_ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Septum Ring"
+      ]
+    },
+    {
+      "family": "breast_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Breast Tattoo",
+        "Right Breast Tattoo"
+      ]
+    },
+    {
+      "family": "sock",
+      "kind": "Accessory",
+      "slots": [
+        "Left Sock",
+        "Right Sock"
+      ]
+    },
+    {
+      "family": "ankle_guard",
+      "kind": "Armor",
+      "slots": [
+        "Right Ankle Guard",
+        "Left Ankle Guard"
+      ]
+    },
+    {
+      "family": "calf_guard",
+      "kind": "Armor",
+      "slots": [
+        "Left Calf Guard",
+        "Right Calf Guard"
+      ]
+    },
+    {
+      "family": "chausses",
+      "kind": "Armor",
+      "slots": [
+        "Right Chausses",
+        "Left Chausses"
+      ]
+    },
+    {
+      "family": "plexus_gem",
+      "kind": "Jewelry",
+      "slots": [
+        "Plexus Gem"
+      ]
+    },
+    {
+      "family": "necklace",
+      "kind": "Jewelry",
+      "slots": [
+        "Second Necklace",
+        "Necklace"
+      ]
+    },
+    {
+      "family": "bevor",
+      "kind": "Armor",
+      "slots": [
+        "Bevor"
+      ]
+    },
+    {
+      "family": "hip_chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Hip Chain",
+        "Left Hip Chain"
+      ]
+    },
+    {
+      "family": "shin_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Shin Tattoo",
+        "Right Shin Tattoo"
+      ]
+    },
+    {
+      "family": "scalp_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Scalp Tattoo"
+      ]
+    },
+    {
+      "family": "scale_vest",
+      "kind": "Armor",
+      "slots": [
+        "Scale Vest"
+      ]
+    },
+    {
+      "family": "braid_beads",
+      "kind": "Jewelry",
+      "slots": [
+        "Braid Beads"
+      ]
+    },
+    {
+      "family": "kidney_guard",
+      "kind": "Armor",
+      "slots": [
+        "Right Kidney Guard",
+        "Left Kidney Guard"
+      ]
+    },
+    {
+      "family": "belt",
+      "kind": "Accessory",
+      "slots": [
+        "Belt"
+      ]
+    },
+    {
+      "family": "forearm_sheath",
+      "kind": "Weapon",
+      "slots": [
+        "Left Forearm Sheath",
+        "Right Forearm Sheath"
+      ]
+    },
+    {
+      "family": "bell",
+      "kind": "Trinket",
+      "slots": [
+        "Falcon Bell",
+        "Familiar Bell"
+      ]
+    },
+    {
+      "family": "navel_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Navel Tattoo"
+      ]
+    },
+    {
+      "family": "kidney_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Kidney Tattoo",
+        "Right Kidney Tattoo"
+      ]
+    },
+    {
+      "family": "mantle",
+      "kind": "Accessory",
+      "slots": [
+        "Mantle"
+      ]
+    },
+    {
+      "family": "nail_lacquer",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Nail Lacquer",
+        "Right Nail Lacquer"
+      ]
+    },
+    {
+      "family": "collarbone_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Collarbone Tattoo",
+        "Right Collarbone Tattoo"
+      ]
+    },
+    {
+      "family": "focus_orb",
+      "kind": "Jewelry",
+      "slots": [
+        "Focus Orb"
+      ]
+    },
+    {
+      "family": "gold_teeth",
+      "kind": "Jewelry",
+      "slots": [
+        "Gold Teeth"
+      ]
+    },
+    {
+      "family": "garter",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Garter",
+        "Left Garter"
+      ]
+    },
+    {
+      "family": "hand_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Hand Tattoo",
+        "Right Hand Tattoo"
+      ]
+    },
+    {
+      "family": "falcon_hood",
+      "kind": "Accessory",
+      "slots": [
+        "Falcon Hood"
+      ]
+    },
+    {
+      "family": "plexus_disc",
+      "kind": "Armor",
+      "slots": [
+        "Plexus Disc"
+      ]
+    },
+    {
+      "family": "waist_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Waist Tattoo"
+      ]
+    },
+    {
+      "family": "crest",
+      "kind": "Armor",
+      "slots": [
+        "Right Pauldron Crest",
+        "Left Pauldron Crest",
+        "Helm Crest"
+      ]
+    },
+    {
+      "family": "shoulder_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Shoulder Tattoo",
+        "Right Shoulder Tattoo"
+      ]
+    },
+    {
+      "family": "scabbard",
+      "kind": "Weapon",
+      "slots": [
+        "Right Hip Scabbard",
+        "Left Hip Scabbard"
+      ]
+    },
+    {
+      "family": "arm_cuff",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Arm Cuff",
+        "Left Arm Cuff"
+      ]
+    },
+    {
+      "family": "brigandine",
+      "kind": "Armor",
+      "slots": [
+        "Brigandine"
+      ]
+    },
+    {
+      "family": "nose_guard",
+      "kind": "Armor",
+      "slots": [
+        "Nose Guard"
+      ]
+    },
+    {
+      "family": "lat_guard",
+      "kind": "Armor",
+      "slots": [
+        "Right Lat Guard",
+        "Left Lat Guard"
+      ]
+    },
+    {
+      "family": "fingerless_glove",
+      "kind": "Accessory",
+      "slots": [
+        "Left Fingerless Glove",
+        "Right Fingerless Glove"
+      ]
+    },
+    {
+      "family": "coif",
+      "kind": "Armor",
+      "slots": [
+        "Coif"
+      ]
+    },
+    {
+      "family": "pouch",
+      "kind": "Trinket",
+      "slots": [
+        "Pouch II",
+        "Pouch IV",
+        "Right Harness Pocket",
+        "Rear Pouch",
+        "Left Harness Pocket",
+        "Pouch III",
+        "Pocket IV",
+        "Pocket I",
+        "Pocket III",
+        "Pocket II",
+        "Pouch I"
+      ]
+    },
+    {
+      "family": "torc",
+      "kind": "Jewelry",
+      "slots": [
+        "Torc"
+      ]
+    },
+    {
+      "family": "neck_cloth",
+      "kind": "Accessory",
+      "slots": [
+        "Neck Cloth"
+      ]
+    },
+    {
+      "family": "besagew",
+      "kind": "Armor",
+      "slots": [
+        "Left Besagew",
+        "Right Besagew"
+      ]
+    },
+    {
+      "family": "shoulder_cape",
+      "kind": "Accessory",
+      "slots": [
+        "Left Shoulder Cape",
+        "Right Shoulder Cape"
+      ]
+    },
+    {
+      "family": "shield_boss",
+      "kind": "Armor",
+      "slots": [
+        "Shield Boss"
+      ]
+    },
+    {
+      "family": "grip_wrap",
+      "kind": "Accessory",
+      "slots": [
+        "Grip Wrap"
+      ]
+    },
+    {
+      "family": "upper_arm_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Upper Arm Tattoo",
+        "Left Upper Arm Tattoo"
+      ]
+    },
+    {
+      "family": "fauld",
+      "kind": "Armor",
+      "slots": [
+        "Fauld"
+      ]
+    },
+    {
+      "family": "backpack",
+      "kind": "Trinket",
+      "slots": [
+        "Backpack"
+      ]
+    },
+    {
+      "family": "side_plate",
+      "kind": "Armor",
+      "slots": [
+        "Left Side Plate",
+        "Right Side Plate"
+      ]
+    },
+    {
+      "family": "brow_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Brow Tattoo"
+      ]
+    },
+    {
+      "family": "spur",
+      "kind": "Weapon",
+      "slots": [
+        "Left Spur",
+        "Right Spur"
+      ]
+    },
+    {
+      "family": "helix_ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Helix Ring",
+        "Left Helix Ring"
+      ]
+    },
+    {
+      "family": "hand_chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Hand Chain",
+        "Left Hand Chain"
+      ]
+    },
+    {
+      "family": "forehead_jewel",
+      "kind": "Jewelry",
+      "slots": [
+        "Forehead Jewel"
+      ]
+    },
+    {
+      "family": "charm",
+      "kind": "Trinket",
+      "slots": [
+        "Necklace Charm II",
+        "Belt Charm II",
+        "Necklace Charm III",
+        "Belt Charm III",
+        "Necklace Charm I",
+        "Belt Charm I",
+        "Left Bangle Charm III",
+        "Right Bangle Charm III",
+        "Left Bangle Charm II",
+        "Left Bangle Charm I",
+        "Right Bangle Charm II",
+        "Right Bangle Charm I",
+        "Familiar Charm"
+      ]
+    },
+    {
+      "family": "heraldry",
+      "kind": "Accessory",
+      "slots": [
+        "Tabard Heraldry",
+        "Shield Heraldry",
+        "Heraldry",
+        "Banner Sigil"
+      ]
+    },
+    {
+      "family": "toenail_paint",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Toenail Paint",
+        "Right Toenail Paint"
+      ]
+    },
+    {
+      "family": "forearm_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Forearm Tattoo",
+        "Left Forearm Tattoo"
+      ]
+    },
+    {
+      "family": "outer_thigh_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Outer Thigh Tattoo",
+        "Left Outer Thigh Tattoo"
+      ]
+    },
+    {
+      "family": "torc_terminal",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Torc Terminal",
+        "Right Torc Terminal"
+      ]
+    },
+    {
+      "family": "crossguard",
+      "kind": "Weapon",
+      "slots": [
+        "Off-Hand Guard",
+        "Crossguard"
+      ]
+    },
+    {
+      "family": "war_paint",
+      "kind": "Tattoo",
+      "slots": [
+        "War Paint"
+      ]
+    },
+    {
+      "family": "face_plate",
+      "kind": "Armor",
+      "slots": [
+        "Face Plate"
+      ]
+    },
+    {
+      "family": "cheek_fitting",
+      "kind": "Armor",
+      "slots": [
+        "Left Cheek Fitting",
+        "Right Cheek Fitting"
+      ]
+    },
+    {
+      "family": "wrist_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Wrist Tattoo",
+        "Right Wrist Tattoo"
+      ]
+    },
+    {
+      "family": "side_sheath",
+      "kind": "Weapon",
+      "slots": [
+        "Right Side Sheath",
+        "Left Side Sheath"
+      ]
+    },
+    {
+      "family": "arm_wraps",
+      "kind": "Accessory",
+      "slots": [
+        "Left Arm Wraps",
+        "Right Arm Wraps"
+      ]
+    },
+    {
+      "family": "shield_rim",
+      "kind": "Armor",
+      "slots": [
+        "Shield Rim"
+      ]
+    },
+    {
+      "family": "spectacles",
+      "kind": "Accessory",
+      "slots": [
+        "Spectacles"
+      ]
+    },
+    {
+      "family": "rib_chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Rib Chain",
+        "Right Rib Chain"
+      ]
+    },
+    {
+      "family": "shoulder_blade_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Shoulder Blade Tattoo",
+        "Right Shoulder Blade Tattoo"
+      ]
+    },
+    {
+      "family": "brow_guard",
+      "kind": "Armor",
+      "slots": [
+        "Brow Guard"
+      ]
+    },
+    {
+      "family": "spine_guard",
+      "kind": "Armor",
+      "slots": [
+        "Spine Guard"
+      ]
+    },
+    {
+      "family": "sash",
+      "kind": "Accessory",
+      "slots": [
+        "Sash"
+      ]
+    },
+    {
+      "family": "mail_sleeve",
+      "kind": "Armor",
+      "slots": [
+        "Left Mail Sleeve",
+        "Right Mail Sleeve"
+      ]
+    },
+    {
+      "family": "sabaton",
+      "kind": "Armor",
+      "slots": [
+        "Left Sabaton",
+        "Right Sabaton"
       ]
     },
     {
@@ -1468,6 +1775,437 @@
       "kind": "Trinket",
       "slots": [
         "Hanging Lantern"
+      ]
+    },
+    {
+      "family": "culet",
+      "kind": "Armor",
+      "slots": [
+        "Culet"
+      ]
+    },
+    {
+      "family": "mask",
+      "kind": "Accessory",
+      "slots": [
+        "Mask"
+      ]
+    },
+    {
+      "family": "chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Lens Chain"
+      ]
+    },
+    {
+      "family": "elbow_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Elbow Tattoo",
+        "Right Elbow Tattoo"
+      ]
+    },
+    {
+      "family": "chest_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Chest Tattoo"
+      ]
+    },
+    {
+      "family": "lat_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Lat Tattoo",
+        "Right Lat Tattoo"
+      ]
+    },
+    {
+      "family": "knee_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Knee Tattoo",
+        "Left Knee Tattoo"
+      ]
+    },
+    {
+      "family": "chest_harness",
+      "kind": "Accessory",
+      "slots": [
+        "Chest Harness"
+      ]
+    },
+    {
+      "family": "back_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Back Tattoo"
+      ]
+    },
+    {
+      "family": "blade_oil",
+      "kind": "Trinket",
+      "slots": [
+        "Off-Hand Oil",
+        "Blade Oil"
+      ]
+    },
+    {
+      "family": "quiver",
+      "kind": "Weapon",
+      "slots": [
+        "Quiver"
+      ]
+    },
+    {
+      "family": "mail_shirt",
+      "kind": "Armor",
+      "slots": [
+        "Mail Shirt"
+      ]
+    },
+    {
+      "family": "belly_chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Belly Chain"
+      ]
+    },
+    {
+      "family": "potion",
+      "kind": "Trinket",
+      "slots": [
+        "Potion IV",
+        "Potion II",
+        "Potion I",
+        "Potion III",
+        "Bandolier Vial II",
+        "Bandolier Vial I"
+      ]
+    },
+    {
+      "family": "thumb_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Thumb Tattoo",
+        "Right Thumb Tattoo"
+      ]
+    },
+    {
+      "family": "thimble",
+      "kind": "Accessory",
+      "slots": [
+        "Right Thimble",
+        "Left Thimble"
+      ]
+    },
+    {
+      "family": "flank_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Flank Tattoo",
+        "Right Flank Tattoo"
+      ]
+    },
+    {
+      "family": "knuckleduster",
+      "kind": "Weapon",
+      "slots": [
+        "Left Knuckleduster",
+        "Right Knuckleduster"
+      ]
+    },
+    {
+      "family": "lower_belly_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Lower Belly Tattoo"
+      ]
+    },
+    {
+      "family": "hamstring_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Hamstring Tattoo",
+        "Left Hamstring Tattoo"
+      ]
+    },
+    {
+      "family": "pommel",
+      "kind": "Weapon",
+      "slots": [
+        "Pommel",
+        "Off-Hand Pommel"
+      ]
+    },
+    {
+      "family": "chin_guard",
+      "kind": "Armor",
+      "slots": [
+        "Chin Guard"
+      ]
+    },
+    {
+      "family": "calf_band",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Calf Band",
+        "Right Calf Band"
+      ]
+    },
+    {
+      "family": "scarf",
+      "kind": "Accessory",
+      "slots": [
+        "Scarf"
+      ]
+    },
+    {
+      "family": "laces",
+      "kind": "Accessory",
+      "slots": [
+        "Left Bootlaces",
+        "Right Bootlaces"
+      ]
+    },
+    {
+      "family": "hand_jewel",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Hand Jewel",
+        "Left Hand Jewel"
+      ]
+    },
+    {
+      "family": "breastbone_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Breastbone Tattoo"
+      ]
+    },
+    {
+      "family": "breeches",
+      "kind": "Accessory",
+      "slots": [
+        "Right Breeches",
+        "Left Breeches"
+      ]
+    },
+    {
+      "family": "diadem",
+      "kind": "Jewelry",
+      "slots": [
+        "Diadem"
+      ]
+    },
+    {
+      "family": "jesses",
+      "kind": "Accessory",
+      "slots": [
+        "Jesses"
+      ]
+    },
+    {
+      "family": "nape_guard",
+      "kind": "Armor",
+      "slots": [
+        "Nape Guard"
+      ]
+    },
+    {
+      "family": "rib_guard",
+      "kind": "Armor",
+      "slots": [
+        "Right Rib Guard",
+        "Left Rib Guard"
+      ]
+    },
+    {
+      "family": "leg_wraps",
+      "kind": "Accessory",
+      "slots": [
+        "Left Leg Wraps",
+        "Right Leg Wraps"
+      ]
+    },
+    {
+      "family": "wizard_hat",
+      "kind": "Accessory",
+      "slots": [
+        "Wizard Hat"
+      ]
+    },
+    {
+      "family": "robe",
+      "kind": "Accessory",
+      "slots": [
+        "Robe"
+      ]
+    },
+    {
+      "family": "faulds_and_tassets",
+      "kind": "Armor",
+      "slots": [
+        "Faulds and Tassets"
+      ]
+    },
+    {
+      "family": "palm_sigil",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Palm Sigil",
+        "Right Palm Sigil"
+      ]
+    },
+    {
+      "family": "clasp",
+      "kind": "Jewelry",
+      "slots": [
+        "Hood Clasp",
+        "Cloak Clasp",
+        "Necklace Clasp"
+      ]
+    },
+    {
+      "family": "shield_straps",
+      "kind": "Accessory",
+      "slots": [
+        "Shield Straps"
+      ]
+    },
+    {
+      "family": "aventail",
+      "kind": "Armor",
+      "slots": [
+        "Aventail"
+      ]
+    },
+    {
+      "family": "triceps_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Triceps Tattoo",
+        "Left Triceps Tattoo"
+      ]
+    },
+    {
+      "family": "back_scabbard",
+      "kind": "Weapon",
+      "slots": [
+        "Back Scabbard"
+      ]
+    },
+    {
+      "family": "beard_rings",
+      "kind": "Jewelry",
+      "slots": [
+        "Beard Rings"
+      ]
+    },
+    {
+      "family": "cuirass",
+      "kind": "Armor",
+      "slots": [
+        "Cuirass"
+      ]
+    },
+    {
+      "family": "chin_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Chin Tattoo"
+      ]
+    },
+    {
+      "family": "arrowheads",
+      "kind": "Weapon",
+      "slots": [
+        "Arrowheads"
+      ]
+    },
+    {
+      "family": "ankle_wrap",
+      "kind": "Accessory",
+      "slots": [
+        "Right Ankle Wrap",
+        "Left Ankle Wrap"
+      ]
+    },
+    {
+      "family": "foot_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Foot Tattoo",
+        "Right Foot Tattoo"
+      ]
+    },
+    {
+      "family": "bangle_stack",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Bangle Stack",
+        "Right Bangle Stack"
+      ]
+    },
+    {
+      "family": "throat_jewel",
+      "kind": "Jewelry",
+      "slots": [
+        "Throat Jewel"
+      ]
+    },
+    {
+      "family": "throat_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Throat Tattoo"
+      ]
+    },
+    {
+      "family": "mouth_guard",
+      "kind": "Armor",
+      "slots": [
+        "Mouth Guard"
+      ]
+    },
+    {
+      "family": "upper_spine_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Upper Spine Tattoo"
+      ]
+    },
+    {
+      "family": "lumbar_plate",
+      "kind": "Armor",
+      "slots": [
+        "Lumbar Plate"
+      ]
+    },
+    {
+      "family": "star_charm",
+      "kind": "Trinket",
+      "slots": [
+        "Star Charm II",
+        "Star Charm III",
+        "Star Charm I"
+      ]
+    },
+    {
+      "family": "rib_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Rib Tattoo",
+        "Left Rib Tattoo"
+      ]
+    },
+    {
+      "family": "foot_charm",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Foot Charm",
+        "Right Foot Charm"
       ]
     },
     {
@@ -1481,265 +2219,41 @@
       ]
     },
     {
-      "family": "robe",
-      "kind": "Accessory",
-      "slots": [
-        "Robe"
-      ]
-    },
-    {
-      "family": "chausses",
-      "kind": "Armor",
-      "slots": [
-        "Right Chausses",
-        "Left Chausses"
-      ]
-    },
-    {
-      "family": "ring_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Ring Tattoo",
-        "Right Ring Tattoo"
-      ]
-    },
-    {
-      "family": "palm_sigil",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Palm Sigil",
-        "Right Palm Sigil"
-      ]
-    },
-    {
-      "family": "bell",
+      "family": "third_eye",
       "kind": "Trinket",
       "slots": [
-        "Falcon Bell",
-        "Familiar Bell"
+        "Third Eye"
       ]
     },
     {
-      "family": "leg_harness",
-      "kind": "Armor",
-      "slots": [
-        "Left Leg Harness",
-        "Right Leg Harness"
-      ]
-    },
-    {
-      "family": "fauld",
-      "kind": "Armor",
-      "slots": [
-        "Fauld"
-      ]
-    },
-    {
-      "family": "scabbard",
-      "kind": "Weapon",
-      "slots": [
-        "Left Hip Scabbard",
-        "Right Hip Scabbard"
-      ]
-    },
-    {
-      "family": "jesses",
-      "kind": "Accessory",
-      "slots": [
-        "Jesses"
-      ]
-    },
-    {
-      "family": "calf_tattoo",
+      "family": "cheek_tattoo",
       "kind": "Tattoo",
       "slots": [
-        "Left Calf Tattoo",
-        "Right Calf Tattoo"
+        "Left Cheek Tattoo",
+        "Right Cheek Tattoo"
       ]
     },
     {
-      "family": "hand_tattoo",
+      "family": "visor",
+      "kind": "Armor",
+      "slots": [
+        "Visor"
+      ]
+    },
+    {
+      "family": "heel_tattoo",
       "kind": "Tattoo",
       "slots": [
-        "Left Hand Tattoo",
-        "Right Hand Tattoo"
+        "Right Heel Tattoo",
+        "Left Heel Tattoo"
       ]
     },
     {
-      "family": "cape",
-      "kind": "Accessory",
-      "slots": [
-        "Cape"
-      ]
-    },
-    {
-      "family": "gambeson",
+      "family": "full_arm_harness",
       "kind": "Armor",
       "slots": [
-        "Gambeson"
-      ]
-    },
-    {
-      "family": "spur",
-      "kind": "Weapon",
-      "slots": [
-        "Right Spur",
-        "Left Spur"
-      ]
-    },
-    {
-      "family": "ear_chain",
-      "kind": "Jewelry",
-      "slots": [
-        "Right Ear Chain",
-        "Left Ear Chain"
-      ]
-    },
-    {
-      "family": "laces",
-      "kind": "Accessory",
-      "slots": [
-        "Right Bootlaces",
-        "Left Bootlaces"
-      ]
-    },
-    {
-      "family": "upper_arm_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Right Upper Arm Tattoo",
-        "Left Upper Arm Tattoo"
-      ]
-    },
-    {
-      "family": "lens_tint",
-      "kind": "Accessory",
-      "slots": [
-        "Lens Tint"
-      ]
-    },
-    {
-      "family": "forehead_jewel",
-      "kind": "Jewelry",
-      "slots": [
-        "Forehead Jewel"
-      ]
-    },
-    {
-      "family": "arm_harness",
-      "kind": "Armor",
-      "slots": [
-        "Left Arm Harness",
-        "Right Arm Harness"
-      ]
-    },
-    {
-      "family": "belly_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Belly Tattoo"
-      ]
-    },
-    {
-      "family": "arming_cap",
-      "kind": "Accessory",
-      "slots": [
-        "Arming Cap"
-      ]
-    },
-    {
-      "family": "mail_shirt",
-      "kind": "Armor",
-      "slots": [
-        "Mail Shirt"
-      ]
-    },
-    {
-      "family": "shield_boss",
-      "kind": "Armor",
-      "slots": [
-        "Shield Boss"
-      ]
-    },
-    {
-      "family": "torc",
-      "kind": "Jewelry",
-      "slots": [
-        "Torc"
-      ]
-    },
-    {
-      "family": "falcon_hood",
-      "kind": "Accessory",
-      "slots": [
-        "Falcon Hood"
-      ]
-    },
-    {
-      "family": "feather",
-      "kind": "Accessory",
-      "slots": [
-        "Hat Feather",
-        "Feather Charm IV",
-        "Feather Charm II",
-        "Feather Charm I",
-        "Feather Charm III"
-      ]
-    },
-    {
-      "family": "war_paint",
-      "kind": "Tattoo",
-      "slots": [
-        "War Paint"
-      ]
-    },
-    {
-      "family": "diadem",
-      "kind": "Jewelry",
-      "slots": [
-        "Diadem"
-      ]
-    },
-    {
-      "family": "mask",
-      "kind": "Accessory",
-      "slots": [
-        "Mask"
-      ]
-    },
-    {
-      "family": "familiar",
-      "kind": "Companion",
-      "slots": [
-        "Familiar"
-      ]
-    },
-    {
-      "family": "chain",
-      "kind": "Jewelry",
-      "slots": [
-        "Lens Chain"
-      ]
-    },
-    {
-      "family": "eyepatch",
-      "kind": "Accessory",
-      "slots": [
-        "Eyepatch"
-      ]
-    },
-    {
-      "family": "cuirass",
-      "kind": "Armor",
-      "slots": [
-        "Cuirass"
-      ]
-    },
-    {
-      "family": "fletching",
-      "kind": "Accessory",
-      "slots": [
-        "Fletching"
+        "Left Full Arm Harness",
+        "Right Full Arm Harness"
       ]
     },
     {
@@ -1750,18 +2264,85 @@
       ]
     },
     {
-      "family": "choker",
-      "kind": "Jewelry",
+      "family": "familiar",
+      "kind": "Companion",
       "slots": [
-        "Choker"
+        "Familiar"
       ]
     },
     {
-      "family": "knuckle_letters",
-      "kind": "Tattoo",
+      "family": "bedroll",
+      "kind": "Accessory",
       "slots": [
-        "Right Knuckle Letters",
-        "Left Knuckle Letters"
+        "Bedroll"
+      ]
+    },
+    {
+      "family": "claw_ring",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Thumb Claw Ring",
+        "Left Ring Claw Ring",
+        "Right Index Claw Ring",
+        "Left Thumb Claw Ring",
+        "Left Index Claw Ring",
+        "Right Ring Claw Ring",
+        "Right Middle Claw Ring",
+        "Left Middle Claw Ring",
+        "Right Little Claw Ring",
+        "Left Little Claw Ring"
+      ]
+    },
+    {
+      "family": "nose_chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Nose Chain"
+      ]
+    },
+    {
+      "family": "badge",
+      "kind": "Trinket",
+      "slots": [
+        "Badge of Honour"
+      ]
+    },
+    {
+      "family": "ear_tip",
+      "kind": "Jewelry",
+      "slots": [
+        "Left Elven Ear Tip",
+        "Right Elven Ear Tip"
+      ]
+    },
+    {
+      "family": "bandolier",
+      "kind": "Accessory",
+      "slots": [
+        "Bandolier"
+      ]
+    },
+    {
+      "family": "keepsake",
+      "kind": "Trinket",
+      "slots": [
+        "Pouch IV Second Keepsake",
+        "Pouch II Keepsake",
+        "Pouch I Keepsake",
+        "Pouch IV Keepsake",
+        "Pouch I Second Keepsake",
+        "Pouch III Keepsake",
+        "Pouch III Second Keepsake",
+        "Pouch II Second Keepsake",
+        "Saddlebag Keepsake",
+        "Second Saddlebag Keepsake"
+      ]
+    },
+    {
+      "family": "lens_tint",
+      "kind": "Accessory",
+      "slots": [
+        "Lens Tint"
       ]
     },
     {
@@ -1772,33 +2353,107 @@
       ]
     },
     {
-      "family": "back_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Back Tattoo"
-      ]
-    },
-    {
-      "family": "leg_sleeve_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Leg Sleeve Tattoo",
-        "Right Leg Sleeve Tattoo"
-      ]
-    },
-    {
-      "family": "thigh_tattoo",
-      "kind": "Tattoo",
-      "slots": [
-        "Left Thigh Tattoo",
-        "Right Thigh Tattoo"
-      ]
-    },
-    {
       "family": "hatband",
       "kind": "Accessory",
       "slots": [
         "Hatband"
+      ]
+    },
+    {
+      "family": "hand_plate",
+      "kind": "Armor",
+      "slots": [
+        "Right Hand Plate",
+        "Left Hand Plate"
+      ]
+    },
+    {
+      "family": "tassel",
+      "kind": "Accessory",
+      "slots": [
+        "Sword Tassel",
+        "Left Banner Tassel",
+        "Right Banner Tassel"
+      ]
+    },
+    {
+      "family": "throwing_knife",
+      "kind": "Weapon",
+      "slots": [
+        "Throwing Knife II",
+        "Throwing Knife I"
+      ]
+    },
+    {
+      "family": "heartstone",
+      "kind": "Trinket",
+      "slots": [
+        "Heartstone"
+      ]
+    },
+    {
+      "family": "belly_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Belly Tattoo"
+      ]
+    },
+    {
+      "family": "tail",
+      "kind": "Accessory",
+      "slots": [
+        "Tail"
+      ]
+    },
+    {
+      "family": "horns",
+      "kind": "Armor",
+      "slots": [
+        "Grafted Horns"
+      ]
+    },
+    {
+      "family": "cheek_gem",
+      "kind": "Jewelry",
+      "slots": [
+        "Right Cheek Gem",
+        "Left Cheek Gem"
+      ]
+    },
+    {
+      "family": "neck_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Neck Tattoo"
+      ]
+    },
+    {
+      "family": "lower_back_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Lower Back Tattoo"
+      ]
+    },
+    {
+      "family": "placard",
+      "kind": "Armor",
+      "slots": [
+        "Placard"
+      ]
+    },
+    {
+      "family": "plexus_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Plexus Tattoo"
+      ]
+    },
+    {
+      "family": "gills",
+      "kind": "Accessory",
+      "slots": [
+        "Right Gills",
+        "Left Gills"
       ]
     },
     {
@@ -1809,11 +2464,32 @@
       ]
     },
     {
-      "family": "sleeve_tattoo",
+      "family": "cape",
+      "kind": "Accessory",
+      "slots": [
+        "Cape"
+      ]
+    },
+    {
+      "family": "mid_back_tattoo",
       "kind": "Tattoo",
       "slots": [
-        "Right Sleeve Tattoo",
-        "Left Sleeve Tattoo"
+        "Mid-Back Tattoo"
+      ]
+    },
+    {
+      "family": "claw_gauntlet",
+      "kind": "Weapon",
+      "slots": [
+        "Right Claw Gauntlet",
+        "Left Claw Gauntlet"
+      ]
+    },
+    {
+      "family": "war_banner",
+      "kind": "Accessory",
+      "slots": [
+        "War Banner"
       ]
     },
     {
@@ -1825,111 +2501,20 @@
       ]
     },
     {
-      "family": "arrowheads",
+      "family": "heel_spike",
       "kind": "Weapon",
       "slots": [
-        "Arrowheads"
+        "Left Heel Spike",
+        "Right Heel Spike"
       ]
     },
     {
-      "family": "chain_of_office",
+      "family": "tail_ring",
       "kind": "Jewelry",
       "slots": [
-        "Chain of Office"
-      ]
-    },
-    {
-      "family": "hauberk",
-      "kind": "Armor",
-      "slots": [
-        "Hauberk"
-      ]
-    },
-    {
-      "family": "focus_orb",
-      "kind": "Jewelry",
-      "slots": [
-        "Focus Orb"
-      ]
-    },
-    {
-      "family": "tongue_stud",
-      "kind": "Jewelry",
-      "slots": [
-        "Tongue Stud"
-      ]
-    },
-    {
-      "family": "loincloth",
-      "kind": "Accessory",
-      "slots": [
-        "Loincloth"
-      ]
-    },
-    {
-      "family": "braid_beads",
-      "kind": "Jewelry",
-      "slots": [
-        "Braid Beads"
-      ]
-    },
-    {
-      "family": "hand_chain",
-      "kind": "Jewelry",
-      "slots": [
-        "Left Hand Chain",
-        "Right Hand Chain"
-      ]
-    },
-    {
-      "family": "codpiece",
-      "kind": "Armor",
-      "slots": [
-        "Codpiece"
-      ]
-    },
-    {
-      "family": "star_charm",
-      "kind": "Trinket",
-      "slots": [
-        "Star Charm I",
-        "Star Charm II",
-        "Star Charm III"
-      ]
-    },
-    {
-      "family": "crown",
-      "kind": "Jewelry",
-      "slots": [
-        "Crown"
-      ]
-    },
-    {
-      "family": "steed",
-      "kind": "Companion",
-      "slots": [
-        "Steed"
-      ]
-    },
-    {
-      "family": "horns",
-      "kind": "Armor",
-      "slots": [
-        "Grafted Horns"
-      ]
-    },
-    {
-      "family": "visor",
-      "kind": "Armor",
-      "slots": [
-        "Visor"
-      ]
-    },
-    {
-      "family": "gold_teeth",
-      "kind": "Jewelry",
-      "slots": [
-        "Gold Teeth"
+        "Tail Ring III",
+        "Tail Ring I",
+        "Tail Ring II"
       ]
     },
     {
@@ -1940,91 +2525,93 @@
       ]
     },
     {
-      "family": "brigandine",
-      "kind": "Armor",
-      "slots": [
-        "Brigandine"
-      ]
-    },
-    {
-      "family": "sash",
-      "kind": "Accessory",
-      "slots": [
-        "Sash"
-      ]
-    },
-    {
-      "family": "tassel",
-      "kind": "Accessory",
-      "slots": [
-        "Sword Tassel",
-        "Right Banner Tassel",
-        "Left Banner Tassel"
-      ]
-    },
-    {
-      "family": "torc_terminal",
+      "family": "ioun_stone",
       "kind": "Jewelry",
       "slots": [
-        "Left Torc Terminal",
-        "Right Torc Terminal"
+        "Orbiting Stone II",
+        "Orbiting Stone VI",
+        "Orbiting Stone III",
+        "Orbiting Stone I",
+        "Orbiting Stone V",
+        "Orbiting Stone IV"
       ]
     },
     {
       "family": "horn_ring",
       "kind": "Jewelry",
       "slots": [
-        "Right Horn Ring II",
-        "Left Horn Ring I",
         "Right Horn Ring I",
-        "Left Horn Ring II"
+        "Left Horn Ring I",
+        "Left Horn Ring II",
+        "Right Horn Ring II"
       ]
     },
     {
-      "family": "war_banner",
+      "family": "chain_of_office",
+      "kind": "Jewelry",
+      "slots": [
+        "Chain of Office"
+      ]
+    },
+    {
+      "family": "dragon_crest",
+      "kind": "Armor",
+      "slots": [
+        "Dragon Crest"
+      ]
+    },
+    {
+      "family": "fletching",
       "kind": "Accessory",
       "slots": [
-        "War Banner"
+        "Fletching"
       ]
     },
     {
-      "family": "mail_leggings",
+      "family": "girdle",
       "kind": "Armor",
       "slots": [
-        "Mail Leggings"
+        "Girdle"
       ]
     },
     {
-      "family": "saddlebags",
-      "kind": "Trinket",
-      "slots": [
-        "Saddlebags"
-      ]
-    },
-    {
-      "family": "wrist_blade",
-      "kind": "Weapon",
-      "slots": [
-        "Right Wrist Blade",
-        "Left Wrist Blade"
-      ]
-    },
-    {
-      "family": "horseshoe",
+      "family": "dorsal_spines",
       "kind": "Armor",
       "slots": [
-        "Horseshoe IV",
-        "Horseshoe II",
-        "Horseshoe III",
-        "Horseshoe I"
+        "Dorsal Spines"
       ]
     },
     {
-      "family": "barding",
+      "family": "collar",
+      "kind": "Jewelry",
+      "slots": [
+        "Familiar Collar"
+      ]
+    },
+    {
+      "family": "codpiece",
       "kind": "Armor",
       "slots": [
-        "Familiar Barding",
-        "Steed Barding"
+        "Codpiece"
+      ]
+    },
+    {
+      "family": "feather",
+      "kind": "Accessory",
+      "slots": [
+        "Hat Feather",
+        "Feather Charm IV",
+        "Feather Charm III",
+        "Feather Charm II",
+        "Feather Charm I"
+      ]
+    },
+    {
+      "family": "knuckle_letters",
+      "kind": "Tattoo",
+      "slots": [
+        "Right Knuckle Letters",
+        "Left Knuckle Letters"
       ]
     },
     {
@@ -2036,105 +2623,77 @@
       ]
     },
     {
-      "family": "shadow_cloak",
-      "kind": "Accessory",
+      "family": "tail_spike",
+      "kind": "Weapon",
       "slots": [
-        "Shadow Cloak"
+        "Tail Spike"
       ]
     },
     {
-      "family": "ioun_stone",
+      "family": "tongue_stud",
       "kind": "Jewelry",
       "slots": [
-        "Orbiting Stone III",
-        "Orbiting Stone VI",
-        "Orbiting Stone II",
-        "Orbiting Stone V",
-        "Orbiting Stone I",
-        "Orbiting Stone IV"
+        "Tongue Stud"
+      ]
+    },
+    {
+      "family": "soul_gem",
+      "kind": "Trinket",
+      "slots": [
+        "Soul Gem"
+      ]
+    },
+    {
+      "family": "torch",
+      "kind": "Trinket",
+      "slots": [
+        "Everburning Torch"
       ]
     },
     {
       "family": "palm_crystal",
       "kind": "Trinket",
       "slots": [
-        "Right Palm Crystal",
-        "Left Palm Crystal"
+        "Left Palm Crystal",
+        "Right Palm Crystal"
       ]
     },
     {
-      "family": "ear_tip",
+      "family": "crown",
       "kind": "Jewelry",
       "slots": [
-        "Right Elven Ear Tip",
-        "Left Elven Ear Tip"
+        "Crown"
       ]
     },
     {
-      "family": "keepsake",
-      "kind": "Trinket",
-      "slots": [
-        "Pouch II Keepsake",
-        "Second Saddlebag Keepsake",
-        "Saddlebag Keepsake",
-        "Pouch IV Second Keepsake",
-        "Pouch III Second Keepsake",
-        "Pouch I Second Keepsake",
-        "Pouch IV Keepsake",
-        "Pouch I Keepsake",
-        "Pouch III Keepsake",
-        "Pouch II Second Keepsake"
-      ]
-    },
-    {
-      "family": "third_eye",
-      "kind": "Trinket",
-      "slots": [
-        "Third Eye"
-      ]
-    },
-    {
-      "family": "toe_talons",
-      "kind": "Weapon",
-      "slots": [
-        "Right Toe Talons",
-        "Left Toe Talons"
-      ]
-    },
-    {
-      "family": "claw_gauntlet",
-      "kind": "Weapon",
-      "slots": [
-        "Left Claw Gauntlet",
-        "Right Claw Gauntlet"
-      ]
-    },
-    {
-      "family": "torso_tattoo",
+      "family": "sleeve_tattoo",
       "kind": "Tattoo",
       "slots": [
-        "Torso Tattoo"
+        "Right Sleeve Tattoo",
+        "Left Sleeve Tattoo"
       ]
     },
     {
-      "family": "goggles",
+      "family": "leg_sleeve_tattoo",
+      "kind": "Tattoo",
+      "slots": [
+        "Left Leg Sleeve Tattoo",
+        "Right Leg Sleeve Tattoo"
+      ]
+    },
+    {
+      "family": "wrist_blade",
+      "kind": "Weapon",
+      "slots": [
+        "Right Wrist Blade",
+        "Left Wrist Blade"
+      ]
+    },
+    {
+      "family": "shadow_cloak",
       "kind": "Accessory",
       "slots": [
-        "Goggles"
-      ]
-    },
-    {
-      "family": "collar",
-      "kind": "Jewelry",
-      "slots": [
-        "Familiar Collar"
-      ]
-    },
-    {
-      "family": "dragon_crest",
-      "kind": "Armor",
-      "slots": [
-        "Dragon Crest"
+        "Shadow Cloak"
       ]
     },
     {
@@ -2146,46 +2705,50 @@
       ]
     },
     {
-      "family": "full_arm_harness",
+      "family": "barding",
       "kind": "Armor",
       "slots": [
-        "Right Full Arm Harness",
-        "Left Full Arm Harness"
+        "Familiar Barding",
+        "Steed Barding"
       ]
     },
     {
-      "family": "girdle",
+      "family": "hauberk",
       "kind": "Armor",
       "slots": [
-        "Girdle"
+        "Hauberk"
       ]
     },
     {
-      "family": "torch",
-      "kind": "Trinket",
+      "family": "toe_talons",
+      "kind": "Weapon",
       "slots": [
-        "Everburning Torch"
+        "Left Toe Talons",
+        "Right Toe Talons"
       ]
     },
     {
-      "family": "heartstone",
-      "kind": "Trinket",
+      "family": "steed",
+      "kind": "Companion",
       "slots": [
-        "Heartstone"
+        "Steed"
       ]
     },
     {
-      "family": "nose_chain",
-      "kind": "Jewelry",
+      "family": "torso_tattoo",
+      "kind": "Tattoo",
       "slots": [
-        "Nose Chain"
+        "Torso Tattoo"
       ]
     },
     {
-      "family": "horned_helm",
+      "family": "horseshoe",
       "kind": "Armor",
       "slots": [
-        "Horned Helm"
+        "Horseshoe IV",
+        "Horseshoe III",
+        "Horseshoe II",
+        "Horseshoe I"
       ]
     },
     {
@@ -2196,33 +2759,46 @@
       ]
     },
     {
-      "family": "saddle",
-      "kind": "Accessory",
+      "family": "horned_helm",
+      "kind": "Armor",
       "slots": [
-        "Saddle"
+        "Horned Helm"
       ]
     },
     {
-      "family": "reins",
-      "kind": "Accessory",
-      "slots": [
-        "Reins"
-      ]
-    },
-    {
-      "family": "tail",
-      "kind": "Accessory",
-      "slots": [
-        "Tail"
-      ]
-    },
-    {
-      "family": "tail_ring",
+      "family": "spine_piercings",
       "kind": "Jewelry",
       "slots": [
-        "Tail Ring III",
-        "Tail Ring I",
-        "Tail Ring II"
+        "Spine Piercings"
+      ]
+    },
+    {
+      "family": "elbow_spike",
+      "kind": "Weapon",
+      "slots": [
+        "Right Elbow Spike",
+        "Left Elbow Spike"
+      ]
+    },
+    {
+      "family": "mail_leggings",
+      "kind": "Armor",
+      "slots": [
+        "Mail Leggings"
+      ]
+    },
+    {
+      "family": "collarbone_chain",
+      "kind": "Jewelry",
+      "slots": [
+        "Collarbone Chain"
+      ]
+    },
+    {
+      "family": "goggles",
+      "kind": "Accessory",
+      "slots": [
+        "Goggles"
       ]
     },
     {
@@ -2241,45 +2817,38 @@
       ]
     },
     {
-      "family": "tail_spike",
-      "kind": "Weapon",
+      "family": "saddle",
+      "kind": "Accessory",
       "slots": [
-        "Tail Spike"
+        "Saddle"
+      ]
+    },
+    {
+      "family": "saddlebags",
+      "kind": "Trinket",
+      "slots": [
+        "Saddlebags"
+      ]
+    },
+    {
+      "family": "reins",
+      "kind": "Accessory",
+      "slots": [
+        "Reins"
       ]
     },
     {
       "family": "constellation",
       "kind": "Celestial",
       "slots": [
-        "Constellation of the Lion",
-        "Constellation of the Scales",
-        "Constellation of the Archer",
-        "Constellation of the Maiden",
-        "Constellation of the Ram",
-        "Constellation of the Twins",
         "Constellation of the Crab",
-        "Constellation of the Bull"
-      ]
-    },
-    {
-      "family": "starcrown",
-      "kind": "Celestial",
-      "slots": [
-        "Starcrown"
-      ]
-    },
-    {
-      "family": "halo",
-      "kind": "Celestial",
-      "slots": [
-        "Halo"
-      ]
-    },
-    {
-      "family": "halo_light",
-      "kind": "Celestial",
-      "slots": [
-        "Halo Light"
+        "Constellation of the Bull",
+        "Constellation of the Scales",
+        "Constellation of the Maiden",
+        "Constellation of the Archer",
+        "Constellation of the Ram",
+        "Constellation of the Lion",
+        "Constellation of the Twins"
       ]
     },
     {
@@ -2290,10 +2859,17 @@
       ]
     },
     {
-      "family": "aura",
+      "family": "starcrown",
       "kind": "Celestial",
       "slots": [
-        "Aura"
+        "Starcrown"
+      ]
+    },
+    {
+      "family": "halo_light",
+      "kind": "Celestial",
+      "slots": [
+        "Halo Light"
       ]
     },
     {
@@ -2304,12 +2880,2636 @@
       ]
     },
     {
+      "family": "aura",
+      "kind": "Celestial",
+      "slots": [
+        "Aura"
+      ]
+    },
+    {
+      "family": "halo",
+      "kind": "Celestial",
+      "slots": [
+        "Halo"
+      ]
+    },
+    {
       "family": "aura_mote",
       "kind": "Celestial",
       "slots": [
         "Aura Mote I",
-        "Aura Mote III",
-        "Aura Mote II"
+        "Aura Mote II",
+        "Aura Mote III"
+      ]
+    }
+  ],
+  "sites": [
+    {
+      "key": "scalp",
+      "name": "Scalp",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "scalp.skin",
+          "name": "Scalp ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "scalp.under",
+          "name": "Cap",
+          "layer": "Under"
+        },
+        {
+          "key": "scalp.head",
+          "name": "Headwear",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "hair",
+      "name": "Hair",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "hair.pin1",
+          "name": "Hair pin",
+          "layer": "Adorn"
+        },
+        {
+          "key": "hair.pin2",
+          "name": "Second hair pin",
+          "layer": "Adorn"
+        },
+        {
+          "key": "hair.ribbon",
+          "name": "Ribbon",
+          "layer": "Adorn"
+        },
+        {
+          "key": "hair.beads",
+          "name": "Braid beads",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "brow",
+      "name": "Brow",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "brow.skin",
+          "name": "Brow ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "brow.band",
+          "name": "Brow band",
+          "layer": "Armor"
+        },
+        {
+          "key": "brow.jewel",
+          "name": "Forehead jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.eye",
+      "name": "Right eye",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.eye.skin",
+          "name": "Kohl",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.eye.adorn",
+          "name": "Lens",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.eye.brow",
+          "name": "Eyebrow ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.ear",
+      "name": "Right ear",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ear.lobe",
+          "name": "Lobe",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ear.helix",
+          "name": "Helix",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ear.tip",
+          "name": "Ear tip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.cheek",
+      "name": "Right cheek",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.cheek.skin",
+          "name": "Cheek ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.cheek.armor",
+          "name": "Cheek guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.cheek.adorn",
+          "name": "Cheek gem",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.eye",
+      "name": "Left eye",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.eye.skin",
+          "name": "Kohl",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.eye.adorn",
+          "name": "Lens",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.eye.brow",
+          "name": "Eyebrow ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.ear",
+      "name": "Left ear",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ear.lobe",
+          "name": "Lobe",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ear.helix",
+          "name": "Helix",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ear.tip",
+          "name": "Ear tip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.cheek",
+      "name": "Left cheek",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.cheek.skin",
+          "name": "Cheek ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.cheek.armor",
+          "name": "Cheek guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.cheek.adorn",
+          "name": "Cheek gem",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "face",
+      "name": "Face",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "face.mask",
+          "name": "Mask",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "nose",
+      "name": "Nose",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "nose.bridge",
+          "name": "Bridge",
+          "layer": "Armor"
+        },
+        {
+          "key": "nose.septum",
+          "name": "Septum",
+          "layer": "Adorn"
+        },
+        {
+          "key": "nose.nostrilR",
+          "name": "Right nostril",
+          "layer": "Adorn"
+        },
+        {
+          "key": "nose.nostrilL",
+          "name": "Left nostril",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "mouth",
+      "name": "Mouth",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "mouth.armor",
+          "name": "Mouth guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "mouth.lip",
+          "name": "Lip",
+          "layer": "Adorn"
+        },
+        {
+          "key": "mouth.teeth",
+          "name": "Teeth",
+          "layer": "Adorn"
+        },
+        {
+          "key": "mouth.tongue",
+          "name": "Tongue",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "chin",
+      "name": "Chin",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "chin.skin",
+          "name": "Chin ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "chin.armor",
+          "name": "Chin guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "chin.adorn",
+          "name": "Beard rings",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "nape",
+      "name": "Nape",
+      "region": "Head",
+      "back": true,
+      "slots": [
+        {
+          "key": "nape.skin",
+          "name": "Nape ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "nape.under",
+          "name": "Neck cloth",
+          "layer": "Under"
+        },
+        {
+          "key": "nape.armor",
+          "name": "Nape guard",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "horns",
+      "name": "Horns",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "horns.graft",
+          "name": "Horns",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "halo",
+      "name": "Above the head",
+      "region": "Head",
+      "back": false,
+      "slots": [
+        {
+          "key": "halo.halo",
+          "name": "Halo",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "neck",
+      "name": "Neck",
+      "region": "Neck",
+      "back": false,
+      "slots": [
+        {
+          "key": "neck.skin",
+          "name": "Neck ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "neck.under",
+          "name": "Scarf",
+          "layer": "Under"
+        },
+        {
+          "key": "neck.armor",
+          "name": "Gorget",
+          "layer": "Armor"
+        },
+        {
+          "key": "neck.ring",
+          "name": "Neck ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "throat",
+      "name": "Throat",
+      "region": "Neck",
+      "back": false,
+      "slots": [
+        {
+          "key": "throat.skin",
+          "name": "Throat ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "throat.jewel",
+          "name": "Throat jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "collar",
+      "name": "Base of the neck",
+      "region": "Neck",
+      "back": false,
+      "slots": [
+        {
+          "key": "collar.chain",
+          "name": "Necklace",
+          "layer": "Adorn"
+        },
+        {
+          "key": "collar.chain2",
+          "name": "Second necklace",
+          "layer": "Adorn"
+        },
+        {
+          "key": "collar.pendant",
+          "name": "Pendant",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.clavicle",
+      "name": "Right collarbone",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.clavicle.skin",
+          "name": "Collarbone ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.clavicle.adorn",
+          "name": "Collarbone stud",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.clavicle",
+      "name": "Left collarbone",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.clavicle.skin",
+          "name": "Collarbone ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.clavicle.adorn",
+          "name": "Collarbone stud",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.pec",
+      "name": "Left breast",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.pec.skin",
+          "name": "Breast ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.pec.armor",
+          "name": "Pectoral plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.pec.medal1",
+          "name": "Medal",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.pec.medal2",
+          "name": "Second medal",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.pec.medal3",
+          "name": "Third medal",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.pec",
+      "name": "Right breast",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.pec.skin",
+          "name": "Breast ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.pec.armor",
+          "name": "Pectoral plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.pec.badge",
+          "name": "Badge",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "sternum",
+      "name": "Breastbone",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "sternum.skin",
+          "name": "Breastbone ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "sternum.armor",
+          "name": "Placard",
+          "layer": "Armor"
+        },
+        {
+          "key": "sternum.adorn",
+          "name": "Brooch",
+          "layer": "Adorn"
+        },
+        {
+          "key": "sternum.graft",
+          "name": "Soul gem",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "heart",
+      "name": "Heart",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "heart.skin",
+          "name": "Heart ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "heart.graft",
+          "name": "Heart",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "R.ribs",
+      "name": "Right ribs",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ribs.skin",
+          "name": "Rib ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.ribs.armor",
+          "name": "Rib guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.ribs.adorn",
+          "name": "Rib chain",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ribs.graft",
+          "name": "Gills",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "L.ribs",
+      "name": "Left ribs",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ribs.skin",
+          "name": "Rib ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.ribs.armor",
+          "name": "Rib guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.ribs.adorn",
+          "name": "Rib chain",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ribs.graft",
+          "name": "Gills",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "plexus",
+      "name": "Solar plexus",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "plexus.skin",
+          "name": "Plexus ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "plexus.armor",
+          "name": "Plexus disc",
+          "layer": "Armor"
+        },
+        {
+          "key": "plexus.adorn",
+          "name": "Plexus gem",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "stomach",
+      "name": "Stomach",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "stomach.skin",
+          "name": "Stomach ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "stomach.armor",
+          "name": "Plackart",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "navel",
+      "name": "Navel",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "navel.skin",
+          "name": "Navel ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "navel.adorn",
+          "name": "Navel ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.flank",
+      "name": "Right flank",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.flank.skin",
+          "name": "Flank ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.flank.armor",
+          "name": "Side plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.flank.hold",
+          "name": "Side sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.flank",
+      "name": "Left flank",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.flank.skin",
+          "name": "Flank ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.flank.armor",
+          "name": "Side plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.flank.hold",
+          "name": "Side sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "lowbelly",
+      "name": "Lower belly",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "lowbelly.skin",
+          "name": "Lower belly ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "lowbelly.adorn",
+          "name": "Belly chain",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "torso",
+      "name": "The whole torso",
+      "region": "Torso",
+      "back": false,
+      "slots": [
+        {
+          "key": "torso.under",
+          "name": "Shirt",
+          "layer": "Under"
+        },
+        {
+          "key": "torso.mail",
+          "name": "Mail",
+          "layer": "Mail"
+        },
+        {
+          "key": "torso.over",
+          "name": "Tabard",
+          "layer": "Over"
+        },
+        {
+          "key": "torso.strap",
+          "name": "Strap",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.blade",
+      "name": "Right shoulder blade",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.blade.skin",
+          "name": "Shoulder blade ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.blade.armor",
+          "name": "Scapula plate",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.blade",
+      "name": "Left shoulder blade",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.blade.skin",
+          "name": "Shoulder blade ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.blade.armor",
+          "name": "Scapula plate",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "upspine",
+      "name": "Upper spine",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "upspine.skin",
+          "name": "Upper spine ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "upspine.armor",
+          "name": "Spine guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "upspine.adorn",
+          "name": "Spine piercings",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "midspine",
+      "name": "Middle of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "midspine.skin",
+          "name": "Mid-back ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "midspine.graft",
+          "name": "Dorsal spines",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "R.lat",
+      "name": "Right side of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.lat.skin",
+          "name": "Back side ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.lat.armor",
+          "name": "Lat guard",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.lat",
+      "name": "Left side of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.lat.skin",
+          "name": "Back side ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.lat.armor",
+          "name": "Lat guard",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "lumbar",
+      "name": "Small of the back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "lumbar.skin",
+          "name": "Lower back ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "lumbar.armor",
+          "name": "Lumbar plate",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.kidney",
+      "name": "Right kidney",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.kidney.skin",
+          "name": "Kidney ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.kidney.armor",
+          "name": "Kidney guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.kidney.hold",
+          "name": "Kidney dagger",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.kidney",
+      "name": "Left kidney",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.kidney.skin",
+          "name": "Kidney ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.kidney.armor",
+          "name": "Kidney guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.kidney.hold",
+          "name": "Kidney dagger",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "back",
+      "name": "The whole back",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "back.over",
+          "name": "Cloak",
+          "layer": "Over"
+        },
+        {
+          "key": "back.mount",
+          "name": "Carried on the back",
+          "layer": "Hold"
+        },
+        {
+          "key": "back.wings",
+          "name": "Wings",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "tail",
+      "name": "Tail",
+      "region": "Back",
+      "back": true,
+      "slots": [
+        {
+          "key": "tail.graft",
+          "name": "Tail",
+          "layer": "Graft"
+        }
+      ]
+    },
+    {
+      "key": "waist",
+      "name": "Waist",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "waist.skin",
+          "name": "Waist ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "waist.under",
+          "name": "Sash",
+          "layer": "Under"
+        },
+        {
+          "key": "waist.armor",
+          "name": "Fauld",
+          "layer": "Armor"
+        },
+        {
+          "key": "waist.belt",
+          "name": "Belt",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.hip",
+      "name": "Right hip",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.hip.skin",
+          "name": "Hip ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.hip.armor",
+          "name": "Tasset",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.hip.hang",
+          "name": "Hanging sheath",
+          "layer": "Hold"
+        },
+        {
+          "key": "R.hip.adorn",
+          "name": "Hip chain",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.hip",
+      "name": "Left hip",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.hip.skin",
+          "name": "Hip ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.hip.armor",
+          "name": "Tasset",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.hip.hang",
+          "name": "Hanging sheath",
+          "layer": "Hold"
+        },
+        {
+          "key": "L.hip.adorn",
+          "name": "Hip chain",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "groin",
+      "name": "Groin",
+      "region": "Waist",
+      "back": false,
+      "slots": [
+        {
+          "key": "groin.armor",
+          "name": "Codpiece",
+          "layer": "Armor"
+        },
+        {
+          "key": "groin.over",
+          "name": "Loincloth",
+          "layer": "Over"
+        }
+      ]
+    },
+    {
+      "key": "seat",
+      "name": "Seat",
+      "region": "Waist",
+      "back": true,
+      "slots": [
+        {
+          "key": "seat.armor",
+          "name": "Culet",
+          "layer": "Armor"
+        },
+        {
+          "key": "seat.pouch",
+          "name": "Rear pouch",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.shoulder",
+      "name": "Right shoulder",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.shoulder.skin",
+          "name": "Shoulder ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.shoulder.armor",
+          "name": "Pauldron",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.shoulder.over",
+          "name": "Shoulder cape",
+          "layer": "Over"
+        },
+        {
+          "key": "R.shoulder.perch",
+          "name": "Perch",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.armpit",
+      "name": "Right armpit",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.armpit.armor",
+          "name": "Besagew",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.upperarm",
+      "name": "Right upper arm",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.upperarm.skin",
+          "name": "Upper arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.upperarm.under",
+          "name": "Sleeve",
+          "layer": "Under"
+        },
+        {
+          "key": "R.upperarm.mail",
+          "name": "Mail sleeve",
+          "layer": "Mail"
+        },
+        {
+          "key": "R.upperarm.armor",
+          "name": "Rerebrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.upperarm.adorn",
+          "name": "Armlet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.triceps",
+      "name": "Back of the right upper arm",
+      "region": "Right arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.triceps.skin",
+          "name": "Back of the arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.triceps.adorn",
+          "name": "Arm cuff",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.elbow",
+      "name": "Right elbow",
+      "region": "Right arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.elbow.skin",
+          "name": "Elbow ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.elbow.armor",
+          "name": "Couter",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.elbow.spike",
+          "name": "Elbow spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.forearm",
+      "name": "Right forearm",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.forearm.skin",
+          "name": "Forearm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.forearm.under",
+          "name": "Wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "R.forearm.armor",
+          "name": "Vambrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.forearm.blade",
+          "name": "Hidden blade",
+          "layer": "Hold"
+        },
+        {
+          "key": "R.forearm.sheath",
+          "name": "Forearm sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.wrist",
+      "name": "Right wrist",
+      "region": "Right arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.wrist.skin",
+          "name": "Wrist ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.wrist.armor",
+          "name": "Bracer",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.wrist.bangle1",
+          "name": "Bracelet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.wrist.bangle2",
+          "name": "Second bracelet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.hand",
+      "name": "Back of the right hand",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.hand.skin",
+          "name": "Hand ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.hand.under",
+          "name": "Glove",
+          "layer": "Under"
+        },
+        {
+          "key": "R.hand.armor",
+          "name": "Hand plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.hand.adorn",
+          "name": "Hand jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.palm",
+      "name": "Right palm",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.palm.skin",
+          "name": "Palm sigil",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.palm.adorn",
+          "name": "Palm crystal",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.grip",
+      "name": "Right grip",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.grip.hold",
+          "name": "Main hand",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.fingers",
+      "name": "Right fingers",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.fingers.skin",
+          "name": "Finger ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "R.thumb",
+      "name": "Right thumb",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.thumb.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.thumb.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.thumb.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.index",
+      "name": "Right index finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.index.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.index.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.index.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.middle",
+      "name": "Right middle finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.middle.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.middle.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.middle.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.ring",
+      "name": "Right ring finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ring.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ring.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ring.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.little",
+      "name": "Right little finger",
+      "region": "Right hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.little.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.little.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.little.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.thigh",
+      "name": "Right thigh",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.thigh.skin",
+          "name": "Thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.thigh.under",
+          "name": "Breeches",
+          "layer": "Under"
+        },
+        {
+          "key": "R.thigh.mail",
+          "name": "Chausses",
+          "layer": "Mail"
+        },
+        {
+          "key": "R.thigh.armor",
+          "name": "Cuisse",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.thigh.adorn",
+          "name": "Garter",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.outthigh",
+      "name": "Outside of the right thigh",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.outthigh.skin",
+          "name": "Outer thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.outthigh.hold",
+          "name": "Thigh sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.hamstring",
+      "name": "Back of the right thigh",
+      "region": "Right leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.hamstring.skin",
+          "name": "Back of the thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.hamstring.adorn",
+          "name": "Thigh strap",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.knee",
+      "name": "Right knee",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.knee.skin",
+          "name": "Knee ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.knee.under",
+          "name": "Knee wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "R.knee.armor",
+          "name": "Poleyn",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.kneepit",
+      "name": "Back of the right knee",
+      "region": "Right leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.kneepit.skin",
+          "name": "Knee pit ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "R.shin",
+      "name": "Right shin",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.shin.skin",
+          "name": "Shin ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.shin.under",
+          "name": "Leg wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "R.shin.armor",
+          "name": "Greave",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "R.calf",
+      "name": "Right calf",
+      "region": "Right leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.calf.skin",
+          "name": "Calf ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.calf.armor",
+          "name": "Calf guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.calf.adorn",
+          "name": "Calf band",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.ankle",
+      "name": "Right ankle",
+      "region": "Right leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.ankle.skin",
+          "name": "Ankle ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.ankle.under",
+          "name": "Ankle wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "R.ankle.armor",
+          "name": "Ankle guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.ankle.anklet1",
+          "name": "Anklet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "R.ankle.anklet2",
+          "name": "Second anklet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.foot",
+      "name": "Top of the right foot",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.foot.skin",
+          "name": "Foot ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.foot.under",
+          "name": "Sock",
+          "layer": "Under"
+        },
+        {
+          "key": "R.foot.armor",
+          "name": "Sabaton",
+          "layer": "Armor"
+        },
+        {
+          "key": "R.foot.adorn",
+          "name": "Foot charm",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.sole",
+      "name": "Right sole",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.sole.sole",
+          "name": "Sole",
+          "layer": "Under"
+        }
+      ]
+    },
+    {
+      "key": "R.heel",
+      "name": "Right heel",
+      "region": "Right foot",
+      "back": true,
+      "slots": [
+        {
+          "key": "R.heel.skin",
+          "name": "Heel ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "R.heel.spike",
+          "name": "Heel spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "R.toetips",
+      "name": "Right toenails",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toetips.tips",
+          "name": "Toenails",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.bigtoe",
+      "name": "Right big toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.bigtoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.toe2",
+      "name": "Right second toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toe2.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.toe3",
+      "name": "Right middle toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toe3.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.toe4",
+      "name": "Right fourth toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.toe4.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "R.littletoe",
+      "name": "Right little toe",
+      "region": "Right foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "R.littletoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.shoulder",
+      "name": "Left shoulder",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.shoulder.skin",
+          "name": "Shoulder ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.shoulder.armor",
+          "name": "Pauldron",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.shoulder.over",
+          "name": "Shoulder cape",
+          "layer": "Over"
+        },
+        {
+          "key": "L.shoulder.perch",
+          "name": "Perch",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.armpit",
+      "name": "Left armpit",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.armpit.armor",
+          "name": "Besagew",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.upperarm",
+      "name": "Left upper arm",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.upperarm.skin",
+          "name": "Upper arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.upperarm.under",
+          "name": "Sleeve",
+          "layer": "Under"
+        },
+        {
+          "key": "L.upperarm.mail",
+          "name": "Mail sleeve",
+          "layer": "Mail"
+        },
+        {
+          "key": "L.upperarm.armor",
+          "name": "Rerebrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.upperarm.adorn",
+          "name": "Armlet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.triceps",
+      "name": "Back of the left upper arm",
+      "region": "Left arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.triceps.skin",
+          "name": "Back of the arm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.triceps.adorn",
+          "name": "Arm cuff",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.elbow",
+      "name": "Left elbow",
+      "region": "Left arm",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.elbow.skin",
+          "name": "Elbow ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.elbow.armor",
+          "name": "Couter",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.elbow.spike",
+          "name": "Elbow spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.forearm",
+      "name": "Left forearm",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.forearm.skin",
+          "name": "Forearm ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.forearm.under",
+          "name": "Wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "L.forearm.armor",
+          "name": "Vambrace",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.forearm.blade",
+          "name": "Hidden blade",
+          "layer": "Hold"
+        },
+        {
+          "key": "L.forearm.sheath",
+          "name": "Forearm sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.wrist",
+      "name": "Left wrist",
+      "region": "Left arm",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.wrist.skin",
+          "name": "Wrist ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.wrist.armor",
+          "name": "Bracer",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.wrist.bangle1",
+          "name": "Bracelet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.wrist.bangle2",
+          "name": "Second bracelet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.hand",
+      "name": "Back of the left hand",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.hand.skin",
+          "name": "Hand ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.hand.under",
+          "name": "Glove",
+          "layer": "Under"
+        },
+        {
+          "key": "L.hand.armor",
+          "name": "Hand plate",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.hand.adorn",
+          "name": "Hand jewel",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.palm",
+      "name": "Left palm",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.palm.skin",
+          "name": "Palm sigil",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.palm.adorn",
+          "name": "Palm crystal",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.grip",
+      "name": "Left grip",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.grip.hold",
+          "name": "Off hand",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.fingers",
+      "name": "Left fingers",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.fingers.skin",
+          "name": "Finger ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "L.thumb",
+      "name": "Left thumb",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.thumb.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.thumb.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.thumb.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.index",
+      "name": "Left index finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.index.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.index.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.index.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.middle",
+      "name": "Left middle finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.middle.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.middle.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.middle.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.ring",
+      "name": "Left ring finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ring.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ring.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ring.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.little",
+      "name": "Left little finger",
+      "region": "Left hand",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.little.band",
+          "name": "Ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.little.knuckle",
+          "name": "Knuckle ring",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.little.tip",
+          "name": "Fingertip",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.thigh",
+      "name": "Left thigh",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.thigh.skin",
+          "name": "Thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.thigh.under",
+          "name": "Breeches",
+          "layer": "Under"
+        },
+        {
+          "key": "L.thigh.mail",
+          "name": "Chausses",
+          "layer": "Mail"
+        },
+        {
+          "key": "L.thigh.armor",
+          "name": "Cuisse",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.thigh.adorn",
+          "name": "Garter",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.outthigh",
+      "name": "Outside of the left thigh",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.outthigh.skin",
+          "name": "Outer thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.outthigh.hold",
+          "name": "Thigh sheath",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.hamstring",
+      "name": "Back of the left thigh",
+      "region": "Left leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.hamstring.skin",
+          "name": "Back of the thigh ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.hamstring.adorn",
+          "name": "Thigh strap",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.knee",
+      "name": "Left knee",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.knee.skin",
+          "name": "Knee ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.knee.under",
+          "name": "Knee wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "L.knee.armor",
+          "name": "Poleyn",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.kneepit",
+      "name": "Back of the left knee",
+      "region": "Left leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.kneepit.skin",
+          "name": "Knee pit ink",
+          "layer": "Skin"
+        }
+      ]
+    },
+    {
+      "key": "L.shin",
+      "name": "Left shin",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.shin.skin",
+          "name": "Shin ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.shin.under",
+          "name": "Leg wraps",
+          "layer": "Under"
+        },
+        {
+          "key": "L.shin.armor",
+          "name": "Greave",
+          "layer": "Armor"
+        }
+      ]
+    },
+    {
+      "key": "L.calf",
+      "name": "Left calf",
+      "region": "Left leg",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.calf.skin",
+          "name": "Calf ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.calf.armor",
+          "name": "Calf guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.calf.adorn",
+          "name": "Calf band",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.ankle",
+      "name": "Left ankle",
+      "region": "Left leg",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.ankle.skin",
+          "name": "Ankle ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.ankle.under",
+          "name": "Ankle wrap",
+          "layer": "Under"
+        },
+        {
+          "key": "L.ankle.armor",
+          "name": "Ankle guard",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.ankle.anklet1",
+          "name": "Anklet",
+          "layer": "Adorn"
+        },
+        {
+          "key": "L.ankle.anklet2",
+          "name": "Second anklet",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.foot",
+      "name": "Top of the left foot",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.foot.skin",
+          "name": "Foot ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.foot.under",
+          "name": "Sock",
+          "layer": "Under"
+        },
+        {
+          "key": "L.foot.armor",
+          "name": "Sabaton",
+          "layer": "Armor"
+        },
+        {
+          "key": "L.foot.adorn",
+          "name": "Foot charm",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.sole",
+      "name": "Left sole",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.sole.sole",
+          "name": "Sole",
+          "layer": "Under"
+        }
+      ]
+    },
+    {
+      "key": "L.heel",
+      "name": "Left heel",
+      "region": "Left foot",
+      "back": true,
+      "slots": [
+        {
+          "key": "L.heel.skin",
+          "name": "Heel ink",
+          "layer": "Skin"
+        },
+        {
+          "key": "L.heel.spike",
+          "name": "Heel spike",
+          "layer": "Hold"
+        }
+      ]
+    },
+    {
+      "key": "L.toetips",
+      "name": "Left toenails",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toetips.tips",
+          "name": "Toenails",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.bigtoe",
+      "name": "Left big toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.bigtoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.toe2",
+      "name": "Left second toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toe2.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.toe3",
+      "name": "Left middle toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toe3.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.toe4",
+      "name": "Left fourth toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.toe4.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "L.littletoe",
+      "name": "Left little toe",
+      "region": "Left foot",
+      "back": false,
+      "slots": [
+        {
+          "key": "L.littletoe.band",
+          "name": "Toe ring",
+          "layer": "Adorn"
+        }
+      ]
+    },
+    {
+      "key": "aura",
+      "name": "Aura",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "aura.aura",
+          "name": "Aura",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "orbit",
+      "name": "Orbit",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "orbit.stone1",
+          "name": "Orbit I",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone2",
+          "name": "Orbit II",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone3",
+          "name": "Orbit III",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone4",
+          "name": "Orbit IV",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone5",
+          "name": "Orbit V",
+          "layer": "Beyond"
+        },
+        {
+          "key": "orbit.stone6",
+          "name": "Orbit VI",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "shadow",
+      "name": "Shadow",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "shadow.shadow",
+          "name": "Shadow",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "companion",
+      "name": "At your side",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "companion.familiar",
+          "name": "Familiar",
+          "layer": "Beyond"
+        },
+        {
+          "key": "companion.steed",
+          "name": "Steed",
+          "layer": "Beyond"
+        }
+      ]
+    },
+    {
+      "key": "heavens",
+      "name": "The heavens",
+      "region": "Beyond",
+      "back": false,
+      "slots": [
+        {
+          "key": "heavens.star1",
+          "name": "Constellation I",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star2",
+          "name": "Constellation II",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star3",
+          "name": "Constellation III",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star4",
+          "name": "Constellation IV",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star5",
+          "name": "Constellation V",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star6",
+          "name": "Constellation VI",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star7",
+          "name": "Constellation VII",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.star8",
+          "name": "Constellation VIII",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.comet",
+          "name": "Comet",
+          "layer": "Beyond"
+        },
+        {
+          "key": "heavens.eclipse",
+          "name": "Eclipse",
+          "layer": "Beyond"
+        }
       ]
     }
   ],

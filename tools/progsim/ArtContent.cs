@@ -8,7 +8,7 @@ using LootFall.Progression;
 /// <summary>
 /// progsim --manifest=PATH: the content the art pipeline needs, from the game's own definitions so the manifest never
 /// falls behind them: every realm with its monsters (key, name, body plan, size) and guardian, every item family with the
-/// slots it covers, and the codex eras (tools/art.py builds art/manifest.json from it).
+/// pieces in it, the body's sites with their slots, and the codex eras (tools/art.py builds art/manifest.json from it).
 /// </summary>
 static class ArtContent
 {
@@ -20,6 +20,12 @@ static class ArtContent
         {
             realms = Bestiary.Realms.Select((r, i) => new { key = r.Key, name = r.Name, era = i, monsters = r.Monsters.Select(Monster), guardian = Monster(r.Guardian) }),
             families = c.Slots.GroupBy(s => Describe.Family(s)).Select(g => new { family = g.Key, kind = g.First().Kind.ToString(), slots = g.Select(s => s.Name) }),
+            // The body's sites and their slots, by region: what the equipment figure has to show (art/equipment).
+            sites = c.Cells.Where(x => x.Board == Anatomy.Body).GroupBy(x => x.Site).Select(g => new
+            {
+                key = g.Key, name = g.First().SiteName, region = g.First().Region, back = g.First().Back,
+                slots = g.Select(x => new { key = x.Key, name = x.Name, layer = x.Layer.ToString() }),
+            }),
             eras = Describe.Eras,
         };
         File.WriteAllText(path, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));

@@ -26,7 +26,7 @@ public partial class EquipmentScreen : Overlay
     readonly Control _head;
     readonly ScrollContainer _scroll;
     readonly VBoxContainer _list;
-    readonly Button _turn, _whole;
+    readonly Button _turn, _whole, _slots;
     string _region;
     int _piece = -1, _board = -1, _host = -1, _cell = -1;
     readonly Dictionary<int, Control> _cellRows = new();
@@ -61,9 +61,14 @@ public partial class EquipmentScreen : Overlay
             _doll.Frame(_region == "Back" && !_doll.Back ? null : _region, true);
         }, size: Look.Small).Place(StageX + StageW - 186, StageY + 14, 170, 44);
         _whole = Ui.Button("Whole body", ShowBody, size: Look.Small).Place(StageX + StageW - 366, StageY + 14, 170, 44);
+        _slots = Ui.Button("Hide slots", () =>
+        {
+            _doll.ShowSlots(!_doll.ShowAll);
+            _slots.Text = _doll.ShowAll ? "Hide slots" : "Show slots";
+        }, size: Look.Small).Place(StageX + StageW - 546, StageY + 14, 170, 44);
+        _p.AddChild(_slots);
         _p.AddChild(_whole);
         _p.AddChild(_turn);
-        _doll.Hint = "Drag to look around, wheel to zoom, Esc to step back";
         _head = new Control { MouseFilter = MouseFilterEnum.Ignore }.Place(SideX, 72, SideW, 150);
         _p.AddChild(_head);
         _scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }.Place(SideX, 226, SideW, 712);
@@ -165,6 +170,8 @@ public partial class EquipmentScreen : Overlay
         _doll.Refresh();
         _boardView.QueueRedraw();
         _turn.Visible = _whole.Visible = !_boardView.Visible;
+        _slots.Visible = !_boardView.Visible && _region == null;
+        _doll.Hint = _region == null ? "Click a part of the body, or any dot to go straight to that slot" : "Drag to look around, wheel to zoom, Esc to step back";
         _doll.PickedCell = _cell;
         Crumbs();
         if (_board >= 0) BoardPanel();

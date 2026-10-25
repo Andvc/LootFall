@@ -139,7 +139,7 @@ Every icon is built from three layers:
 3. **State overlays**, drawn by code: the upgrade arrow and its verdict ("+3.2% reach"), the NEW badge for a first
    find, affix dots, the forge level, rank stars, mastery pips and the tier numeral.
 
-The 586 kinds of piece reduce to **238 families** (`Anatomy.FamilyOf`): left and right mirror one design, and
+The 720 kinds of piece reduce to **314 families** (`Anatomy.FamilyOf`): left and right mirror one design, and
 numbered pieces share one (the ten finger rings are one family, the gems set in every board another). Each family comes
 in **five material tiers** following the codex eras:
 

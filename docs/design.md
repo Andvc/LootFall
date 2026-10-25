@@ -5,7 +5,7 @@
 A knight fights ever deeper, depth after depth, through eight realms that come round again harder each time. Every
 depth's monsters and its boss fill a chest. Open it and the haul climbs through twelve rarities, from Common to
 Transcendent, before the cards turn over. The knight gears up from the crown of his head to the tips of his toes:
-586 kinds of piece on 545 slots, from helms and the crests set in them to toe rings, tattoos, a steed's horseshoes and
+720 kinds of piece on 622 slots, from helms and the crests set in them to toe rings, tattoos, a steed's horseshoes and
 the stars. Every piece takes room, and many keep other room free. Some have slots of their own. Auto-equip wears the
 strongest whole set the body allows ([equipment.md](equipment.md)). Gold forges the pieces, shards from everything else
 rank them, and levels pay talent points into a tree of 3,259 nodes. First finds fill the codex, and its power with them. When a run

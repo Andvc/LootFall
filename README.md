@@ -2,7 +2,7 @@
 
 An incremental loot game about abundance. A knight fights ever deeper on his own. Every depth's monsters and boss fill a
 chest, and opening one climbs through twelve rarities, from Common to Transcendent, before the cards turn over.
-He gears up from the crown of his head to the tips of his toes: 586 kinds of piece on 545 slots, where every piece
+He gears up from the crown of his head to the tips of his toes: 720 kinds of piece on 622 slots, where every piece
 takes room, many keep other room free and some have slots of their own (a helm's crest, a blade's runes, a ring's
 stone). Auto-equip wears the strongest whole set the body allows. Gold forges the pieces, shards rank them, and levels
 pay into a 3,259-node talent tree. First finds

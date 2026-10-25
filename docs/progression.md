@@ -1,7 +1,7 @@
 # LootFall progression framework
 
-> **On hold.** The equipment redesign ([equipment.md](equipment.md)) replaced the 149 slots below with 586 kinds of
-> piece on 545 slots, worn in sets the body allows. The budget is still 149 (`Params.ReferenceSlots`): pieces are sized
+> **On hold.** The equipment redesign ([equipment.md](equipment.md)) replaced the 149 slots below with 720 kinds of
+> piece on 622 slots, worn in sets the body allows. The budget is still 149 (`Params.ReferenceSlots`): pieces are sized
 > so that the largest set that can be worn at once adds up to it. The owner has put balance validation and the
 > regression checks on hold until the systems are redesigned, so the results here predate the change and will be
 > measured again then.

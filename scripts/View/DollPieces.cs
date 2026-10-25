@@ -909,14 +909,14 @@ public partial class PaperDoll
     {
         var r = Rar(s);
         var metal = Plated(s);
-        bool chest = Array.Exists(d.Takes, c => C.Cells[c].Key == "chest.armor");
-        bool belly = Array.Exists(d.Takes, c => C.Cells[c].Key == "belly.armor");
-        bool back = Array.Exists(d.Takes, c => C.Cells[c].Key == "back.armor");
+        bool chest = Array.Exists(d.Takes, c => BreastCells.Contains(C.Cells[c].Key));
+        bool belly = Array.Exists(d.Takes, c => C.Cells[c].Key == "stomach.armor");
+        bool back = Array.Exists(d.Takes, c => BackPlateCells.Contains(C.Cells[c].Key));
         // Pieces of a harness beyond the torso: plain plates on their sites.
         foreach (int c in d.Takes)
         {
             var cell = C.Cells[c];
-            if (cell.Key is "chest.armor" or "belly.armor" or "back.armor") continue;
+            if (BreastCells.Contains(cell.Key) || BackPlateCells.Contains(cell.Key) || cell.Key == "stomach.armor") continue;
             Generic(s, d, cell);
         }
         if (Back)
@@ -942,6 +942,10 @@ public partial class PaperDoll
             if (d.Family != "plackart") DrawMods(s, new Vector2(0, chest ? 262 : 362), 44);
         }
     }
+
+    /// <summary>The plates a breastplate covers, and a backplate's.</summary>
+    static readonly HashSet<string> BreastCells = new() { "L.pec.armor", "R.pec.armor", "sternum.armor", "L.ribs.armor", "R.ribs.armor", "plexus.armor" };
+    static readonly HashSet<string> BackPlateCells = new() { "L.blade.armor", "R.blade.armor", "upspine.armor", "L.lat.armor", "R.lat.armor", "lumbar.armor" };
 
     void Mantle(int s, bool cloak)
     {

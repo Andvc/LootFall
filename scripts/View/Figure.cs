@@ -142,6 +142,25 @@ public static class Figure
             case "nape": return new[] { new Vector2(-24, 140), new Vector2(24, 140), new Vector2(22, 172), new Vector2(-22, 172) };
             case "horns": return null;
             case "halo": return Ink.Ellipse(new Vector2(0, 16), 56, 13, 28);
+            case "throat": return Ink.Ellipse(new Vector2(0, 202), 10, 9, 12);
+            case "collar": return Ink.Ellipse(new Vector2(0, 236), 46, 13, 20);
+            case "clavicle": return Ink.Capsule(new Vector2(s * 16, 222), new Vector2(s * 80, 228), 6, 6, 5);
+            case "pec": return Ink.Ellipse(new Vector2(s * 46, 262), 40, 30, 20);
+            case "sternum": return new[] { new Vector2(-11, 232), new Vector2(11, 232), new Vector2(11, 298), new Vector2(-11, 298) };
+            case "ribs": return Ink.Ellipse(new Vector2(s * 68, 320), 24, 30, 18);
+            case "plexus": return Ink.Ellipse(new Vector2(0, 314), 17, 13, 14);
+            case "stomach": return new[] { new Vector2(-50, 334), new Vector2(50, 334), new Vector2(48, 380), new Vector2(-48, 380) };
+            case "navel": return Ink.Ellipse(new Vector2(0, 392), 7, 7, 10);
+            case "flank": return Ink.Ellipse(new Vector2(s * 82, 372), 13, 32, 14);
+            case "lowbelly": return new[] { new Vector2(-56, 400), new Vector2(56, 400), new Vector2(60, 418), new Vector2(-60, 418) };
+            case "torso": return Torso();
+            case "blade": return Ink.Ellipse(new Vector2(s * 48, 262), 34, 36, 20);
+            case "upspine": return new[] { new Vector2(-11, 222), new Vector2(11, 222), new Vector2(11, 292), new Vector2(-11, 292) };
+            case "midspine": return new[] { new Vector2(-11, 298), new Vector2(11, 298), new Vector2(11, 362), new Vector2(-11, 362) };
+            case "lat": return Ink.Ellipse(new Vector2(s * 70, 334), 20, 40, 18);
+            case "lumbar": return new[] { new Vector2(-40, 378), new Vector2(40, 378), new Vector2(42, 418), new Vector2(-42, 418) };
+            case "kidney": return Ink.Ellipse(new Vector2(s * 58, 422), 17, 15, 14);
+            case "seat": return Ink.Ellipse(new Vector2(0, 482), 70, 30, 24);
             case "neck": return new[] { new Vector2(-20, 152), new Vector2(20, 152), new Vector2(22, 218), new Vector2(-22, 218) };
             case "chest": return new[] { new Vector2(-100, 216), new Vector2(100, 216), new Vector2(95, 302), new Vector2(-95, 302) };
             case "heart": return Ink.Ellipse(new Vector2(26, 258), 12, 12, 12);
@@ -157,7 +176,7 @@ public static class Figure
             case "groin": return new[] { new Vector2(-46, 448), new Vector2(46, 448), new Vector2(26, 518), new Vector2(-26, 518) };
             case "shoulder": return Ink.Ellipse(Shoulder(s) + new Vector2(0, -4), 32, 30, 20);
             case "armpit": return Ink.Ellipse(new Vector2(s * 88, 264), 12, 17, 14);
-            case "upperarm": return Ink.Capsule(Shoulder(s), Elbow(s), 26, 21);
+            case "upperarm": case "triceps": return Ink.Capsule(Shoulder(s), Elbow(s), 26, 21);
             case "elbow": return Ink.Ellipse(Elbow(s), 22, 22, 18);
             case "forearm": return Ink.Capsule(Elbow(s), Wrist(s), 21, 16);
             case "wrist":
@@ -168,15 +187,19 @@ public static class Figure
             case "hand": return Hand(s).Palm;
             case "palm": return Ink.Scale(Hand(s).Palm, Ink.Centre(Hand(s).Palm), 0.6f, Vector2.Zero);
             case "grip": return Ink.Ellipse(Hand(s).Centre + Hand(s).Dir * 6, 12, 12, 12);
+            case "fingers": return Ink.Capsule(Hand(s).Base[1], Hand(s).Base[4], 5, 5, 4);
             case "thumb": case "index": case "middle": case "ring": case "little":
             {
                 var h = Hand(s);
                 int f = Array.IndexOf(Fingers, Base(key));
                 return Ink.Capsule(h.Base[f], h.Tip[f], h.Width[f], h.Width[f] * 0.9f, 4);
             }
-            case "thigh": return Ink.Capsule(Hip(s), Knee(s), 34, 26);
-            case "knee": return Ink.Ellipse(Knee(s), 25, 24, 18);
+            case "thigh": case "hamstring": return Ink.Capsule(Hip(s), Knee(s), 34, 26);
+            case "outthigh": return Ink.Capsule(Hip(s) + new Vector2(s * 26, 24), Knee(s) + new Vector2(s * 20, -36), 9, 8, 6);
+            case "knee": case "kneepit": return Ink.Ellipse(Knee(s), 25, 24, 18);
             case "shin": return Ink.Capsule(Knee(s), Ankle(s), 25, 18);
+            case "calf": return Ink.Capsule(Knee(s) + new Vector2(0, 24), Ankle(s) + new Vector2(0, -70), 28, 20);
+            case "heel": return Ink.Ellipse(Ankle(s) + new Vector2(0, 54), 18, 12, 12);
             case "ankle": return Ink.Capsule(Ankle(s) + new Vector2(0, -12), Ankle(s) + new Vector2(0, 6), 18, 18, 5);
             case "foot": return Foot(s).Shape;
             case "sole":
@@ -202,12 +225,30 @@ public static class Figure
     public static readonly string[] Fingers = { "thumb", "index", "middle", "ring", "little" };
     public static readonly string[] ToeKeys = { "bigtoe", "toe2", "toe3", "toe4", "littletoe" };
 
-    /// <summary>Sites seen from behind (the rest from the front; the head, arms and legs from both).</summary>
-    public static bool BackOnly(string site) => site is "back" or "tail" or "nape";
-    public static bool FrontOnly(string site)
+    static readonly HashSet<string> BackSites = new()
+    {
+        "back", "tail", "nape", "blade", "upspine", "midspine", "lat", "lumbar", "kidney", "seat", "triceps", "hamstring", "kneepit", "calf", "heel",
+    };
+    static readonly HashSet<string> FrontSites = new()
+    {
+        "eye", "cheek", "face", "nose", "mouth", "chin", "brow", "throat", "collar", "clavicle", "pec", "sternum", "heart", "ribs", "plexus", "stomach", "navel",
+        "flank", "lowbelly", "groin", "palm",
+    };
+    /// <summary>Sites seen only from behind, and only from the front (the rest, round a limb or the head, both ways).</summary>
+    public static bool BackOnly(string site) => BackSites.Contains(Base(site));
+    public static bool FrontOnly(string site) => FrontSites.Contains(Base(site));
+
+    // Slots whose markers show from behind: the back's own, and the elbow's (its point is behind); those round the whole
+    // head, torso or body show both ways.
+    static readonly HashSet<string> MarkedBehind = new(BackSites) { "elbow" };
+    static readonly HashSet<string> MarkedBothWays = new() { "scalp", "hair", "ear", "torso", "halo", "horns", "aura", "orbit", "shadow", "companion", "heavens" };
+
+    /// <summary>Whether a slot's marker shows with the figure facing this way: each slot shows on one side (provisional,
+    /// until the slots are mapped on the final art).</summary>
+    public static bool Marked(string site, bool back)
     {
         string b = Base(site);
-        return b is "eye" or "cheek" or "face" or "nose" or "mouth" or "chin" or "brow" or "chest" or "heart" or "belly" or "groin" or "palm";
+        return back ? MarkedBehind.Contains(b) || MarkedBothWays.Contains(b) : !MarkedBehind.Contains(b);
     }
 
     /// <summary>Where a site's marker goes (front view).</summary>
@@ -268,18 +309,27 @@ public static class Figure
             case ("hair", "ribbon"): return new Vector2(0, 34);
             case ("hair", "beads"): return new Vector2(-52, 132);
             case ("brow", "jewel"): return new Vector2(0, 76);
-            case ("chest", "pin1"): return new Vector2(42, 238);
-            case ("chest", "pin2"): return new Vector2(-44, 240);
-            case ("chest", "pin3"): return new Vector2(-50, 262);
-            case ("chest", "pin4"): return new Vector2(-38, 282);
-            case ("belly", "navel"): return new Vector2(0, 392);
+            case ("eye", "brow"): return new Vector2(s * 22, 89);
+            case ("pec", "medal1"): return new Vector2(s * 30, 240);
+            case ("pec", "medal2"): return new Vector2(s * 44, 238);
+            case ("pec", "medal3"): return new Vector2(s * 58, 240);
+            case ("pec", "badge"): return new Vector2(s * 46, 242);
+            case ("collar", "chain"): return new Vector2(0, 228);
+            case ("collar", "chain2"): return new Vector2(0, 240);
+            case ("collar", "pendant"): return new Vector2(0, 254);
+            case ("torso", "under"): return new Vector2(-96, 246);
+            case ("torso", "mail"): return new Vector2(-94, 280);
+            case ("torso", "over"): return new Vector2(-88, 314);
+            case ("torso", "strap"): return new Vector2(94, 246);
+            case ("back", "over"): return new Vector2(0, 226);
+            case ("forearm", "sheath"): return Elbow(s).Lerp(Wrist(s), 0.62f) - new Vector2(s * 12, 0);
             case ("wrist", "bangle1"): return Hand(s).Wrist - Hand(s).Dir * 5;
             case ("wrist", "bangle2"): return Hand(s).Wrist - Hand(s).Dir * 14;
             case ("ankle", "anklet1"): return Ankle(s) + new Vector2(0, -4);
             case ("ankle", "anklet2"): return Ankle(s) + new Vector2(0, -16);
             case ("upperarm", "adorn"): return Shoulder(s).Lerp(Elbow(s), 0.35f);
             case ("thigh", "adorn"): return Hip(s).Lerp(Knee(s), 0.55f);
-            case ("forearm", "adorn"): return Elbow(s).Lerp(Wrist(s), 0.45f) + new Vector2(s * 10, 0);
+            case ("forearm", "blade"): return Elbow(s).Lerp(Wrist(s), 0.45f) + new Vector2(s * 10, 0);
             case ("shoulder", "perch"): return Shoulder(s) + new Vector2(s * 4, -40);
             case ("waist", "belt"): return new Vector2(0, 436);
             case ("back", "mount"): return new Vector2(-40, 250);
@@ -301,6 +351,25 @@ public static class Figure
             return new Vector2((i % 2 == 0 ? -1 : 1) * (150 + 40 * (i / 2 % 2)), 170 + 80 * (i / 2));
         }
         return SiteAnchor(site);
+    }
+
+    /// <summary>Where a slot's marker goes (front view): its own spot if it has one, otherwise the site's, nudged by its
+    /// layer (ink up and left, cloth up and right, mail above, plate in the middle, what's over it left, jewellery right,
+    /// what's held and grown below) so that each of a site's slots has its own point. Provisional, until the slots are
+    /// mapped on the final art.</summary>
+    public static Vector2 MarkerSpot(Cell c, int siteCells)
+    {
+        var at = Anchor(c);
+        if (siteCells <= 1 || at.DistanceSquaredTo(SiteAnchor(c.Site)) > 0.01f) return at;
+        var offset = c.Layer switch
+        {
+            Layer.Skin => new Vector2(-1, -0.8f), Layer.Under => new Vector2(1, -0.8f), Layer.Mail => new Vector2(0, -1.2f), Layer.Over => new Vector2(-1.2f, 0.5f),
+            Layer.Adorn => new Vector2(1.1f, 0.6f), Layer.Hold => new Vector2(0, 1.2f), Layer.Graft => new Vector2(-0.5f, 1.1f), _ => Vector2.Zero,
+        };
+        // Mirrored on the right, so both sides lay out alike.
+        if (SideOf(c.Site) < 0) offset.X = -offset.X;
+        float spread = Base(c.Site) is "eye" or "cheek" or "chin" or "nose" or "mouth" or "brow" or "throat" or "navel" or "heel" or "kneepit" or "wrist" ? 6 : 11;
+        return at + offset * spread;
     }
 
     // ------------------------------------------------------------------------------------------------ regions

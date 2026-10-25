@@ -125,6 +125,9 @@ public sealed class Stage
         if (mode != Mode)
         {
             Mode = mode;
+            // The monsters standing fall before the fight changes kind: every one that comes on falls.
+            foreach (var f in Foes)
+                if (!f.Dead && !f.IsBoss) Fall(f);
             Clear();
             Cues.Add(new StageCue { Kind = Cue.ModeChanged });
         }

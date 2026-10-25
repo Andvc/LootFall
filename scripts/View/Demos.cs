@@ -131,7 +131,7 @@ public static class Demos
             // A slot chosen: every piece that can fill the helm's place, with what wearing each would do.
             eq.ShowRegion("Head");
             await Wait(m, 0.6);
-            eq.PickCell(s.C.Anatomy.CellId("scalp.armor"));
+            eq.PickCell(s.C.Anatomy.CellId("scalp.head"));
             await Wait(m, 0.4);
             m.Moment("equipment_slot");
             await Wait(m, 0.2);

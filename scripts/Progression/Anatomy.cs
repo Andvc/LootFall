@@ -192,68 +192,114 @@ public sealed class Anatomy
     {
         const Layer Sk = Layer.Skin, Un = Layer.Under, Ml = Layer.Mail, Ar = Layer.Armor, Ov = Layer.Over, Ad = Layer.Adorn,
             Ho = Layer.Hold, Gr = Layer.Graft, Be = Layer.Beyond;
-        // Head.
-        Site("scalp", "Scalp", "Head", Side.None, false, C("skin", "Scalp ink", Sk), C("under", "Cap", Un), C("armor", "Helm", Ar), C("over", "Hood or hat", Ov));
+        // The head. Helms, hoods, hats and crowns go in one slot (the same place, never together); a helm also fills the
+        // brow, cheek and nape guards' slots, and covers the hair, the ears and, closed, the face.
+        Site("scalp", "Scalp", "Head", Side.None, false, C("skin", "Scalp ink", Sk), C("under", "Cap", Un), C("head", "Headwear", Ar, 1.2));
         Site("hair", "Hair", "Head", Side.None, false, C("pin1", "Hair pin", Ad, 0.3), C("pin2", "Second hair pin", Ad, 0.3), C("ribbon", "Ribbon", Ad, 0.3), C("beads", "Braid beads", Ad, 0.3));
-        Site("brow", "Brow", "Head", Side.None, false, C("skin", "Brow ink", Sk), C("armor", "Brow guard", Ar, 0.6), C("adorn", "Circlet", Ad), C("jewel", "Forehead jewel", Ad, 0.4));
+        Site("brow", "Brow", "Head", Side.None, false, C("skin", "Brow ink", Sk), C("band", "Brow band", Ar, 0.5), C("jewel", "Forehead jewel", Ad, 0.4));
         foreach (var (side, p, n) in Sides)
         {
-            Site($"{p}.eye", $"{n} eye", "Head", side, false, C("skin", "Kohl", Sk, 0.25), C("adorn", "Lens", Ad, 0.35));
-            Site($"{p}.ear", $"{n} ear", "Head", side, false, C("lobe", "Lobe", Ad, 0.3), C("helix", "Helix", Ad, 0.3), C("cuff", "Cuff", Ad, 0.3), C("tip", "Ear tip", Ad, 0.3));
-            Site($"{p}.cheek", $"{n} cheek", "Head", side, false, C("skin", "Cheek ink", Sk, 0.25), C("armor", "Cheek guard", Ar, 0.5));
+            Site($"{p}.eye", $"{n} eye", "Head", side, false, C("skin", "Kohl", Sk, 0.25), C("adorn", "Lens", Ad, 0.35), C("brow", "Eyebrow ring", Ad, 0.2));
+            Site($"{p}.ear", $"{n} ear", "Head", side, false, C("lobe", "Lobe", Ad, 0.3), C("helix", "Helix", Ad, 0.35), C("tip", "Ear tip", Ad, 0.3));
+            Site($"{p}.cheek", $"{n} cheek", "Head", side, false, C("skin", "Cheek ink", Sk, 0.25), C("armor", "Cheek guard", Ar, 0.4), C("adorn", "Cheek gem", Ad, 0.2));
         }
-        Site("face", "Face", "Head", Side.None, false, C("armor", "Face plate", Ar, 0.8), C("over", "Mask", Ov, 0.6));
-        Site("nose", "Nose", "Head", Side.None, false, C("armor", "Nasal guard", Ar, 0.4), C("septum", "Septum", Ad, 0.3), C("nostrilR", "Right nostril", Ad, 0.25), C("nostrilL", "Left nostril", Ad, 0.25));
+        Site("face", "Face", "Head", Side.None, false, C("mask", "Mask", Ar, 0.8));
+        Site("nose", "Nose", "Head", Side.None, false, C("bridge", "Bridge", Ar, 0.4), C("septum", "Septum", Ad, 0.3),
+            C("nostrilR", "Right nostril", Ad, 0.25), C("nostrilL", "Left nostril", Ad, 0.25));
         Site("mouth", "Mouth", "Head", Side.None, false, C("armor", "Mouth guard", Ar, 0.5), C("lip", "Lip", Ad, 0.3), C("teeth", "Teeth", Ad, 0.4), C("tongue", "Tongue", Ad, 0.25));
-        Site("chin", "Chin", "Head", Side.None, false, C("skin", "Chin ink", Sk, 0.25), C("armor", "Chin guard", Ar, 0.6), C("adorn", "Beard rings", Ad, 0.3));
+        Site("chin", "Chin", "Head", Side.None, false, C("skin", "Chin ink", Sk, 0.25), C("armor", "Chin guard", Ar, 0.5), C("adorn", "Beard rings", Ad, 0.3));
         Site("nape", "Nape", "Head", Side.None, true, C("skin", "Nape ink", Sk, 0.25), C("under", "Neck cloth", Un, 0.3), C("armor", "Nape guard", Ar, 0.5));
         Site("horns", "Horns", "Head", Side.None, false, C("graft", "Horns", Gr));
         Site("halo", "Above the head", "Head", Side.None, false, C("halo", "Halo", Be, 1.5));
-        // Neck.
+        // The neck.
         Site("neck", "Neck", "Neck", Side.None, false, C("skin", "Neck ink", Sk), C("under", "Scarf", Un, 0.4), C("armor", "Gorget", Ar, 0.8),
-            C("choker", "Choker", Ad, 0.4), C("chain", "Necklace", Ad, 0.5), C("pendant", "Pendant", Ad, 0.7), C("torc", "Torc", Ad, 0.5));
-        // Torso, front and back.
-        Site("chest", "Chest", "Torso", Side.None, false, C("skin", "Chest ink", Sk), C("under", "Shirt", Un), C("mail", "Mail", Ml), C("armor", "Breastplate", Ar, 1.6),
-            C("over", "Tabard", Ov), C("pin1", "Brooch", Ad, 0.3), C("pin2", "Medal", Ad, 0.3), C("pin3", "Second medal", Ad, 0.3), C("pin4", "Third medal", Ad, 0.3));
-        Site("heart", "Heart", "Torso", Side.None, false, C("graft", "Heart", Gr, 0.8));
-        Site("belly", "Belly", "Torso", Side.None, false, C("skin", "Belly ink", Sk), C("under", "Shirt", Un, 0.4), C("mail", "Mail", Ml, 0.5), C("armor", "Plackart", Ar, 0.8),
-            C("over", "Tabard", Ov, 0.4), C("navel", "Navel", Ad, 0.25));
-        Site("back", "Back", "Back", Side.None, true, C("skin", "Back ink", Sk, 0.5), C("under", "Shirt", Un, 0.4), C("mail", "Mail", Ml, 0.6), C("armor", "Backplate", Ar, 1.2),
-            C("over", "Cloak", Ov, 0.8), C("mount", "Carried on the back", Ho, 1.2), C("wings", "Wings", Gr, 1.6));
-        Site("tail", "Tail", "Back", Side.None, true, C("graft", "Tail", Gr, 1.0));
-        // Waist.
-        Site("waist", "Waist", "Waist", Side.None, false, C("under", "Sash", Un, 0.4), C("armor", "Fauld", Ar, 0.6), C("belt", "Belt", Ad, 0.6));
+            C("ring", "Neck ring", Ad, 0.45));
+        Site("throat", "Throat", "Neck", Side.None, false, C("skin", "Throat ink", Sk, 0.2), C("jewel", "Throat jewel", Ad, 0.3));
+        Site("collar", "Base of the neck", "Neck", Side.None, false, C("chain", "Necklace", Ad, 0.5), C("chain2", "Second necklace", Ad, 0.4), C("pendant", "Pendant", Ad, 0.7));
+        // The torso's front, part by part, each with its own ink, plate and jewellery. What covers all of it (a shirt, mail,
+        // a tabard, a strap across it) has a slot of its own, and a breastplate fills the plates' slots.
         foreach (var (side, p, n) in Sides)
-            Site($"{p}.hip", $"{n} hip", "Waist", side, false, C("armor", "Tasset", Ar, 0.5), C("hang", "Hanging sheath", Ho, 0.8));
+            Site($"{p}.clavicle", $"{n} collarbone", "Torso", side, false, C("skin", "Collarbone ink", Sk, 0.2), C("adorn", "Collarbone stud", Ad, 0.25));
+        Site("L.pec", "Left breast", "Torso", Side.Left, false, C("skin", "Breast ink", Sk, 0.3), C("armor", "Pectoral plate", Ar, 0.7),
+            C("medal1", "Medal", Ad, 0.25), C("medal2", "Second medal", Ad, 0.25), C("medal3", "Third medal", Ad, 0.25));
+        Site("R.pec", "Right breast", "Torso", Side.Right, false, C("skin", "Breast ink", Sk, 0.3), C("armor", "Pectoral plate", Ar, 0.7), C("badge", "Badge", Ad, 0.3));
+        Site("sternum", "Breastbone", "Torso", Side.None, false, C("skin", "Breastbone ink", Sk, 0.3), C("armor", "Placard", Ar, 0.6), C("adorn", "Brooch", Ad, 0.3),
+            C("graft", "Soul gem", Gr, 0.6));
+        Site("heart", "Heart", "Torso", Side.None, false, C("skin", "Heart ink", Sk, 0.25), C("graft", "Heart", Gr, 0.8));
+        foreach (var (side, p, n) in Sides)
+            Site($"{p}.ribs", $"{n} ribs", "Torso", side, false, C("skin", "Rib ink", Sk, 0.3), C("armor", "Rib guard", Ar, 0.5), C("adorn", "Rib chain", Ad, 0.25),
+                C("graft", "Gills", Gr, 0.5));
+        Site("plexus", "Solar plexus", "Torso", Side.None, false, C("skin", "Plexus ink", Sk, 0.25), C("armor", "Plexus disc", Ar, 0.5), C("adorn", "Plexus gem", Ad, 0.3));
+        Site("stomach", "Stomach", "Torso", Side.None, false, C("skin", "Stomach ink", Sk, 0.3), C("armor", "Plackart", Ar, 0.8));
+        Site("navel", "Navel", "Torso", Side.None, false, C("skin", "Navel ink", Sk, 0.2), C("adorn", "Navel ring", Ad, 0.25));
+        foreach (var (side, p, n) in Sides)
+            Site($"{p}.flank", $"{n} flank", "Torso", side, false, C("skin", "Flank ink", Sk, 0.25), C("armor", "Side plate", Ar, 0.5), C("hold", "Side sheath", Ho, 0.6));
+        Site("lowbelly", "Lower belly", "Torso", Side.None, false, C("skin", "Lower belly ink", Sk, 0.25), C("adorn", "Belly chain", Ad, 0.3));
+        Site("torso", "The whole torso", "Torso", Side.None, false, C("under", "Shirt", Un, 1.2), C("mail", "Mail", Ml, 1.6), C("over", "Tabard", Ov, 1.2),
+            C("strap", "Strap", Ad, 0.6));
+        // The back, part by part, and what covers all of it.
+        foreach (var (side, p, n) in Sides)
+            Site($"{p}.blade", $"{n} shoulder blade", "Back", side, true, C("skin", "Shoulder blade ink", Sk, 0.3), C("armor", "Scapula plate", Ar, 0.5));
+        Site("upspine", "Upper spine", "Back", Side.None, true, C("skin", "Upper spine ink", Sk, 0.25), C("armor", "Spine guard", Ar, 0.5),
+            C("adorn", "Spine piercings", Ad, 0.3));
+        Site("midspine", "Middle of the back", "Back", Side.None, true, C("skin", "Mid-back ink", Sk, 0.3), C("graft", "Dorsal spines", Gr, 0.6));
+        foreach (var (side, p, n) in Sides)
+            Site($"{p}.lat", $"{n} side of the back", "Back", side, true, C("skin", "Back side ink", Sk, 0.25), C("armor", "Lat guard", Ar, 0.4));
+        Site("lumbar", "Small of the back", "Back", Side.None, true, C("skin", "Lower back ink", Sk, 0.3), C("armor", "Lumbar plate", Ar, 0.5));
+        foreach (var (side, p, n) in Sides)
+            Site($"{p}.kidney", $"{n} kidney", "Back", side, true, C("skin", "Kidney ink", Sk, 0.2), C("armor", "Kidney guard", Ar, 0.4),
+                C("hold", "Kidney dagger", Ho, 0.6));
+        Site("back", "The whole back", "Back", Side.None, true, C("over", "Cloak", Ov, 1.0), C("mount", "Carried on the back", Ho, 1.2), C("wings", "Wings", Gr, 1.6));
+        Site("tail", "Tail", "Back", Side.None, true, C("graft", "Tail", Gr, 1.0));
+        // The waist.
+        Site("waist", "Waist", "Waist", Side.None, false, C("skin", "Waist ink", Sk, 0.2), C("under", "Sash", Un, 0.4), C("armor", "Fauld", Ar, 0.6),
+            C("belt", "Belt", Ad, 0.6));
+        foreach (var (side, p, n) in Sides)
+            Site($"{p}.hip", $"{n} hip", "Waist", side, false, C("skin", "Hip ink", Sk, 0.2), C("armor", "Tasset", Ar, 0.5), C("hang", "Hanging sheath", Ho, 0.8),
+                C("adorn", "Hip chain", Ad, 0.25));
         Site("groin", "Groin", "Waist", Side.None, false, C("armor", "Codpiece", Ar, 0.4), C("over", "Loincloth", Ov, 0.4));
+        Site("seat", "Seat", "Waist", Side.None, true, C("armor", "Culet", Ar, 0.5), C("pouch", "Rear pouch", Ho, 0.4));
         foreach (var (side, p, n) in Sides)
         {
-            string arm = $"{n} arm", hand = $"{n} hand", leg = $"{n} leg", foot = $"{n} foot";
+            string arm = $"{n} arm", hand = $"{n} hand", leg = $"{n} leg", foot = $"{n} foot", l = n.ToLowerInvariant();
             // Arms.
-            Site($"{p}.shoulder", $"{n} shoulder", arm, side, false, C("skin", "Shoulder ink", Sk, 0.3), C("armor", "Pauldron", Ar, 0.9), C("over", "Cloak", Ov, 0.3), C("perch", "Perch", Ad, 0.6));
+            Site($"{p}.shoulder", $"{n} shoulder", arm, side, false, C("skin", "Shoulder ink", Sk, 0.3), C("armor", "Pauldron", Ar, 0.9), C("over", "Shoulder cape", Ov, 0.3),
+                C("perch", "Perch", Ad, 0.6));
             Site($"{p}.armpit", $"{n} armpit", arm, side, false, C("armor", "Besagew", Ar, 0.3));
             Site($"{p}.upperarm", $"{n} upper arm", arm, side, false, C("skin", "Upper arm ink", Sk, 0.3), C("under", "Sleeve", Un, 0.3), C("mail", "Mail sleeve", Ml, 0.4),
                 C("armor", "Rerebrace", Ar, 0.6), C("adorn", "Armlet", Ad, 0.45));
-            Site($"{p}.elbow", $"{n} elbow", arm, side, false, C("skin", "Elbow ink", Sk, 0.2), C("armor", "Couter", Ar, 0.4));
-            Site($"{p}.forearm", $"{n} forearm", arm, side, false, C("skin", "Forearm ink", Sk, 0.3), C("under", "Wraps", Un, 0.3), C("armor", "Vambrace", Ar, 0.6), C("adorn", "Hidden blade", Ho, 0.5));
-            Site($"{p}.wrist", $"{n} wrist", arm, side, false, C("skin", "Wrist ink", Sk, 0.2), C("armor", "Bracer", Ar, 0.4), C("bangle1", "Bracelet", Ad, 0.35), C("bangle2", "Second bracelet", Ad, 0.35));
-            // Hands.
-            Site($"{p}.hand", $"Back of the {n.ToLowerInvariant()} hand", hand, side, false, C("skin", "Hand ink", Sk, 0.25), C("under", "Glove", Un, 0.5), C("armor", "Hand plate", Ar, 0.6), C("adorn", "Hand chain", Ad, 0.35));
+            Site($"{p}.triceps", $"Back of the {l} upper arm", arm, side, true, C("skin", "Back of the arm ink", Sk, 0.25), C("adorn", "Arm cuff", Ad, 0.3));
+            Site($"{p}.elbow", $"{n} elbow", arm, side, true, C("skin", "Elbow ink", Sk, 0.2), C("armor", "Couter", Ar, 0.4), C("spike", "Elbow spike", Ho, 0.3));
+            Site($"{p}.forearm", $"{n} forearm", arm, side, false, C("skin", "Forearm ink", Sk, 0.3), C("under", "Wraps", Un, 0.3), C("armor", "Vambrace", Ar, 0.6),
+                C("blade", "Hidden blade", Ho, 0.5), C("sheath", "Forearm sheath", Ho, 0.4));
+            Site($"{p}.wrist", $"{n} wrist", arm, side, false, C("skin", "Wrist ink", Sk, 0.2), C("armor", "Bracer", Ar, 0.4), C("bangle1", "Bracelet", Ad, 0.35),
+                C("bangle2", "Second bracelet", Ad, 0.35));
+            // Hands: what goes on the hand, the palm and the grip, the ink on the fingers, and each finger's ring, knuckle ring
+            // and tip.
+            Site($"{p}.hand", $"Back of the {l} hand", hand, side, false, C("skin", "Hand ink", Sk, 0.25), C("under", "Glove", Un, 0.5), C("armor", "Hand plate", Ar, 0.6),
+                C("adorn", "Hand jewel", Ad, 0.35));
             Site($"{p}.palm", $"{n} palm", hand, side, false, C("skin", "Palm sigil", Sk, 0.25), C("adorn", "Palm crystal", Ad, 0.4));
             Site($"{p}.grip", $"{n} grip", hand, side, false, C("hold", side == Side.Right ? "Main hand" : "Off hand", Ho));
+            Site($"{p}.fingers", $"{n} fingers", hand, side, false, C("skin", "Finger ink", Sk, 0.3));
             for (int f = 0; f < 5; f++)
                 Site($"{p}.{Fingers[f]}", $"{n} {FingerNames[f].ToLowerInvariant()}{(f == 0 ? "" : " finger")}", hand, side, false,
-                    C("skin", "Finger ink", Sk, 0.1), C("band", "Ring", Ad, 0.4), C("knuckle", "Knuckle ring", Ad, 0.3), C("tip", "Fingertip", Ad, 0.2));
+                    C("band", "Ring", Ad, 0.4), C("knuckle", "Knuckle ring", Ad, 0.3), C("tip", "Fingertip", Ad, 0.2));
             // Legs.
-            Site($"{p}.thigh", $"{n} thigh", leg, side, false, C("skin", "Thigh ink", Sk, 0.3), C("under", "Breeches", Un, 0.4), C("mail", "Chausses", Ml, 0.5),
-                C("armor", "Cuisse", Ar, 0.8), C("adorn", "Garter", Ad, 0.4), C("over", "Skirt", Ov, 0.3));
+            Site($"{p}.thigh", $"{n} thigh", leg, side, false, C("skin", "Thigh ink", Sk, 0.3), C("under", "Breeches", Un, 0.4), C("mail", "Chausses", Ml, 0.6),
+                C("armor", "Cuisse", Ar, 0.8), C("adorn", "Garter", Ad, 0.3));
+            Site($"{p}.outthigh", $"Outside of the {l} thigh", leg, side, false, C("skin", "Outer thigh ink", Sk, 0.2), C("hold", "Thigh sheath", Ho, 0.5));
+            Site($"{p}.hamstring", $"Back of the {l} thigh", leg, side, true, C("skin", "Back of the thigh ink", Sk, 0.25), C("adorn", "Thigh strap", Ad, 0.25));
             Site($"{p}.knee", $"{n} knee", leg, side, false, C("skin", "Knee ink", Sk, 0.2), C("under", "Knee wrap", Un, 0.2), C("armor", "Poleyn", Ar, 0.5));
-            Site($"{p}.shin", $"{n} shin", leg, side, false, C("skin", "Calf ink", Sk, 0.3), C("under", "Leg wraps", Un, 0.3), C("mail", "Chausses", Ml, 0.4), C("armor", "Greave", Ar, 0.7));
-            Site($"{p}.ankle", $"{n} ankle", leg, side, false, C("skin", "Ankle ink", Sk, 0.2), C("under", "Boot shaft", Un, 0.25), C("armor", "Ankle guard", Ar, 0.3),
+            Site($"{p}.kneepit", $"Back of the {l} knee", leg, side, true, C("skin", "Knee pit ink", Sk, 0.15));
+            Site($"{p}.shin", $"{n} shin", leg, side, false, C("skin", "Shin ink", Sk, 0.3), C("under", "Leg wraps", Un, 0.3), C("armor", "Greave", Ar, 0.7));
+            Site($"{p}.calf", $"{n} calf", leg, side, true, C("skin", "Calf ink", Sk, 0.3), C("armor", "Calf guard", Ar, 0.4), C("adorn", "Calf band", Ad, 0.25));
+            Site($"{p}.ankle", $"{n} ankle", leg, side, false, C("skin", "Ankle ink", Sk, 0.2), C("under", "Ankle wrap", Un, 0.25), C("armor", "Ankle guard", Ar, 0.3),
                 C("anklet1", "Anklet", Ad, 0.35), C("anklet2", "Second anklet", Ad, 0.35));
             // Feet.
-            Site($"{p}.foot", $"Top of the {n.ToLowerInvariant()} foot", foot, side, false, C("skin", "Foot ink", Sk, 0.25), C("under", "Sock", Un, 0.3), C("armor", "Sabaton", Ar, 0.6), C("adorn", "Foot chain", Ad, 0.3));
+            Site($"{p}.foot", $"Top of the {l} foot", foot, side, false, C("skin", "Foot ink", Sk, 0.25), C("under", "Sock", Un, 0.3), C("armor", "Sabaton", Ar, 0.6),
+                C("adorn", "Foot charm", Ad, 0.3));
             Site($"{p}.sole", $"{n} sole", foot, side, false, C("sole", "Sole", Un, 0.6));
+            Site($"{p}.heel", $"{n} heel", foot, side, true, C("skin", "Heel ink", Sk, 0.15), C("spike", "Heel spike", Ho, 0.3));
             Site($"{p}.toetips", $"{n} toenails", foot, side, false, C("tips", "Toenails", Ad, 0.4));
             for (int t = 0; t < 5; t++)
                 Site($"{p}.{Toes[t]}", $"{n} {ToeNames[t].ToLowerInvariant()}", foot, side, false, C("band", "Toe ring", Ad, 0.3));
@@ -294,6 +340,8 @@ public sealed class Anatomy
         BoardOf("cloak", "Cloak", 2, B("clasp", "Clasp"), B("lining", "Lining"), B("hem1", "Hem rune I"), B("hem2", "Hem rune II"), B("hem3", "Hem rune III"),
             B("embroidery", "Embroidery"), B("enchant", "Enchantment"));
         BoardOf("tabard", "Tabard", 2, B("heraldry", "Heraldry"), B("embroidery", "Embroidery"), B("enchant", "Enchantment"));
+        BoardOf("bandolier", "Bandolier", 2, B("knife1", "Knife loop I"), B("knife2", "Knife loop II"), B("vial1", "Vial loop I"), B("vial2", "Vial loop II"));
+        BoardOf("harness", "Chest harness", 2, B("pocketL", "Left pocket"), B("pocketR", "Right pocket"), B("buckle", "Buckle"));
         BoardOf("wings", "Wings", 2, Many("feather", "Feather charm", 4).Append(B("bladeL", "Left wing blade")).Append(B("bladeR", "Right wing blade"))
             .Append(B("gemL", "Left wing socket")).Append(B("gemR", "Right wing socket")).Append(B("enchant", "Enchantment")).ToArray());
         BoardOf("tail", "Tail", 2, B("ring1", "Tail ring I"), B("ring2", "Tail ring II"), B("ring3", "Tail ring III"), B("tip", "Tail tip"), B("enchant", "Enchantment"));
@@ -341,32 +389,35 @@ public sealed class Anatomy
     {
         const SlotKind W = SlotKind.Weapon, A = SlotKind.Armor, J = SlotKind.Jewelry, X = SlotKind.Accessory, K = SlotKind.Trinket,
             T = SlotKind.Tattoo, P = SlotKind.Companion, Cel = SlotKind.Celestial;
-        string[] Ear(string s) => S($"{s}.ear.lobe", $"{s}.ear.helix", $"{s}.ear.cuff", $"{s}.ear.tip");
+        string[] Ear(string s) => S($"{s}.ear.lobe", $"{s}.ear.helix", $"{s}.ear.tip");
         string[] BothEars() => Ear("L").Concat(Ear("R")).ToArray();
         string[] Hair = S("hair.pin1", "hair.pin2", "hair.ribbon", "hair.beads");
-        var faceOpen = S("L.eye.adorn", "R.eye.adorn", "nose.septum", "nose.nostrilL", "nose.nostrilR", "mouth.lip", "mouth.tongue", "mouth.teeth", "chin.adorn");
+        // What a helm covers whatever its shape, and what a closed face covers.
+        string[] underHelm = Hair.Concat(S("brow.jewel", "horns.graft")).ToArray();
+        var faceOpen = S("L.eye.adorn", "R.eye.adorn", "L.eye.brow", "R.eye.brow", "L.cheek.adorn", "R.cheek.adorn", "nose.bridge", "nose.septum", "nose.nostrilL",
+            "nose.nostrilR", "mouth.lip", "mouth.tongue", "mouth.teeth", "chin.adorn");
 
-        // The head: helms, and what goes on a head without one.
-        Piece("Great Helm", A, Classic, S("scalp.armor", "brow.armor", "face.armor", "L.cheek.armor", "R.cheek.armor", "nape.armor"),
-            Hair.Concat(S("brow.adorn", "horns.graft", "face.over", "scalp.over")).Concat(BothEars()).Concat(faceOpen).ToArray(),
+        // The head: helms, hoods, hats and crowns in the headwear slot; what goes on a head without one.
+        Piece("Great Helm", A, Classic, S("scalp.head", "brow.band", "face.mask", "L.cheek.armor", "R.cheek.armor", "nape.armor"),
+            underHelm.Concat(BothEars()).Concat(faceOpen).ToArray(),
             new[] { Opens("helm", "crest", "plume", "aventail", "gem1", "gem2", "gem3", "crowngem", "lining", "paint", "enchant", "engraving") });
-        Piece("Sallet", A, StartTier, S("scalp.armor", "brow.armor", "L.cheek.armor", "R.cheek.armor", "nape.armor"),
-            Hair.Concat(S("brow.adorn", "horns.graft", "scalp.over")).Concat(BothEars()).ToArray(),
+        Piece("Sallet", A, StartTier, S("scalp.head", "brow.band", "L.cheek.armor", "R.cheek.armor", "nape.armor"), underHelm.Concat(BothEars()).ToArray(),
             new[] { Opens("helm", "crest", "plume", "visor", "cheekL", "cheekR", "gem1", "gem2", "lining", "paint", "enchant") });
-        Piece("Nasal Helm", A, Detail, S("scalp.armor", "brow.armor", "nose.armor"), Hair.Concat(S("brow.adorn", "horns.graft", "nose.septum", "scalp.over")).ToArray(),
+        Piece("Nasal Helm", A, Detail, S("scalp.head", "brow.band", "nose.bridge"), underHelm.Concat(S("nose.septum")).ToArray(),
             new[] { Opens("helm", "crest", "aventail", "gem1", "lining", "paint", "enchant") });
-        Piece("Horned Helm", A, Exotic, S("scalp.armor", "brow.armor", "face.armor", "L.cheek.armor", "R.cheek.armor", "nape.armor", "horns.graft"),
-            Hair.Concat(S("brow.adorn", "face.over", "scalp.over")).Concat(BothEars()).Concat(faceOpen).ToArray(),
+        Piece("Horned Helm", A, Exotic, S("scalp.head", "brow.band", "face.mask", "L.cheek.armor", "R.cheek.armor", "nape.armor", "horns.graft"),
+            Hair.Concat(S("brow.jewel")).Concat(BothEars()).Concat(faceOpen).ToArray(),
             new[] { Opens("helm", "gem1", "gem2", "gem3", "crowngem", "lining", "paint", "enchant", "engraving"), Opens("horns") });
+        Piece("Hood", X, Classic, S("scalp.head"), Hair.Concat(S("L.ear.helix", "L.ear.tip", "R.ear.helix", "R.ear.tip")).ToArray(),
+            new[] { Opens("hood") });
+        Piece("Wizard Hat", X, Detail, S("scalp.head"), S("hair.pin1", "hair.pin2", "hair.ribbon"), new[] { Opens("hat") });
+        Piece("Crown", J, Exotic, S("scalp.head"), S("hair.pin1", "hair.pin2"), new[] { Opens("crown") });
         Piece("Coif", A, Detail, S("scalp.under", "nape.under"), Hair.Concat(BothEars()).ToArray());
         Piece("Arming Cap", X, Detail, S("scalp.under"), S("hair.pin1", "hair.pin2", "hair.ribbon"));
-        Piece("Hood", X, Classic, S("scalp.over"), Hair.Concat(S("L.ear.helix", "L.ear.cuff", "L.ear.tip", "R.ear.helix", "R.ear.cuff", "R.ear.tip")).ToArray(),
-            new[] { Opens("hood") });
-        Piece("Wizard Hat", X, Detail, S("scalp.over"), S("hair.pin1", "hair.pin2", "hair.ribbon"), new[] { Opens("hat") });
-        Piece("Crown", J, Exotic, S("scalp.over"), S("hair.pin1", "hair.pin2"), new[] { Opens("crown") });
-        Piece("Grafted Horns", A, Exotic, S("horns.graft"), S("scalp.armor", "scalp.over"), new[] { Opens("horns") }, family: "horns");
-        Piece("Circlet", J, Classic, S("brow.adorn"), brings: new[] { Opens("circlet", "centre", "filigree") });
-        Piece("Diadem", J, Detail, S("brow.adorn"), S("hair.pin1"), new[] { Opens("circlet") });
+        Piece("Grafted Horns", A, Exotic, S("horns.graft"), S("scalp.head"), new[] { Opens("horns") }, family: "horns");
+        Piece("Brow Guard", A, Detail, S("brow.band"));
+        Piece("Circlet", J, Classic, S("brow.band"), brings: new[] { Opens("circlet", "centre", "filigree") });
+        Piece("Diadem", J, Detail, S("brow.band"), S("hair.pin1"), new[] { Opens("circlet") });
         Piece("Forehead Jewel", J, Detail, S("brow.jewel"));
         Piece("Third Eye", K, Exotic, S("brow.jewel"), S("brow.skin"), new[] { Opens("thirdeye") });
         Piece("Brow Tattoo", T, Detail, S("brow.skin"));
@@ -376,74 +427,146 @@ public sealed class Anatomy
         Piece("Hair Ribbon", X, Detail, S("hair.ribbon"));
         Piece("Braid Beads", J, Detail, S("hair.beads"));
         Piece("Spectacles", X, Detail, S("L.eye.adorn", "R.eye.adorn"), brings: new[] { Opens("lens") });
-        Piece("Goggles", X, Exotic, S("L.eye.adorn", "R.eye.adorn"), S("brow.adorn"), new[] { Opens("lens", "tint", "enchant") });
+        Piece("Goggles", X, Exotic, S("L.eye.adorn", "R.eye.adorn"), S("L.eye.brow", "R.eye.brow"), new[] { Opens("lens", "tint", "enchant") });
         Piece("Monocle", X, Classic, S("R.eye.adorn"), brings: new[] { Opens("lens") });
-        Piece("Eyepatch", X, Detail, S("L.eye.adorn"));
-        foreach (var (side, p, n) in Sides) Piece($"{n} Eye Kohl", T, Detail, S($"{p}.eye.skin"), side: side, family: "kohl");
+        Piece("Eyepatch", X, Detail, S("L.eye.adorn"), S("L.eye.brow"));
         Piece("War Paint", T, Detail, S("brow.skin", "L.cheek.skin", "R.cheek.skin", "chin.skin"));
-        foreach (var (side, p, n) in Sides) Piece($"{n} Cheek Tattoo", T, Detail, S($"{p}.cheek.skin"), side: side, family: "cheek_tattoo");
         Piece("Chin Tattoo", T, Detail, S("chin.skin"));
-        Piece("Mask", X, Detail, S("face.over"), S("L.eye.adorn", "R.eye.adorn", "nose.septum", "nose.nostrilL", "nose.nostrilR", "mouth.lip", "mouth.tongue"), new[] { Opens("mask") });
+        Piece("Mask", X, Detail, S("face.mask"), S("L.eye.adorn", "R.eye.adorn", "nose.bridge", "nose.septum", "nose.nostrilL", "nose.nostrilR", "mouth.lip", "mouth.tongue"),
+            new[] { Opens("mask") });
+        Piece("Face Plate", A, Detail, S("face.mask"), S("L.eye.adorn", "R.eye.adorn", "L.cheek.adorn", "R.cheek.adorn", "nose.bridge", "nose.septum", "nose.nostrilL",
+            "nose.nostrilR", "mouth.lip", "mouth.tongue"), new[] { Opens("mask", "paint", "enchant") });
         foreach (var (side, p, n) in Sides)
         {
+            Piece($"{n} Eye Kohl", T, Detail, S($"{p}.eye.skin"), side: side, family: "kohl");
+            Piece($"{n} Eyebrow Ring", J, Detail, S($"{p}.eye.brow"), side: side, family: "eyebrow_ring");
+            Piece($"{n} Cheek Tattoo", T, Detail, S($"{p}.cheek.skin"), side: side, family: "cheek_tattoo");
+            Piece($"{n} Cheek Guard", A, Detail, S($"{p}.cheek.armor"), S($"{p}.cheek.adorn"), side: side, family: "cheek_guard");
+            Piece($"{n} Cheek Gem", J, Exotic, S($"{p}.cheek.adorn"), side: side, family: "cheek_gem");
             Piece($"{n} Earring", J, side == Side.Right ? Classic : Detail, S($"{p}.ear.lobe"), side: side, family: "earring");
             Piece($"{n} Helix Ring", J, Detail, S($"{p}.ear.helix"), side: side, family: "helix_ring");
-            Piece($"{n} Ear Cuff", J, Detail, S($"{p}.ear.cuff"), S($"{p}.ear.helix"), side: side, family: "ear_cuff");
+            Piece($"{n} Ear Cuff", J, Detail, S($"{p}.ear.helix"), side: side, family: "ear_cuff");
             Piece($"{n} Ear Chain", J, Detail, S($"{p}.ear.lobe", $"{p}.ear.helix"), side: side, family: "ear_chain");
             Piece($"{n} Elven Ear Tip", J, Exotic, S($"{p}.ear.tip"), side: side, family: "ear_tip");
+            Piece($"{n} Nose Stud", J, Detail, S($"nose.nostril{p}"), side: side, family: "nose_stud");
         }
+        Piece("Nose Guard", A, Detail, S("nose.bridge"));
+        Piece("Bridge Stud", J, Detail, S("nose.bridge"));
         Piece("Septum Ring", J, Detail, S("nose.septum"));
-        foreach (var (side, p, n) in Sides) Piece($"{n} Nose Stud", J, Detail, S($"nose.nostril{p}"), side: side, family: "nose_stud");
         Piece("Nose Chain", J, Exotic, S("nose.nostrilR", "R.ear.lobe"));
         Piece("Lip Ring", J, Detail, S("mouth.lip"));
         Piece("Gold Teeth", J, Detail, S("mouth.teeth"));
         Piece("Fang Caps", W, Exotic, S("mouth.teeth"));
         Piece("Tongue Stud", J, Exotic, S("mouth.tongue"));
-        Piece("Mouth Guard", A, Detail, S("mouth.armor"), S("mouth.lip", "mouth.tongue"));
-        Piece("Bevor", A, Detail, S("chin.armor", "neck.armor"), S("chin.adorn", "neck.choker"));
+        Piece("Mouth Guard", A, Detail, S("mouth.armor"), S("mouth.lip"));
+        Piece("Chin Guard", A, Detail, S("chin.armor"), S("chin.adorn"));
+        Piece("Bevor", A, Detail, S("chin.armor", "neck.armor"), S("chin.adorn", "neck.ring", "throat.jewel"));
         Piece("Beard Rings", J, Detail, S("chin.adorn"));
         Piece("Nape Tattoo", T, Detail, S("nape.skin"));
         Piece("Neck Cloth", X, Detail, S("nape.under"));
+        Piece("Nape Guard", A, Detail, S("nape.armor"));
         Piece("Halo", Cel, Exotic, S("halo.halo"), brings: new[] { Opens("halo") }, prestige: true);
         Piece("Starcrown", Cel, Exotic, S("halo.halo"), brings: new[] { Opens("halo", "gem1", "gem2", "gem3", "light") }, prestige: true);
 
         // The neck.
         Piece("Neck Tattoo", T, Detail, S("neck.skin"));
         Piece("Scarf", X, Detail, S("neck.under"));
-        Piece("Gorget", A, Classic, S("neck.armor"), S("neck.choker", "neck.torc"));
-        Piece("Choker", J, Detail, S("neck.choker"));
-        Piece("Necklace", J, Classic, S("neck.chain"), brings: new[] { Opens("necklace") });
-        Piece("Amulet", J, Classic, S("neck.pendant"), brings: new[] { Opens("amulet") });
-        Piece("Torc", J, Detail, S("neck.torc"), S("neck.choker"), new[] { Opens("torc") });
-        Piece("Chain of Office", J, Exotic, S("neck.chain", "neck.pendant"), brings: new[] { Opens("necklace"), Opens("amulet", "stone", "enchant") });
+        Piece("Gorget", A, Classic, S("neck.armor"), S("neck.ring", "throat.jewel"));
+        Piece("Choker", J, Detail, S("neck.ring"));
+        Piece("Torc", J, Detail, S("neck.ring"), brings: new[] { Opens("torc") });
+        Piece("Throat Tattoo", T, Detail, S("throat.skin"));
+        Piece("Throat Jewel", J, Detail, S("throat.jewel"));
+        Piece("Necklace", J, Classic, S("collar.chain"), brings: new[] { Opens("necklace") });
+        Piece("Second Necklace", J, Detail, S("collar.chain2"), family: "necklace");
+        Piece("Amulet", J, Classic, S("collar.pendant"), brings: new[] { Opens("amulet") });
+        Piece("Chain of Office", J, Exotic, S("collar.chain", "collar.pendant"), brings: new[] { Opens("necklace"), Opens("amulet", "stone", "enchant") });
 
-        // The torso, in layers.
-        Piece("Chest Tattoo", T, Detail, S("chest.skin"));
-        Piece("Belly Tattoo", T, Detail, S("belly.skin"));
-        Piece("Back Tattoo", T, Detail, S("back.skin"));
-        Piece("Torso Tattoo", T, Exotic, S("chest.skin", "belly.skin", "back.skin"));
-        Piece("Shirt", X, Classic, S("chest.under", "belly.under", "back.under"));
-        Piece("Gambeson", A, Detail, S("chest.under", "belly.under", "back.under", "L.upperarm.under", "R.upperarm.under"));
-        Piece("Mail Shirt", A, Detail, S("chest.mail", "belly.mail", "back.mail"));
-        Piece("Hauberk", A, Exotic, S("chest.mail", "belly.mail", "back.mail", "L.upperarm.mail", "R.upperarm.mail", "L.thigh.mail", "R.thigh.mail"));
-        Piece("Breastplate", A, StartTier, S("chest.armor"), brings: new[] { Opens("cuirass", "heraldry", "centre", "lancerest", "lining", "enchant", "engraving") });
-        Piece("Plackart", A, Detail, S("belly.armor"));
-        Piece("Backplate", A, Classic, S("back.armor"), brings: new[] { Opens("backplate") });
-        Piece("Cuirass", A, Detail, S("chest.armor", "belly.armor", "back.armor"), brings: new[] { Opens("cuirass"), Opens("backplate") });
-        Piece("Brigandine", A, Detail, S("chest.armor", "belly.armor", "back.armor"), brings: new[] { Opens("cuirass", "centre", "sideL", "sideR", "runeL", "runeR", "lining", "enchant") });
-        Piece("Full Plate Harness", A, Exotic, S("chest.armor", "belly.armor", "back.armor", "L.shoulder.armor", "R.shoulder.armor", "L.armpit.armor", "R.armpit.armor",
-            "L.upperarm.armor", "R.upperarm.armor", "waist.armor", "L.hip.armor", "R.hip.armor"),
-            brings: new[] { Opens("cuirass"), Opens("backplate"), Opens("L.pauldron"), Opens("R.pauldron") });
-        Piece("Tabard", X, Classic, S("chest.over", "belly.over"), brings: new[] { Opens("tabard") });
-        Piece("Surcoat", X, Detail, S("chest.over", "belly.over", "groin.over"), brings: new[] { Opens("tabard") });
-        Piece("Robe", X, Detail, S("chest.over", "belly.over", "back.over", "groin.over", "L.thigh.over", "R.thigh.over"), brings: new[] { Opens("tabard", "embroidery", "enchant") });
+        // The torso's front: a piece for every part, and the big ones that cover several.
+        string[] breast = S("L.pec.armor", "R.pec.armor", "sternum.armor", "L.ribs.armor", "R.ribs.armor", "plexus.armor");
+        string[] underBreast = S("L.ribs.adorn", "R.ribs.adorn", "plexus.adorn", "L.ribs.graft", "R.ribs.graft");
+        string[] backPlate = S("L.blade.armor", "R.blade.armor", "upspine.armor", "L.lat.armor", "R.lat.armor", "lumbar.armor");
+        string[] underBack = S("upspine.adorn", "midspine.graft");
+        foreach (var (side, p, n) in Sides)
+        {
+            Piece($"{n} Collarbone Tattoo", T, Detail, S($"{p}.clavicle.skin"), side: side, family: "collarbone_tattoo");
+            Piece($"{n} Collarbone Stud", J, Detail, S($"{p}.clavicle.adorn"), side: side, family: "collarbone_stud");
+            Piece($"{n} Breast Tattoo", T, Detail, S($"{p}.pec.skin"), side: side, family: "breast_tattoo");
+            Piece($"{n} Pectoral Plate", A, Classic, S($"{p}.pec.armor"), side: side, family: "pectoral_plate");
+            Piece($"{n} Rib Tattoo", T, Detail, S($"{p}.ribs.skin"), side: side, family: "rib_tattoo");
+            Piece($"{n} Rib Guard", A, Detail, S($"{p}.ribs.armor"), S($"{p}.ribs.adorn"), side: side, family: "rib_guard");
+            Piece($"{n} Rib Chain", J, Detail, S($"{p}.ribs.adorn"), side: side, family: "rib_chain");
+            Piece($"{n} Gills", X, Exotic, S($"{p}.ribs.graft"), side: side, family: "gills");
+            Piece($"{n} Flank Tattoo", T, Detail, S($"{p}.flank.skin"), side: side, family: "flank_tattoo");
+            Piece($"{n} Side Plate", A, Detail, S($"{p}.flank.armor"), side: side, family: "side_plate");
+            Piece($"{n} Side Sheath", W, Detail, S($"{p}.flank.hold"), side: side, family: "side_sheath");
+        }
+        Piece("Collarbone Chain", J, Exotic, S("L.clavicle.adorn", "R.clavicle.adorn"));
+        for (int i = 1; i <= 3; i++) Piece($"Medal {Numerals[i - 1]}", K, i == 1 ? Classic : Detail, S($"L.pec.medal{i}"), family: "medal");
+        Piece("Badge of Honour", K, Detail, S("R.pec.badge"), family: "badge");
+        Piece("Chest Tattoo", T, Detail, S("L.pec.skin", "R.pec.skin", "sternum.skin"));
+        Piece("Breastbone Tattoo", T, Detail, S("sternum.skin"));
+        Piece("Placard", A, Detail, S("sternum.armor"));
+        Piece("Brooch", J, Classic, S("sternum.adorn"));
+        Piece("Soul Gem", K, Exotic, S("sternum.graft"));
+        Piece("Heart Tattoo", T, Detail, S("heart.skin"));
+        Piece("Heartstone", K, Exotic, S("heart.graft"));
+        Piece("Plexus Tattoo", T, Detail, S("plexus.skin"));
+        Piece("Plexus Disc", A, Detail, S("plexus.armor"), S("plexus.adorn"));
+        Piece("Plexus Gem", J, Detail, S("plexus.adorn"));
+        Piece("Belly Tattoo", T, Detail, S("stomach.skin"));
+        Piece("Plackart", A, Classic, S("stomach.armor"), S("navel.adorn"));
+        Piece("Navel Tattoo", T, Detail, S("navel.skin"));
+        Piece("Navel Ring", J, Detail, S("navel.adorn"));
+        Piece("Lower Belly Tattoo", T, Detail, S("lowbelly.skin"));
+        Piece("Belly Chain", J, Detail, S("lowbelly.adorn"));
+        Piece("Breastplate", A, StartTier, breast, underBreast, new[] { Opens("cuirass", "heraldry", "centre", "lancerest", "lining", "enchant", "engraving") });
+        Piece("Cuirass", A, Detail, breast.Concat(S("stomach.armor")).Concat(backPlate).ToArray(), underBreast.Concat(S("navel.adorn")).Concat(underBack).ToArray(),
+            new[] { Opens("cuirass"), Opens("backplate") });
+        Piece("Brigandine", A, Detail, breast.Concat(S("stomach.armor", "L.flank.armor", "R.flank.armor")).Concat(backPlate).ToArray(),
+            underBreast.Concat(S("navel.adorn")).Concat(underBack).ToArray(), new[] { Opens("cuirass", "centre", "sideL", "sideR", "runeL", "runeR", "lining", "enchant") });
+        Piece("Full Plate Harness", A, Exotic, breast.Concat(S("stomach.armor", "L.flank.armor", "R.flank.armor")).Concat(backPlate)
+            .Concat(S("L.kidney.armor", "R.kidney.armor", "L.shoulder.armor", "R.shoulder.armor", "L.armpit.armor", "R.armpit.armor", "L.upperarm.armor", "R.upperarm.armor",
+                "waist.armor", "L.hip.armor", "R.hip.armor", "seat.armor")).ToArray(),
+            underBreast.Concat(S("navel.adorn")).Concat(underBack).ToArray(),
+            new[] { Opens("cuirass"), Opens("backplate"), Opens("L.pauldron"), Opens("R.pauldron") });
+        // What covers the whole torso.
+        Piece("Shirt", X, Classic, S("torso.under"));
+        Piece("Gambeson", A, Detail, S("torso.under", "L.upperarm.under", "R.upperarm.under"));
+        Piece("Mail Shirt", A, Detail, S("torso.mail"));
+        Piece("Scale Vest", A, Detail, S("torso.mail"));
+        Piece("Hauberk", A, Exotic, S("torso.mail", "L.upperarm.mail", "R.upperarm.mail", "L.thigh.mail", "R.thigh.mail"));
+        Piece("Tabard", X, Classic, S("torso.over"), brings: new[] { Opens("tabard") });
+        Piece("Surcoat", X, Detail, S("torso.over", "groin.over"), brings: new[] { Opens("tabard") });
+        Piece("Robe", X, Detail, S("torso.over", "groin.over"), S("L.thigh.adorn", "R.thigh.adorn"), new[] { Opens("tabard", "embroidery", "enchant") });
+        Piece("Bandolier", X, Detail, S("torso.strap"), brings: new[] { Opens("bandolier") });
+        Piece("Baldric", X, Classic, S("torso.strap"));
+        Piece("Chest Harness", X, Detail, S("torso.strap"), brings: new[] { Opens("harness") });
+
+        // The back.
+        foreach (var (side, p, n) in Sides)
+        {
+            Piece($"{n} Shoulder Blade Tattoo", T, Detail, S($"{p}.blade.skin"), side: side, family: "shoulder_blade_tattoo");
+            Piece($"{n} Scapula Plate", A, Detail, S($"{p}.blade.armor"), side: side, family: "scapula_plate");
+            Piece($"{n} Lat Tattoo", T, Detail, S($"{p}.lat.skin"), side: side, family: "lat_tattoo");
+            Piece($"{n} Lat Guard", A, Detail, S($"{p}.lat.armor"), side: side, family: "lat_guard");
+            Piece($"{n} Kidney Tattoo", T, Detail, S($"{p}.kidney.skin"), side: side, family: "kidney_tattoo");
+            Piece($"{n} Kidney Guard", A, Detail, S($"{p}.kidney.armor"), side: side, family: "kidney_guard");
+            Piece($"{n} Kidney Dagger", W, Classic, S($"{p}.kidney.hold"), side: side, family: "kidney_dagger");
+        }
+        Piece("Upper Spine Tattoo", T, Detail, S("upspine.skin"));
+        Piece("Spine Guard", A, Detail, S("upspine.armor"), S("upspine.adorn"));
+        Piece("Spine Piercings", J, Exotic, S("upspine.adorn"));
+        Piece("Mid-Back Tattoo", T, Detail, S("midspine.skin"));
+        Piece("Dorsal Spines", A, Exotic, S("midspine.graft"));
+        Piece("Lower Back Tattoo", T, Detail, S("lumbar.skin"));
+        Piece("Lumbar Plate", A, Detail, S("lumbar.armor"));
+        Piece("Backplate", A, Classic, backPlate, underBack, new[] { Opens("backplate") });
+        var torsoSkin = Cells.Where(c => c.Board == Body && c.Region is "Torso" or "Back" && c.Layer == Layer.Skin).Select(c => c.Key).ToArray();
+        Piece("Back Tattoo", T, Detail, Cells.Where(c => c.Board == Body && c.Region == "Back" && c.Layer == Layer.Skin).Select(c => c.Key).ToArray());
+        Piece("Torso Tattoo", T, Exotic, torsoSkin);
         Piece("Cloak", X, Classic, S("back.over", "L.shoulder.over", "R.shoulder.over"), brings: new[] { Opens("cloak") });
         Piece("Cape", X, Detail, S("back.over"), brings: new[] { Opens("cloak", "clasp", "lining", "embroidery", "enchant") });
         Piece("Mantle", X, Detail, S("L.shoulder.over", "R.shoulder.over"));
-        Piece("Brooch", J, Classic, S("chest.pin1"));
-        for (int i = 2; i <= 4; i++) Piece($"Medal {Numerals[i - 2]}", K, Detail, S($"chest.pin{i}"), family: "medal");
-        Piece("Navel Ring", J, Detail, S("belly.navel"));
-        Piece("Heartstone", K, Exotic, S("heart.graft"));
         Piece("Quiver", W, Detail, S("back.mount"), brings: new[] { Opens("quiver") });
         Piece("Back Scabbard", W, Detail, S("back.mount"));
         Piece("War Banner", X, Exotic, S("back.mount"), brings: new[] { Opens("banner") });
@@ -452,6 +575,7 @@ public sealed class Anatomy
         Piece("Tail", X, Exotic, S("tail.graft"), brings: new[] { Opens("tail") });
 
         // The waist.
+        Piece("Waist Tattoo", T, Detail, S("waist.skin"));
         Piece("Sash", X, Detail, S("waist.under"));
         Piece("Belt", X, Classic, S("waist.belt"), brings: new[] { Opens("belt") });
         Piece("Girdle", A, Exotic, S("waist.belt", "waist.armor"), brings: new[] { Opens("belt", "buckle", "pouch1", "pouch2", "loop1", "loop2", "enchant") });
@@ -459,11 +583,15 @@ public sealed class Anatomy
         Piece("Faulds and Tassets", A, Detail, S("waist.armor", "L.hip.armor", "R.hip.armor"));
         foreach (var (side, p, n) in Sides)
         {
+            Piece($"{n} Hip Tattoo", T, Detail, S($"{p}.hip.skin"), side: side, family: "hip_tattoo");
             Piece($"{n} Tasset", A, Classic, S($"{p}.hip.armor"), side: side, family: "tasset");
             Piece($"{n} Hip Scabbard", W, Detail, S($"{p}.hip.hang"), side: side, family: "scabbard");
+            Piece($"{n} Hip Chain", J, Detail, S($"{p}.hip.adorn"), side: side, family: "hip_chain");
         }
         Piece("Codpiece", A, Exotic, S("groin.armor"));
         Piece("Loincloth", X, Detail, S("groin.over"));
+        Piece("Culet", A, Detail, S("seat.armor"));
+        Piece("Rear Pouch", K, Detail, S("seat.pouch"), family: "pouch");
 
         // Both arms and hands, both legs and feet.
         foreach (var (side, p, n) in Sides)
@@ -475,23 +603,29 @@ public sealed class Anatomy
             // Arms.
             Sided("Shoulder Tattoo", T, Detail, S("shoulder.skin"));
             Sided("Upper Arm Tattoo", T, Detail, S("upperarm.skin"));
+            Sided("Triceps Tattoo", T, Detail, S("triceps.skin"));
             Sided("Elbow Tattoo", T, Detail, S("elbow.skin"));
             Sided("Forearm Tattoo", T, Detail, S("forearm.skin"));
             Sided("Wrist Tattoo", T, Detail, S("wrist.skin"));
-            Sided("Sleeve Tattoo", T, Exotic, S("shoulder.skin", "upperarm.skin", "elbow.skin", "forearm.skin", "wrist.skin"));
+            Sided("Sleeve Tattoo", T, Exotic, S("shoulder.skin", "upperarm.skin", "triceps.skin", "elbow.skin", "forearm.skin", "wrist.skin"));
             Sided("Spaulder", A, Classic, S("shoulder.armor"), brings: new[] { Opens($"{p}.pauldron", "spikeA", "gem", "paint", "enchant") });
             Sided("Pauldron", A, Classic, S("shoulder.armor", "armpit.armor"), brings: new[] { Opens($"{p}.pauldron") });
+            Sided("Shoulder Cape", X, Detail, S("shoulder.over"));
             Sided("Besagew", A, Detail, S("armpit.armor"));
+            Sided("Arming Sleeve", X, Detail, S("upperarm.under"));
             Sided("Mail Sleeve", A, Detail, S("upperarm.mail"));
             Sided("Rerebrace", A, Classic, S("upperarm.armor"));
             Sided("Couter", A, Classic, S("elbow.armor"));
+            Sided("Elbow Spike", W, Exotic, S("elbow.spike"));
             Sided("Vambrace", A, Classic, S("forearm.armor"), brings: new[] { Opens($"{p}.vambrace", "runeA", "gem", "paint", "enchant") });
             Sided("Arm Harness", A, Detail, S("upperarm.armor", "elbow.armor", "forearm.armor"), brings: new[] { Opens($"{p}.vambrace") });
             Sided("Full Arm Harness", A, Exotic, S("shoulder.armor", "armpit.armor", "upperarm.armor", "elbow.armor", "forearm.armor"),
                 brings: new[] { Opens($"{p}.pauldron"), Opens($"{p}.vambrace") });
             Sided("Arm Wraps", X, Detail, S("forearm.under"));
             Sided("Armlet", J, Classic, S("upperarm.adorn"));
-            Sided("Wrist Blade", W, Exotic, S("forearm.adorn"));
+            Sided("Arm Cuff", J, Detail, S("triceps.adorn"));
+            Sided("Wrist Blade", W, Exotic, S("forearm.blade"));
+            Sided("Forearm Sheath", W, Detail, S("forearm.sheath"));
             Sided("Bracer", A, Classic, S("wrist.armor"), S("wrist.bangle1", "wrist.bangle2"));
             Sided("Bracelet", J, Classic, S("wrist.bangle1"));
             Sided("Second Bracelet", J, Detail, S("wrist.bangle2"), family: "bracelet");
@@ -499,12 +633,12 @@ public sealed class Anatomy
             if (side == Side.Right) Sided("Shoulder Familiar", P, Detail, S("shoulder.perch"), brings: new[] { Opens("perch") });
             else Sided("Shoulder Lantern", K, Detail, S("shoulder.perch"));
 
-            // Hands.
+            // Hands. The fingers' ink is one slot: knuckle letters, a ring tattoo or a thumb tattoo.
             Sided("Hand Tattoo", T, Detail, S("hand.skin"));
             Sided("Palm Sigil", T, Detail, S("palm.skin"));
-            Sided("Knuckle Letters", T, Exotic, S("index.skin", "middle.skin", "ring.skin", "little.skin"));
-            Sided("Ring Tattoo", T, Detail, S("ring.skin"));
-            Sided("Thumb Tattoo", T, Detail, S("thumb.skin"));
+            Sided("Knuckle Letters", T, Exotic, S("fingers.skin"));
+            Sided("Ring Tattoo", T, Detail, S("fingers.skin"));
+            Sided("Thumb Tattoo", T, Detail, S("fingers.skin"));
             Sided("Glove", X, Classic, S("hand.under"), fingerCells("tip"), new[] { Opens($"{p}.glove") });
             Sided("Fingerless Glove", X, Detail, S("hand.under"), brings: new[] { Opens($"{p}.glove") });
             Sided("Hand Plate", A, Detail, S("hand.armor"), fingerCells("band").Concat(fingerCells("knuckle")).ToArray());
@@ -519,51 +653,64 @@ public sealed class Anatomy
                 string fk = Fingers[f], fn = FingerNames[f];
                 Sided($"{fn} Ring", J, f == 1 ? Classic : Detail, S($"{fk}.band"), brings: new[] { Opens($"{p}.{fk}.setting") }, family: "ring");
                 Sided($"{fn} Knuckle Ring", J, Detail, S($"{fk}.knuckle"), family: "knuckle_ring");
+                Sided($"{fn} Claw Ring", J, Exotic, S($"{fk}.tip"), family: "claw_ring");
             }
             Sided("Talons", W, Exotic, fingerCells("tip"));
             Sided("Nail Lacquer", T, Detail, fingerCells("tip"));
             Sided("Thimble", X, Detail, S("middle.tip"));
             Sided("Knuckleduster", W, Detail, S("index.band", "middle.band", "ring.band", "little.band"));
+            Sided("Hand Jewel", J, Detail, S("hand.adorn"));
             Sided("Hand Chain", J, Detail, S("hand.adorn", "middle.band", "wrist.bangle1"));
             Sided("Palm Crystal", K, Exotic, S("palm.adorn"));
 
             // Legs.
             Sided("Thigh Tattoo", T, Detail, S("thigh.skin"));
+            Sided("Outer Thigh Tattoo", T, Detail, S("outthigh.skin"));
+            Sided("Hamstring Tattoo", T, Detail, S("hamstring.skin"));
             Sided("Knee Tattoo", T, Detail, S("knee.skin"));
-            Sided("Calf Tattoo", T, Detail, S("shin.skin"));
+            Sided("Knee Pit Tattoo", T, Detail, S("kneepit.skin"));
+            Sided("Shin Tattoo", T, Detail, S("shin.skin"));
+            Sided("Calf Tattoo", T, Detail, S("calf.skin"));
             Sided("Ankle Tattoo", T, Detail, S("ankle.skin"));
-            Sided("Leg Sleeve Tattoo", T, Exotic, S("thigh.skin", "knee.skin", "shin.skin", "ankle.skin"));
+            Sided("Leg Sleeve Tattoo", T, Exotic, S("thigh.skin", "outthigh.skin", "hamstring.skin", "knee.skin", "kneepit.skin", "shin.skin", "calf.skin", "ankle.skin"));
             Sided("Breeches", X, Detail, S("thigh.under"));
             Sided("Knee Wrap", X, Detail, S("knee.under"));
             Sided("Leg Wraps", X, Detail, S("shin.under"));
-            Sided("Chausses", A, Detail, S("thigh.mail", "shin.mail"));
+            Sided("Ankle Wrap", X, Detail, S("ankle.under"));
+            Sided("Chausses", A, Detail, S("thigh.mail"));
             Sided("Cuisse", A, Classic, S("thigh.armor"));
             Sided("Poleyn", A, Classic, S("knee.armor"));
             Sided("Greave", A, Classic, S("shin.armor"), brings: new[] { Opens($"{p}.leg", "rune", "paint", "enchant") });
             Sided("Leg Harness", A, Detail, S("thigh.armor", "knee.armor", "shin.armor"), brings: new[] { Opens($"{p}.leg") });
+            Sided("Calf Guard", A, Detail, S("calf.armor"), S("calf.adorn"));
             Sided("Ankle Guard", A, Detail, S("ankle.armor"), S("ankle.anklet1", "ankle.anklet2"));
             Sided("Garter", J, Detail, S("thigh.adorn"));
-            Sided("Thigh Sheath", W, Detail, S("thigh.adorn"));
+            Sided("Thigh Sheath", W, Detail, S("outthigh.hold"));
+            Sided("Thigh Strap", X, Detail, S("hamstring.adorn"));
+            Sided("Calf Band", J, Detail, S("calf.adorn"));
             Sided("Anklet", J, Classic, S("ankle.anklet1"));
             Sided("Second Anklet", J, Detail, S("ankle.anklet2"), family: "anklet");
 
             // Feet.
             string[] toes = Toes.Select(t => $"{t}.band").Append("toetips.tips").Append("foot.adorn").ToArray();
             Sided("Foot Tattoo", T, Detail, S("foot.skin"));
+            Sided("Heel Tattoo", T, Detail, S("heel.skin"));
             Sided("Sock", X, Detail, S("foot.under"));
             Sided("Sandal", X, Classic, S("sole.sole"));
-            Sided("Boot", A, side == Side.Right ? StartTier : Classic, S("sole.sole", "foot.under", "ankle.under"), toes.Concat(S("ankle.anklet1", "ankle.anklet2")).ToArray(),
-                new[] { Opens($"{p}.boot", "spur", "buckleA", "laces", "sole", "paint") });
+            Sided("Boot", A, side == Side.Right ? StartTier : Classic, S("sole.sole", "foot.under", "ankle.under"),
+                toes.Concat(S("ankle.anklet1", "ankle.anklet2", "heel.spike")).ToArray(), new[] { Opens($"{p}.boot", "spur", "buckleA", "laces", "sole", "paint") });
             Sided("Sabaton", A, Detail, S("foot.armor"), toes, new[] { Opens($"{p}.sabaton") });
-            Sided("Armoured Boot", A, Exotic, S("sole.sole", "foot.under", "foot.armor", "ankle.under", "ankle.armor"), toes.Concat(S("ankle.anklet1", "ankle.anklet2")).ToArray(),
-                new[] { Opens($"{p}.boot"), Opens($"{p}.sabaton") });
+            Sided("Armoured Boot", A, Exotic, S("sole.sole", "foot.under", "foot.armor", "ankle.under", "ankle.armor"),
+                toes.Concat(S("ankle.anklet1", "ankle.anklet2", "heel.spike")).ToArray(), new[] { Opens($"{p}.boot"), Opens($"{p}.sabaton") });
             for (int t = 0; t < 5; t++) Sided($"{ToeNames[t]} Ring", J, t == 0 ? Classic : Detail, S($"{Toes[t]}.band"), family: "toe_ring");
             Sided("Toe Talons", W, Exotic, S("toetips.tips"));
             Sided("Toenail Paint", T, Detail, S("toetips.tips"));
+            Sided("Foot Charm", J, Detail, S("foot.adorn"));
             Sided("Foot Chain", J, Detail, S("foot.adorn", "toe2.band"));
+            Sided("Heel Spike", W, Exotic, S("heel.spike"));
         }
         Piece("Trousers", X, Classic, S("L.thigh.under", "R.thigh.under", "L.knee.under", "R.knee.under", "L.shin.under", "R.shin.under"));
-        Piece("Mail Leggings", A, Exotic, S("L.thigh.mail", "R.thigh.mail", "L.shin.mail", "R.shin.mail"));
+        Piece("Mail Leggings", A, Exotic, S("L.thigh.mail", "R.thigh.mail"));
 
         // In the hands.
         Piece("Main Hand", W, StartTier, S("R.grip.hold"), brings: new[] { Opens("blade", "pommel", "guard", "grip", "rune1", "rune2", "rune3", "gemA", "gemB", "enchant", "oil", "tassel") }, family: "main_hand");
@@ -700,7 +847,15 @@ public sealed class Anatomy
         for (int i = 1; i <= 4; i++) Mod("belt", $"Potion {Numerals[i - 1]}", K, Detail, S($"loop{i}"), family: "potion");
         for (int i = 1; i <= 3; i++) Mod("belt", $"Belt Charm {Numerals[i - 1]}", K, Detail, S($"charm{i}"), family: "charm");
         Mod("belt", "Belt Enchantment", T, Detail, S("enchant"), family: "enchantment");
-        // Things on the back.
+        // What hangs from the straps across the chest.
+        Mod("bandolier", "Throwing Knife I", W, Detail, S("knife1"), family: "throwing_knife");
+        Mod("bandolier", "Throwing Knife II", W, Detail, S("knife2"), family: "throwing_knife");
+        Mod("bandolier", "Bandolier Vial I", K, Detail, S("vial1"), family: "potion");
+        Mod("bandolier", "Bandolier Vial II", K, Detail, S("vial2"), family: "potion");
+        Mod("harness", "Left Harness Pocket", K, Detail, S("pocketL"), family: "pouch");
+        Mod("harness", "Right Harness Pocket", K, Detail, S("pocketR"), family: "pouch");
+        Mod("harness", "Harness Buckle", J, Detail, S("buckle"), family: "buckle");
+                // Things on the back.
         Mod("quiver", "Fletching", X, Detail, S("fletching"));
         Mod("quiver", "Arrowheads", W, Detail, S("heads"));
         Mod("quiver", "Quiver Enchantment", T, Detail, S("enchant"), family: "enchantment");
@@ -827,10 +982,10 @@ public sealed class Anatomy
                 for (int j = i + 1; j < hosts.Count; j++)
                     if (!Conflict(hosts[i], hosts[j])) problems.Add($"{hosts[i].Name} and {hosts[j].Name} both bring {board.Key} and could be worn together");
         }
-        // Every cell can be filled by something.
-        var taken = new HashSet<int>(Pieces.SelectMany(p => p.Takes));
+        // Every slot is a choice of its own: some piece fills it alone (bigger pieces may also fill it, with others).
+        var alone = new HashSet<int>(Pieces.Where(p => p.Takes.Length == 1).Select(p => p.Takes[0]));
         foreach (var c in Cells)
-            if (!taken.Contains(c.Id)) problems.Add($"Nothing fills {c.Key}");
+            if (!alone.Contains(c.Id)) problems.Add($"No piece fills {c.Key} on its own");
         var names = Pieces.GroupBy(p => p.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
         foreach (var n in names) problems.Add($"Two pieces named {n}");
         if (problems.Count > 0) throw new InvalidOperationException("Anatomy: " + string.Join("; ", problems.Take(20)));

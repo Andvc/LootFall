@@ -27,9 +27,11 @@ public partial class PaperDoll : Control
     /// <summary>The region zoomed into (its slot markers show), and the region the mouse is over on the whole figure.</summary>
     public string Region;
     public string Hover;
-    /// <summary>The slot markers: whether they show, and the one picked (the first cell of its group).</summary>
+    /// <summary>The slot markers: whether they show, and the one picked. Every slot has its own marker.</summary>
     public bool Markers = true;
     public int PickedCell = -1;
+    /// <summary>On the whole figure, a small marker for every slot on this side of it (otherwise only a zoomed region's).</summary>
+    public bool ShowAll = true;
     /// <summary>Slots to light (a piece's cells while it's chosen).</summary>
     public readonly HashSet<int> Lit = new();
     /// <summary>Compact: the main screen's small figure (no markers, a lighter outline).</summary>
@@ -48,15 +50,12 @@ public partial class PaperDoll : Control
     readonly List<int> _pieces = new();
     int[] _fillOf, _keepOf;
     readonly Dictionary<int, List<int>> _modsOf = new();
-    readonly List<(Vector2 At, List<int> Cells)> _markers = new();
-    // Where each marker is drawn this frame: at its slot, pushed clear of the others.
+    readonly List<(Vector2 At, int Cell)> _markers = new();
+    // Where each marker is drawn: at its slot, pushed clear of the others (worked out again when the camera moves), and
+    // the one under the mouse.
     readonly List<Vector2> _markerScreen = new();
-    // The picked marker's slots, fanned out round it as tiles (each its own slot), and the one the mouse is over.
-    readonly List<(int Cell, Vector2 At)> _chips = new();
-    Vector2 _fanCentre;
-    float _fanRadius;
-    int _fanMarker = -1, _hoverChip = -1;
-    const float Chip = 23;
+    (float Zoom, Vector2 Focus, bool Back, Vector2 Size, int Count) _laidOut;
+    int _hoverMarker = -1;
     Vector2 _drag;
     bool _dragging, _dragged;
 
@@ -179,28 +178,36 @@ public partial class PaperDoll : Control
 
     // ------------------------------------------------------------------------------------------------ markers
 
-    /// <summary>The region's slots, grouped by where their markers go.</summary>
+    /// <summary>A marker for each slot that shows: a zoomed region's, or on the whole figure every slot on this side.</summary>
     void BuildMarkers()
     {
         _markers.Clear();
-        if (Region == null || Small) return;
+        _laidOut = default;
+        _hoverMarker = -1;
+        if (Small || !Markers || (Region == null && !ShowAll)) return;
+        var perSite = new Dictionary<string, int>();
+        foreach (var cell in C.Cells)
+            if (cell.Board == Anatomy.Body) perSite[cell.Site] = perSite.GetValueOrDefault(cell.Site) + 1;
         foreach (var cell in C.Cells)
         {
-            if (cell.Board != Anatomy.Body || cell.Region != Region) continue;
-            if (Back ? Figure.FrontOnly(cell.Site) : Figure.BackOnly(cell.Site)) continue;
-            var at = Figure.Anchor(cell);
-            int i = _markers.FindIndex(m => m.At.DistanceTo(at) < 3);
-            if (i < 0) _markers.Add((at, new List<int> { cell.Id }));
-            else _markers[i].Cells.Add(cell.Id);
+            if (cell.Board != Anatomy.Body || (Region != null && cell.Region != Region) || !Figure.Marked(cell.Site, Back)) continue;
+            _markers.Add((Figure.MarkerSpot(cell, perSite[cell.Site]), cell.Id));
         }
     }
 
-    /// <summary>Where a cell is on the screen, in the screen's coordinates (for flying things to it): its tile while its
-    /// marker is fanned out, else the spot on the figure.</summary>
+    /// <summary>Shows or hides the whole figure's slot markers.</summary>
+    public void ShowSlots(bool on)
+    {
+        ShowAll = on;
+        BuildMarkers();
+    }
+
+    /// <summary>Where a cell is on the screen, in the screen's coordinates (for flying things to it): its marker if it has
+    /// one, else its spot on the figure.</summary>
     public Vector2 GlobalCellPoint(int cell)
     {
-        foreach (var (c, at) in _chips)
-            if (c == cell) return GetGlobalTransformWithCanvas() * at;
+        for (int i = 0; i < _markers.Count && i < _markerScreen.Count; i++)
+            if (_markers[i].Cell == cell) return GetGlobalTransformWithCanvas() * _markerScreen[i];
         return GlobalOf(Figure.Anchor(C.Cells[cell]));
     }
 
@@ -208,40 +215,17 @@ public partial class PaperDoll : Control
     Vector2 Inside(Vector2 p) => new(Mathf.Clamp(p.X, MarkerRadius + 8, Mathf.Max(MarkerRadius + 8, Size.X - MarkerRadius - 8)),
         Mathf.Clamp(p.Y, 64 + MarkerRadius, Mathf.Max(64 + MarkerRadius, Size.Y - 62 - MarkerRadius)));
 
-    /// <summary>Fans the picked marker's slots out round it, if it has more than one: a tile each, on a ring big enough for
-    /// them, kept on the stage.</summary>
-    void LayoutChips()
-    {
-        _chips.Clear();
-        _fanMarker = -1;
-        if (PickedCell < 0) return;
-        for (int i = 0; i < _markers.Count && i < _markerScreen.Count; i++)
-            if (_markers[i].Cells.Contains(PickedCell) && _markers[i].Cells.Count > 1) _fanMarker = i;
-        if (_fanMarker < 0) return;
-        var cells = _markers[_fanMarker].Cells;
-        _fanRadius = Mathf.Max(56, cells.Count * (Chip * 2 + 10) / Mathf.Tau);
-        float edge = _fanRadius + Chip + 14;
-        var p = _markerScreen[_fanMarker];
-        _fanCentre = new Vector2(Mathf.Clamp(p.X, edge, Size.X - edge), Mathf.Clamp(p.Y, edge + 40, Size.Y - edge - 56));
-        for (int i = 0; i < cells.Count; i++)
-            _chips.Add((cells[i], _fanCentre + Vector2.FromAngle(-Mathf.Pi / 2 + i * Mathf.Tau / cells.Count) * _fanRadius));
-    }
-
-    int ChipAt(Vector2 screen)
-    {
-        for (int i = 0; i < _chips.Count; i++)
-            if (Mathf.Abs(_chips[i].At.X - screen.X) <= Chip + 3 && Mathf.Abs(_chips[i].At.Y - screen.Y) <= Chip + 3) return i;
-        return -1;
-    }
-
-    /// <summary>Lays the markers out for this frame: each at its slot, then pushed apart until no two overlap (a line
-    /// leads back to the slot from one that moved).</summary>
+    /// <summary>Lays the markers out: each at its slot, then pushed apart until no two overlap (a line leads back to the
+    /// slot from one that moved). Only when the camera or the markers change.</summary>
     void LayoutMarkers()
     {
+        var key = (Zoom, Focus, Back, Size, _markers.Count);
+        if (key == _laidOut && _markerScreen.Count == _markers.Count) return;
+        _laidOut = key;
         _markerScreen.Clear();
         foreach (var (at, _) in _markers) _markerScreen.Add(Inside(ToScreen(at)));
-        float min = MarkerRadius * 2 + 10;
-        for (int pass = 0; pass < 40; pass++)
+        float min = MarkerRadius * 2 + (Overview ? 3 : 10);
+        for (int pass = 0; pass < (Overview ? 16 : 40); pass++)
         {
             bool moved = false;
             for (int i = 0; i < _markerScreen.Count; i++)
@@ -283,8 +267,8 @@ public partial class PaperDoll : Control
                     return;
                 }
                 Hover = Region == null && !Small ? Figure.RegionAt(ToFigure(m.Position), Back) : null;
-                _hoverChip = Region != null ? ChipAt(m.Position) : -1;
-                MouseDefaultCursorShape = Hover != null || _hoverChip >= 0 || MarkerAt(m.Position) >= 0 ? CursorShape.PointingHand : CursorShape.Arrow;
+                _hoverMarker = MarkerAt(m.Position);
+                MouseDefaultCursorShape = Hover != null || _hoverMarker >= 0 ? CursorShape.PointingHand : CursorShape.Arrow;
                 break;
             case InputEventMouseButton { ButtonIndex: MouseButton.WheelUp, Pressed: true } w when !Small:
                 ZoomAt(w.Position, 1.18f);
@@ -305,17 +289,14 @@ public partial class PaperDoll : Control
                 {
                     _dragging = false;
                     if (_dragged) break;
-                    int chip = Region != null ? ChipAt(b.Position) : -1;
-                    int marker = chip >= 0 ? -1 : MarkerAt(b.Position);
-                    if (chip >= 0)
+                    int marker = MarkerAt(b.Position);
+                    if (marker >= 0)
                     {
-                        PickedCell = _chips[chip].Cell;
-                        CellClicked?.Invoke(PickedCell);
-                    }
-                    else if (marker >= 0)
-                    {
-                        PickedCell = _markers[marker].Cells[0];
-                        CellClicked?.Invoke(PickedCell);
+                        // A slot on the whole figure: into its region first, then the slot.
+                        int cell = _markers[marker].Cell;
+                        if (Region == null) RegionClicked?.Invoke(C.Cells[cell].Region);
+                        PickedCell = cell;
+                        CellClicked?.Invoke(cell);
                     }
                     else
                     {
@@ -337,23 +318,26 @@ public partial class PaperDoll : Control
         _move = 1;
     }
 
+    /// <summary>The marker under a point (the nearest within reach), or -1.</summary>
     int MarkerAt(Vector2 screen)
     {
-        if (!Markers || Region == null) return -1;
+        int best = -1;
+        float reach = MarkerRadius + (Overview ? 3 : 4), bestD = reach;
         for (int i = 0; i < _markers.Count && i < _markerScreen.Count; i++)
-            if (_markerScreen[i].DistanceTo(screen) < MarkerRadius + 4) return i;
-        return -1;
+        {
+            float d = _markerScreen[i].DistanceTo(screen);
+            if (d < bestD)
+            {
+                bestD = d;
+                best = i;
+            }
+        }
+        return best;
     }
 
-    float MarkerRadius => 15;
-
-    /// <summary>The cells grouped under one marker (empty for none).</summary>
-    public List<int> MarkerCells(int cell)
-    {
-        foreach (var (_, cells) in _markers)
-            if (cells.Contains(cell)) return cells;
-        return new List<int>();
-    }
+    /// <summary>Every slot on the whole figure, as small markers.</summary>
+    bool Overview => Region == null;
+    float MarkerRadius => Overview ? 5.5f : 15;
 
     // ------------------------------------------------------------------------------------------------ drawing helpers (figure space in, screen out)
 
@@ -458,18 +442,12 @@ public partial class PaperDoll : Control
             else Glow(Figure.Anchor(cell), 14, Look.Gold);
         }
         if (Region == null && Hover != null && !Small) DrawRegionHint(Hover);
-        if (Region != null && Markers && !Small)
+        if (_markers.Count > 0)
         {
             LayoutMarkers();
-            LayoutChips();
             DrawMarkers();
-            DrawChips();
             DrawLegend();
-        }
-        else
-        {
-            _chips.Clear();
-            _fanMarker = -1;
+            if (_hoverMarker >= 0 && _hoverMarker < _markers.Count) DrawSlotName(_hoverMarker);
         }
         if (!string.IsNullOrEmpty(Hint) && !Small) DrawHint();
     }
@@ -492,9 +470,8 @@ public partial class PaperDoll : Control
         {
             (Look.Tier(4), new Color(Look.Tier(4), 0.35f), "", "worn"),
             (Look.Text, Panel, "+", "free"),
-            (Look.Bad, Panel, "x", "kept free by a piece"),
+            (Look.Bad, Panel, "x", "covered by a piece"),
             (Look.Dim, Panel, "-", "not open yet"),
-            (Look.Text, Panel, "1/3", "slots here, filled"),
         };
         var font = Look.Ui;
         float x = 24, y = Size.Y - 30, width = 12;
@@ -505,7 +482,7 @@ public partial class PaperDoll : Control
             var p = new Vector2(x + 12, y);
             DrawCircle(p, 12, face, true, -1, true);
             DrawArc(p, 12, 0, Mathf.Tau, 20, ring, 2, true);
-            if (label.Length > 0) DrawString(Look.Numbers, p + new Vector2(-14, 5), label, HorizontalAlignment.Center, 28, label.Length > 1 ? 11 : 14, Look.Text);
+            if (label.Length > 0) DrawString(Look.Numbers, p + new Vector2(-14, 5), label, HorizontalAlignment.Center, 28, 14, Look.Text);
             else Tick(p, 5);
             x += 30;
             DrawString(font, new Vector2(x, y + 6), text, HorizontalAlignment.Left, -1, 16, Look.Muted);
@@ -532,92 +509,51 @@ public partial class PaperDoll : Control
     void DrawMarkers()
     {
         // Leader lines first, from markers that were pushed aside back to their slots.
-        for (int m = 0; m < _markers.Count; m++)
-        {
-            var anchor = ToScreen(_markers[m].At);
-            if (anchor.DistanceTo(_markerScreen[m]) < 6) continue;
-            DrawLine(anchor, _markerScreen[m], new Color(Look.Ink, 0.85f), 3.5f, true);
-            DrawLine(anchor, _markerScreen[m], new Color(Look.Muted, 0.9f), 1.5f, true);
-            DrawCircle(anchor, 3.5f, Look.Ink, true, -1, true);
-            DrawCircle(anchor, 2.2f, Look.Muted, true, -1, true);
-        }
-        for (int m = 0; m < _markers.Count; m++)
-            if (m != _fanMarker) DrawMarkerAt(m, _markerScreen[m]);
+        if (!Overview)
+            for (int m = 0; m < _markers.Count; m++)
+            {
+                var anchor = ToScreen(_markers[m].At);
+                if (anchor.DistanceTo(_markerScreen[m]) < 6) continue;
+                DrawLine(anchor, _markerScreen[m], new Color(Look.Ink, 0.85f), 3.5f, true);
+                DrawLine(anchor, _markerScreen[m], new Color(Look.Muted, 0.9f), 1.5f, true);
+                DrawCircle(anchor, 3.5f, Look.Ink, true, -1, true);
+                DrawCircle(anchor, 2.2f, Look.Muted, true, -1, true);
+            }
+        for (int m = 0; m < _markers.Count; m++) DrawMarkerAt(m, _markerScreen[m]);
     }
 
-    /// <summary>A marker: its ring in the best rarity worn there (red if all kept free, dim if none open), a tick a slot
-    /// round it when it stands for several, and what's in it (filled of all, or a tick, x, - or +).</summary>
+    /// <summary>A slot's marker: what's worn there (a disc in its rarity, with a tick), or why nothing is: + free, x covered
+    /// by a piece, - not open yet. On the whole figure, a small dot in the same colours.</summary>
     void DrawMarkerAt(int m, Vector2 p)
     {
-        var cells = _markers[m].Cells;
-        int filled = 0, kept = 0, locked = 0, best = -1;
-        foreach (int c in cells)
+        int cell = _markers[m].Cell;
+        int f = Filling(cell);
+        bool worn = f >= 0, kept = !worn && Keeping(cell) >= 0, locked = !worn && !kept && !AnyOpen(cell);
+        var ring = worn ? Look.Tier(H.Gear[f].Rarity) : kept ? Look.Bad : locked ? Look.Dim : Look.Text;
+        bool picked = cell == PickedCell, hover = m == _hoverMarker;
+        float r = MarkerRadius * (picked || hover ? 1.18f : 1);
+        if (Overview)
         {
-            int f = Filling(c);
-            if (f >= 0)
-            {
-                filled++;
-                best = Math.Max(best, H.Gear[f].Rarity);
-            }
-            else if (Keeping(c) >= 0) kept++;
-            else if (!AnyOpen(c)) locked++;
+            DrawCircle(p, r + 1.5f, new Color(Look.Ink, 0.85f), true, -1, true);
+            DrawCircle(p, r, worn ? ring : locked ? new Color(Panel, 0.85f) : Panel, true, -1, true);
+            if (!worn) DrawArc(p, r, 0, Mathf.Tau, 12, ring, 1.6f, true);
+            return;
         }
-        bool picked = cells.Contains(PickedCell);
-        float r = MarkerRadius * (picked ? 1.15f : 1);
-        var ring = best >= 0 ? Look.Tier(best) : kept == cells.Count ? Look.Bad : locked == cells.Count ? Look.Dim : Look.Text;
         DrawCircle(p, r + 3, new Color(Look.Ink, 0.75f), true, -1, true);
-        DrawCircle(p, r, best >= 0 ? new Color(ring, 0.35f) : Panel, true, -1, true);
+        DrawCircle(p, r, worn ? new Color(ring, 0.35f) : Panel, true, -1, true);
         DrawArc(p, r, 0, Mathf.Tau, 24, ring, picked ? 3.5f : 2, true);
-        // One tick a slot round the edge: filled ones bright.
-        for (int i = 0; i < cells.Count && cells.Count > 1; i++)
-        {
-            float a0 = -Mathf.Pi / 2 + i * Mathf.Tau / cells.Count;
-            int f = Filling(cells[i]);
-            DrawArc(p, r + 6, a0 + 0.12f, a0 + Mathf.Tau / cells.Count - 0.12f, 6, f >= 0 ? Look.Tier(H.Gear[f].Rarity) : new Color(Look.Muted, 0.5f), 3, true);
-        }
-        string label = cells.Count > 1 ? $"{filled}/{cells.Count}" : filled > 0 ? "" : kept > 0 ? "x" : locked > 0 ? "-" : "+";
-        if (label.Length > 0)
-            DrawString(Look.Numbers, p + new Vector2(-r, 6), label, HorizontalAlignment.Center, r * 2, 15, Look.Text);
-        else if (best >= 0) Tick(p, 6);
+        if (worn) Tick(p, 6);
+        else DrawString(Look.Numbers, p + new Vector2(-r, 6), kept ? "x" : locked ? "-" : "+", HorizontalAlignment.Center, r * 2, 15, Look.Text);
     }
 
-    /// <summary>The picked marker's slots as tiles round it: what's worn in each (its picture in its rarity), or why
-    /// nothing is (x kept free, - not open yet, + free); the picked one framed in gold, the one under the mouse named.</summary>
-    void DrawChips()
+    /// <summary>The slot under the mouse, named next to its marker (and what's worn there).</summary>
+    void DrawSlotName(int m)
     {
-        if (_chips.Count == 0) return;
-        float outer = _fanRadius + Chip + 10;
-        DrawCircle(_fanCentre, outer, new Color("#0d0a13", 0.8f), true, -1, true);
-        DrawArc(_fanCentre, outer, 0, Mathf.Tau, 64, new Color(Look.Gold, 0.45f), 2, true);
-        foreach (var (cell, at) in _chips) DrawLine(_fanCentre, at, new Color(Look.Muted, 0.35f), 1.5f, true);
-        // The hub again, over the spokes.
-        DrawMarkerAt(_fanMarker, _fanCentre);
-        for (int i = 0; i < _chips.Count; i++)
-        {
-            var (cell, at) = _chips[i];
-            var rect = new Rect2(at - new Vector2(Chip, Chip), new Vector2(Chip * 2, Chip * 2));
-            int f = Filling(cell);
-            if (f >= 0 && H.Gear[f] != null)
-                ItemTile.Draw(this, rect, C.Slots[f].Family, H.Gear[f].Rarity, numeral: false, tier: ItemTile.Tier(H.Gear[f]));
-            else
-            {
-                bool kept = Keeping(cell) >= 0, locked = !kept && !AnyOpen(cell);
-                DrawStyleBox(Ui.Frame(Panel, kept ? Look.Bad : locked ? new Color(Look.Dim, 0.8f) : Look.Text, 7, 2, 0, 0), rect);
-                DrawString(Look.Numbers, at + new Vector2(-Chip, 7), kept ? "x" : locked ? "-" : "+", HorizontalAlignment.Center, Chip * 2, 18, locked ? Look.Dim : Look.Text);
-            }
-            if (cell == PickedCell) DrawStyleBox(Ui.Frame(Colors.Transparent, Look.Gold, 9, 3, 0, 0), rect.Grow(4));
-            else if (i == _hoverChip) DrawStyleBox(Ui.Frame(Colors.Transparent, Look.Text, 9, 2, 0, 0), rect.Grow(3));
-        }
-        // The site's name above the ring, and the slot under the mouse (or the picked one) below it.
-        var c0 = C.Cells[_chips[0].Cell];
-        Label(_fanCentre + new Vector2(0, -outer - 16), c0.SiteName, Look.Gold);
-        int shown = _hoverChip >= 0 ? _chips[_hoverChip].Cell : PickedCell;
-        if (shown >= 0)
-        {
-            int f = Filling(shown);
-            string what = C.Cells[shown].Name + (f >= 0 && H.Gear[f] != null ? ": " + Describe.Name(C, f, H.Gear[f]) : "");
-            Label(_fanCentre + new Vector2(0, outer + 24), what, f >= 0 && H.Gear[f] != null ? Look.TierText(H.Gear[f].Rarity) : Look.Text);
-        }
+        int cell = _markers[m].Cell;
+        int f = Filling(cell);
+        var c = C.Cells[cell];
+        string text = (Overview ? c.SiteName + ": " : "") + c.Name + (f >= 0 && H.Gear[f] != null ? " - " + Describe.Name(C, f, H.Gear[f]) : "");
+        Label(_markerScreen[m] + new Vector2(0, -MarkerRadius - 12), text, f >= 0 && H.Gear[f] != null ? Look.TierText(H.Gear[f].Rarity) : Look.Text);
     }
 
     /// <summary>A short line of text centred at a point, on a dark strip.</summary>
@@ -688,7 +624,7 @@ public partial class PaperDoll : Control
         foreach (float s in new[] { -1f, 1f }) Fill(Ink.Ellipse(new Vector2(s * 52, 104), 9, 16, 12), skin.Mid);
         Shade(Figure.HeadShape(), skin);
         // Hair over the top, unless a helm or a hood covers it.
-        if (!Covered("scalp.armor") && !Covered("scalp.over")) Shade(Figure.Site("hair"), hair);
+        if (!Covered("scalp.head")) Shade(Figure.Site("hair"), hair);
         // The face.
         foreach (float s in new[] { -1f, 1f })
         {

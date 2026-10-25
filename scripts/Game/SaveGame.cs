@@ -9,13 +9,15 @@ namespace LootFall.Game;
 /// <summary>
 /// A saved game as plain data: the world (time, the run, aether owed), the hero (gear, forge, ranks, mastery, codex,
 /// level, gold, materials), talents, both prestige layers, the chests, the automation and the totals. What the rules
-/// can work out again (open slots, rarity tiers, the codex's worth, the stat sheets) isn't stored. Bump
-/// <see cref="CurrentVersion"/> when an older save can't be read as it is.
+/// can work out again (open slots, rarity tiers, the codex's worth, the stat sheets) isn't stored. Everything kept per
+/// piece is matched up by the pieces' names (<see cref="SlotNames"/>), so the equipment can change between versions:
+/// a piece added starts empty and one taken away is dropped. Bump <see cref="CurrentVersion"/> only when an older save
+/// can't be read as it is.
 /// </summary>
 public sealed class SaveData
 {
-    /// <summary>2: the equipment anatomy (about 550 kinds of piece, what's worn) replaced the 149 fixed slots.</summary>
-    public const int CurrentVersion = 2;
+    /// <summary>3: pieces saved by name (2: the equipment anatomy replaced the 149 fixed slots).</summary>
+    public const int CurrentVersion = 3;
 
     public int Version = CurrentVersion;
     /// <summary>When it was written (Unix seconds), to work out the time away.</summary>
@@ -38,8 +40,10 @@ public sealed class SaveData
     public int[] Forge, Rank, Mastery;
     public double[] MasteryXp;
     public bool[] Focus;
-    /// <summary>What's put on (by slot), and the slot names in order, so a save can tell its slots are this build's.</summary>
+    /// <summary>What's put on, by piece.</summary>
     public bool[] Worn;
+    /// <summary>The pieces' names in the order everything per piece above (and the codex, and the chests) was saved in.</summary>
+    public string[] SlotNames;
     public string Codex;
     /// <summary>The codex's worth as summed when found (summing it again in another order differs in the last digits).</summary>
     public double CodexValue;
@@ -132,12 +136,17 @@ public sealed class ChestData
         Counts = (long[])c.Counts.Clone(), Materials = c.Materials, Found = c.Found.ToArray(),
     };
 
-    public Chest ToChest()
+    /// <summary>The chest, its pieces and codex entries renumbered for this build (<paramref name="map"/>: a saved piece's
+    /// index now, or -1 for one that's gone, whose items are dropped).</summary>
+    public Chest ToChest(int[] map, Func<int, int> codexKey)
     {
         var c = new Chest { Kind = (ChestKind)Kind, Depth = Depth, Materials = Materials };
-        for (int i = 0; i < (Slots?.Length ?? 0); i++) c.Items.Add((Slots[i], Items[i].ToItem()));
+        for (int i = 0; i < (Slots?.Length ?? 0); i++)
+            if (Slots[i] >= 0 && Slots[i] < map.Length && map[Slots[i]] >= 0) c.Items.Add((map[Slots[i]], Items[i].ToItem()));
         for (int r = 0; r < c.Counts.Length && r < (Counts?.Length ?? 0); r++) c.Counts[r] = Counts[r];
-        if (Found != null) c.Found.AddRange(Found);
+        if (Found != null)
+            foreach (int k in Found)
+                if (codexKey(k) is var key && key >= 0) c.Found.Add(key);
         return c;
     }
 }
@@ -170,6 +179,7 @@ public static class SaveGame
             Materials = h.Materials, Gear = h.Gear.Select(ItemData.Of).ToArray(),
             Forge = (int[])h.Forge.Clone(), Rank = (int[])h.Rank.Clone(), Mastery = (int[])h.Mastery.Clone(),
             MasteryXp = (double[])h.MasteryXp.Clone(), Focus = (bool[])h.Focus.Clone(), Worn = (bool[])h.Worn.Clone(), Codex = Bits(h.Codex), CodexValue = h.CodexValue,
+            SlotNames = s.C.Slots.Select(x => x.Name).ToArray(),
             Talents = Bits(h.Talents.Allocated), Points = h.Talents.Points, ParagonDamage = h.Talents.ParagonDamage, ParagonHp = h.Talents.ParagonHp,
             Ascension = LayerData.Of(h.Ascension), Transcendence = LayerData.Of(h.Transcendence),
             Chests = s.Pile.Waiting.Select(ChestData.Of).ToList(), Filling = ChestData.Of(s.Pile.Filling), FillingKills = s.Pile.Kills,
@@ -219,25 +229,33 @@ public static class SaveGame
         h.Gold = d.Gold.ToBig();
         h.Materials = d.Materials;
         h.UpdateUnlocks();
-        int n = h.Gear.Length;
-        for (int i = 0; i < n; i++)
+        // Saved pieces by name: map[saved index] is the piece's index now, or -1 for one that's gone.
+        var map = SlotMap(d, s.C);
+        for (int i = 0; i < map.Length; i++)
         {
-            h.Gear[i] = d.Gear != null && i < d.Gear.Length ? d.Gear[i]?.ToItem() : null;
-            h.Forge[i] = Get(d.Forge, i);
-            h.Rank[i] = Get(d.Rank, i);
-            h.Mastery[i] = Get(d.Mastery, i);
-            h.MasteryXp[i] = d.MasteryXp != null && i < d.MasteryXp.Length ? d.MasteryXp[i] : 0;
-            h.Focus[i] = d.Focus != null && i < d.Focus.Length && d.Focus[i];
-            h.Worn[i] = d.Worn != null && i < d.Worn.Length && d.Worn[i];
+            int j = map[i];
+            if (j < 0) continue;
+            h.Gear[j] = d.Gear != null && i < d.Gear.Length ? d.Gear[i]?.ToItem() : null;
+            h.Forge[j] = Get(d.Forge, i);
+            h.Rank[j] = Get(d.Rank, i);
+            h.Mastery[j] = Get(d.Mastery, i);
+            h.MasteryXp[j] = d.MasteryXp != null && i < d.MasteryXp.Length ? d.MasteryXp[i] : 0;
+            h.Focus[j] = d.Focus != null && i < d.Focus.Length && d.Focus[i];
+            h.Worn[j] = d.Worn != null && i < d.Worn.Length && d.Worn[i];
         }
-        var codex = Unbits(d.Codex, h.Codex.Length);
+        int savedSlots = map.Length;
+        var codex = Unbits(d.Codex, savedSlots * Content.RarityNames.Length * Hero.QualityBands * Hero.Eras);
         for (int k = 0; k < codex.Length; k++)
-            if (codex[k]) h.Mark(k);
-        if (d.CodexValue > 0) h.CodexValue = d.CodexValue;
+        {
+            if (!codex[k]) continue;
+            int key = Remap(k, map, h);
+            if (key >= 0) h.Mark(key);
+        }
+        if (d.CodexValue > 0 && map.All(j => j >= 0) && map.Length == s.C.SlotCount) h.CodexValue = d.CodexValue;
         h.Talents.Restore(Unbits(d.Talents, h.Talents.Allocated.Length), d.Points, d.ParagonDamage, d.ParagonHp, h.S);
 
-        foreach (var c in d.Chests ?? new()) s.Pile.Waiting.Add(c.ToChest());
-        if (d.Filling != null) s.Pile.Filling.Absorb(d.Filling.ToChest());
+        foreach (var c in d.Chests ?? new()) s.Pile.Waiting.Add(c.ToChest(map, k => Remap(k, map, h)));
+        if (d.Filling != null) s.Pile.Filling.Absorb(d.Filling.ToChest(map, k => Remap(k, map, h)));
         s.Pile.Kills = d.FillingKills;
         if (d.Auto != null)
         {
@@ -271,6 +289,27 @@ public static class SaveGame
     }
 
     static int Get(int[] a, int i) => a != null && i < a.Length ? a[i] : 0;
+
+    /// <summary>Each saved piece's index now (by name), or -1 for one this build doesn't have. A save without names is
+    /// taken to be in this build's order.</summary>
+    static int[] SlotMap(SaveData d, Content c)
+    {
+        if (d.SlotNames == null) return Enumerable.Range(0, c.SlotCount).ToArray();
+        var now = new Dictionary<string, int>();
+        foreach (var x in c.Slots) now[x.Name] = x.Index;
+        return d.SlotNames.Select(n => n != null && now.TryGetValue(n, out int j) ? j : -1).ToArray();
+    }
+
+    /// <summary>A codex entry saved with the saved pieces' order, as this build numbers it (-1 if its piece is gone).</summary>
+    static int Remap(int key, int[] map, Hero h)
+    {
+        int band = key % Hero.QualityBands;
+        key /= Hero.QualityBands;
+        int rarity = key % Content.RarityNames.Length;
+        key /= Content.RarityNames.Length;
+        int era = key / map.Length, slot = key % map.Length;
+        return map[slot] < 0 ? -1 : h.CodexKey(era, map[slot], rarity, band);
+    }
 
     static string Bits(bool[] bits)
     {

@@ -24,6 +24,22 @@ static class AnatomyReport
         Console.WriteLine("  by kind: " + string.Join(", ", c.Slots.GroupBy(s => s.Kind).Select(g => $"{g.Key} {g.Count()}")));
         Console.WriteLine("  by region: " + string.Join(", ", c.Slots.Where(s => s.Region != null).GroupBy(s => s.Region).Select(g => $"{g.Key} {g.Count()}")));
         Console.WriteLine($"  families: {c.Slots.Select(s => s.Family).Distinct().Count()}, prestige: {c.Slots.Count(s => s.Prestige)}");
+        Console.WriteLine("Body slots by region: " + string.Join(", ", a.Cells.Where(x => x.Board == 0).GroupBy(x => x.Region).Select(g => $"{g.Key} {g.Count()}")));
+        // Slots in the same place that can never both be filled: a piece that covers another's place (a bracer over the
+        // bracelets), or one slot split in two, which should be one slot with all their options.
+        var exclusive = new List<string>();
+        foreach (var site in a.Cells.Where(x => x.Board == 0).GroupBy(x => x.Site))
+        {
+            var cells = site.ToList();
+            for (int i = 0; i < cells.Count; i++)
+                for (int j = i + 1; j < cells.Count; j++)
+                {
+                    var ta = c.Slots.Where(s => s.Takes.Contains(cells[i].Id)).ToList();
+                    var tb = c.Slots.Where(s => s.Takes.Contains(cells[j].Id)).ToList();
+                    if (ta.All(x => tb.All(y => x.Index == y.Index || x.Conflicts.Contains(y.Index)))) exclusive.Add($"{cells[i].Key}/{cells[j].Key}");
+                }
+        }
+        Console.WriteLine($"  same-place slots that never go together (one covers the other): {(exclusive.Count == 0 ? "none" : string.Join(", ", exclusive))}");
         foreach (int d in new[] { 1, 10, 50, 100, 300, 1000, 3000, 6000, 12000 })
             Console.WriteLine($"  open by depth {d,5}: {c.Slots.Count(s => !s.Prestige && s.UnlockDepth <= d),4}");
         Console.WriteLine("  the first 30: " + string.Join(", ", c.Slots.Take(30).Select(s => $"{s.Name} ({s.UnlockDepth})")));

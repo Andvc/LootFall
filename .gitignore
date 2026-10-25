@@ -20,3 +20,6 @@ art/incoming/
 art/contact_sheet.png
 art/sheet_*.png
 art/sources.json.bak
+
+# The equipment art checker's review sheet (tools/equipment_art.py sheet)
+art/equipment/review.png

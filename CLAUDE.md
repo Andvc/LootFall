@@ -3,8 +3,9 @@
 Solo-developed PC game (Godot 4.7.2 .NET, C#, 2D, GL Compatibility renderer): an incremental loot game built for
 thousands of hours of play.
 - A knight fights ever deeper on his own, and each depth's drops fill a chest.
-- Chests open through twelve rarities into gear for 586 kinds of piece on 545 slots, from the crown of his head to the
-  tips of his toes, with pieces that clash and pieces with slots of their own. Auto-equip wears the strongest whole set.
+- Chests open through twelve rarities into gear for 720 kinds of piece on 622 slots (328 of them on the body), from the
+  crown of his head to the tips of his toes, with pieces that clash and pieces with slots of their own. Auto-equip wears
+  the strongest whole set.
 - Forge, ranks, mastery, a 3,259-node talent tree, a codex and two prestige layers (ascension, transcendence) make him
   stronger.
 
@@ -67,6 +68,9 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
 6. New content (a realm, a monster, a piece or item family): run `python3 tools/art.py manifest` so
    `art/manifest.json` lists it. Give it a stand-in in `tools/placeholders.py`, or the game falls back (an icon to
    "unknown"). Pieces are added in `Anatomy.cs` (docs/equipment.md, "Adding a piece").
+7. The equipment screen's final art is specified in `docs/art-handoff-equipment.md` and delivered to `art/equipment/`.
+   `python3 tools/equipment_art.py check` validates it, and `spec` rewrites `art/equipment/handoff.json` after the
+   anatomy changes (run `python3 tools/art.py manifest` first).
 
 ## Conventions
 
@@ -91,7 +95,8 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
   - **`scripts/View`, the presentation.** It animates what the session reports (`Session.Events`, `Stage.Cues`) and
     never decides an outcome.
 - Anything added to `Session` or `Hero` that should survive closing goes in `SaveData` (`scripts/Game/SaveGame.cs`).
-  Bump `CurrentVersion` if old saves can't be read.
+  Bump `CurrentVersion` if old saves can't be read. Per-piece data is saved by piece name (`SlotNames`), so adding or
+  removing pieces needs no bump.
 - If the battle's choreography changes, keep `GameTest.StageCheck` passing. Bosses down plus leaps must equal the depths
   cleared, every foe that comes on falls, and the hero's health stays above its floor.
 

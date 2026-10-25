@@ -55,6 +55,7 @@ static class GameTest
         var json = SaveGame.ToJson(SaveGame.Capture(s, seed, 0));
         var t = SaveGame.Restore(SaveGame.FromJson(json));
         Check("a save restores the hero", Same(s, t), $"{json.Length / 1024} KB");
+        Check("a save from a build with other pieces loads them by name", ByName(s, json, out string byName), byName);
         Play(s, 3600);
         Play(t, 3600);
         Check("a restored game plays on the same", Same(s, t), $"record {s.H.EverDepth} vs {t.H.EverDepth}, gold {s.H.Gold} vs {t.H.Gold}");
@@ -119,6 +120,53 @@ static class GameTest
     }
 
     static void Play(Session s, double seconds) => SensiblePlayer.Play(s, seconds);
+
+    /// <summary>The save as another build would have written it, with its pieces in the opposite order and one of them gone:
+    /// every other piece must come back with its own item, forge, rank and whether it's worn, and the codex with them.</summary>
+    static bool ByName(Session s, string json, out string detail)
+    {
+        var d = SaveGame.FromJson(json);
+        int n = d.SlotNames.Length, gone = Array.FindIndex(d.Gear, g => g != null);
+        T[] Flip<T>(T[] a) => a?.Reverse().ToArray();
+        int[] order = Enumerable.Range(0, n).Reverse().ToArray();
+        d.SlotNames = Flip(d.SlotNames);
+        d.SlotNames[n - 1 - gone] = "A Piece No Longer Made";
+        d.Gear = Flip(d.Gear);
+        d.Forge = Flip(d.Forge);
+        d.Rank = Flip(d.Rank);
+        d.Mastery = Flip(d.Mastery);
+        d.MasteryXp = Flip(d.MasteryXp);
+        d.Focus = Flip(d.Focus);
+        d.Worn = Flip(d.Worn);
+        // The codex and the chests are numbered by the saved order too.
+        var h = s.H;
+        var bits = new bool[h.Codex.Length];
+        for (int k = 0; k < bits.Length; k++)
+            if (h.Codex[k])
+            {
+                var (era, slot, rarity, band) = h.CodexEntry(k);
+                bits[h.CodexKey(era, n - 1 - slot, rarity, band)] = true;
+            }
+        var bytes = new byte[(bits.Length + 7) / 8];
+        for (int i = 0; i < bits.Length; i++)
+            if (bits[i]) bytes[i >> 3] |= (byte)(1 << (i & 7));
+        d.Codex = Convert.ToBase64String(bytes);
+        foreach (var c in d.Chests) c.Slots = c.Slots.Select(x => n - 1 - x).ToArray();
+        var t = SaveGame.Restore(d);
+        int bad = 0;
+        for (int i = 0; i < n; i++)
+        {
+            var (a, b) = (s.H.Gear[i], t.H.Gear[i]);
+            bool same = i == gone ? b == null : (a == null ? b == null : b != null && a.Ilvl == b.Ilvl && a.Rarity == b.Rarity)
+                && s.H.Forge[i] == t.H.Forge[i] && s.H.Rank[i] == t.H.Rank[i] && s.H.Worn[i] == t.H.Worn[i];
+            if (!same) bad++;
+        }
+        int codexLost = s.H.CodexCount - t.H.CodexCount, gonesEntries = 0;
+        for (int k = 0; k < h.Codex.Length; k++)
+            if (h.Codex[k] && h.CodexEntry(k).Slot == gone) gonesEntries++;
+        detail = $"{n - 1} pieces matched, {bad} wrong; codex {t.H.CodexCount} of {s.H.CodexCount} ({gonesEntries} were the gone piece's)";
+        return bad == 0 && codexLost == gonesEntries && t.Pile.Waiting.Count == s.Pile.Waiting.Count;
+    }
 
     static bool Same(Session a, Session b) =>
         a.H.RunDepth == b.H.RunDepth && a.H.EverDepth == b.H.EverDepth && a.H.Level == b.H.Level && a.H.Gold.Equals(b.H.Gold)
