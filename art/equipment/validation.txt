@@ -1,0 +1,209 @@
+Primary command: python3 tools/equipment_art.py check
+Executed with the Windows Python 3 command: python
+PASS  figure_front
+   ok  size: 2160x3840 (want 2160x3840)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  centred: middle at x 1078 (want 1080 +-48)
+   ok  top of the head: y 380 (want 380 +-48)
+   ok  soles: y 3600 (want 3600 +-48)
+   ok  width: x 201 to 1955
+   ok  symmetric pose: left and right halves overlap 98% when mirrored
+   ok  ink outline: 100% of the silhouette's edge is dark ink
+   ok  no key spill: 0.00% of the figure is key green
+PASS  figure_back
+   ok  size: 2160x3840 (want 2160x3840)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  centred: middle at x 1080 (want 1080 +-48)
+   ok  top of the head: y 382 (want 380 +-48)
+   ok  soles: y 3600 (want 3600 +-48)
+   ok  width: x 197 to 1964
+   ok  symmetric pose: left and right halves overlap 99% when mirrored
+   ok  ink outline: 100% of the silhouette's edge is dark ink
+   ok  no key spill: 0.00% of the figure is key green
+   ok  lines up with the front: mirrored, overlaps the front's silhouette 96%
+PASS  head_page
+   ok  size: 3520x2352 (want 3520x2352)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  gap 1: 0.0% drawn in the gap at x 1173
+   ok  gap 2: 0.0% drawn in the gap at x 2346
+   ok  view 1: fills 51% of its part, 69% of the height
+   ok  view 2: fills 47% of its part, 70% of the height
+   ok  view 3: fills 51% of its part, 69% of the height
+   ok  ink outline: 99% of the edges are dark ink
+   ok  no key spill: 0.00% key green
+PASS  hand_right_page
+   ok  size: 3520x2352 (want 3520x2352)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  gap 1: 0.0% drawn in the gap at x 1760
+   ok  view 1: fills 27% of its part, 81% of the height
+   ok  view 2: fills 27% of its part, 81% of the height
+   ok  ink outline: 100% of the edges are dark ink
+   ok  no key spill: 0.00% key green
+PASS  hand_left_page
+   ok  size: 3520x2352 (want 3520x2352)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  gap 1: 0.0% drawn in the gap at x 1760
+   ok  view 1: fills 27% of its part, 80% of the height
+   ok  view 2: fills 27% of its part, 81% of the height
+   ok  ink outline: 100% of the edges are dark ink
+   ok  no key spill: 0.00% key green
+PASS  foot_right_page
+   ok  size: 3520x2352 (want 3520x2352)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  gap 1: 0.0% drawn in the gap at x 1760
+   ok  view 1: fills 26% of its part, 80% of the height
+   ok  view 2: fills 25% of its part, 81% of the height
+   ok  ink outline: 100% of the edges are dark ink
+   ok  no key spill: 0.00% key green
+PASS  foot_left_page
+   ok  size: 3520x2352 (want 3520x2352)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  gap 1: 0.0% drawn in the gap at x 1760
+   ok  view 1: fills 26% of its part, 80% of the height
+   ok  view 2: fills 25% of its part, 81% of the height
+   ok  ink outline: 100% of the edges are dark ink
+   ok  no key spill: 0.00% key green
+PASS  stage_backdrop
+   ok  size: 2560x1920 (want 2560x1920)
+   ok  format: PNG RGB
+   ok  opaque: no transparency
+   ok  muted: mean saturation 21% (at most 40%)
+   ok  dark: mean value 8%, brightest 5% from 17%
+   ok  quiet middle: the middle's contrast (std) 0.02
+PASS  board_backdrop
+   ok  size: 2560x1920 (want 2560x1920)
+   ok  format: PNG RGB
+   ok  opaque: no transparency
+   ok  muted: mean saturation 19% (at most 40%)
+   ok  dark: mean value 16%, brightest 5% from 27%
+   ok  quiet middle: the middle's contrast (std) 0.04
+PASS  slot_glyphs
+   ok  size: 2560x1024 (want 2560x1024)
+   ok  format: PNG RGB
+   ok  glyph skin: fills 12% of its cell, clear of its edges, brightness 99%
+   ok  glyph under: fills 28% of its cell, clear of its edges, brightness 99%
+   ok  glyph mail: fills 15% of its cell, clear of its edges, brightness 99%
+   ok  glyph armor: fills 21% of its cell, clear of its edges, brightness 99%
+   ok  glyph over: fills 19% of its cell, clear of its edges, brightness 99%
+   ok  glyph adorn: fills 10% of its cell, clear of its edges, brightness 99%
+   ok  glyph hold: fills 9% of its cell, clear of its edges, brightness 99%
+   ok  glyph graft: fills 14% of its cell, clear of its edges, brightness 99%
+   ok  glyph beyond: fills 10% of its cell, clear of its edges, brightness 99%
+   ok  glyph mod: fills 15% of its cell, clear of its edges, brightness 99%
+
+10 of 10 pass
+
+Alternative command: python3 tools/equipment_art.py check slot_glyphs --dir art/equipment/variants/bold-glyphs
+PASS  slot_glyphs
+   ok  size: 2560x1024 (want 2560x1024)
+   ok  format: PNG RGB
+   ok  glyph skin: fills 12% of its cell, clear of its edges, brightness 99%
+   ok  glyph under: fills 24% of its cell, clear of its edges, brightness 99%
+   ok  glyph mail: fills 17% of its cell, clear of its edges, brightness 99%
+   ok  glyph armor: fills 22% of its cell, clear of its edges, brightness 99%
+   ok  glyph over: fills 20% of its cell, clear of its edges, brightness 99%
+   ok  glyph adorn: fills 11% of its cell, clear of its edges, brightness 99%
+   ok  glyph hold: fills 8% of its cell, clear of its edges, brightness 99%
+   ok  glyph graft: fills 12% of its cell, clear of its edges, brightness 99%
+   ok  glyph beyond: fills 12% of its cell, clear of its edges, brightness 99%
+   ok  glyph mod: fills 17% of its cell, clear of its edges, brightness 99%
+
+1 of 1 pass
+
+Alternative command: python3 tools/equipment_art.py check board_backdrop --dir art/equipment/variants/field-bench
+PASS  board_backdrop
+   ok  size: 2560x1920 (want 2560x1920)
+   ok  format: PNG RGB
+   ok  opaque: no transparency
+   ok  muted: mean saturation 17% (at most 40%)
+   ok  dark: mean value 12%, brightest 5% from 22%
+   ok  quiet middle: the middle's contrast (std) 0.03
+
+1 of 1 pass
+
+Alternative command: python3 tools/equipment_art.py check figure_front --dir art/equipment/variants/figure-a
+PASS  figure_front
+   ok  size: 2160x3840 (want 2160x3840)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  centred: middle at x 1079 (want 1080 +-48)
+   ok  top of the head: y 380 (want 380 +-48)
+   ok  soles: y 3600 (want 3600 +-48)
+   ok  width: x 226 to 1932
+   ok  symmetric pose: left and right halves overlap 98% when mirrored
+   ok  ink outline: 100% of the silhouette's edge is dark ink
+   ok  no key spill: 0.00% of the figure is key green
+
+1 of 1 pass
+
+Alternative command: python3 tools/equipment_art.py check figure_front --dir art/equipment/variants/figure-b
+PASS  figure_front
+   ok  size: 2160x3840 (want 2160x3840)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  centred: middle at x 1079 (want 1080 +-48)
+   ok  top of the head: y 380 (want 380 +-48)
+   ok  soles: y 3600 (want 3600 +-48)
+   ok  width: x 245 to 1913
+   ok  symmetric pose: left and right halves overlap 97% when mirrored
+   ok  ink outline: 100% of the silhouette's edge is dark ink
+   ok  no key spill: 0.00% of the figure is key green
+
+1 of 1 pass
+
+Alternative command: python3 tools/equipment_art.py check figure_front --dir art/equipment/variants/figure-c
+PASS  figure_front
+   ok  size: 2160x3840 (want 2160x3840)
+   ok  format: PNG RGB
+   ok  background: 100.0% of the border is background (green key)
+   ok  centred: middle at x 1080 (want 1080 +-48)
+   ok  top of the head: y 380 (want 380 +-48)
+   ok  soles: y 3600 (want 3600 +-48)
+   ok  width: x 219 to 1942
+   ok  symmetric pose: left and right halves overlap 98% when mirrored
+   ok  ink outline: 100% of the silhouette's edge is dark ink
+   ok  no key spill: 0.00% of the figure is key green
+
+1 of 1 pass
+
+Alternative command: python3 tools/equipment_art.py check board_backdrop --dir art/equipment/variants/fine-tools
+PASS  board_backdrop
+   ok  size: 2560x1920 (want 2560x1920)
+   ok  format: PNG RGB
+   ok  opaque: no transparency
+   ok  muted: mean saturation 16% (at most 40%)
+   ok  dark: mean value 13%, brightest 5% from 25%
+   ok  quiet middle: the middle's contrast (std) 0.03
+
+1 of 1 pass
+
+Alternative command: python3 tools/equipment_art.py check stage_backdrop --dir art/equipment/variants/slate-stone
+PASS  stage_backdrop
+   ok  size: 2560x1920 (want 2560x1920)
+   ok  format: PNG RGB
+   ok  opaque: no transparency
+   ok  muted: mean saturation 9% (at most 40%)
+   ok  dark: mean value 10%, brightest 5% from 18%
+   ok  quiet middle: the middle's contrast (std) 0.02
+
+1 of 1 pass
+
+Alternative command: python3 tools/equipment_art.py check stage_backdrop --dir art/equipment/variants/warm-stone
+PASS  stage_backdrop
+   ok  size: 2560x1920 (want 2560x1920)
+   ok  format: PNG RGB
+   ok  opaque: no transparency
+   ok  muted: mean saturation 37% (at most 40%)
+   ok  dark: mean value 12%, brightest 5% from 22%
+   ok  quiet middle: the middle's contrast (std) 0.03
+
+1 of 1 pass
+
+Delivery summary: 10 of 10 primary assets pass; 8 of 8 alternatives pass.

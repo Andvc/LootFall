@@ -1,0 +1,304 @@
+{
+  "base_commit": "1d3cee294c6e7f8281d71da75795b2973f5e3b43",
+  "backend": "Codex built-in image_gen",
+  "model_identifier": "Not exposed by the built-in tool",
+  "note": "Upstream prompts are retained verbatim with corrections appended. Native source rasters are archived locally, not duplicated in this branch.",
+  "successful_generation_count": 21,
+  "transient_failure_count": 1,
+  "generations": [
+    {
+      "id": "front_a",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Full-body reference figure for an equipment diagram, orthographic front view, perfectly symmetric pose. The same man every time: a human knight-at-arms in his early thirties, athletic and strong but not bulky, about seven heads tall (realistic heroic proportions), warm medium skin (shadow #9c5f48, mid #d08b6a, light #f0b693), dark brown hair pulled back into one braid that hangs behind his head so both ears are fully visible, a short full beard, a calm neutral expression with the eyes open and looking straight at the viewer, no scars, no tattoos, no jewellery, no piercings. He wears only plain undyed linen braies (short drawers ending at mid-thigh; shadow #8f8270, mid #b9ad9b, light #ddd3c4): no armour, no shirt, no shoes, no belt, no weapon. He stands straight, facing the viewer, feet shoulder-width apart and turned very slightly outward, all ten toes visible. His arms hang straight and away from the body at about 25 degrees, so no part of an arm touches the torso or the hips; the hands are open and flat with all five fingers spread apart, and the backs of the hands face the viewer (palms turned backward), every fingernail visible. The anatomy reads clearly as flat shapes: collarbones, pectorals, the breastbone line, the ribs at the sides, the solar plexus, the stomach muscles, the navel, the flanks, hip bones, kneecaps, shins and ankle bones. The canvas is 2160 by 3840 pixels: the figure is centred on the vertical middle line, the top of his hair is 380 px from the top, the soles of his feet are 3600 px from the top, and nothing is cut off. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality; exactly 2160 x 3840 pixels. Use the pure green background option (#00ff00), perfectly flat and opaque. Outer outline about 12 px, inner lines about 5 px at final size. Keep the arms and open hands entirely within x=130 to 2030. Keep ears fully visible and all ten fingernails and toenails readable. No labels or any writing. This is candidate A: clean, restrained seven-head heroic anatomy, modest musculature, practical plain linen shorts.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/figure-a/figure_front.png",
+      "status": "Optional front-only concept",
+      "native_size": [
+        941,
+        1672
+      ],
+      "source_sha256": "14e45fec778e78d3139142a365e48b0cfcb70db70ab9eda790b5987262e384dc",
+      "source_filename": "front_a.png"
+    },
+    {
+      "id": "front_b",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Full-body reference figure for an equipment diagram, orthographic front view, perfectly symmetric pose. The same man every time: a human knight-at-arms in his early thirties, athletic and strong but not bulky, about seven heads tall (realistic heroic proportions), warm medium skin (shadow #9c5f48, mid #d08b6a, light #f0b693), dark brown hair pulled back into one braid that hangs behind his head so both ears are fully visible, a short full beard, a calm neutral expression with the eyes open and looking straight at the viewer, no scars, no tattoos, no jewellery, no piercings. He wears only plain undyed linen braies (short drawers ending at mid-thigh; shadow #8f8270, mid #b9ad9b, light #ddd3c4): no armour, no shirt, no shoes, no belt, no weapon. He stands straight, facing the viewer, feet shoulder-width apart and turned very slightly outward, all ten toes visible. His arms hang straight and away from the body at about 25 degrees, so no part of an arm touches the torso or the hips; the hands are open and flat with all five fingers spread apart, and the backs of the hands face the viewer (palms turned backward), every fingernail visible. The anatomy reads clearly as flat shapes: collarbones, pectorals, the breastbone line, the ribs at the sides, the solar plexus, the stomach muscles, the navel, the flanks, hip bones, kneecaps, shins and ankle bones. The canvas is 2160 by 3840 pixels: the figure is centred on the vertical middle line, the top of his hair is 380 px from the top, the soles of his feet are 3600 px from the top, and nothing is cut off. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exact 2160 x 3840 portrait canvas. Use flat opaque #00ff00 background. Empty space of 380 px above the hair and 240 px below the feet. Entire silhouette within x130..2030. No writing. Candidate B: more graphic and restrained planes. Athletic ordinary swordsman, lean rather than bodybuilder. Strict flat cel colouring, each skin plane exactly one of #9c5f48, #d08b6a or #f0b693; no airbrush, no smooth modelling, no extra colours. The braies end at the midpoint of each thigh, not at the upper thigh. Large countable separated fingers and toes.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/figure-b/figure_front.png",
+      "status": "Optional front-only concept",
+      "native_size": [
+        941,
+        1672
+      ],
+      "source_sha256": "6a48f63a31e0bf4b862f4701fb5b361f56d74dfa47571ab16657b7c4e0c20eee",
+      "source_filename": "front_b.png"
+    },
+    {
+      "id": "front_c",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Full-body reference figure for an equipment diagram, orthographic front view, perfectly symmetric pose. The same man every time: a human knight-at-arms in his early thirties, athletic and strong but not bulky, about seven heads tall (realistic heroic proportions), warm medium skin (shadow #9c5f48, mid #d08b6a, light #f0b693), dark brown hair pulled back into one braid that hangs behind his head so both ears are fully visible, a short full beard, a calm neutral expression with the eyes open and looking straight at the viewer, no scars, no tattoos, no jewellery, no piercings. He wears only plain undyed linen braies (short drawers ending at mid-thigh; shadow #8f8270, mid #b9ad9b, light #ddd3c4): no armour, no shirt, no shoes, no belt, no weapon. He stands straight, facing the viewer, feet shoulder-width apart and turned very slightly outward, all ten toes visible. His arms hang straight and away from the body at about 25 degrees, so no part of an arm touches the torso or the hips; the hands are open and flat with all five fingers spread apart, and the backs of the hands face the viewer (palms turned backward), every fingernail visible. The anatomy reads clearly as flat shapes: collarbones, pectorals, the breastbone line, the ribs at the sides, the solar plexus, the stomach muscles, the navel, the flanks, hip bones, kneecaps, shins and ankle bones. The canvas is 2160 by 3840 pixels: the figure is centred on the vertical middle line, the top of his hair is 380 px from the top, the soles of his feet are 3600 px from the top, and nothing is cut off. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exact 2160 x 3840 portrait canvas. Use flat opaque #00ff00 background. Empty space of 380 px above the hair and 240 px below the feet. Entire silhouette within x130..2030. No writing. Candidate C: elegant mature heroic anatomy, seven heads tall, medium athletic musculature, long plain linen braies to mid-thigh. A compact tidy beard and one simple centered braid, both ears fully clear. Strict broad flat skin shapes in only the three supplied colours. Very crisp uniform line art. Symmetric silhouette.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/figure-c/figure_front.png",
+      "status": "Optional front-only concept",
+      "native_size": [
+        941,
+        1672
+      ],
+      "source_sha256": "0e2250e48a8f7a1a9569f7319e79180b2acc2773220b265820e8e5466fa1bb1c",
+      "source_filename": "front_c.png"
+    },
+    {
+      "id": "front_d",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Full-body reference figure for an equipment diagram, orthographic front view, perfectly symmetric pose. The same man every time: a human knight-at-arms in his early thirties, athletic and strong but not bulky, about seven heads tall (realistic heroic proportions), warm medium skin (shadow #9c5f48, mid #d08b6a, light #f0b693), dark brown hair pulled back into one braid that hangs behind his head so both ears are fully visible, a short full beard, a calm neutral expression with the eyes open and looking straight at the viewer, no scars, no tattoos, no jewellery, no piercings. He wears only plain undyed linen braies (short drawers ending at mid-thigh; shadow #8f8270, mid #b9ad9b, light #ddd3c4): no armour, no shirt, no shoes, no belt, no weapon. He stands straight, facing the viewer, feet shoulder-width apart and turned very slightly outward, all ten toes visible. His arms hang straight and away from the body at about 25 degrees, so no part of an arm touches the torso or the hips; the hands are open and flat with all five fingers spread apart, and the backs of the hands face the viewer (palms turned backward), every fingernail visible. The anatomy reads clearly as flat shapes: collarbones, pectorals, the breastbone line, the ribs at the sides, the solar plexus, the stomach muscles, the navel, the flanks, hip bones, kneecaps, shins and ankle bones. The canvas is 2160 by 3840 pixels: the figure is centred on the vertical middle line, the top of his hair is 380 px from the top, the soles of his feet are 3600 px from the top, and nothing is cut off. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exact 2160 x 3840 portrait canvas. Use flat opaque #00ff00 background. Empty space of 380 px above the hair and 240 px below the feet. Entire silhouette within x130..2030. No writing. Candidate D: simplified production cel model sheet, calm approachable facial features, athletic but not bulky, broad readable shapes, seven-head proportions. Plain linen braies down to mid-thigh. Only three hard-edged flat tones per material. Restrained internal anatomical lines. Clean outer ink #15101f 12 px, internal 5 px. Carefully separated fingers and toes.",
+      "references": [],
+      "delivery_file": "art/equipment/figure_front.png",
+      "status": "Selected primary",
+      "native_size": [
+        941,
+        1672
+      ],
+      "source_sha256": "44442114765919c88999b957360243af69550606ed5a92ffa447b00fc039cef3",
+      "source_filename": "front_d.png"
+    },
+    {
+      "id": "back_a",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. The same man as in the reference image, with identical proportions, pose, braid, braies, skin colours and line style, seen from directly behind (orthographic back view), on the same 2160 by 3840 canvas with the same framing, so that his silhouette mirrored left to right lines up with the reference. Clearly drawn as flat shapes: the braid hanging down the back of the head, the nape, both shoulder blades, the spine, the sides of the back, the small of the back, the backs of the arms and elbows, the palms (which face the viewer from behind), the backs of the knees, the calves and the heels. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exactly 2160x3840. Reference image 1 is the approved front master. Preserve its exact silhouette and limb positions, including the length of the linen shorts. Turn the same man 180 degrees; show palms with all five separated fingers, no nails on palms. Both heels visible. Only the anatomical view changes. Upper-left light. Broad hard-edged flat cel tones, no smooth gradients, no texture. Entire body visible. Opaque pure #00ff00 background. No labels. Hair top y380 and heel bottom y3600 on final canvas.",
+      "references": [
+        "front_d"
+      ],
+      "delivery_file": "art/equipment/figure_back.png",
+      "status": "Selected primary",
+      "native_size": [
+        941,
+        1672
+      ],
+      "source_sha256": "8ca761d231796f8e436f0da95b76bce63e51fcec23047502d2272fef8327d05d",
+      "source_filename": "back_a.png"
+    },
+    {
+      "id": "head_a",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the head and neck of the same man as in the reference image, at large size, three views side by side on one canvas, each centred in its own third with clear empty space between them and at the same scale: on the left his right profile, in the middle the front view, on the right his left profile. Each view runs from the top of the hair to the base of the neck, where it ends in a clean straight cut. The ears are drawn in full in the profiles (lobe, rim and upper tip clearly separate), the braid hangs behind, the eyebrows, eyes, nose with both nostrils, lips (closed) and the short beard are crisp. Neutral expression, eyes open. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exact 3520x2352 landscape canvas. Reference image 1 is the approved front master: preserve this man's exact facial identity, short beard, skin, pulled-back single braid and ears. Three disconnected head-and-neck silhouettes, about 1800px tall, with generous flat-green gutters at x1173 and x2347. Leftmost RIGHT PROFILE faces left; center faces directly forward; rightmost LEFT PROFILE faces right. Each neck ends at a straight horizontal ink line, no shoulders or bust. Both profile ears fully exposed. A single small braid extends behind each profile but remains inside its third. Exactly three hard-edged colour steps per material; uniform outer ink about 10px, inner about 5px. Pure opaque #00ff00 background. No writing or borders.",
+      "references": [
+        "front_d"
+      ],
+      "delivery_file": null,
+      "status": "Rejected: head views too short after fitting within their thirds.",
+      "native_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "bcaf1b98ac4ecad7c4051fd86cf15d7ab4487ba3e42850a8b5f47686ae619ffd",
+      "source_filename": "head_a.png"
+    },
+    {
+      "id": "head_b",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the head and neck of the same man as in the reference image, at large size, three views side by side on one canvas, each centred in its own third with clear empty space between them and at the same scale: on the left his right profile, in the middle the front view, on the right his left profile. Each view runs from the top of the hair to the base of the neck, where it ends in a clean straight cut. The ears are drawn in full in the profiles (lobe, rim and upper tip clearly separate), the braid hangs behind, the eyebrows, eyes, nose with both nostrils, lips (closed) and the short beard are crisp. Neutral expression, eyes open. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Correction: the previous head sheet had heads too short and too wide for their thirds. Generate taller head-and-full-neck studies with natural proportions: include the full neck down to the clavicular level, ending at a straight horizontal cut WITHOUT shoulders. Keep each braid close against the back of the neck, no large diagonal protruding braid. The crown-to-neck-cut height must be about 1800px and each silhouette no wider than 1000px on the exact 3520x2352 landscape canvas. Make each view visually TALL AND NARROW by including the complete neck, not by distorting the face. Three views centered at x587,1760,2933, with at least 100px green clearance at boundaries. Leftmost right profile faces left, middle front, rightmost left profile faces right. Reference image 1 is approved identity; match exact face, skin and short beard. Three crisp flat skin shades with ink outlines, avoid fine hair texture. Highest quality. Pure opaque #00ff00 background. No text.",
+      "references": [
+        "front_d"
+      ],
+      "delivery_file": null,
+      "status": "Rejected: center view had an extra braid; replaced by head_c.",
+      "native_size": [
+        1535,
+        1024
+      ],
+      "source_sha256": "db3c8e73a0375985fa198a5527e0afb2606ddb4a44aa86c82690bbd3c3799aaf",
+      "source_filename": "head_b.png"
+    },
+    {
+      "id": "head_c",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the head and neck of the same man as in the reference image, at large size, three views side by side on one canvas, each centred in its own third with clear empty space between them and at the same scale: on the left his right profile, in the middle the front view, on the right his left profile. Each view runs from the top of the hair to the base of the neck, where it ends in a clean straight cut. The ears are drawn in full in the profiles (lobe, rim and upper tip clearly separate), the braid hangs behind, the eyebrows, eyes, nose with both nostrils, lips (closed) and the short beard are crisp. Neutral expression, eyes open. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Correction to reference image 1 (head sheet): keep this taller layout, same facial identity, three view order and same sizes, but fix the CENTER FRONT view: the knight has exactly ONE braid, visible only beside the viewer's LEFT side of his neck, matching reference image 2 (approved full figure). REMOVE the second braid currently visible on the viewer's RIGHT of the center neck; that area must be pure green background. Each side profile still shows one braid. Close EVERY neck bottom with one clean continuous straight horizontal dark ink outline, not an unoutlined cut. Do not add clothing or shoulders; just finish at base of neck. Maintain the longer neck and compact profiles, each whole silhouette about 1750-1800px tall and safely inside its own third. Exactly 3520x2352, highest quality, opaque perfectly flat #00ff00, no text. Preserve the approved face and colors. Flat cel shading.",
+      "references": [
+        "head_b",
+        "front_d"
+      ],
+      "delivery_file": "art/equipment/head_page.png",
+      "status": "Selected primary",
+      "native_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "203b907a21684374b1d547e959d70d902f5931ea8bbd9ca33f73fbf2a2b6aa17",
+      "source_filename": "head_c.png"
+    },
+    {
+      "id": "hand_right_a",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the right hand of the same man as in the reference image, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the back of the right hand, on the right its palm. In both the hand is open and flat, fingers spread apart and pointing straight up, the thumb on the left in the back view and on the right in the palm view. Knuckles, every finger joint and every fingernail are crisp; the wrist and the lower part of the forearm are included and end in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality; exactly 3520x2352 landscape canvas. Reference 1 supplies the same warm medium skin and clean cel line style. TWO hands only, each exactly FIVE separate digits including one thumb. Left half shows back of RIGHT hand with thumb at far LEFT and all five fingernails; right half shows RIGHT PALM with thumb at far RIGHT and NO fingernails. Long fingers pointing up. Empty central gutter at x1760 at least 120 px wide. Each hand plus a short lower forearm is about 1900px tall, from y220 to y2120, never cropped. A crisp straight horizontal ink line closes each forearm. Four fingers separated by green wedges, thumb splayed. Big simple planar shading with exactly three flat tone steps, no gradients. Outer outline 10px inner lines 5px. Perfectly flat opaque pure #00ff00 background, no text.",
+      "references": [
+        "front_d"
+      ],
+      "delivery_file": "art/equipment/hand_right_page.png",
+      "status": "Selected primary",
+      "native_size": [
+        1535,
+        1025
+      ],
+      "source_sha256": "59137b52df24a202d6930606b91c68acf3616ced5859ce942168a24f567fab6f",
+      "source_filename": "hand_right_a.png"
+    },
+    {
+      "id": "hand_left_a",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the left hand of the same man as in the reference image, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the back of the left hand, on the right its palm. In both the hand is open and flat, fingers spread apart and pointing straight up, the thumb on the right in the back view and on the left in the palm view. Knuckles, every finger joint and every fingernail are crisp; the wrist and the lower part of the forearm are included and end in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exactly 3520x2352 landscape. Reference 1 is approved figure identity and skin; reference 2 is the RIGHT HAND PAGE layout and style guide. Create the LEFT hand page: mirror the anatomy WITHIN each half, keeping back-of-hand view on the LEFT half and palm view on the RIGHT half. LEFT panel thumb points toward central gutter on its RIGHT; RIGHT panel thumb points toward central gutter on its LEFT. Exactly five digits per view, all separated. All fingernails visible only on the back view, none on palm. Match hand size, forearm crop and joint detail to reference 2. Every forearm ends in a straight ink line with generous bottom margin. Maintain upper-left lighting instead of mirroring the light. About 1900px tall hands, empty gutter at x1760. Strict three flat cel colour steps and dark uniform outlines. Opaque flat #00ff00. No writing.",
+      "references": [
+        "front_d",
+        "hand_right_a"
+      ],
+      "delivery_file": "art/equipment/hand_left_page.png",
+      "status": "Selected primary",
+      "native_size": [
+        1535,
+        1025
+      ],
+      "source_sha256": "6cdb4ec7a7c23bf5dfeeeb92338161d5243d17e6352bd6c67302ab8ca39e1c4e",
+      "source_filename": "hand_left_a.png"
+    },
+    {
+      "id": "foot_right_a",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the right foot of the same man as in the reference image, bare, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the top of the right foot seen from directly above, on the right its sole seen from directly below. In both the toes point straight up the canvas and are spread slightly apart, with the big toe on the left in the top view and on the right in the sole view; every toe and toenail is crisp; the ankle is included and ends in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exactly 3520x2352 landscape canvas. Reference 1 is the approved man and skin style. Two complete feet at identical scale, toes UP. LEFT panel is top of RIGHT foot with big toe at far LEFT, five visible toenails. RIGHT panel is sole of RIGHT foot with big toe at far RIGHT and NO nails visible on the sole. Exactly FIVE toes per foot, not six; small green gaps separate their tips. Include the ankle as a short extension below the heel, closing in a horizontal ink line, entire silhouette floating with margins. No three-quarter views; strictly orthographic top and sole. A broad empty central green gutter. Each foot about 1850px tall. Exactly three flat skin tones, dark ink 10px outline and thinner toe-joint lines, light top left. Opaque pure #00ff00 background, no writing.",
+      "references": [
+        "front_d"
+      ],
+      "delivery_file": "art/equipment/foot_right_page.png",
+      "status": "Selected primary",
+      "native_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "ec4dfd5e6ad92d1d4d30fb18dadd3ff32ee700f792fada94a0d0e448773b3610",
+      "source_filename": "foot_right_a.png"
+    },
+    {
+      "id": "foot_left_a",
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. Close-up reference sheet of the left foot of the same man as in the reference image, bare, two views side by side on one canvas at the same large scale, each centred in its half with clear empty space between them: on the left the top of the left foot seen from directly above, on the right its sole seen from directly below. In both the toes point straight up the canvas and are spread slightly apart, with the big toe on the right in the top view and on the left in the sole view; every toe and toenail is crisp; the ankle is included and ends in a clean straight cut at the bottom. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. Production settings: highest quality, exactly 3520x2352 landscape canvas. Reference 1 gives approved man, reference 2 is RIGHT FOOT sheet layout and style. Create its matching LEFT FOOT sheet, mirroring anatomy inside each half without swapping panel order. LEFT panel shows top of LEFT foot with big toe on its RIGHT, toward central gutter; RIGHT panel shows LEFT sole with big toe on its LEFT, toward central gutter. Exactly five toes per view, every tip distinct with small green separation. Five nails visible on top view only; no toenails on sole. Same ankle extension and straight horizontal ink cut as reference 2. Same scale and framing, both complete floating silhouettes with margins. Orthographic direct above/below views. Upper-left lighting, three flat skin steps. Pure opaque green #00ff00 background. No writing.",
+      "references": [
+        "front_d",
+        "foot_right_a"
+      ],
+      "delivery_file": "art/equipment/foot_left_page.png",
+      "status": "Selected primary",
+      "native_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "0170f998edde67dc9d27b3a92339380f59ee9390517b232259c3a14af7f47f1b",
+      "source_filename": "foot_left_a.png"
+    },
+    {
+      "id": "stage_a",
+      "prompt": "Painted background for a 2D fantasy game's equipment screen: the inside of a dim armourer's fitting room at night, seen straight on. Stone walls, a tall arched window with cold moonlight on the far left, armour stands and racks of weapons and banners as soft shapes far back at the sides, warm candlelight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, with a calm, almost empty darker middle where a figure will stand in front of it, and a soft vignette. No people, no figure, no mannequin in the middle, no text, no frame. 2560 by 1920 pixels. Candidate A: quiet moonlit stone fitting chamber with restrained cool slate and charcoal tones, weak warm candlelight at upper-left periphery. Only a tall arched window on the far left; weapon racks and banner silhouettes pushed to far outer edges. Center 55% horizontally is empty dark stone wall fading into an uninterrupted stone floor, absolutely no plinth, dais, circle, spotlight, central table, stool or mannequin. Moonlight is dim, no sharp bright beam or hard floor shadow. The actual background should be very dark yet legible: average luminance around 20%, saturation below 30%. Rich painterly atmosphere only at edges. Highest quality, exactly 2560x1920, no words, symbols or UI.",
+      "references": [],
+      "delivery_file": "art/equipment/stage_backdrop.png",
+      "status": "Selected primary",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "source_sha256": "932e4772996c54408adfa92b6c0b67d4358833997db8c59dbe5cf9ac3aa593b0",
+      "source_filename": "stage_a.png"
+    },
+    {
+      "id": "stage_b",
+      "prompt": "Painted background for a 2D fantasy game's equipment screen: the inside of a dim armourer's fitting room at night, seen straight on. Stone walls, a tall arched window with cold moonlight on the far left, armour stands and racks of weapons and banners as soft shapes far back at the sides, warm candlelight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, with a calm, almost empty darker middle where a figure will stand in front of it, and a soft vignette. No people, no figure, no mannequin in the middle, no text, no frame. 2560 by 1920 pixels. Alternative B: a warmer, humble vaulted limestone armourer's fitting room, broad weathered stone blocks and very sparse timber weapon racks at the extreme sides. Dim cool arched window only on far left; faint warm candle sconces high at left. Almost monochrome umber-gray and slate, average saturation below 25%; no vivid orange. Wide central 65% must remain an empty quiet dark wall above uninterrupted plain floor, with no furniture, stand, pedestal, carpet, spotlight, mannequin or prop anywhere in that zone. Very soft diffuse painterly shapes and haze; distinctly more rustic and intimate than a grand gothic hall. Darkness around 15-20% mean value, no bright windows. Exact 2560x1920 landscape, highest quality. No letters, symbols, text or UI.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/warm-stone/stage_backdrop.png",
+      "status": "Optional replacement",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "source_sha256": "2dba3082129dff0e08f407ad5a22522127f6a0f47cdfdac566da89ac2aaecea0",
+      "source_filename": "stage_b.png"
+    },
+    {
+      "id": "stage_c",
+      "prompt": "Painted background for a 2D fantasy game's equipment screen: the inside of a dim armourer's fitting room at night, seen straight on. Stone walls, a tall arched window with cold moonlight on the far left, armour stands and racks of weapons and banners as soft shapes far back at the sides, warm candlelight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, with a calm, almost empty darker middle where a figure will stand in front of it, and a soft vignette. No people, no figure, no mannequin in the middle, no text, no frame. 2560 by 1920 pixels. Alternative C: an austere, spacious castle fitting chamber in nearly neutral slate gray. A very narrow tall lancet arched window far LEFT gives dim silver moonlight, tiny candle warmth only near upper-left edge. Very distant indistinct empty armour stands and weapon racks at outer corners only. Central 65% is an almost featureless dark plastered stone wall and plain stone floor, no table, chair, pedestal, dais, rug, silhouette, mannequin, spotlight or objects. Minimal texture and extremely low detail in center, softer painterly rendering than a realistic photograph. No decorative heraldic symbols. Near-monochrome charcoal palette, saturation under 18%, mean luminance around 14%, brighter regions never glaring. Opaque full-bleed, exactly 2560x1920, highest quality, no words or UI.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/slate-stone/stage_backdrop.png",
+      "status": "Optional replacement",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "source_sha256": "82e3d16163d0fcd8c8ca26a0157b34c83013adc2a84daad3e706d92364a6281c",
+      "source_filename": "stage_c.png"
+    },
+    {
+      "id": "board_a",
+      "prompt": "Painted background seen from directly above: an armourer's workbench, a dark worn leather work mat filling the middle, a few tools (pliers, a small hammer, a jeweller's loupe, rivets, a whetstone) and scraps of leather only at the edges, warm lamplight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, the middle empty and calm because a piece and its slots are drawn on top of it. No text, no frame. 2560 by 1920 pixels. Candidate A: refined compact armourer's leather work mat in cool dark charcoal brown. Completely empty central 65% width and 65% height, without any equipment, diagrams, scratches forming symbols, labels or writing. Tools only in a sparse perimeter: small forged hammer at upper left, pliers at lower left, jeweller's loupe at upper right, rivets and a whetstone at lower right. Small desaturated warm lamp illumination from beyond upper left, no bright hotspot. Straight orthographic top-down view, no visible room or horizon. Worn leather with painterly soft subtle texture. Muted saturation below 30%, mean luminance around 18%. Full-bleed opaque 2560x1920 canvas, highest quality. No decorative border or frame.",
+      "references": [],
+      "delivery_file": null,
+      "status": "Rejected: measured mean saturation 47 percent; corrected by board_a2.",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "source_sha256": "b1e9079aeba3093749bf7a9811dbefe9d74f55c9fec2f8baa7ca49a3d1cf3df8",
+      "source_filename": "board_a.png"
+    },
+    {
+      "id": "board_a2",
+      "prompt": "Painted background seen from directly above: an armourer's workbench, a dark worn leather work mat filling the middle, a few tools (pliers, a small hammer, a jeweller's loupe, rivets, a whetstone) and scraps of leather only at the edges, warm lamplight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, the middle empty and calm because a piece and its slots are drawn on top of it. No text, no frame. 2560 by 1920 pixels. Correction to reference image 1: its measured mean saturation is 47%, above the 40% limit. Preserve every object, exact top-down composition, empty central leather mat, lighting distribution and darkness, but reduce ALL colour saturation drastically to a near-monochrome charcoal gray rendering, targeting mean HSV saturation of 15-20%. Replace orange and copper browns with gray-brown almost neutral charcoal; the lamp in the top-left corner must be very muted gray-beige, not bright yellow. This should look almost black-and-white with only a trace of warm neutral tint. Do not add objects or writing. No other changes. Highest quality exact 2560x1920.",
+      "references": [
+        "board_a"
+      ],
+      "delivery_file": "art/equipment/board_backdrop.png",
+      "status": "Selected primary",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "source_sha256": "3b7a3193a6ac9c35aeac4f48073d6f7b773bc057951d77f0373712e68542c70a",
+      "source_filename": "board_a2.png"
+    },
+    {
+      "id": "board_b",
+      "prompt": "Painted background seen from directly above: an armourer's workbench, a dark worn leather work mat filling the middle, a few tools (pliers, a small hammer, a jeweller's loupe, rivets, a whetstone) and scraps of leather only at the edges, warm lamplight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, the middle empty and calm because a piece and its slots are drawn on top of it. No text, no frame. 2560 by 1920 pixels. Alternative B: a meticulous jeweller-armourer's bench with a smooth nearly black leather mat occupying the central 80%. Minimal, quiet, carefully arranged tiny tools at the extreme perimeter: slender pliers at far left, compact hammer at upper left, round jeweller's loupe and a few rivets at far right, one whetstone at bottom right. Restrained long dark leather offcuts tucked at a corner. More open negative space and smaller tools than a heavy forge bench. Almost monochrome cool charcoal gray with a barely perceptible gray-beige lamp tint from upper left; target mean saturation 15%, average value 15-20%. Soft painterly edges, no sharp scratched lines across center. Orthographic top down, no room, no item to equip. Exactly 2560x1920, highest quality, no writing, markings or UI.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/fine-tools/board_backdrop.png",
+      "status": "Optional replacement",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "source_sha256": "08bd869476ff7efd81623183b6e073532d21c3513197dafe228fe18d96ff6e3f",
+      "source_filename": "board_b.png"
+    },
+    {
+      "id": "board_c",
+      "prompt": "Painted background seen from directly above: an armourer's workbench, a dark worn leather work mat filling the middle, a few tools (pliers, a small hammer, a jeweller's loupe, rivets, a whetstone) and scraps of leather only at the edges, warm lamplight from the top left. Painterly and soft-edged, desaturated (saturation at most 35%), dark (values between 5% and 40%), low contrast, the middle empty and calm because a piece and its slots are drawn on top of it. No text, no frame. 2560 by 1920 pixels. Alternative C: a rugged old field armourer's workbench, directly overhead. Broad almost-black leather mat covers the entire empty central 70%, with smooth low-contrast wear. Peripheral wood slats only glimpsed at far edges. A heavier square-headed hammer lies at far upper-left edge; short pliers along far lower-left, small jeweller's loupe at top-right, one whetstone and four dull rivets at far lower-right, folded leather scraps in corners. Distinctly rustic but not cluttered. Almost monochrome neutral gray leather and dark gray wood, only a faint muted warm lamplight from upper-left, average saturation under 20%, average luminance 15-20%, no warm orange. Very soft painterly texture, middle quiet and empty. Full-bleed opaque image exactly 2560x1920. No writing, stamped symbols, frames, equipment in center or UI.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/field-bench/board_backdrop.png",
+      "status": "Optional replacement",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "source_sha256": "9e881f992ea190f1dc9a4d91a6b97776bad443f3b2d2645941eb6d9fd3a00f2f",
+      "source_filename": "board_c.png"
+    },
+    {
+      "id": "glyphs_a",
+      "prompt": "A sheet of ten simple, bold game interface glyphs, solid white silhouettes with no outline, no shading and no colour, each centred in its own cell of an invisible grid of five columns and two rows, each filling about 60% of its cell and never touching another, readable when shrunk to 16 pixels. In reading order: 1. a drop of ink with a small swirl inside (ink on the skin: tattoos, sigils, kohl); 2. a quilted padded square with stitched diamond lines (cloth worn under: shirts, gloves, socks); 3. four interlinked rings of chain mail; 4. a curved plate of armour with two rivets (plate armour); 5. a hanging cloak with a clasp at the top (worn over everything: cloaks, tabards, hoods); 6. a finger ring with a cut gemstone (jewellery); 7. a sword, point up, slightly diagonal (held: weapons, shields, an orb); 8. a curved horn (grown from the body: horns, wings, a tail, gills); 9. a four-pointed star inside a thin orbit ring (around the body: aura, orbiting stones, the heavens); 10. a round socket holding a small gem, with three prongs (a piece's own slot: gems, runes, fittings). Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. 2560 by 1024 pixels. Production settings: highest quality, exactly 2560x1024 pixels. Candidate A: bold compact pictograms optimized for 16px display. EXACTLY ten icons, two perfectly aligned rows of five; cell centers x256,768,1280,1792,2304 and y256,768. Each icon's largest extent about 300px, no more than 330px, centered in its 512px cell. Use pure white #ffffff solid filled forms with broad pure-green negative-space cutouts, not fine white line drawings. Four interlinked rings should have thick sturdy bands; padded square has only two diagonal negative-space lines, no tiny stitches. Armour plate uses two negative-space rivet holes. Orbital star is exactly FOUR points. Socket has exactly THREE prongs around one diamond gem. Very simple recognizable shapes. Pure opaque #00ff00 background with no shadows, gradients, text, numbering, cell borders or extra icons.",
+      "references": [],
+      "delivery_file": "art/equipment/slot_glyphs.png",
+      "status": "Selected primary",
+      "native_size": [
+        1983,
+        793
+      ],
+      "source_sha256": "04f6e3defda8a32658e11361e17524915564ded321771d959c15080185005540",
+      "source_filename": "glyphs_a.png"
+    },
+    {
+      "id": "glyphs_b",
+      "prompt": "A sheet of ten simple, bold game interface glyphs, solid white silhouettes with no outline, no shading and no colour, each centred in its own cell of an invisible grid of five columns and two rows, each filling about 60% of its cell and never touching another, readable when shrunk to 16 pixels. In reading order: 1. a drop of ink with a small swirl inside (ink on the skin: tattoos, sigils, kohl); 2. a quilted padded square with stitched diamond lines (cloth worn under: shirts, gloves, socks); 3. four interlinked rings of chain mail; 4. a curved plate of armour with two rivets (plate armour); 5. a hanging cloak with a clasp at the top (worn over everything: cloaks, tabards, hoods); 6. a finger ring with a cut gemstone (jewellery); 7. a sword, point up, slightly diagonal (held: weapons, shields, an orb); 8. a curved horn (grown from the body: horns, wings, a tail, gills); 9. a four-pointed star inside a thin orbit ring (around the body: aura, orbiting stones, the heavens); 10. a round socket holding a small gem, with three prongs (a piece's own slot: gems, runes, fittings). Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it. 2560 by 1024 pixels. Alternative B: an especially sturdy low-detail medieval pictogram system, broad solid white masses, rounded corners and generous thick cutouts that remain open at 16px. The ten glyphs must stay in EXACT reading order. Simplify the quilted square to one central diamond cutout; chain mail is four thick interlocked rings in a two-by-two cluster; plate is a rounded curved shield-like piece with two clear rivet holes; cloak is one broad drape with one clasp and a single slit. Gem ring and gem socket must have clearly different outlines. Sword slightly diagonal, curved horn plain without extra bands, four-point star in a thick orbit circle. Every glyph solid pure white #ffffff, no gray, stroke outline, shadows or lighting. Invisible 5-column x2-row grid of512px cells on exact2560x1024 canvas; all glyphs fit centered inside 307px square, large margins. Perfectly flat pure #00ff00 background. No captions, numbers, letters, borders or other symbols. Highest quality.",
+      "references": [],
+      "delivery_file": "art/equipment/variants/bold-glyphs/slot_glyphs.png",
+      "status": "Optional replacement",
+      "native_size": [
+        1983,
+        793
+      ],
+      "source_sha256": "b3ed44c6b1ad7a4577bfd74b2759465c2d91e9d72b5453cd3eb48cadb6ebdcb2",
+      "source_filename": "glyphs_b.png"
+    }
+  ]
+}

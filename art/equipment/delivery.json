@@ -1,0 +1,1491 @@
+{
+  "base_commit": "1d3cee294c6e7f8281d71da75795b2973f5e3b43",
+  "branch": "art/equipment-phase1-20261025",
+  "primary_count": 10,
+  "alternative_count": 8,
+  "checker_file": "tools/equipment_art.py",
+  "checker_sha256": "785ede81f15803729d1ea5e37350e3d507d61e98ac578da1ed45c4f2d203d2ce",
+  "checker_modified": false,
+  "generation_backend": "Codex built-in image_gen",
+  "native_4k": false,
+  "pixel_format": "8-bit RGB PNG with sRGB chunk",
+  "key_background": "#00ff00",
+  "files": [
+    {
+      "file": "art/equipment/variants/figure-a/figure_front.png",
+      "sha256": "b13ac0028932c6e91017129ecc7b160acd3bbd038f6f314d6ad94b9f115bc643",
+      "bytes": 1634340,
+      "generation_id": "front_a",
+      "native_size": [
+        941,
+        1672
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/figure-a/figure_front.png",
+        "native_size": [
+          941,
+          1672
+        ],
+        "final_size": [
+          2160,
+          3840
+        ],
+        "operation": "Uniform fit and translation; flat key cleanup",
+        "scale": 2.1149047931713723,
+        "offset": [
+          226,
+          380
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/variants/figure-b/figure_front.png",
+      "sha256": "654c281c4c448f37a5536c11914c082f7e88b553796c7df02a11aa88b3141fd4",
+      "bytes": 1576019,
+      "generation_id": "front_b",
+      "native_size": [
+        941,
+        1672
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/figure-b/figure_front.png",
+        "native_size": [
+          941,
+          1672
+        ],
+        "final_size": [
+          2160,
+          3840
+        ],
+        "operation": "Uniform fit and translation; flat key cleanup",
+        "scale": 2.2860184528034067,
+        "offset": [
+          245,
+          380
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/variants/figure-c/figure_front.png",
+      "sha256": "e01397fd8e0b3c25f2cc9c1cdc3558957db007c861442942ccac078a0ca1f738",
+      "bytes": 1598463,
+      "generation_id": "front_c",
+      "native_size": [
+        941,
+        1672
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/figure-c/figure_front.png",
+        "native_size": [
+          941,
+          1672
+        ],
+        "final_size": [
+          2160,
+          3840
+        ],
+        "operation": "Uniform fit and translation; flat key cleanup",
+        "scale": 2.282778171509568,
+        "offset": [
+          217,
+          380
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/figure_front.png",
+      "sha256": "689e98c8a488c6d23dd7ce956856e7467f6de35f5fd49f5a67e4bc0a977ef572",
+      "bytes": 1498700,
+      "generation_id": "front_d",
+      "native_size": [
+        941,
+        1672
+      ],
+      "normalization": {
+        "file": "art/equipment/figure_front.png",
+        "native_size": [
+          941,
+          1672
+        ],
+        "final_size": [
+          2160,
+          3840
+        ],
+        "operation": "Uniform fit and translation; flat key cleanup",
+        "scale": 2.3089605734767025,
+        "offset": [
+          201,
+          380
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/figure_back.png",
+      "sha256": "53a016d867ed938e6a45fb4e46759ad34c5fd619d10fe77255e1572fe28f98a4",
+      "bytes": 1438439,
+      "generation_id": "back_a",
+      "native_size": [
+        941,
+        1672
+      ],
+      "normalization": {
+        "file": "art/equipment/figure_back.png",
+        "native_size": [
+          941,
+          1672
+        ],
+        "final_size": [
+          2160,
+          3840
+        ],
+        "operation": "Uniform fit and translation; flat key cleanup",
+        "scale": 2.3106169296987087,
+        "offset": [
+          195,
+          380
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/head_page.png",
+      "sha256": "07230b5c1b32e4f0af3ad8eb7edfe4317f99823292bdae5cb928a5956e39e1f8",
+      "bytes": 2775361,
+      "generation_id": "head_c",
+      "native_size": [
+        1536,
+        1024
+      ],
+      "normalization": {
+        "file": "art/equipment/head_page.png",
+        "native_size": [
+          1536,
+          1024
+        ],
+        "final_size": [
+          3520,
+          2352
+        ],
+        "operation": "Same uniform scale for every view; center in each cell; flat key cleanup",
+        "scale": 2.318214542836573,
+        "views": [
+          {
+            "size": [
+              1069,
+              1627
+            ],
+            "offset": [
+              52,
+              362
+            ]
+          },
+          {
+            "size": [
+              957,
+              1658
+            ],
+            "offset": [
+              1282,
+              347
+            ]
+          },
+          {
+            "size": [
+              1073,
+              1627
+            ],
+            "offset": [
+              2397,
+              362
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/hand_right_page.png",
+      "sha256": "222ce48a5633a34eadd31fb7a56f7dc2705e130253500f6095c2218f33a636b8",
+      "bytes": 1570015,
+      "generation_id": "hand_right_a",
+      "native_size": [
+        1535,
+        1025
+      ],
+      "normalization": {
+        "file": "art/equipment/hand_right_page.png",
+        "native_size": [
+          1535,
+          1025
+        ],
+        "final_size": [
+          3520,
+          2352
+        ],
+        "operation": "Same uniform scale for every view; center in each cell; flat key cleanup",
+        "scale": 1.9648397104446742,
+        "views": [
+          {
+            "size": [
+              1153,
+              1900
+            ],
+            "offset": [
+              304,
+              226
+            ]
+          },
+          {
+            "size": [
+              1155,
+              1900
+            ],
+            "offset": [
+              2062,
+              226
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/hand_left_page.png",
+      "sha256": "393149c9aff311d5fbe9a2424c1ce718a4f6ee4e49e94bc86be5ceb96dceb4df",
+      "bytes": 1582071,
+      "generation_id": "hand_left_a",
+      "native_size": [
+        1535,
+        1025
+      ],
+      "normalization": {
+        "file": "art/equipment/hand_left_page.png",
+        "native_size": [
+          1535,
+          1025
+        ],
+        "final_size": [
+          3520,
+          2352
+        ],
+        "operation": "Same uniform scale for every view; center in each cell; flat key cleanup",
+        "scale": 1.9527235354573484,
+        "views": [
+          {
+            "size": [
+              1181,
+              1894
+            ],
+            "offset": [
+              290,
+              229
+            ]
+          },
+          {
+            "size": [
+              1195,
+              1900
+            ],
+            "offset": [
+              2042,
+              226
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/foot_right_page.png",
+      "sha256": "599302c0492526575284b055fd36ad2297e7c9a7858e2d4d439a3480bb9f7ea2",
+      "bytes": 1295423,
+      "generation_id": "foot_right_a",
+      "native_size": [
+        1536,
+        1024
+      ],
+      "normalization": {
+        "file": "art/equipment/foot_right_page.png",
+        "native_size": [
+          1536,
+          1024
+        ],
+        "final_size": [
+          3520,
+          2352
+        ],
+        "operation": "Same uniform scale for every view; center in each cell; flat key cleanup",
+        "scale": 1.9709543568464731,
+        "views": [
+          {
+            "size": [
+              745,
+              1874
+            ],
+            "offset": [
+              508,
+              239
+            ]
+          },
+          {
+            "size": [
+              743,
+              1900
+            ],
+            "offset": [
+              2268,
+              226
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/foot_left_page.png",
+      "sha256": "c3c890f84edb932ec8c3cc74e0352783dec4702b1b864b848fc80bfdfc2fda32",
+      "bytes": 1318112,
+      "generation_id": "foot_left_a",
+      "native_size": [
+        1536,
+        1024
+      ],
+      "normalization": {
+        "file": "art/equipment/foot_left_page.png",
+        "native_size": [
+          1536,
+          1024
+        ],
+        "final_size": [
+          3520,
+          2352
+        ],
+        "operation": "Same uniform scale for every view; center in each cell; flat key cleanup",
+        "scale": 1.9709543568464731,
+        "views": [
+          {
+            "size": [
+              743,
+              1876
+            ],
+            "offset": [
+              508,
+              238
+            ]
+          },
+          {
+            "size": [
+              741,
+              1900
+            ],
+            "offset": [
+              2270,
+              226
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "file": "art/equipment/stage_backdrop.png",
+      "sha256": "f79e81c02a43c21830bf9dec030cf8e00a32e3fe6669828e1c69e93b786d5913",
+      "bytes": 3731125,
+      "generation_id": "stage_a",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "normalization": {
+        "file": "art/equipment/stage_backdrop.png",
+        "native_size": [
+          1448,
+          1086
+        ],
+        "final_size": [
+          2560,
+          1920
+        ],
+        "operation": "Resize to exact handoff canvas"
+      }
+    },
+    {
+      "file": "art/equipment/variants/warm-stone/stage_backdrop.png",
+      "sha256": "36bc7a152cf4f108df5fb62e6d9613cfeba20aed1bca897d56e522cad612e272",
+      "bytes": 4508347,
+      "generation_id": "stage_b",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/warm-stone/stage_backdrop.png",
+        "native_size": [
+          1448,
+          1086
+        ],
+        "final_size": [
+          2560,
+          1920
+        ],
+        "operation": "Resize to exact handoff canvas"
+      }
+    },
+    {
+      "file": "art/equipment/variants/slate-stone/stage_backdrop.png",
+      "sha256": "f16e37ca5300adaef461e2d3e775a6b8e237e2ad4d8f09b65c58e2c41fe5071e",
+      "bytes": 3477831,
+      "generation_id": "stage_c",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/slate-stone/stage_backdrop.png",
+        "native_size": [
+          1448,
+          1086
+        ],
+        "final_size": [
+          2560,
+          1920
+        ],
+        "operation": "Resize to exact handoff canvas"
+      }
+    },
+    {
+      "file": "art/equipment/board_backdrop.png",
+      "sha256": "3f663fad1cf747006c0f4135e3d54950859a331a5d13d5e5749cdb714f01ee1f",
+      "bytes": 5917434,
+      "generation_id": "board_a2",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "normalization": {
+        "file": "art/equipment/board_backdrop.png",
+        "native_size": [
+          1448,
+          1086
+        ],
+        "final_size": [
+          2560,
+          1920
+        ],
+        "operation": "Resize to exact handoff canvas"
+      }
+    },
+    {
+      "file": "art/equipment/variants/fine-tools/board_backdrop.png",
+      "sha256": "46bcfc744ae70bd886da8cf2f1d903426015302a2c298dc5457957338bd55a93",
+      "bytes": 6061095,
+      "generation_id": "board_b",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/fine-tools/board_backdrop.png",
+        "native_size": [
+          1448,
+          1086
+        ],
+        "final_size": [
+          2560,
+          1920
+        ],
+        "operation": "Resize to exact handoff canvas"
+      }
+    },
+    {
+      "file": "art/equipment/variants/field-bench/board_backdrop.png",
+      "sha256": "abbc8306ac2c7b92ee150f3febfc3c63407670066d063a51179cf6f5cca2b764",
+      "bytes": 5702120,
+      "generation_id": "board_c",
+      "native_size": [
+        1448,
+        1086
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/field-bench/board_backdrop.png",
+        "native_size": [
+          1448,
+          1086
+        ],
+        "final_size": [
+          2560,
+          1920
+        ],
+        "operation": "Resize to exact handoff canvas"
+      }
+    },
+    {
+      "file": "art/equipment/slot_glyphs.png",
+      "sha256": "08a80acab97e31d422dba35361b637ac81ee91cf60d528d3573a86e01cc34769",
+      "bytes": 369889,
+      "generation_id": "glyphs_a",
+      "native_size": [
+        1983,
+        793
+      ],
+      "normalization": {
+        "file": "art/equipment/slot_glyphs.png",
+        "native_size": [
+          1983,
+          793
+        ],
+        "final_size": [
+          2560,
+          1024
+        ],
+        "operation": "Uniformly fit each generated glyph to 60 percent of its 512px cell; flat key cleanup"
+      }
+    },
+    {
+      "file": "art/equipment/variants/bold-glyphs/slot_glyphs.png",
+      "sha256": "dd0366e16fb130aefe76533329ed4dc1d8430696563fded6e5056554f0765655",
+      "bytes": 362581,
+      "generation_id": "glyphs_b",
+      "native_size": [
+        1983,
+        793
+      ],
+      "normalization": {
+        "file": "art/equipment/variants/bold-glyphs/slot_glyphs.png",
+        "native_size": [
+          1983,
+          793
+        ],
+        "final_size": [
+          2560,
+          1024
+        ],
+        "operation": "Uniformly fit each generated glyph to 60 percent of its 512px cell; flat key cleanup"
+      }
+    }
+  ],
+  "validation": [
+    {
+      "group": "primary",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "figure_front",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2160x3840 (want 2160x3840)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "centred",
+              true,
+              "middle at x 1078 (want 1080 +-48)"
+            ],
+            [
+              "top of the head",
+              true,
+              "y 380 (want 380 +-48)"
+            ],
+            [
+              "soles",
+              true,
+              "y 3600 (want 3600 +-48)"
+            ],
+            [
+              "width",
+              true,
+              "x 201 to 1955"
+            ],
+            [
+              "symmetric pose",
+              true,
+              "left and right halves overlap 98% when mirrored"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the silhouette's edge is dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% of the figure is key green"
+            ]
+          ]
+        },
+        {
+          "id": "figure_back",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2160x3840 (want 2160x3840)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "centred",
+              true,
+              "middle at x 1080 (want 1080 +-48)"
+            ],
+            [
+              "top of the head",
+              true,
+              "y 382 (want 380 +-48)"
+            ],
+            [
+              "soles",
+              true,
+              "y 3600 (want 3600 +-48)"
+            ],
+            [
+              "width",
+              true,
+              "x 197 to 1964"
+            ],
+            [
+              "symmetric pose",
+              true,
+              "left and right halves overlap 99% when mirrored"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the silhouette's edge is dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% of the figure is key green"
+            ],
+            [
+              "lines up with the front",
+              true,
+              "mirrored, overlaps the front's silhouette 96%"
+            ]
+          ]
+        },
+        {
+          "id": "head_page",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "3520x2352 (want 3520x2352)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "gap 1",
+              true,
+              "0.0% drawn in the gap at x 1173"
+            ],
+            [
+              "gap 2",
+              true,
+              "0.0% drawn in the gap at x 2346"
+            ],
+            [
+              "view 1",
+              true,
+              "fills 51% of its part, 69% of the height"
+            ],
+            [
+              "view 2",
+              true,
+              "fills 47% of its part, 70% of the height"
+            ],
+            [
+              "view 3",
+              true,
+              "fills 51% of its part, 69% of the height"
+            ],
+            [
+              "ink outline",
+              true,
+              "99% of the edges are dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% key green"
+            ]
+          ]
+        },
+        {
+          "id": "hand_right_page",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "3520x2352 (want 3520x2352)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "gap 1",
+              true,
+              "0.0% drawn in the gap at x 1760"
+            ],
+            [
+              "view 1",
+              true,
+              "fills 27% of its part, 81% of the height"
+            ],
+            [
+              "view 2",
+              true,
+              "fills 27% of its part, 81% of the height"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the edges are dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% key green"
+            ]
+          ]
+        },
+        {
+          "id": "hand_left_page",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "3520x2352 (want 3520x2352)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "gap 1",
+              true,
+              "0.0% drawn in the gap at x 1760"
+            ],
+            [
+              "view 1",
+              true,
+              "fills 27% of its part, 80% of the height"
+            ],
+            [
+              "view 2",
+              true,
+              "fills 27% of its part, 81% of the height"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the edges are dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% key green"
+            ]
+          ]
+        },
+        {
+          "id": "foot_right_page",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "3520x2352 (want 3520x2352)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "gap 1",
+              true,
+              "0.0% drawn in the gap at x 1760"
+            ],
+            [
+              "view 1",
+              true,
+              "fills 26% of its part, 80% of the height"
+            ],
+            [
+              "view 2",
+              true,
+              "fills 25% of its part, 81% of the height"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the edges are dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% key green"
+            ]
+          ]
+        },
+        {
+          "id": "foot_left_page",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "3520x2352 (want 3520x2352)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "gap 1",
+              true,
+              "0.0% drawn in the gap at x 1760"
+            ],
+            [
+              "view 1",
+              true,
+              "fills 26% of its part, 80% of the height"
+            ],
+            [
+              "view 2",
+              true,
+              "fills 25% of its part, 81% of the height"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the edges are dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% key green"
+            ]
+          ]
+        },
+        {
+          "id": "stage_backdrop",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1920 (want 2560x1920)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "opaque",
+              true,
+              "no transparency"
+            ],
+            [
+              "muted",
+              true,
+              "mean saturation 21% (at most 40%)"
+            ],
+            [
+              "dark",
+              true,
+              "mean value 8%, brightest 5% from 17%"
+            ],
+            [
+              "quiet middle",
+              true,
+              "the middle's contrast (std) 0.02"
+            ]
+          ]
+        },
+        {
+          "id": "board_backdrop",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1920 (want 2560x1920)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "opaque",
+              true,
+              "no transparency"
+            ],
+            [
+              "muted",
+              true,
+              "mean saturation 19% (at most 40%)"
+            ],
+            [
+              "dark",
+              true,
+              "mean value 16%, brightest 5% from 27%"
+            ],
+            [
+              "quiet middle",
+              true,
+              "the middle's contrast (std) 0.04"
+            ]
+          ]
+        },
+        {
+          "id": "slot_glyphs",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1024 (want 2560x1024)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "glyph skin",
+              true,
+              "fills 12% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph under",
+              true,
+              "fills 28% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph mail",
+              true,
+              "fills 15% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph armor",
+              true,
+              "fills 21% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph over",
+              true,
+              "fills 19% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph adorn",
+              true,
+              "fills 10% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph hold",
+              true,
+              "fills 9% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph graft",
+              true,
+              "fills 14% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph beyond",
+              true,
+              "fills 10% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph mod",
+              true,
+              "fills 15% of its cell, clear of its edges, brightness 99%"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "bold-glyphs",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "slot_glyphs",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1024 (want 2560x1024)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "glyph skin",
+              true,
+              "fills 12% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph under",
+              true,
+              "fills 24% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph mail",
+              true,
+              "fills 17% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph armor",
+              true,
+              "fills 22% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph over",
+              true,
+              "fills 20% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph adorn",
+              true,
+              "fills 11% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph hold",
+              true,
+              "fills 8% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph graft",
+              true,
+              "fills 12% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph beyond",
+              true,
+              "fills 12% of its cell, clear of its edges, brightness 99%"
+            ],
+            [
+              "glyph mod",
+              true,
+              "fills 17% of its cell, clear of its edges, brightness 99%"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "field-bench",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "board_backdrop",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1920 (want 2560x1920)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "opaque",
+              true,
+              "no transparency"
+            ],
+            [
+              "muted",
+              true,
+              "mean saturation 17% (at most 40%)"
+            ],
+            [
+              "dark",
+              true,
+              "mean value 12%, brightest 5% from 22%"
+            ],
+            [
+              "quiet middle",
+              true,
+              "the middle's contrast (std) 0.03"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "figure-a",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "figure_front",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2160x3840 (want 2160x3840)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "centred",
+              true,
+              "middle at x 1079 (want 1080 +-48)"
+            ],
+            [
+              "top of the head",
+              true,
+              "y 380 (want 380 +-48)"
+            ],
+            [
+              "soles",
+              true,
+              "y 3600 (want 3600 +-48)"
+            ],
+            [
+              "width",
+              true,
+              "x 226 to 1932"
+            ],
+            [
+              "symmetric pose",
+              true,
+              "left and right halves overlap 98% when mirrored"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the silhouette's edge is dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% of the figure is key green"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "figure-b",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "figure_front",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2160x3840 (want 2160x3840)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "centred",
+              true,
+              "middle at x 1079 (want 1080 +-48)"
+            ],
+            [
+              "top of the head",
+              true,
+              "y 380 (want 380 +-48)"
+            ],
+            [
+              "soles",
+              true,
+              "y 3600 (want 3600 +-48)"
+            ],
+            [
+              "width",
+              true,
+              "x 245 to 1913"
+            ],
+            [
+              "symmetric pose",
+              true,
+              "left and right halves overlap 97% when mirrored"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the silhouette's edge is dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% of the figure is key green"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "figure-c",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "figure_front",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2160x3840 (want 2160x3840)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "background",
+              true,
+              "100.0% of the border is background (green key)"
+            ],
+            [
+              "centred",
+              true,
+              "middle at x 1080 (want 1080 +-48)"
+            ],
+            [
+              "top of the head",
+              true,
+              "y 380 (want 380 +-48)"
+            ],
+            [
+              "soles",
+              true,
+              "y 3600 (want 3600 +-48)"
+            ],
+            [
+              "width",
+              true,
+              "x 219 to 1942"
+            ],
+            [
+              "symmetric pose",
+              true,
+              "left and right halves overlap 98% when mirrored"
+            ],
+            [
+              "ink outline",
+              true,
+              "100% of the silhouette's edge is dark ink"
+            ],
+            [
+              "no key spill",
+              true,
+              "0.00% of the figure is key green"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "fine-tools",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "board_backdrop",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1920 (want 2560x1920)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "opaque",
+              true,
+              "no transparency"
+            ],
+            [
+              "muted",
+              true,
+              "mean saturation 16% (at most 40%)"
+            ],
+            [
+              "dark",
+              true,
+              "mean value 13%, brightest 5% from 25%"
+            ],
+            [
+              "quiet middle",
+              true,
+              "the middle's contrast (std) 0.03"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "slate-stone",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "stage_backdrop",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1920 (want 2560x1920)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "opaque",
+              true,
+              "no transparency"
+            ],
+            [
+              "muted",
+              true,
+              "mean saturation 9% (at most 40%)"
+            ],
+            [
+              "dark",
+              true,
+              "mean value 10%, brightest 5% from 18%"
+            ],
+            [
+              "quiet middle",
+              true,
+              "the middle's contrast (std) 0.02"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "group": "warm-stone",
+      "exit_code": 0,
+      "results": [
+        {
+          "id": "stage_backdrop",
+          "pass": true,
+          "checks": [
+            [
+              "size",
+              true,
+              "2560x1920 (want 2560x1920)"
+            ],
+            [
+              "format",
+              true,
+              "PNG RGB"
+            ],
+            [
+              "opaque",
+              true,
+              "no transparency"
+            ],
+            [
+              "muted",
+              true,
+              "mean saturation 37% (at most 40%)"
+            ],
+            [
+              "dark",
+              true,
+              "mean value 12%, brightest 5% from 22%"
+            ],
+            [
+              "quiet middle",
+              true,
+              "the middle's contrast (std) 0.03"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Source art delivery only; runtime import and slot mapping remain upstream integration work."
+}
