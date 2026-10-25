@@ -9,7 +9,7 @@ config/name="LootFall"
 config/description="A knight fights ever deeper; monsters drop chests; chests open into gear; gear shows up in the fight."
 run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
-config/icon="res://assets/ui/icon.png"
+config/icon="res://assets/icon.png"
 
 [display]
 

@@ -9,8 +9,9 @@ namespace LootFall.View;
 /// Scripted runs for screenshots and checks (--demo=NAME, with --shots=DIR):
 /// opening: a chest of each tier opened in turn, from Common to Transcendent (screens reveal_*), and the pause holding
 ///   one; title: the title, settings, a new game and the pause menu; welcome: a save written and read back in memory as
-///   if two hours had passed (checks the round trip, shows the welcome back); lane: the battle at a few points of a
-///   long game (screens lane_*).
+///   if two hours had passed (checks the round trip, shows the welcome back); screens: the lane, then every screen over
+///   it in turn (each kind's armoury, talents, codex, prestige, settings). --hours=N starts each where a sensible player
+///   would be after N hours.
 /// </summary>
 public static class Demos
 {

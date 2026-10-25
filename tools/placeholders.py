@@ -11,20 +11,22 @@ docs/art-direction.md describes ("Placeholders"), so they stage the inked cel lo
              -> assets/icons/<family>.png
   vfx        Kenney's Particle Pack (white on transparent) -> assets/vfx/<name>.png
   fonts      Cinzel, Barlow Semi Condensed and Lilita One from google/fonts (final, not placeholders)
+  appicon    the game's icon, drawn here: an open chest pouring light -> assets/icon.png
 
-Usage: python3 tools/placeholders.py [--cache DIR] [--only monsters,backdrops,icons,vfx,fonts]
+Usage: python3 tools/placeholders.py [--cache DIR] [--only appicon,monsters,backdrops,icons,vfx,fonts]
 Needs Pillow; rembg (monsters) and cairosvg (icons). Sources are fetched by blobless sparse checkouts into the cache.
 The monster and realm keys must match scripts/Game/Bestiary.cs, the icon families Describe.Family in
 scripts/Game/Describe.cs.
 """
 import argparse
 import json
+import math
 import os
 import re
 import subprocess
 import urllib.request
 
-from PIL import Image, ImageChops, ImageFilter, ImageOps
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "assets")
@@ -388,8 +390,61 @@ def build_fonts(cache):
     print(f"  fonts: {', '.join(FONTS)}")
 
 
-BUILDERS = {"monsters": build_monsters, "backdrops": build_backdrops, "icons": build_icons, "vfx": build_vfx,
-            "fonts": build_fonts}
+def build_appicon(_cache):
+    """The game's icon (project.godot's config/icon): an open chest pouring light, in the inked cel style, drawn at 4x
+    and shrunk so its edges are smooth."""
+    k = 4
+    S = 256 * k
+    im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+
+    def box(x0, y0, x1, y1):
+        return [v * k for v in (x0, y0, x1, y1)]
+
+    def poly(points):
+        return [(x * k, y * k) for x, y in points]
+
+    ink = INK + (255,)
+    d.rounded_rectangle(box(6, 6, 250, 250), radius=46 * k, fill=hex_rgb("#231a38") + (255,), outline=ink, width=6 * k)
+    # The light from inside: a soft glow and rays.
+    glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    g = ImageDraw.Draw(glow)
+    for i in range(14, 0, -1):
+        r = i * 9 * k
+        g.ellipse((128 * k - r, 112 * k - r, 128 * k + r, 112 * k + r), fill=hex_rgb("#ffb347") + (int(14 + (14 - i) * 6),))
+    for a, b in [(-62, -48), (-30, -18), (-6, 6), (18, 30), (48, 62)]:
+        p0 = (128, 128)
+        pa = (128 + 160 * math.sin(math.radians(a)), 128 - 160 * math.cos(math.radians(a)))
+        pb = (128 + 160 * math.sin(math.radians(b)), 128 - 160 * math.cos(math.radians(b)))
+        g.polygon(poly([p0, pa, pb]), fill=hex_rgb("#ffc861") + (80,))
+    mask = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(mask).rounded_rectangle(box(12, 12, 244, 244), radius=40 * k, fill=255)
+    glow.putalpha(Image.composite(glow.split()[3], Image.new("L", (S, S), 0), mask))
+    im.alpha_composite(glow)
+    d = ImageDraw.Draw(im)
+    # The open lid's inside, the glowing mouth, then the body with its bands and lock.
+    d.polygon(poly([(52, 132), (66, 84), (190, 84), (204, 132)]), fill=hex_rgb("#4a2e1c") + (255,), outline=ink, width=6 * k)
+    d.polygon(poly([(62, 128), (72, 94), (184, 94), (194, 128)]), fill=hex_rgb("#5e3b22") + (255,))
+    d.ellipse(box(60, 118, 196, 146), fill=hex_rgb("#fff4c8") + (255,))
+    d.rounded_rectangle(box(48, 132, 208, 214), radius=10 * k, fill=hex_rgb("#8a5a34") + (255,), outline=ink, width=6 * k)
+    d.rectangle(box(54, 136, 202, 150), fill=hex_rgb("#b07a48") + (255,))
+    d.rectangle(box(54, 192, 202, 208), fill=hex_rgb("#5e3b22") + (255,))
+    for x in (68, 170):
+        d.rectangle(box(x, 132, x + 18, 214), fill=hex_rgb("#e2b04a") + (255,), outline=ink, width=4 * k)
+        d.rectangle(box(x + 3, 136, x + 8, 210), fill=hex_rgb("#ffe08a") + (255,))
+    d.rounded_rectangle(box(112, 150, 144, 188), radius=6 * k, fill=hex_rgb("#e2b04a") + (255,), outline=ink, width=4 * k)
+    d.ellipse(box(123, 160, 133, 170), fill=ink)
+    d.polygon(poly([(126, 166), (130, 166), (132, 180), (124, 180)]), fill=ink)
+    # Glints.
+    for x, y, r in [(54, 62, 12), (202, 54, 9), (214, 104, 6)]:
+        d.polygon(poly([(x, y - r), (x + r * 0.28, y - r * 0.28), (x + r, y), (x + r * 0.28, y + r * 0.28), (x, y + r),
+                        (x - r * 0.28, y + r * 0.28), (x - r, y), (x - r * 0.28, y - r * 0.28)]), fill=(255, 255, 255, 235))
+    im = im.resize((256, 256), Image.Resampling.LANCZOS)
+    im.save(os.path.join(ASSETS, "icon.png"))
+
+
+BUILDERS = {"appicon": build_appicon, "monsters": build_monsters, "backdrops": build_backdrops, "icons": build_icons,
+            "vfx": build_vfx, "fonts": build_fonts}
 
 
 def main():

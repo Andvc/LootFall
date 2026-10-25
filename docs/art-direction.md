@@ -65,7 +65,7 @@ mipmaps, and art is authored at twice its on-screen size, so it stays crisp up t
 
 | Region | Where | What |
 |---|---|---|
-| The lane | y 0 to 640 | Parallax backdrop. The ground line is at y 575. The knight's feet are at x 480; monsters engage at x 700 and x 860 and walk in from x 2050. |
+| The lane | y 0 to 640 | Parallax backdrop. The ground line is at y 575. The knight's feet are at x 480; monsters engage at x 760 and x 940 and walk in from x 2080. |
 | Top bar | y 0 to 96, over the lane | Level and XP, gold, shards, aether (once open). Depth, realm and the depth's progress (waves, then the boss) in the middle. Settings and menu on the right. |
 | Bottom panel | y 640 to 1080 | Left, x 0 to 520: the chest tray (the pile, Open, Auto). Middle, x 520 to 1400: the armoury's eight kind tiles and the latest finds. Right, x 1400 to 1920: the dock (Talents, Forge, Ranks, Codex, Ascend), each with its badge. |
 | Overlays | full screen | The armoury, the talent tree, the codex, the prestige trees, settings and the pause menu. A shade under each; Esc closes it. |
@@ -124,7 +124,7 @@ numeral.
 | XII | Transcendent | Animated prismatic | D | Radiant | As above |
 
 These colours are for frames, beams and backgrounds. Text in a tier's colour is lightened until it reads on the dark
-panels (`Look.TextOf`).
+panels (`Look.TierText`).
 
 **Emphasis follows relevance, not tier.** The hue says what an item is. How loudly it's shown (size, beam, sound,
 pulse) says how much it matters now. An upgrade or a first find shouts; a Divine the knight can't use is just listed.

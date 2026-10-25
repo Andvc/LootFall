@@ -1,75 +1,60 @@
 # LootFall
 
-A small incremental game about the thrill of opening chests. Your knight fights on his own, wave after wave, through
-six places and their bosses; every monster he fells may drop a chest, and every chest holds one piece of gear. Open
-one and it hops, glows and climbs through the rarity colours (common, uncommon, rare, epic, legendary, mythic) before
-it bursts and shows you what you got, side by side with what he wears. Equip it and watch it land: his blade and cape
-change colour, the power number jumps, the next monster dies faster, and a legendary's power (lightning, embers,
-meteors, a barrier) goes off in the fight. Sell it and it's gold for a better chest level, training, and a helper that
-opens chests for you and stops for the big ones. Stronger gear, further stages, more gold, more chests.
+An incremental loot game about abundance. A knight fights ever deeper on his own. Every depth's monsters and boss fill a
+chest, and opening one climbs through twelve rarities, from Common to Transcendent, before the cards turn over.
+Whatever beats what he wears goes on by itself, across 149 slots from helm to toe rings, tattoos, companions and
+celestial slots. Gold forges the slots, shards rank them, and levels pay into a 3,259-node talent tree. First finds
+fill the codex, and ascension and transcendence trade a run for power that lasts. It is built to keep a player
+progressing for thousands of hours.
 
-**Status:** Prototype 0.1, a fresh start (the shake-and-deduce shop that used to live on a branch here is now its own
-game, [Keywright](https://github.com/Andvc/keywright)). Playable from the title to the endless stages past the sixth zone: 24 kinds of monster in six
-zones, stage bosses and six guardians, eight gear slots, six rarities, 14 legendary powers, four kinds of chest, chest
-levels, training, Auto-Boss and Auto-Open, saves with time-away earnings, music per zone. Built with Godot 4.7 (.NET /
-C#), targeting PC. Pixel art and music from Pixel-boy's CC0 Superpowers packs, sounds from Kenney's CC0 packs (see
-[CREDITS.md](CREDITS.md)). Design and balance: [docs/design.md](docs/design.md).
+**Status:** Prototype 0.2, playable from the title to the second prestige layer:
+- the battle, with waves, bosses, guardians, the gate and overkill leaps through eight realms;
+- the chest tray and the reveal for all twelve rarities;
+- the armoury (forge, ranks, mastery focus), the talent tree, the codex, ascension and transcendence;
+- auto-open and the other automations;
+- saves with time away, the title, pause and settings.
 
-## The loop
+Built with Godot 4.7 (.NET / C#) for PC.
 
-1. **The knight fights.** Monsters walk in from the right; he swings at the one in front. Ten kills and the stage's
-   boss comes (30 seconds to beat it); beat it and the next stage begins. Every tenth stage a guardian, then a new
-   place.
-2. **Chests fall.** Most kills drop a wooden chest, which pops out of the monster and falls into the pile under the
-   battle. Bosses drop iron chests, guardians golden ones, and now and then a wandering mimic drops a royal chest.
-3. **Open them.** Click the chest or press Space. The rarer it is, the longer it builds; Luck can bump it one step
-   more. The card shows the item's stats against what's worn and the change in power.
-4. **Equip or sell.** Equip (E) puts it on and sells the old one; Sell (S) turns it into gold. Space takes whichever
-   the card recommends, once the card has been up a moment (longer for a legendary), so mashing Space to hurry an
-   opening never sells what it reveals.
-5. **Spend the gold.** Chest Level makes new loot stronger and rarer; Might, Vigor and Haste train the knight; from the
-   second zone, Auto-Open handles the small stuff and stops for anything as rare as you choose.
-6. **Bounties.** Three goals at a time (slay, open, beat bosses, find rares...), each paying a chest when done.
-
-Close the game and the knight keeps fighting: on Continue, the time away (up to 8 hours) is paid in gold and chests.
+The direction is inked cel 2D over muted painted backdrops ([docs/art-direction.md](docs/art-direction.md)). The
+pictures are still stand-ins, to be replaced by the game's own art (see [CREDITS.md](CREDITS.md)). The design is in
+[docs/design.md](docs/design.md), and the numbers behind it are in [docs/progression.md](docs/progression.md).
 
 ## Controls
 
 | Action | Input |
 |---|---|
-| Open a chest / hurry an opening / take the recommended choice | Click the chest, or Space / Enter (hold to keep opening) |
-| Equip / Sell the item on the card | E / S, or the card's buttons |
-| Fight the boss now | B, or the boss button (when it's ready; after the mimic, if one's in front) |
-| Auto-Boss, Auto-Open | Their switches (under the boss button; on the chest, beside the rarity it stops for) |
-| Buy an upgrade | Its button, on the right |
-| See an item's stats | Hover its slot |
-| Pause, settings, title, quit | Esc, or Menu |
+| Open the next chest; hurry an opening | Space or Enter, or click the chest |
+| Armoury, Talents, Codex, Ascension | G, T, C, A, or the dock's buttons |
+| Close a screen; pause, settings, title, quit | Esc |
 
 ## Development
 
-The rules run without the engine, so they can be simulated and tested headlessly:
-
 | Folder | What's in it |
 |---|---|
-| `scripts/Core` | Pure C# rules: gear, rarities and legendary powers (`Gear.cs`), chests and their odds, monsters and zones (`World.cs`), the real-time battle (`Battle.cs`), the game state and its events, upgrades, saves, a sensible player (`Policy.cs`), and every pacing number (`Balance.cs`). No Godot types. |
-| `scripts/Ui` | The screens and visuals: the battle lane, the chest and its opening, the reveal card, gear and upgrade panels, HUD, title, pause, settings, effects, the actors' palette-swap shader. |
-| `scripts/Audio` | Recorded sounds by group, synthesized tings and stings, music. |
-| `scripts/Debug` | The balance simulation and the autoplay bot. |
-| `tools/` | `setup-cloud.sh` (toolchain), `import_art.py` (builds `assets/` from the CC0 packs), `simcli/` (the simulation without the engine, and the pacing tuner). |
+| `scripts/Progression` | The numbers: content (slots, rarities, affixes, the talent tree, prestige trees), the closed-form combat, the world's step, the simulated player and the acceptance checks. Engine-free; every number is in `Params.cs`. |
+| `scripts/Game` | The game around them: the session (chests, automation, time away), the battle's choreography (`Stage`), the bestiary, saves, names and number formats. Engine-free. |
+| `scripts/View` | The screens: the lane (backdrop, the knight's rig, monsters, effects), HUD, chest tray, reveal, armoury, talents, codex, prestige, title, menus, the bot and the demos. |
+| `scripts/Audio` | Recorded sounds by group, synthesized tones and stings, music. |
+| `tools/progsim` | Runs the numbers and the game without the engine: the 3,000-hour check, player reports, tuning, the game-layer test, the content list for the art manifest. |
+| `tools/` | `setup-cloud.sh` (toolchain), `placeholders.py` (the stand-in art), `art.py` (the art manifest and importer), `import_audio.py` (sounds and music). |
 
 ```bash
-tools/setup-cloud.sh                                        # .NET 8 + Godot 4.7.2 (.NET) in a fresh container
-dotnet build                                                # compile
-dotnet build tools/simcli -c Release && \
-  dotnet tools/simcli/bin/Release/net8.0/simcli.dll --n=12 --hours=5    # balance report (or: godot --headless --path . -- --sim)
-dotnet tools/simcli/bin/Release/net8.0/simcli.dll --tune    # fit Balance.cs to the pacing targets
-xvfb-run -a godot --path . --rendering-driver opengl3 -- \
-  --autoplay --minutes=3 --shots=$PWD/shots                 # the bot plays; screenshots of each moment
-# add --stage=30 to start where a sensible player would be by then, --speed=3 to play faster, --auto-open to use it
-xvfb-run -a godot --path . -- --opening-demo --shots=$PWD/shots_open   # one chest of each rarity, pause and Space checks
-xvfb-run -a godot --path . -- --title-demo --shots=$PWD/shots_title    # title, settings, a new game, pause
+tools/setup-cloud.sh                         # .NET 8 + Godot 4.7.2 (.NET) in a fresh container
+dotnet build                                 # compile
+dotnet build tools/progsim -c Release
+dotnet tools/progsim/bin/Release/net8.0/progsim.dll --check            # the numbers over 3,000 hours (CI)
+dotnet tools/progsim/bin/Release/net8.0/progsim.dll --game --hours=1   # the game layer (CI)
+xvfb-run -a godot --path . --rendering-driver opengl3 -- --autoplay --minutes=3 --shots=$PWD/shots
+#   the bot plays and screenshots each moment; --hours=N starts where a sensible player would be after N hours,
+#   --speed=N plays faster, --seed=N
+xvfb-run -a godot --path . --rendering-driver opengl3 -- --demo=opening --shots=$PWD/shots_open
+#   demos: opening (a chest of every rarity), title, welcome (a save round trip and two hours away),
+#   screens (every screen; add --hours=6 for a game in progress)
+python3 tools/art.py manifest                # every asset with its size and prompt -> art/manifest.json
+python3 tools/art.py import                  # new art from art/incoming/<id>.png into assets/
 godot --headless --path . --export-release "Windows Desktop" build/windows/LootFall.exe
 ```
 
-Add `--write-movie movies/play.avi --fixed-fps 30` to record. Every push to `main` or a `prototype/**` branch exports a Windows build
-and smoke-tests it on GitHub Actions (download it from the run's artifacts).
+Add `--write-movie movies/play.avi --fixed-fps 30` to record. Every push to `main` or a `prototype/**` branch exports
+a Windows build and smoke-tests it on GitHub Actions (download it from the run's artifacts).

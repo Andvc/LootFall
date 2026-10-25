@@ -3,8 +3,8 @@
 The numerical foundation for growing LootFall from eight slots and a few hours of play into a game of abundance: 149
 equipment slots from head to toe, twelve rarities, a 3,259-node talent tree with endless paragon, per-slot forge,
 ranks and mastery, a codex of first finds, and two prestige layers, all of it able to keep a player progressing for
-thousands of hours without breaking. It is engine-free C# in `scripts/Progression` (nothing in the game uses it yet),
-and `tools/progsim` simulates thousands of hours of play from it in seconds.
+thousands of hours without breaking. It is engine-free C# in `scripts/Progression`; the game runs on it (`scripts/Game`,
+see [design.md](design.md)), and `tools/progsim` simulates thousands of hours of play from it in seconds.
 
 ```
 dotnet build tools/progsim -c Release
@@ -275,7 +275,6 @@ Add content through the budgets, then run `--check` (and `--tune` if a system's 
 
 ## Not yet
 
-- The game (`scripts/Core`) doesn't use the framework yet; the battle there is tick-by-tick, this one closed-form.
 - The simulated player is a heuristic, not an optimum; a min-maxer would go somewhat faster.
 - One hero; no challenges or third layer (the rhythm checks say where one would be wanted: late transcendence cycles
   run to hundreds of hours).

@@ -2,217 +2,172 @@
 
 ## The game in one paragraph
 
-A knight fights his way through six places (Greenwood, the Sunscar Dunes, the Sapphire Coast, the Haunted Ruins,
-Frostpeak and the Dragon's Roost), ten stages each, a boss at the end of every stage and a guardian at the end of
-every place. He fights on his own; what you do is open the chests the monsters drop. Every chest holds one piece of
-gear for one of his eight slots, in one of six rarities, and the chest makes a show of telling you which: it hops,
-glows, and climbs through the rarity colours one step at a time until it bursts. A card shows the item against what
-he wears; equip it and it flies onto him, his blade or cape changes colour, the power number jumps, and the next
-monster dies faster. Sell it and it's gold, which buys a better chest level (stronger, rarer loot), training, and
-later a helper that opens chests for you. Stronger gear clears stages faster, later stages drop more gold, and every
-kill can drop another chest: open, equip, see it land, earn more.
+A knight fights ever deeper, depth after depth, through eight realms that come round again harder each time. Every
+depth's monsters and its boss fill a chest. Open it and the haul climbs through twelve rarities, from Common to
+Transcendent, before the cards turn over. Whatever beats what the knight wears goes on by itself, across 149 slots from
+helm to toe rings, tattoos, companions and celestial slots. Gold forges the slots, shards from everything else rank them,
+and levels pay talent points into a tree of 3,259 nodes. First finds fill the codex, and its power with them. When a run
+slows, ascension trades it for aether, which buys power for good; later, transcendence trades the ascension tree for
+stardust. The game is built to keep a player progressing for thousands of hours, and it shows that growth as speed and
+reach rather than as clutter.
 
-## Why this loop (and what the old one taught)
+## Where things live
 
-The previous prototype (now its own game, Keywright, in Andvc/keywright) was about deducing what's inside a chest from its sounds before buying
-it. The deduction was the work and the opening the reward, and the reward came only after the work went well. This one
-keeps the opening at the centre and cuts the distance to its payoff to nothing: every chest is yours, every opening is
-a roll you watch happen, and the result has an immediate, visible consequence in a fight that's always running. The
-decisions are small and frequent (equip or sell, what to buy next, when to fight the boss); the satisfaction is in the
-reveal and in watching numbers climb.
+| Layer | Folder | What it decides |
+|---|---|---|
+| The numbers | `scripts/Progression` ([progression.md](progression.md)) | Everything that's balanced: what a depth needs, kill times, drops and rarities, costs, levels, talents, the codex, both prestige layers. Closed-form and engine-free; `tools/progsim --check` simulates 3,000 hours for three kinds of player and checks the result. |
+| The game | `scripts/Game` | The session around the numbers: chests and the pile, the battle's choreography (`Stage`), the bestiary, automation, saving, time away, names and number formats. Engine-free; `tools/progsim --game` plays it. |
+| The screen | `scripts/View` | What the player sees and hears ([art-direction.md](art-direction.md)). It animates what the game reports and calls the session's actions. It never decides an outcome. |
 
-Three rules hold it together:
+`Main` (`scripts/Main.cs`) owns the session, saving, sound and the screen-wide effects. `Settings` keeps the player's
+choices in user://settings.cfg.
 
-1. **Everything you get shows up in the fight.** Attack, health, crits and speed change the numbers and the pace of
-   kills at once; legendary powers have their own effects (lightning, burning, meteors, barriers); the knight's blade,
-   slash and shield face take his weapon's rarity colour and his cape and plume his armour's (`Shaders.cs`).
-2. **Every chest pays out.** An item that isn't an upgrade sells for gold, and gold always has somewhere to go, so
-   there is no inventory to manage and no dead opening.
-3. **The fight feeds the chests.** Kills drop chests (and gold), bosses drop better chests, and gear can carry Chest
-   Find, Gold Find and Luck, so loot can make loot.
+## The loop
+
+1. **The knight fights.** Two monsters at a time walk in from the right, wave after wave, then the depth's boss.
+   Beat it in 30 seconds and the next depth starts. Every tenth depth's boss is the realm's guardian.
+2. **Chests fill.** A depth's drops (its waves and its boss) go into one chest, sealed when the boss falls. The chest
+   drops into the tray; from Epic up, a beam in the colour of the rarest thing inside marks it.
+3. **Open them.** Click a chest or press Space. The opening climbs through the rarities inside, then the cards turn
+   over, rarest last. Upgrades fly to their kind's tile; the rest is salvaged into shards.
+4. **Gear goes on by itself.** An item goes on when it's at least as good in every stat, or when trading one stat for
+   another leaves the knight ahead. The player never compares numbers. They see the knight change and the push get
+   faster.
+5. **Spend.** Gold forges slots, shards rank them, mastery grows on worn slots (faster on focused ones), and talent
+   points go into the tree. Forge, ranks, talents and the prestige trees each have a button that spends the best way,
+   and later their own automation.
+6. **Reset.** Past depth 150, kills earn aether. Ascending ends the run for its aether, which buys permanent power
+   (a head start among it), and starts a new one. Once enough aether has been earned, transcending gives up the
+   ascension tree for stardust, which lasts through every cycle.
+
+Close the game and the knight keeps going. Continue plays the time away, up to a week, with the automation the player
+has, and a welcome-back screen shows what happened.
+
+## Systems open one at a time
+
+Each system's button appears in the dock when it opens (`Session.Unlocked`); the automations announce themselves with
+a toast. After the first ascension, everything that opened by depth stays open.
+
+| System | Opens at | What it does |
+|---|---|---|
+| Forge | depth 3 | Gold into forge levels per slot. |
+| Talents | level 2 | The tree: a wheel of sectors (damage, health, speed, crit, loot, gold and more), notables and keystones; paragon points after it's full. |
+| Codex | 8 first finds | Every slot, rarity, quality band and era is an entry; first finds add to its power. |
+| Auto-open | depth 10 | Chests open as they drop. Chests holding the rarest tier found so far wait for the player. |
+| Ranks | depth 25 | Shards into ranks per slot. |
+| Mastery | depth 40 | Worn slots grow mastery; focused slots grow faster. |
+| Ascension | depth 150 | Reset the run for aether and a permanent tree. |
+| Auto-forge, auto-ranks | the first ascension | The "all" buttons run by themselves. |
+| Transcendence | a tenth of the aether it needs | Reset the ascension tree for stardust and a stronger next cycle. |
+| Autopilot | the first transcendence | Ascends by the sensible rule. |
 
 ## Chests
 
-| Kind | From | Floor | Item level | Look |
-|---|---|---|---|---|
-| Wooden | 42% of kills (about 93% of drops) | Common | chest level's | brown with iron bands |
-| Iron | 6% of drops; every stage boss | Uncommon | +1 | steel blue |
-| Golden | 0.8% of drops; every zone guardian (and two Iron) | Rare | +2 | gold |
-| Royal | the wandering mimic (1% of waves from stage 3, with a Golden) | Epic | +3 | purple |
+- **What one holds.** The items that could matter: at most four per slot, the best kept, plus how many of each rarity
+  dropped in all (salvaged on opening), their shards and the first finds they made.
+- **Kinds.** Boss chests come from a depth cleared, guardian chests from every tenth depth, and monster chests from
+  farming a depth (sealed after a depth's worth of kills). A new hero starts with one chest that holds something for
+  each open slot.
+- **The pile.** It holds 100 chests; past that, new ones pour into the last, so nothing is lost. The next one opened is
+  the best kind first, oldest first among those.
+- **Auto-open.** It opens chests as they arrive, and the reveal is skipped. Notable finds still pop: a new tier, a
+  first find, an upgrade. A chest holding the rarest tier found so far waits to be opened by hand, so the moments
+  worth seeing are kept (`Automation.HoldAt`). While the player is away, everything opens.
 
-The pile is opened best kind first. A new game starts with two wooden chests and its first three kills each drop one,
-so the first thing a player does is open a chest.
+## The reveal
 
-**Rarity** (`Chests.Odds`): each rarity has a base weight (1000, 300, 60, 10, 1.2, 0.1) and each step up is multiplied
-by e^(0.055 per chest level above 1, plus the kind's shift: 0, 0.3, 0.5, 0.7); nothing comes out below the kind's
-floor. Then **Luck** (a gear stat) gives that chance of one step more, and the opening shows it ("LUCKY!").
+Rarities come in four bands, and the opening is longer and louder for each (see "The rarity ladder" in
+[art-direction.md](art-direction.md)).
 
-| Chest | Common | Uncommon | Rare | Epic | Legendary | Mythic |
-|---|---|---|---|---|---|---|
-| Wooden lv 1 | 72.9% | 21.9% | 4.4% | 0.73% | 0.09% | 0.01% |
-| Wooden lv 10 | 58.6% | 28.8% | 9.5% | 2.6% | 0.51% | 0.07% |
-| Wooden lv 20 | 37.5% | 32.0% | 18.2% | 8.6% | 2.9% | 0.70% |
-| Wooden lv 30 | 16.3% | 24.1% | 23.8% | 19.5% | 11.5% | 4.7% |
-| Iron lv 1 | | 74.5% | 20.1% | 4.5% | 0.73% | 0.08% |
-| Golden lv 1 | | | 74.8% | 20.6% | 4.1% | 0.56% |
-| Royal lv 1 | | | | 78.0% | 18.8% | 3.2% |
+1. The chest shakes and climbs through every tier inside.
+2. It bursts in its best tier's colour.
+3. Up to eight cards turn over, rarest last.
+4. A Divine or rarer card glows face down before it turns.
+5. The summary counts what went on, what was found for the first time and what was salvaged.
+6. Leaving sends upgrades to their tiles and the rest to the shard counter.
 
-**Item level** comes from the **chest level**, not the stage: 1 + 2 per chest level above 1, +1 per zone reached, plus
-the kind's bonus, and a drop rolls +0/+1/+2 levels (60/30/10%). Each level is ×1.13 on main stats, so each chest level
-makes new loot about 28% stronger. This was the most important balance decision (see Pacing): when items followed the
-furthest stage, every stage cleared made the next chests better, gold followed the stage too, and a sensible player
-reached stage 60 in 25 minutes and maxed everything within the hour. Tying item level to an upgrade bought with gold
-turns progress into a staircase: farm, level the chest, a burst of upgrades, push a few stages, farm again.
-
-## Gear
-
-Eight slots, one item each, no inventory: equipping sells what it replaces.
-
-| Slot | Main stats (common, item level 1) | Affix pool leans to |
-|---|---|---|
-| Weapon | ATK 6 | ATK%, crit, crit damage, speed, lifesteal, double strike, stun |
-| Helmet | HP 18, DEF 1.2 | HP%, regen, crit, dodge, luck, chest find |
-| Armor | HP 30, DEF 2 | HP%, regen, dodge, lifesteal, gold find |
-| Shield | DEF 3, HP 10 | HP%, dodge, stun, regen, lifesteal |
-| Gloves | ATK 2.5 | ATK%, crit, crit damage, speed, double strike, gold find |
-| Boots | HP 14, DEF 0.8 | speed, dodge, HP%, chest find, luck |
-| Ring | ATK 3 | crit, crit damage, ATK%, lifesteal, luck, gold find |
-| Amulet | ATK 1.5, HP 12 | HP%, ATK%, regen, luck, chest find, gold find |
-
-| Rarity | Main stats | Affixes | Affix size | Sells for | Also |
-|---|---|---|---|---|---|
-| Common | ×1 | 0 | | ×1 | |
-| Uncommon | ×1.25 | 1 | ×1 | ×1.5 | |
-| Rare | ×1.55 | 2 | ×1.34 | ×2.5 | |
-| Epic | ×1.95 | 3 | ×1.68 | ×4 | |
-| Legendary | ×2.45 | 3 | ×2.02 | ×7 | a legendary power |
-| Mythic | ×3.1 | 4 | ×2.36 | ×12 | its power at 1.5×, a shifting colour |
-
-The multipliers are flatter than they first were (up to ×4.3): with steep rarity, the gear a player wore was the best of
-hundreds of drops and almost nothing new could beat it (5% upgrades an hour in). With these, two or three chest levels
-let a fresh epic beat an old legendary, and upgrades keep coming (see Pacing).
-
-**Legendary powers** (`Effects`), one per legendary or mythic item, each with its own effect in the fight:
-Thunder (18% on hit: lightning for 150% ATK), Ember (hits burn for 40% more over 2s), Cleave (blows hit every other foe
-for 60%), Meteor (every 6th attack: 250% ATK to all), Holy Light (every 8s: heal 20%), Thorns (attackers take 40% of
-what they deal), Bulwark (every 10s: a barrier of 25% max HP), Vampire (+8% lifesteal), Midas (+60% gold), Prospector
-(+25% chest find), Fortune (+5% luck), Swiftness (+20% attack speed, first blow of each wave instant), Executioner
-(foes below 20% die at once), Second Wind (once a fight below 30%: heal 50%).
-
-**Power** (`HeroStats.Power`) is one number for comparing: the geometric mean of damage per second (attack, speed,
-crits, double strikes, offensive powers) and effective health against the furthest stage's monsters (health,
-defence, dodge, lifesteal, regeneration, defensive powers). The card recommends equipping whatever raises it; loot
-stats (gold, chests, luck) are shown in gold and left to the player's judgement.
-
-**Names** come from the slot and rarity ("Steel Dagger", "Golden Cuirass"), the strongest affix ("Keen", "Twin",
-"Prospector's") or the legendary power ("Moon Ring of Storms").
+Space or a click hurries an opening; once it's done, the next press puts it away.
 
 ## The battle
 
-The knight stands on the left; monsters walk in from the right in waves of one to three (smaller waves early; the big
-ones take more room), one after another. Each has its own attack speed; the knight hits the one in front. The battle
-runs in Core (`Battle.cs`) in steps of 1/30 s and reports events (`WaveSpawned`, `AttackStarted`, `HitLanded`...) that
-the screen animates and the game state pays out on; the simulation runs the same code without a screen.
+The numbers settle each depth in closed form. `Stage` turns that into what's shown, so the screen always matches the
+rules:
 
-- **Stages**: ten kills, then the stage's boss: a big one of the zone's monsters (3× size for small ones), or on the
-  tenth stage the zone's guardian (Old Tusk, the Sand Warlord, the Deep One, the Mimic King, the Frost Giant,
-  Vermithrax). A boss has 16× (guardian 22×) a monster's health and 1.6× (1.8×) its attack, and the knight has 30
-  seconds, so bosses are mostly a damage check that survival also matters for.
-- **Auto-Boss** (on by default) fights the boss as soon as it's ready; after a loss it waits until the knight is 4%
-  stronger (at least 8 s) or 90 s have passed. The boss button does it by hand (B), at once, or once a mimic in front
-  of him is beaten (its chests are never thrown away for a boss).
-- **Falling**: the knight gets up after two seconds; the monsters still standing heal and step in again, the ones he
-  felled stay down. Falling twice at a stage without clearing a wave steps him back a stage (and, across a zone's
-  edge, back to that zone's place and music); he climbs again after ten kills once he's stronger. If his thorns fell a
-  boss with the same blow that downs him, the boss counts as beaten.
-- **Monsters** hit for much less than their health would suggest (attack 2.5 against health 10 at stage 1, both ×1.18 a
-  stage), so farming a stage you can't beat the boss of stays safe and quick: early versions had the knight dying
-  once a minute at every wall.
-- **The mimic**: one wave in a hundred from stage 3 is a lone mimic; it drops a Royal and a Golden chest.
-- Past the sixth zone the places come round again, darker and harder ("Greenwood II").
+- **Push.** The bar's progress is the depth's progress (`DepthProgress + Accum / Need`). Waves of two walk in and fall
+  exactly when their kill time is up; the boss's health drains with the rest of the bar.
+- **Farm** (the gate). The next boss can't be beaten yet, so the knight farms the deepest depth he's comfortable at.
+  The boss waits behind a gate on the right, labelled with what it needs ("needs x1.8 damage").
+- **Leap.** When overkill clears depths by the dozen, the knight dashes and the depth counter rolls. A banner reads
+  "Depth 1,240 to 1,480". Then the last depth's boss is fought in full.
 
-## Bounties
+How a blow is shown follows the kill time, not the depth:
+- **Duel** (0.8 s or more a monster): every swing, its wind-up and impact, a number per hit.
+- **Wave** (faster kills): one arc fells the front monster, and a tally counts the kills.
 
-Three short goals are always on the board (`Bounties.cs`), each paying a chest: slay N monsters, open N chests, beat
-N bosses, find N rare-or-better things, equip N upgrades, earn N gold, reach a stage. Kinds rotate so the three always
-ask for different things, targets grow with each one posted (and gold's with the stage), and every fifth pays a
-golden chest, every fifteenth a royal one, the rest iron ones. They finish themselves: the row fills, flashes and
-its chest flies down into the pile. The simulation's sensible player finishes about 19 in the first ten minutes,
-then one every two or three minutes; they add chests (and moments) without moving the pacing much.
+Bosses always play in full, with a name plate, a health bar and the 30-second clock.
 
-## Gold and upgrades
+Monsters swipe back. The knight dodges, blocks or takes it; his health recovers between waves and never runs out on
+the lane, because the rules have already decided he wins. Deaths belong to the gate: a boss he can't beat is the one
+he isn't sent to fight.
 
-Gold comes from kills (1.5 × 1.089^(stage−1), bosses 8×, guardians 20×, the mimic 15×) and from selling (0.6 × 1.13^level
-× the rarity's multiple). It grows more slowly per stage than monsters do (1.089 against 1.18), so pushing ahead earns
-more but can't snowball.
+**Realms.** The realm follows the era of the depth (`Hero.Era`). Eras double in length, and after the eighth realm the
+order comes round again with a numeral ("Greenwood II").
 
-| Upgrade | Does | Costs |
-|---|---|---|
-| Chest Level | +2 item levels, rarer odds (up to 45) | 60 for the first, then 145 × 1.35^(level−1) |
-| Might | +5% attack per level | 10 × 1.16^level |
-| Vigor | +5% health per level | 10 × 1.16^level |
-| Haste | +2% attack speed per level (up to 30) | 40 × 1.35^level |
-| Auto-Open | from stage 10: opens a chest every 0.8 s, equips upgrades, sells the rest, and stops for anything Epic or better (the switch beside it on the chest picks Rare, Epic, Legendary or Mythic) | 2,500 |
-
-Auto-Open is there for when chests pile up (and for coming back to a pile), but it hands the big moments back to the
-player: anything at the stop rarity or better (epic, unless changed) waits on the counter and gets the full show.
-
-**Time away** (`ApplyOffline`): on Continue, a 90-second trial fight at the current stage measures the kill rate, and
-the time away (up to 8 hours) pays out at three quarters of it, in gold and chests, which wait to be opened. The boss's
-retry clock and the climb back after a retreat run down while away.
-
-**Saving**: every half minute, on each new stage, at pause and on quitting, to `user://save.json`: written whole to a
-side file and swapped in, with the previous save kept as `save.bak` (read instead if the save is damaged). A save this
-build can't read is never overwritten without asking: New Game says so first.
-
-## Pacing
-
-Targets for a sensible player (`Policy`: opens every chest at once, wears whatever adds power, buys the next chest
-level whenever it can and training while it costs under 30% of that), and what the simulation gives (12 runs of 5
-hours, `dotnet tools/simcli/bin/Release/net8.0/simcli.dll --n=12 --hours=5`):
-
-| Stage | Target | Median | 10th–90th |
+| Depths | Realm | Monsters | Guardian |
 |---|---|---|---|
-| 10 (Greenwood's guardian) | 5 min | 3.4 min | 3.3–3.6 |
-| 20 | 13 min | 8.9 min | 7.2–12.6 |
-| 30 | 28 min | 24.9 min | 18.5–34.2 |
-| 40 | 50 min | 48.4 min | 34.9–60.4 |
-| 50 | 80 min | 78.0 min | 63.7–93.6 |
-| 60 (Vermithrax) | 120 min | 106.0 min | 90.2–127.1 |
-| 80 | 220 min | 187.7 min | 167.6–211.5 |
+| 1 to 99 | Greenwood | Bloblet, Toadstool, Moss Hound, Thicket Glutton | Old Tusk |
+| 100 to 199 | Dunes | Dune Scorpion, Sand Raptor, Carrion Harpy, Stitched Dead | Sand Warlord |
+| 200 to 399 | Frostpeak | Snow Biter, Rime Wolf, Frost Siren, Rime Stalker | Frost Warden |
+| 400 to 799 | Drowned Mire | Tide Shrimp, Drowned Maiden, Bog Gawker, Pale Grasper | Deep One |
+| 800 to 1,599 | Ashlands | Cinder Phoenix, Lavamander, Magma Worm, Spined Hellbeast | Cinder Colossus |
+| 1,600 to 3,199 | Ruins | Risen Knight, Restless Shade, Living Armor, Dark Priest | Gilded Maiden |
+| 3,200 to 6,399 | Caverns | Batmadillo, Pale Ravager, Swine Thug, Chained Horror | Vermithrax |
+| 6,400 to 12,799 | Starfall | Cycloper, Rift Wolf, Crystalis, Mangler | Hollow Star |
 
-Real players read cards and miss things, so they'll be slower than this; the first zone is meant to go quickly.
-The tuner (`--tune`) searches chest level cost, its growth, gold growth and training growth for these targets.
+Each monster has a body plan (walker, hopper, flyer, heavy, slither), which sets how its single picture moves.
 
-| | 0–2 min | 2–5 | 5–10 | 10–20 | 20–40 | 40–60 | 60–90 | 90–120 | 2–3 h | 3–4 h |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Chests a minute | 22 | 21 | 12 | 9.7 | 9.9 | 9.3 | 9.2 | 10.7 | 11.5 | 11.4 |
-| Upgrades | 47% | 17% | 16% | 13% | 9% | 8% | 7% | 6% | 4% | 4% |
+## Screens and controls
 
-First finds (median): rare at half a minute, epic at a minute, legendary 6 min (2 to 23), mythic 51 min (12 to 87).
-The longest stay on one stage is about half an hour (median 27 min), late in the sixth zone or past it; in the first
-five zones walls last minutes. Outside boss fights the knight falls about eight times an hour (median of five hours).
+The screen layout is set out in [art-direction.md](art-direction.md) ("The screen"). The main screen has three parts:
+- **The lane** across the top, with a bar over it showing level and XP, gold, shards and aether, the depth and realm,
+  and the depth's progress.
+- **The chest tray** at the bottom left.
+- **The armoury's eight kind tiles and the latest finds** in the middle, with **the dock** (each system's button and
+  badge) on the right.
 
-## Feel
+| Action | Input |
+|---|---|
+| Open the next chest; hurry an opening | Space or Enter, or click the chest |
+| Armoury (every slot by body region, forge, ranks, mastery focus) | G, or its dock button |
+| Talents (pan with drag, zoom with the wheel) | T |
+| Codex | C |
+| Ascension and transcendence | A |
+| Close a screen; pause, settings, title, quit | Esc |
 
-- **The opening**: a hop and a creak, a white glow, then one step per rarity: the glow takes the next colour, a ting
-  a little higher each time, the chest shakes harder, sparks; rumbles from rare, lightning from epic. Luck adds a step
-  with "LUCKY!". Then the latch, the burst, a ring and a flash in the rarity's colour, a pillar of light from rare,
-  confetti and a fanfare from legendary, hit-stop for the biggest. Commons take half a second; clicking (or Space)
-  hurries any opening.
-- **The card**: rarity band, level, name, the picture in its rarity's frame, each main stat with its change in green
-  or red, affixes, the legendary power, and POWER +N in the colour that says whether to take it. The recommended
-  button pulses and Space takes it; E and S choose.
-- **Equip**: the picture flies to its slot, the slot flashes, the knight flashes and "+N POWER" rises over him,
-  coins from the old item fly to the gold counter. **Sell**: coins burst from the card and fly up.
-- **The fight**: swings timed so the slash lands with the blow, numbers that pop and drift (yellow crits with "!",
-  hit-stop and shake; blue thunder; orange burns; red when the knight is hit), flinches and knockback, a puff and a
-  scatter of coins on a kill, chests that pop out of monsters and fall into the pile below ("lootfall").
-- **Moments**: banners for bosses, stage and zone clears, the mimic; a fanfare and a ring when the chest levels up.
+Buttons never take focus: Space and Enter belong to the chests. Settings has master, music and effects volume,
+fullscreen, screen shake, flashes, damage numbers, and number notation (mixed, letters, scientific, engineering).
+
+## Saving
+
+The game saves to user://save.json every 30 seconds, at pause and on quitting. It writes to a side file and swaps it
+in, keeping the last save as save.bak. A save this version can't read is never overwritten without asking. Everything
+that should survive closing goes in `SaveData` (`scripts/Game/SaveGame.cs`). Bump `CurrentVersion` if old saves can't
+be read.
+
+## Checking it
+
+| What | How |
+|---|---|
+| The numbers hold for 3,000 hours | `progsim --check` (CI) |
+| The game keeps up with the simulated player; chests, the stage, saves and time away add up | `progsim --game --hours=1` (CI) |
+| It plays from a new game, exported, on Windows | The bot for four minutes (CI, "Autoplay finished") |
+| It looks right | The bot and the demos under Xvfb with `--shots` (see the README) |
 
 ## Not yet
 
-- More than one hero; a prestige layer (a reset for a permanent bonus) once the endless cycles are the norm.
-- Sets, item enhancement or a forge for what's sold; collections ("found every legendary").
-- Achievements and a stats page; Steam integration.
-- Sound has been chosen by name and checked by analysis only, not by ear.
+- The art is a stand-in, built by `tools/placeholders.py` to show the direction. It will be replaced by the game's own
+  art through `tools/art.py` (see "The asset pipeline" in [art-direction.md](art-direction.md)).
+- The knight is drawn in code from shapes, not from a parts sheet.
+- Sounds and music were chosen by name, not by ear. Music doesn't change by realm.
+- There is one hero, no challenges and no third prestige layer.
+- There are no achievements, no Steam integration and no controller support. The Windows .exe has the default icon.

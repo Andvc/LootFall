@@ -195,8 +195,15 @@ public partial class Reveal : Overlay
         bool light = Look.TierFace(it.Rarity).Luminance > 0.55f;
         var ink = light ? Look.Ink : Look.Text;
         c.AddChild(Ui.Text(Look.TierName(it.Rarity).ToUpperInvariant(), 15, light ? Look.Tier(it.Rarity).Darkened(0.55f) : Look.TierText(it.Rarity), Look.Strong, HorizontalAlignment.Center).Place(0, 132, CardW, 20));
-        c.AddChild(Ui.Text(name, 18, ink, Look.UiBold, HorizontalAlignment.Center).Wrapped().Place(8, 152, CardW - 16, 48));
-        c.AddChild(Ui.Text(slot.Name, 15, light ? new Color(Look.Ink, 0.7f) : Look.Muted, Look.Ui, HorizontalAlignment.Center).Place(0, 198, CardW, 20));
+        // A long name steps down a size or two to keep to two lines; one that still needs three takes the slot's line
+        // (the tooltip names the slot).
+        int size = 18;
+        float Height(int at) => Look.UiBold.GetMultilineStringSize(name, HorizontalAlignment.Center, CardW - 16, at).Y;
+        while (size > 15 && Height(size) > 48) size--;
+        bool tall = Height(size) > 48;
+        c.AddChild(Ui.Text(name, size, ink, Look.UiBold, HorizontalAlignment.Center).Wrapped().Place(8, 152, CardW - 16, tall ? 68 : 48));
+        if (!tall)
+            c.AddChild(Ui.Text(slot.Name, 15, light ? new Color(Look.Ink, 0.7f) : Look.Muted, Look.Ui, HorizontalAlignment.Center).Place(0, 198, CardW, 20));
         string verdict = card.Equipped ? (card.Replaced == null ? "EQUIPPED" : $"EQUIPPED  > {Look.TierName(card.Replaced.Rarity)}") : "salvaged";
         c.AddChild(Ui.Text(verdict, 16, card.Equipped ? (light ? new Color("#1f7a3a") : Look.Good) : Look.Dim, Look.Strong, HorizontalAlignment.Center).Place(0, 220, CardW, 22));
         c.TooltipText = string.Join("\n", Describe.Lines(G.S.H, card.Slot, it));

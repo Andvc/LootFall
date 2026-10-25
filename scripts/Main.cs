@@ -14,7 +14,7 @@ namespace LootFall;
 /// file and swapped in, the last save kept as save.bak); time away is played on Continue.
 /// Flags (after `--`): --autoplay (the bot plays; nothing is saved) --minutes=N --speed=N --seed=N --hours=N (start where
 /// a sensible player would be after N hours) --shots=DIR (a screenshot of each named moment, the first time) --demo=NAME
-/// (opening, title, welcome: see <see cref="Demos"/>) --export-sounds=DIR.
+/// (opening, title, welcome, screens: see <see cref="Demos"/>) --export-sounds=DIR.
 /// </summary>
 public partial class Main : Node2D
 {
