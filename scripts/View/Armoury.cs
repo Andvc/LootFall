@@ -22,6 +22,7 @@ public partial class Armoury : Overlay
     readonly List<(int Slot, Rect2 Rect)> _tiles = new();
     readonly List<(string Region, Vector2 At)> _headers = new();
     readonly Dictionary<SlotKind, Button> _tabs = new();
+    readonly List<Switch> _switches = new();
     SlotKind _kind;
     int _selected = -1;
     float _t;
@@ -51,6 +52,18 @@ public partial class Armoury : Overlay
         _p.AddChild(rankAll);
         forgeAll.Visible = G.S.Unlocked(Feature.Forge);
         rankAll.Visible = G.S.Unlocked(Feature.Ranks);
+        // The automations of this screen's systems, once they open.
+        var auto = G.S.Auto;
+        void Add(string name, bool open, Func<bool> get, Action<bool> set)
+        {
+            if (!open) return;
+            var s = new Switch(name, get, v => { set(v); Refresh(); }).Place(24, 776 + _switches.Count * 52, 220, 44);
+            _p.AddChild(s);
+            _switches.Add(s);
+        }
+        Add("Auto-forge", G.S.Unlocked(Feature.AutoForge), () => auto.Forge, v => auto.Forge = v);
+        Add("Auto-ranks", G.S.Unlocked(Feature.AutoRanks), () => auto.Ranks, v => auto.Ranks = v);
+        Add("Auto-focus", G.S.Unlocked(Feature.Mastery), () => auto.Focus, v => auto.Focus = v);
         Show(kind);
     }
 
@@ -165,6 +178,7 @@ public partial class Armoury : Overlay
     {
         foreach (var child in _detail.GetChildren()) child.QueueFree();
         _grid.QueueRedraw();
+        foreach (var sw in _switches) sw.Paint();
         if (_selected < 0) return;
         var h = G.S.H;
         int s = _selected;

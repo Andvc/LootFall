@@ -216,3 +216,34 @@ public partial class Bar : Control
         return s;
     }
 }
+
+/// <summary>An on/off switch for an automation: "Name: on" in green, "Name: off" in the plain edge colour.</summary>
+public partial class Switch : Button
+{
+    readonly string _name;
+    readonly Func<bool> _get;
+    readonly int _size;
+
+    public Switch(string name, Func<bool> get, Action<bool> set, int size = Look.Small)
+    {
+        _name = name;
+        _get = get;
+        _size = size;
+        FocusMode = FocusModeEnum.None;
+        MouseDefaultCursorShape = CursorShape.PointingHand;
+        Pressed += () =>
+        {
+            Main.Instance?.Sfx?.PlayGroup("click", 1f, -10);
+            set(!get());
+            Paint();
+        };
+        Paint();
+    }
+
+    /// <summary>Shows the state again (after something else changed it).</summary>
+    public void Paint()
+    {
+        Text = $"{_name}: {(_get() ? "on" : "off")}";
+        Ui.Style(this, _get() ? Look.Good : Look.EdgeLight, _size);
+    }
+}

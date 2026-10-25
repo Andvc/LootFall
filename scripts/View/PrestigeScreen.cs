@@ -71,12 +71,10 @@ public partial class PrestigeScreen : Overlay
         reset.Disabled = !can;
         _body.AddChild(reset);
         _body.AddChild(Ui.Button("Spend the best way", () => { G.S.SpendLayer(layer); Show(_trans); }, colour, Look.Body).Place(1400, 76, 300, 64));
+        // Auto-spend buys the tree the best way whenever a reset pays; the autopilot ascends by the sensible rule.
+        _body.AddChild(new Switch("Auto-spend", () => s.Auto.SpendPrestige, v => s.Auto.SpendPrestige = v).Place(1400, 150, 300, 44));
         if (!trans && s.Unlocked(Feature.Autopilot))
-        {
-            var auto = Ui.Button(s.Auto.Ascend ? "Auto-ascend: on" : "Auto-ascend: off", null, s.Auto.Ascend ? Look.Good : Look.EdgeLight, Look.Small).Place(1080, 150, 300, 44);
-            auto.Pressed += () => { s.Auto.Ascend = !s.Auto.Ascend; Show(_trans); };
-            _body.AddChild(auto);
-        }
+            _body.AddChild(new Switch("Auto-ascend", () => s.Auto.Ascend, v => s.Auto.Ascend = v).Place(1080, 150, 300, 44));
         // The tree as cards.
         var nodes = layer.Tree.Nodes;
         float cw = 330, ch = 120;

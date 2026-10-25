@@ -414,16 +414,19 @@ public sealed class Session : IWorldEvents
 
     public int FocusCount => H.Focus.Count(f => f);
 
-    /// <summary>Focuses or unfocuses a worn slot (at most <see cref="Hero.FocusSlots"/>).</summary>
+    /// <summary>Focuses or unfocuses a worn slot (at most <see cref="Hero.FocusSlots"/>). A choice made by hand turns
+    /// auto-focus off, so it isn't undone a minute later.</summary>
     public bool ToggleFocus(int s)
     {
         if (H.Focus[s])
         {
             H.Focus[s] = false;
+            Auto.Focus = false;
             return true;
         }
         if (!H.Open[s] || H.Gear[s] == null || FocusCount >= H.FocusSlots) return false;
         H.Focus[s] = true;
+        Auto.Focus = false;
         return true;
     }
 

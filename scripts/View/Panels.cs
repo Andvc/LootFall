@@ -9,15 +9,16 @@ namespace LootFall.View;
 
 /// <summary>
 /// The chest tray (bottom left): the pile of chests waiting, Open (Space) and Open all, and the auto-open switch once it
-/// opens. Chests land here after falling out of the monster that dropped them, with a beam in the colour of the rarest
-/// thing inside; with auto-open on, opened chests burst here and their upgrades fly to the armoury.
+/// opens, with which chests still wait for the player (<see cref="Automation.HoldAt"/>). Chests land here after falling
+/// out of the monster that dropped them, with a beam in the colour of the rarest thing inside; with auto-open on, opened
+/// chests burst here and their upgrades fly to the armoury.
 /// </summary>
 public partial class ChestTray : Control
 {
     readonly GameScreen _g;
     readonly Canvas _pile;
-    readonly Label _count, _hint;
-    readonly Button _open, _all, _auto;
+    readonly Label _count, _hint, _holdTitle, _hold;
+    readonly Button _open, _all, _auto, _holdLess, _holdMore;
     float _t, _bump;
     public static readonly Vector2 PileAt = new(150, 280);
 
@@ -37,8 +38,28 @@ public partial class ChestTray : Control
         AddChild(_all);
         _auto = Ui.Button("", ToggleAuto, size: Look.Body).Place(300, 234, 196, 56);
         AddChild(_auto);
+        _holdTitle = Ui.Text("Waiting for you:", Look.Small, Look.Muted, Look.Ui).Place(300, 298, 196, 26);
+        _holdLess = Ui.Button("<", () => StepHold(-1), size: Look.Small).Place(300, 326, 40, 40);
+        _hold = Ui.Text("", Look.Small, Look.Text, Look.UiBold, HorizontalAlignment.Center).Place(340, 333, 116, 26);
+        _holdMore = Ui.Button(">", () => StepHold(1), size: Look.Small).Place(456, 326, 40, 40);
+        foreach (var c in new Control[] { _holdTitle, _holdLess, _hold, _holdMore }) AddChild(c);
         _hint = Ui.Text("", Look.Small, Look.Muted, Look.Ui).Wrapped().Place(300, 296, 200, 120);
         AddChild(_hint);
+        Refresh();
+    }
+
+    /// <summary>Steps which chests wait for the player while auto-open is on: from Rare and rarer, through each tier, to
+    /// the newest tier open (the default, which follows new tiers as they open), to none.</summary>
+    void StepHold(int dir)
+    {
+        var auto = _g.S.Auto;
+        var options = new List<int>();
+        for (int r = 2; r < _g.S.H.MaxRarity; r++) options.Add(r);
+        options.Add(Automation.HoldNewest);
+        options.Add(Automation.HoldNone);
+        int i = options.IndexOf(auto.HoldAt);
+        if (i < 0) i = options.Count - 2;
+        auto.HoldAt = options[Math.Clamp(i + dir, 0, options.Count - 1)];
         Refresh();
     }
 
@@ -58,9 +79,21 @@ public partial class ChestTray : Control
         _auto.Visible = can;
         _auto.Text = _g.S.Auto.OpenChests ? "Auto-open: on" : "Auto-open: off";
         Ui.Style(_auto, _g.S.Auto.OpenChests ? Look.Good : Look.EdgeLight, Look.Body);
-        int hold = _g.S.HoldTier;
-        _hint.Text = can ? (_g.S.Auto.OpenChests ? $"Chests with {Look.TierName(Math.Min(hold, Look.Tiers - 1))} or rarer wait for you." : "Space opens the next chest.")
-            : "Space opens the next chest. Auto-open comes at depth 10.";
+        bool holding = can && _g.S.Auto.OpenChests;
+        foreach (var c in new Control[] { _holdTitle, _holdLess, _hold, _holdMore }) c.Visible = holding;
+        int hold = _g.S.Auto.HoldAt;
+        if (holding)
+        {
+            int tier = Math.Min(_g.S.HoldTier, Look.Tiers - 1);
+            _hold.Text = hold == Automation.HoldNone ? "nothing" : $"{Look.TierName(tier)}+";
+            _hold.AddThemeColorOverride("font_color", hold == Automation.HoldNone ? Look.Muted : Look.TierText(tier));
+        }
+        _hint.Position = new Vector2(300, holding ? 374 : 296);
+        _hint.Text = !can ? "Space opens the next chest. Auto-open comes at depth 10."
+            : !holding ? "Space opens the next chest."
+            : hold == Automation.HoldNewest ? "The newest tier waits, whichever it is."
+            : hold == Automation.HoldNone ? "Every chest opens as it drops."
+            : "Chests holding that or rarer wait.";
         _pile.QueueRedraw();
     }
 
