@@ -1,0 +1,211 @@
+{
+ "scale": 0.5,
+ "views": {
+  "front": {
+   "file": "res://assets/equipment/front.png",
+   "source": "figure_front",
+   "crop": [
+    140,
+    330,
+    2020,
+    3650
+   ],
+   "size": [
+    940,
+    1660
+   ]
+  },
+  "back": {
+   "file": "res://assets/equipment/back.png",
+   "source": "figure_back",
+   "crop": [
+    140,
+    330,
+    2020,
+    3650
+   ],
+   "size": [
+    940,
+    1660
+   ]
+  },
+  "head_right": {
+   "file": "res://assets/equipment/head_right.png",
+   "source": "head_page",
+   "crop": [
+    12,
+    322,
+    1161,
+    2029
+   ],
+   "size": [
+    574,
+    854
+   ]
+  },
+  "head_front": {
+   "file": "res://assets/equipment/head_front.png",
+   "source": "head_page",
+   "crop": [
+    1242,
+    307,
+    2279,
+    2045
+   ],
+   "size": [
+    518,
+    869
+   ]
+  },
+  "head_left": {
+   "file": "res://assets/equipment/head_left.png",
+   "source": "head_page",
+   "crop": [
+    2357,
+    322,
+    3510,
+    2029
+   ],
+   "size": [
+    576,
+    854
+   ]
+  },
+  "hand_R_back": {
+   "file": "res://assets/equipment/hand_R_back.png",
+   "source": "hand_right_page",
+   "crop": [
+    264,
+    186,
+    1497,
+    2166
+   ],
+   "size": [
+    616,
+    990
+   ]
+  },
+  "hand_R_palm": {
+   "file": "res://assets/equipment/hand_R_palm.png",
+   "source": "hand_right_page",
+   "crop": [
+    2022,
+    186,
+    3257,
+    2166
+   ],
+   "size": [
+    618,
+    990
+   ]
+  },
+  "hand_L_back": {
+   "file": "res://assets/equipment/hand_L_back.png",
+   "source": "hand_left_page",
+   "crop": [
+    250,
+    189,
+    1511,
+    2163
+   ],
+   "size": [
+    630,
+    987
+   ]
+  },
+  "hand_L_palm": {
+   "file": "res://assets/equipment/hand_L_palm.png",
+   "source": "hand_left_page",
+   "crop": [
+    2002,
+    186,
+    3277,
+    2166
+   ],
+   "size": [
+    638,
+    990
+   ]
+  },
+  "foot_R_top": {
+   "file": "res://assets/equipment/foot_R_top.png",
+   "source": "foot_right_page",
+   "crop": [
+    468,
+    199,
+    1293,
+    2153
+   ],
+   "size": [
+    412,
+    977
+   ]
+  },
+  "foot_R_sole": {
+   "file": "res://assets/equipment/foot_R_sole.png",
+   "source": "foot_right_page",
+   "crop": [
+    2228,
+    186,
+    3051,
+    2166
+   ],
+   "size": [
+    412,
+    990
+   ]
+  },
+  "foot_L_top": {
+   "file": "res://assets/equipment/foot_L_top.png",
+   "source": "foot_left_page",
+   "crop": [
+    468,
+    198,
+    1291,
+    2154
+   ],
+   "size": [
+    412,
+    978
+   ]
+  },
+  "foot_L_sole": {
+   "file": "res://assets/equipment/foot_L_sole.png",
+   "source": "foot_left_page",
+   "crop": [
+    2230,
+    186,
+    3051,
+    2166
+   ],
+   "size": [
+    410,
+    990
+   ]
+  }
+ },
+ "glyphs": {
+  "file": "res://assets/equipment/glyphs.png",
+  "grid": [
+   5,
+   2
+  ],
+  "cell": 256,
+  "order": [
+   "skin",
+   "under",
+   "mail",
+   "armor",
+   "over",
+   "adorn",
+   "hold",
+   "graft",
+   "beyond",
+   "mod"
+  ]
+ },
+ "backdrops": {
+  "stage": "res://assets/equipment/stage_backdrop.jpg",
+  "board": "res://assets/equipment/board_backdrop.jpg"
+ }
+}

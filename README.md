@@ -12,8 +12,9 @@ progressing for thousands of hours.
 **Status:** Prototype 0.3, playable from the title to the second prestige layer:
 - the battle, with waves, bosses, guardians, the gate and overkill leaps through eight realms;
 - the chest tray and the reveal for all twelve rarities;
-- the equipment screen (the knight as a paper doll: zoom into a region, choose a slot, wear or take off a piece, open
-  its own slots), with forge, ranks and mastery focus;
+- the equipment screen (the knight from the delivered art, front and back: zoom into a region or a close-up, point at
+  a piece to see what it covers, choose a slot, wear or take off a piece, fill its own slots), with forge, ranks and
+  mastery focus;
 - the talent tree, the codex, ascension and transcendence;
 - auto-open and the other automations;
 - saves with time away, the title, pause and settings.
@@ -41,7 +42,7 @@ in [docs/progression.md](docs/progression.md). Balance is on hold while the syst
 |---|---|
 | `scripts/Progression` | The numbers: content (the anatomy's slots, pieces and boards, rarities, affixes, the talent tree, prestige trees), the loadout search, the closed-form combat, the world's step, the simulated player and the acceptance checks. Engine-free; every number is in `Params.cs`. |
 | `scripts/Game` | The game around them: the session (chests, automation, time away), the battle's choreography (`Stage`), the bestiary, saves, names and number formats. Engine-free. |
-| `scripts/View` | The screens: the lane (backdrop, the knight's rig, monsters, effects), HUD, chest tray, reveal, the equipment screen and its paper doll, talents, codex, prestige, title, menus, the bot and the demos. |
+| `scripts/View` | The screens: the lane (backdrop, the knight's rig, monsters, effects), HUD, chest tray, reveal, the equipment screen and its figure, talents, codex, prestige, title, menus, the bot and the demos. |
 | `scripts/Audio` | Recorded sounds by group, synthesized tones and stings, music. |
 | `tools/progsim` | Runs the numbers and the game without the engine: the 3,000-hour check, player reports, tuning, the game-layer test, the equipment report and the search's check, the content list for the art manifest. |
 | `tools/` | `setup-cloud.sh` (toolchain), `placeholders.py` (the stand-in art), `art.py` (the art manifest and importer), `import_audio.py` (sounds and music). |

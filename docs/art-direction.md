@@ -68,7 +68,7 @@ mipmaps, and art is authored at twice its on-screen size, so it stays crisp up t
 | The lane | y 0 to 640 | Parallax backdrop. The ground line is at y 575. The knight's feet are at x 480; monsters engage at x 760 and x 940 and walk in from x 2080. |
 | Top bar | y 0 to 96, over the lane | Level and XP, gold, shards, aether (once open). Depth, realm and the depth's progress (waves, then the boss) in the middle. Settings and menu on the right. |
 | Bottom panel | y 640 to 1080 | Left, x 0 to 520: the chest tray (the pile, Open, Auto). Middle, x 520 to 1400: a small figure of the knight wearing what counts, his 14 regions with what's worn in each, and the latest finds. Right, x 1400 to 1920: the dock (Talents, Forge, Ranks, Codex, Ascend), each with its badge. |
-| Overlays | full screen | The equipment screen (a paper doll and the slots, [equipment.md](equipment.md)), the talent tree, the codex, the prestige trees, settings and the pause menu. A shade under each; Esc steps back or closes it. |
+| Overlays | full screen | The equipment screen (the knight from the front and back, his regions and close-ups, and the slots, [equipment.md](equipment.md)), the talent tree, the codex, the prestige trees, settings and the pause menu. A shade under each; Esc steps back or closes it. |
 
 The on-screen budget holds whatever the power level: at most **12 monsters and 10 floating numbers** at once. Growth
 shows as speed and reach, not as density.
@@ -169,6 +169,11 @@ gear slots. All of his animation is code: idle breathing, walk, wind-up, strike,
 | Shader and particle layers | Celestial slots: halo, wings, aura, starcrown, comet, nebula, eclipse, zenith, the eight constellations |
 
 A gear piece changes shape only within its slot's envelope, so the knight always reads as the knight.
+
+On the equipment screen he is a different picture: the delivered figure, about seven heads tall, bare but for linen
+braies, from the front and from behind, with close-ups of the head, hands and feet
+([art-handoff-equipment.md](art-handoff-equipment.md)). He is drawn in the same style, and code paints what he wears
+over it, by layer, in the same three-step light (see [equipment.md](equipment.md), "The figure").
 
 ## Monsters
 
@@ -302,6 +307,7 @@ Every placeholder will be replaced. They exist to stage the look and exercise th
 | Backdrops | Valyria Tear battle scenes (CC0, CC BY-SA 3.0, GPL), Ancient Beast locations (CC BY-SA 4.0) | Banded, desaturated, value-compressed, softened. Sky gradient, ground band and foreground silhouettes drawn in code. |
 | Item icons | game-icons (CC BY 3.0) silhouettes | Filled with the family's material ramp, lit from the top left, outlined in ink |
 | The knight | Drawn in code: inked shapes on the real rig | The rig, its pivots and its clips are final; only the parts are stand-ins |
+| The equipment screen's knight | Final (phase 1 of its handoff): the figure, the close-ups, two backdrops and the slot glyphs | Keyed and cut by `tools/equipment_art.py import`, mapped by `tools/equipment_map.py`; the worn pieces are painted by code until phase 2 brings their pictures |
 | Effects | Kenney Particle Pack (CC0) | Greyscale, tinted in code |
 | Sounds and music | Kenney (CC0) and Superpowers (CC0), as before | |
 | Fonts | Cinzel, Barlow Semi Condensed, Lilita One (OFL) | Final |

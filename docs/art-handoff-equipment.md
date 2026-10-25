@@ -5,6 +5,10 @@ made with GPT-Image-2 (through Codex) and uploaded to the paths below. Once they
 slot are mapped onto them in one pass, and then the screen's flow is polished. The same list, with the full prompt for
 each file, is in [`art/equipment/handoff.json`](../art/equipment/handoff.json).
 
+**Status: delivered and in the game.** All ten files arrived on 25 October 2026
+([the delivery's notes](equipment-art-delivery-20261025.md)) and pass the checker. They're imported, mapped and drawn
+by the equipment screen (see "What was done with it" below). Phase 2, the pieces' own pictures, is next.
+
 The style rules are in [art-direction.md](art-direction.md). What the slots are and how they work is in
 [equipment.md](equipment.md).
 
@@ -14,16 +18,16 @@ Upload each file to exactly this path, as a PNG.
 
 | Done | # | Upload to | Size (px) | What it is | What it's for |
 |---|---|---|---|---|---|
-| [ ] | 1 | `art/equipment/figure_front.png` | 2160 × 3840 | The knight, bare, from the front | The whole-body view, every zoomed region except the close-ups, the main screen's small figure. Every region and slot is mapped on it. |
-| [ ] | 2 | `art/equipment/figure_back.png` | 2160 × 3840 | The same knight from behind | "Turn round": the back, the back of the head, the backs of the limbs. |
-| [ ] | 3 | `art/equipment/head_page.png` | 3520 × 2352 | The head: right profile, front, left profile | The head's close-up: face, ears and hair slots. |
-| [ ] | 4 | `art/equipment/hand_right_page.png` | 3520 × 2352 | The right hand: back and palm | The hand's close-up: rings, knuckle rings, fingertips, glove, palm. |
-| [ ] | 5 | `art/equipment/hand_left_page.png` | 3520 × 2352 | The left hand: back and palm | As above, for the left hand. |
-| [ ] | 6 | `art/equipment/foot_right_page.png` | 3520 × 2352 | The right foot: top and sole | The foot's close-up: toe rings, toenails, sole. |
-| [ ] | 7 | `art/equipment/foot_left_page.png` | 3520 × 2352 | The left foot: top and sole | As above, for the left foot. |
-| [ ] | 8 | `art/equipment/stage_backdrop.png` | 2560 × 1920 | A dim armourer's fitting room | Behind the figure on the equipment screen. |
-| [ ] | 9 | `art/equipment/board_backdrop.png` | 2560 × 1920 | A workbench seen from above | Behind a piece and its own slots (a helm's crest, visor and sockets). |
-| [ ] | 10 | `art/equipment/slot_glyphs.png` | 2560 × 1024 | Ten white glyphs on a 5 × 2 grid | Inside the slot markers on the figure, one glyph for each kind of slot. |
+| [x] | 1 | `art/equipment/figure_front.png` | 2160 × 3840 | The knight, bare, from the front | The whole-body view, every zoomed region except the close-ups, the main screen's small figure. Every region and slot is mapped on it. |
+| [x] | 2 | `art/equipment/figure_back.png` | 2160 × 3840 | The same knight from behind | Beside the front on the whole body, and on the back's pages: the back, the back of the head, the backs of the limbs. |
+| [x] | 3 | `art/equipment/head_page.png` | 3520 × 2352 | The head: right profile, front, left profile | The head's close-up: face, ears and hair slots. |
+| [x] | 4 | `art/equipment/hand_right_page.png` | 3520 × 2352 | The right hand: back and palm | The hand's close-up: rings, knuckle rings, fingertips, glove, palm. |
+| [x] | 5 | `art/equipment/hand_left_page.png` | 3520 × 2352 | The left hand: back and palm | As above, for the left hand. |
+| [x] | 6 | `art/equipment/foot_right_page.png` | 3520 × 2352 | The right foot: top and sole | The foot's close-up: toe rings, toenails, sole. |
+| [x] | 7 | `art/equipment/foot_left_page.png` | 3520 × 2352 | The left foot: top and sole | As above, for the left foot. |
+| [x] | 8 | `art/equipment/stage_backdrop.png` | 2560 × 1920 | A dim armourer's fitting room | Behind the figure on the equipment screen. |
+| [x] | 9 | `art/equipment/board_backdrop.png` | 2560 × 1920 | A workbench seen from above | Behind a piece and its own slots (a helm's crest, visor and sockets). |
+| [x] | 10 | `art/equipment/slot_glyphs.png` | 2560 × 1024 | Ten white glyphs on a 5 × 2 grid | Inside the slot markers on the figure, one glyph for each kind of slot. |
 
 Before uploading, run `python3 tools/equipment_art.py check` in the repository. It checks every file against this
 spec and must say "10 of 10 pass". `python3 tools/equipment_art.py sheet` draws `art/equipment/review.png` to look at.
@@ -244,23 +248,26 @@ onto him.
    - Optionally, add `art/equipment/prompts.md` with the final prompt and any corrections for each file, so a file
      can be remade later.
 
-## What happens after delivery
+## What was done with it
 
-1. I run the checker and look at every file. Anything that won't map cleanly comes back with a note.
-2. I import the files into `assets/equipment/`, keying out the green.
-3. In one pass, I map regions and slots onto the delivered art:
-   - each body site's region and each slot's point, on the front and back figures and the close-up pages;
-   - the areas that pieces cover.
-4. I rebuild the screen on the art:
-   - hovering a worn piece lights up its area;
+1. The checker passed all ten files, and each was looked at. The delivered pictures were generated smaller and scaled
+   up to these sizes (see the delivery's notes), so the game uses them at half size, which keeps all their detail.
+   They stay sharp on every page; the camera's extra zoom on a page (up to five times) softens them.
+2. `tools/equipment_art.py import` keyed out the green and cut each view into `assets/equipment/`.
+3. `tools/equipment_map.py` mapped them in one pass: each body site's area on every view, each slot's point on the
+   whole figure and on its close-up, each region's page, and what each site covers. It checks itself and draws review
+   sheets in `shots_map/`.
+4. The screen was rebuilt on the art ([equipment.md](equipment.md), "The figure" and "The screen"):
+   - what's worn is painted over the area it covers, by its layer, with an ink line round it;
+   - pointing at a worn piece lights its area, and what it keeps free;
    - the slots under it disappear and its own slots appear on it;
-   - the zoom moves from the figure into the close-up pages;
-   - the screen turns round, and every view connects smoothly.
-5. Phase 2 follows: the pictures of the pieces themselves on the figure.
+   - the zoom moves from the whole figure into each region, and into the close-ups;
+   - front and back show side by side, and every step in and out is animated.
 
 ## Phase 2, for planning: the worn pieces on the figure
 
-This comes after the mapping. I will hand over a second list with a mask for each piece, cut from the mapped regions.
+This comes next. A second list will give a mask for each kind of piece, cut from the mapped areas (the union of the
+sites a piece covers, on each view it shows on).
 
 - **What:** a picture of each kind of piece as it's worn, painted onto the figure or a close-up page. For example, the
   great helm on the head, or rings on each finger.

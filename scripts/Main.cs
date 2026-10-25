@@ -236,6 +236,8 @@ public partial class Main : Node2D
         GetTree().Root.Theme = null;
         Look.Release();
         Assets.Release();
+        EquipmentMap.Release();
+        FigurePanel.Release();
         Fx.Release();
         MonsterActor.Release();
         GC.Collect();

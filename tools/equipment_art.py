@@ -8,11 +8,16 @@
           the back lining up with the front, the views on a page kept apart, a backdrop dark and quiet enough, the glyph
           grid. Exit code 1 if any file fails. Run it before uploading.
   sheet   art/equipment/review.png: the delivered files side by side, each marked with its result.
+  import  brings the checked files into the game (assets/equipment/): keys out the green, cuts each view (the figure,
+          each head, hand and foot view) into its own texture at half size, the backdrops as JPEGs and the glyphs as
+          one atlas, and writes assets/equipment/views.json (where each view was cut from). Then run
+          `python3 tools/equipment_map.py` and `godot --headless --path . --import`.
 
 Usage:
   python3 tools/equipment_art.py spec
   python3 tools/equipment_art.py check [ids...]
   python3 tools/equipment_art.py sheet
+  python3 tools/equipment_art.py import
 
 Needs Pillow and numpy.
 """
@@ -343,7 +348,7 @@ def check_glyphs(a, r, rgba):
               f"fills {fill:.0%} of its cell, {'clear of' if clear else 'touching'} its edges, brightness {light:.0%}")
 
 
-def check(args):
+def check(args, quiet=False):
     wanted = set(args.ids)
     results, masks = [], {}
     for a in ASSETS:
@@ -362,6 +367,8 @@ def check(args):
              "backdrop": lambda: check_backdrop(a, r, rgba), "glyphs": lambda: check_glyphs(a, r, rgba)}[a["kind"]]()
         results.append(r)
     for r in results:
+        if quiet and r.ok:
+            continue
         print(f"{'PASS' if r.ok else 'FAIL'}  {r.id}")
         for name, passed, detail in r.lines:
             print(f"   {'ok ' if passed else 'NO '} {name}: {detail}")
@@ -392,6 +399,129 @@ def sheet(args):
     print("Wrote art/equipment/review.png")
 
 
+# ---------------------------------------------------------------------------------------------------------------- import
+
+ASSETS_OUT = os.path.join(ROOT, "assets", "equipment")
+# What's imported is half the canvas: the generated detail is under half of it (docs/equipment-art-delivery-20261025.md).
+SCALE = 0.5
+# The figure's views share one crop, so front and back line up (canvas px: x0, y0, x1, y1).
+FIGURE_CROP = (140, 330, 2020, 3650)
+# A page's views, left to right, as the checklist orders them.
+PAGE_VIEWS = {
+    "head_page": ["head_right", "head_front", "head_left"],
+    "hand_right_page": ["hand_R_back", "hand_R_palm"],
+    "hand_left_page": ["hand_L_back", "hand_L_palm"],
+    "foot_right_page": ["foot_R_top", "foot_R_sole"],
+    "foot_left_page": ["foot_L_top", "foot_L_sole"],
+}
+
+
+def keyed(path):
+    """The picture with the green keyed out: straight (not premultiplied) RGBA floats, the ink's edge kept soft."""
+    rgb = np.asarray(Image.open(path).convert("RGB")).astype(np.float32)
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    excess = g - np.maximum(r, b)
+    t = np.clip((excess - 24) / (225 - 24), 0, 1)
+    alpha = 1 - t * t * (3 - 2 * t)
+    alpha[alpha < 0.03] = 0
+    a = np.maximum(alpha, 1e-6)[..., None]
+    # Take the key's share back out of each edge pixel, so no green fringe is left.
+    colour = (rgb - (1 - alpha[..., None]) * np.array(KEY, np.float32)) / a
+    colour = np.clip(colour, 0, 255)
+    colour[alpha == 0] = 0
+    return np.dstack([colour, alpha * 255])
+
+
+def shrink(rgba, scale):
+    """Resized with the colour premultiplied, so edges don't darken."""
+    h, w = rgba.shape[:2]
+    size = (max(1, round(w * scale)), max(1, round(h * scale)))
+    alpha = rgba[..., 3:4] / 255
+    pre = rgba[..., :3] * alpha
+    chans = [np.asarray(Image.fromarray(pre[..., i].astype(np.float32), "F").resize(size, Image.LANCZOS)) for i in range(3)]
+    a = np.asarray(Image.fromarray((alpha[..., 0] * 255).astype(np.float32), "F").resize(size, Image.LANCZOS))
+    a = np.clip(a, 0, 255)
+    an = np.maximum(a / 255, 1e-6)
+    out = np.dstack([np.clip(c / an, 0, 255) for c in chans] + [a])
+    out[a < 2] = 0
+    return out
+
+
+def save_rgba(arr, name):
+    Image.fromarray(np.round(arr).astype(np.uint8), "RGBA").save(os.path.join(ASSETS_OUT, name), optimize=True)
+
+
+def view_boxes(mask, n):
+    """The n biggest parts of a page, left to right, as boxes (x0, y0, x1, y1) with a margin."""
+    cols = mask.any(0)
+    runs, x = [], 0
+    w = len(cols)
+    while x < w:
+        if cols[x]:
+            start = x
+            while x < w and cols[x]:
+                x += 1
+            runs.append((start, x))
+        x += 1
+    # Merge runs split by a few empty columns (a gap inside a view), keep the n widest.
+    merged = []
+    for r in runs:
+        if merged and r[0] - merged[-1][1] < 60:
+            merged[-1] = (merged[-1][0], r[1])
+        else:
+            merged.append(r)
+    merged = sorted(sorted(merged, key=lambda r: r[0] - r[1])[:n])
+    boxes = []
+    for x0, x1 in merged:
+        rows = np.where(mask[:, x0:x1].any(1))[0]
+        boxes.append((max(0, x0 - 40), max(0, int(rows[0]) - 40), min(w, x1 + 40), min(mask.shape[0], int(rows[-1]) + 41)))
+    return boxes
+
+
+def import_art(_args):
+    results, bad = check(argparse.Namespace(ids=[]), quiet=True)
+    if bad:
+        print("Fix what fails before importing.")
+        sys.exit(1)
+    os.makedirs(ASSETS_OUT, exist_ok=True)
+    views = {"scale": SCALE, "views": {}}
+
+    def add(view, source, box, arr):
+        x0, y0, x1, y1 = box
+        out = shrink(arr[y0:y1, x0:x1], SCALE)
+        save_rgba(out, view + ".png")
+        views["views"][view] = {"file": f"res://assets/equipment/{view}.png", "source": source, "crop": [x0, y0, x1, y1],
+                                "size": [out.shape[1], out.shape[0]]}
+        print(f"  {view}: {x1 - x0}x{y1 - y0} of {source} -> {out.shape[1]}x{out.shape[0]}")
+
+    for fig, view in (("figure_front", "front"), ("figure_back", "back")):
+        add(view, fig, FIGURE_CROP, keyed(os.path.join(DROP, fig + ".png")))
+    for page, names in PAGE_VIEWS.items():
+        arr = keyed(os.path.join(DROP, page + ".png"))
+        boxes = view_boxes(arr[..., 3] > 128, len(names))
+        if len(boxes) != len(names):
+            sys.exit(f"{page}: found {len(boxes)} views, want {len(names)}")
+        for name, box in zip(names, boxes):
+            add(name, page, box, arr)
+    for backdrop in ("stage_backdrop", "board_backdrop"):
+        im = Image.open(os.path.join(DROP, backdrop + ".png")).convert("RGB")
+        im = im.resize((1600, 1200), Image.LANCZOS)
+        im.save(os.path.join(ASSETS_OUT, backdrop + ".jpg"), quality=90, optimize=True)
+        print(f"  {backdrop}.jpg: 1600x1200")
+    # The glyphs: white with the green keyed out, one atlas of 5 by 2 cells of 256 px.
+    g = keyed(os.path.join(DROP, "slot_glyphs.png"))
+    g[..., :3] = 255
+    atlas = shrink(g, SCALE)
+    save_rgba(atlas, "glyphs.png")
+    views["glyphs"] = {"file": "res://assets/equipment/glyphs.png", "grid": [5, 2], "cell": 256,
+                       "order": [n for n, _ in GLYPHS]}
+    print(f"  glyphs.png: {atlas.shape[1]}x{atlas.shape[0]}")
+    views["backdrops"] = {"stage": "res://assets/equipment/stage_backdrop.jpg", "board": "res://assets/equipment/board_backdrop.jpg"}
+    with open(os.path.join(ASSETS_OUT, "views.json"), "w") as f:
+        json.dump(views, f, indent=1)
+    print("Wrote assets/equipment/views.json. Next: python3 tools/equipment_map.py")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -401,12 +531,15 @@ def main():
     c.add_argument("--dir", help="check the files in this folder instead of art/equipment")
     sh = sub.add_parser("sheet")
     sh.add_argument("--dir", help="the files in this folder instead of art/equipment")
+    sub.add_parser("import")
     args = p.parse_args()
     use_dir(getattr(args, "dir", None))
     if args.cmd == "spec":
         spec(args)
     elif args.cmd == "check":
         sys.exit(check(args)[1])
+    elif args.cmd == "import":
+        import_art(args)
     else:
         sheet(args)
 

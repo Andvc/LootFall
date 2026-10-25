@@ -68,9 +68,12 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
 6. New content (a realm, a monster, a piece or item family): run `python3 tools/art.py manifest` so
    `art/manifest.json` lists it. Give it a stand-in in `tools/placeholders.py`, or the game falls back (an icon to
    "unknown"). Pieces are added in `Anatomy.cs` (docs/equipment.md, "Adding a piece").
-7. The equipment screen's final art is specified in `docs/art-handoff-equipment.md` and delivered to `art/equipment/`.
-   `python3 tools/equipment_art.py check` validates it, and `spec` rewrites `art/equipment/handoff.json` after the
-   anatomy changes (run `python3 tools/art.py manifest` first).
+7. The equipment screen's art is specified in `docs/art-handoff-equipment.md` and delivered to `art/equipment/`.
+   - `python3 tools/equipment_art.py check` validates it, `import` brings it into `assets/equipment/`, and `spec`
+     rewrites `art/equipment/handoff.json` after the anatomy changes (run `python3 tools/art.py manifest` first).
+   - `python3 tools/equipment_map.py` maps the body's sites and every slot onto it (docs/equipment.md, "The figure").
+     Run it after a site or slot is added or renamed: it must report 0 problems. Look at `shots_map/`, then run
+     `godot --headless --path . --import`.
 
 ## Conventions
 
@@ -133,9 +136,10 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
   - Backdrops stay desaturated and low in contrast, so the foreground reads.
   - Code draws everything that means something: rarity frames and colours, beams, glows, motion, numbers. Art is
     neutral and static.
-- **The knight** is a code-drawn rig (`HeroRig.cs`) whose look follows his gear (`GearLook`). The equipment screen's
-  paper doll (`PaperDoll`, `DollPieces`, geometry in `Figure`) draws every piece that counts in code, at any zoom. A
-  new family gets the generic drawing for its layer until it has its own.
+- **The knight** on the lane is a code-drawn rig (`HeroRig.cs`) whose look follows his gear (`GearLook`). On the
+  equipment screen he is the delivered art (`PaperDoll`, `assets/equipment/`), with what counts painted over the areas
+  it covers by its layer (`Coverage`, `assets/shaders/figure.gdshader`) and an ink line round it (`Outlines`). Pieces'
+  own pictures on the figure come with phase 2 of the art handoff.
 - **Monsters** are single pictures moved by body plan (`MonsterActor.cs`).
 - **Final art** will be AI-generated and comes in through the pipeline:
   - `tools/art.py manifest` lists every asset with its sizes and prompt;
@@ -143,13 +147,15 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
 - **Stand-ins** come from GitHub-hosted packs via `tools/placeholders.py`. Only GitHub is reachable from cloud
   sessions. Edit its mappings and re-run rather than hand-editing `assets/`, and credit sources in `CREDITS.md`.
   Share-alike and copyleft stand-ins are for development builds only.
-- **Textures** use linear filtering with mipmaps (the project default). Art is authored at twice its size on screen.
+- **Textures** use linear filtering with mipmaps (the project default), except the equipment screen's site maps
+  (`assets/equipment/*_sites.png`), which have none and are read exactly. Art is authored at twice its size on screen.
 - **Fonts**: Cinzel for titles, Barlow Semi Condensed for the interface (tabular figures for numbers that change), and
   Lilita One for floating numbers and banners.
 
 ## Known gaps
 
-- The art is stand-in. The knight is drawn from shapes in code, not from a parts sheet.
+- The art is stand-in, except the equipment screen's knight (phase 1 of its handoff, without pictures of the pieces
+  yet). The lane's knight is drawn from shapes in code, not from a parts sheet.
 - Sounds and music were chosen by name and by analysis, not by ear. Music doesn't change by realm.
 - The Windows .exe has the default Godot icon.
 - There is one hero, no challenges and no third prestige layer (see "Not yet" in `docs/design.md`).

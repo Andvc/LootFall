@@ -10,6 +10,12 @@ Before uploading, check the files:
     python3 tools/equipment_art.py check     # must end "10 of 10 pass"
     python3 tools/equipment_art.py sheet     # review.png, the files side by side
 
+Then bring them into the game and map them:
+
+    python3 tools/equipment_art.py import    # keyed and cut into assets/equipment/
+    python3 tools/equipment_map.py           # the sites and slots on them; must report 0 problems
+    godot --headless --path . --import
+
 The 25 October 2026 delivery includes ten primary PNGs and eight optional alternatives.
 Read [the delivery handoff](../../docs/equipment-art-delivery-20261025.md) for previews,
 selection notes, native-resolution limits, prompts, file hashes and validation results.

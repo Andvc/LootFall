@@ -198,9 +198,9 @@ public partial class BodyTiles : Control
         AddChild(_doll);
         _canvas = new Canvas(DrawTiles) { MouseFilter = MouseFilterEnum.Ignore }.Place(0, 0, Look.W, Look.H - Look.LaneH);
         AddChild(_canvas);
-        for (int i = 0; i < Figure.Regions.Length; i++)
+        for (int i = 0; i < EquipmentMap.Regions.Length; i++)
         {
-            string region = Figure.Regions[i];
+            string region = EquipmentMap.Regions[i];
             var b = new Button { Flat = true, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand, TooltipText = $"Equipment: {region}" }
                 .Place(TileRect(i).Position.X, TileRect(i).Position.Y, TileW, TileH);
             b.Pressed += () => g.Open(new EquipmentScreen(g, region));
@@ -216,24 +216,13 @@ public partial class BodyTiles : Control
         _canvas.QueueRedraw();
     }
 
-    /// <summary>Where a piece goes on the small doll (on screen): its first cell on the body, or its host's.</summary>
-    public Vector2 SpotOf(int slot)
-    {
-        var c = _g.S.C;
-        var h = _g.S.H;
-        var d = c.Slots[slot];
-        for (int guard = 0; guard < 6 && d.Board != Anatomy.Body; guard++)
-        {
-            int host = h.HostOf[d.Board] >= 0 ? h.HostOf[d.Board] : c.Boards[d.Board].Hosts[0];
-            d = c.Slots[host];
-        }
-        return _doll.GlobalOf(Figure.Anchor(c.Cells[d.Takes[0]]));
-    }
+    /// <summary>Where a piece goes on the small figure (on screen): where it's worn, or the piece it's set in.</summary>
+    public Vector2 SpotOf(int slot) => _doll.GlobalSpot(slot);
 
     /// <summary>The middle of a region's tile (on screen).</summary>
     public Vector2 TileCentre(string region)
     {
-        int i = Array.IndexOf(Figure.Regions, region);
+        int i = Array.IndexOf(EquipmentMap.Regions, region);
         return Position + (i >= 0 ? TileRect(i).GetCenter() : new Vector2(TilesX, Y0));
     }
 
@@ -276,7 +265,7 @@ public partial class BodyTiles : Control
         // Each region: pieces worn, open and in all, and the spread of rarities worn.
         var worn = new Dictionary<string, int[]>();
         var open = new Dictionary<string, int>();
-        foreach (var r in Figure.Regions)
+        foreach (var r in EquipmentMap.Regions)
         {
             worn[r] = new int[Look.Tiers];
             open[r] = 0;
@@ -288,9 +277,9 @@ public partial class BodyTiles : Control
             if (h.Open[d.Index]) open[r]++;
             if (h.Active[d.Index]) worn[r][h.Gear[d.Index].Rarity]++;
         }
-        for (int i = 0; i < Figure.Regions.Length; i++)
+        for (int i = 0; i < EquipmentMap.Regions.Length; i++)
         {
-            string region = Figure.Regions[i];
+            string region = EquipmentMap.Regions[i];
             var rect = TileRect(i);
             var counts = worn[region];
             int n = counts.Sum(), best = -1;

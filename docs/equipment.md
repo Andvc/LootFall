@@ -6,7 +6,7 @@ slots of their own. Which pieces go together is the choice the equipment system 
 by weighing every whole set the rules allow.
 
 The content is in `scripts/Progression/Anatomy.cs` and the search in `scripts/Progression/Loadout.cs`. The screen is
-`scripts/View/EquipmentScreen.cs`, which uses `PaperDoll`, `DollPieces` and `Figure`. Balance is on hold while the
+`scripts/View/EquipmentScreen.cs`, with the knight in `PaperDoll` (see "The figure" below). Balance is on hold while the
 systems are redesigned (see "Balance" below).
 
 ## Words
@@ -14,7 +14,7 @@ systems are redesigned (see "Balance" below).
 | Word | Meaning | In code |
 |---|---|---|
 | Slot | One place a piece can fill: one layer of one site on the body ("the right index finger's band"), or one of a piece's own slots ("the helm's crest"). | `Cell` |
-| Site | A part of the body with its layers (the right forearm: ink, wraps, plate, a hidden blade, a sheath). Each of its slots has its own point on the figure. | `Cell.Site` |
+| Site | A part of the body with its layers (the right forearm: ink, wraps, plate, a hidden blade, a sheath). It has an area on each picture of the knight that shows it, and each of its slots has its own point. | `Cell.Site` |
 | Piece | A kind of thing that can be worn (a Sallet, a Left Knuckle Ring, a Helm Crest). It holds one item, the best found. | `SlotDef` (the framework's old word "slot") |
 | Board | A set of slots: the body is one, and so is each piece's own (the helm's board, a ring's setting). | `Board`, `BoardDef` |
 | Host | The worn piece whose board it is. | `Hero.HostOf` |
@@ -194,44 +194,81 @@ and their boards), and it takes 0.23 ms over all 720 pieces, at most about 420 n
 Wearing or taking something off by hand turns auto-equip off, so the player's choice stays. The body panel's switch
 turns it back on, and "Wear the best set" runs the search once.
 
+## The figure
+
+The knight on the screen is the delivered art ([art-handoff-equipment.md](art-handoff-equipment.md)), mapped once and
+drawn with what he wears on it.
+
+- **Thirteen pictures.** The figure from the front and from behind, and the close-ups: the head from the right, the
+  front and the left, each hand's back and palm, each foot's top and sole. `tools/equipment_art.py import` keys out the
+  green and cuts each into `assets/equipment/<view>.png` (at half the delivered size, which holds all the detail the
+  art has).
+- **The map.** `tools/equipment_map.py` cuts each picture into the body's sites, along lines placed by hand on the art
+  and the edges the art draws between hair and skin, and names each part. It writes:
+  - `<view>_sites.png`, the site under every pixel, which the screen reads for the mouse, the highlights and the fills;
+  - `map.json`: each view's sites (box, outline, whether it's hair), every slot's point on the whole figure and on its
+    close-up, each region's page, and what each site covers.
+
+  It checks that every slot has one point on the whole figure and one on its close-up, on its own site, and draws
+  review sheets in `shots_map/`. Run it again after a site or slot is added, moved or renamed.
+- **Which side.** Each slot shows on one side of the whole figure: the back's own slots, the backs of the limbs (the
+  triceps, elbows, calves, heels), the palms, the soles and the hair's slots from behind, the rest from the front.
+- **What covers what.** A slot covers its site, and some sites cover others: the mask the eyes, cheeks, nose and mouth;
+  the whole torso every part of the chest, belly and back; the left breast its heart; the stomach its navel; the
+  fingers' ink each finger; the grip the hand. Cloth, mail, plate and what's worn over them also wrap round a limb (the upper arm's plate covers the
+  triceps; the thigh's the hamstring; the foot's the toes, sole and heel); ink and jewellery don't.
+- **What's worn shows** (`Coverage`): where pieces overlap, the outermost layer shows (ink, cloth, mail, plate, then
+  what's over everything). The figure shader paints each piece's material over its area in three steps of the art's
+  own light, so the knight's muscles and folds show through: ink as a tattoo's bands, cloth in its family's colour,
+  mail as rings, plate in its era's metal with a glint for the rarer ones, heavy cloth with a hem. Over hair it's
+  shaded as a smooth dome instead. Each piece gets an ink line round its area, and plate and heavy cloth a trim inside
+  it, drawn as smooth lines at any zoom (`Outlines`).
+- **What's under it doesn't show.** A slot doesn't show while a piece keeps it free, or while a piece on a higher
+  layer covers its site: the helm hides the cap, the scalp's ink and the hair's pins. A worn piece is one marker over
+  what it covers, with a count of the slots under it, and its own slots (a helm's crest, visor and sockets) show on it,
+  spread over its area.
+- **Close-ups.** The head, the hands and the feet have their own pages: the camera zooms into the figure until the
+  close-up takes over. Every other region's page shows the part of the figure it's on, from both sides where both have
+  slots (an arm's front and back), with the rest of the body dimmed.
+
 ## The screen
 
-`EquipmentScreen` (G, or the dock's Equipment button) has the paper doll on the left and the slots on the right.
+`EquipmentScreen` (G, or the dock's Equipment button) has the knight on the left and the slots on the right.
 
-The figure and its points are provisional, drawn in code. The final diagram is built in one pass on the art listed in
-[art-handoff-equipment.md](art-handoff-equipment.md): regions, slot points, the areas pieces cover, and the transitions.
+- **The body.** Front and back side by side, wearing everything that counts, every slot a dot (in its rarity when
+  something is worn), so the body reads as covered from head to toe. "Hide slots" clears the dots.
+  - Pointing at a part of him lights his region and names it, with its slots and pieces worn. Pointing at a dot names
+    the slot, why it's empty or what's in it.
+  - Clicking a part of him, or turning the wheel over it, zooms into its region's page. Clicking a dot goes straight
+    to that slot.
+  - The panel lists the regions with what's worn in each and its rarity spread (pointing at one lights it on the
+    figure), the auto-equip switch and "Wear the best set".
+- **A region's page.** The page grows out of its place on the whole figure (the close-ups out of the head, hand or
+  foot, their other views unfolding beside them), and shrinks back into it.
+  - Every slot that shows has a marker with its kind's glyph: in a ring for a free slot, dim for one not open yet.
+    A worn piece shows its item in its rarity.
+  - Markers are pushed apart so they don't overlap, with a line back to their point, and a legend explains them.
+  - Pointing at a worn piece, on the figure or at its marker, lights the area it covers in its rarity and what it
+    keeps free in red, and names it with its own slots and the slots under it. Pointing at a slot or a bare site
+    lights it in gold.
+  - The panel lists every slot, site by site, with what fills it or why nothing does (free, under the sallet, kept
+    free by the gauntlet, opens at depth 1,200). A worn piece's own slots are listed under it. Pointing at a row lights
+    its place on the figure.
+  - The wheel zooms closer and dragging moves round; turning it out past the page steps back.
+- **A slot.** Choosing a slot, on the figure or in the list, lights it and lists every piece that can fill it. Each has
+  its item, whether it's worn or what's in its way, and a Wear or Take-off button that shows the change in power. Its
+  tooltip names what the piece would take off. Pointing at one lights on the figure what it would cover and keep free.
+- **A piece.** Its item and stats, what it fills and keeps free, its own slots (listed, and shown on it on the
+  figure), the slots under it, and its forge, rank, mastery and focus. On the figure its area is lit and the rest
+  dimmed; one that isn't worn shows where it would go.
 
-- **The body.** The knight faces you, with every piece that counts drawn in its place, layer over layer. Pieces set in
-  boards are drawn on their hosts: the crest on the helm, runes along the blade, stones in the rings.
-  - Every slot on that side shows as a small dot, in its rarity when something is worn, so the body reads as covered.
-    "Hide slots" clears them.
-  - Hovering a dot names it. Clicking a dot goes straight to that slot; clicking elsewhere on a part zooms into its
-    region.
-  - "Turn round" shows his back, and dragging and the wheel move the camera.
-  - The panel lists the regions with what's worn in each and its rarity spread. It also has the auto-equip switch and
-    "Wear the best set".
-- **A region.** Clicking a region zooms in. Every slot gets its own marker:
-  - a tick for a worn slot;
-  - + for a free slot;
-  - x for a slot covered by a piece;
-  - \- for a slot not open yet.
+Putting something on flies its icon onto the figure with a burst and the area's flash. Taking something off flies it
+away. Esc or a right click steps out one level at a time: a piece set in another, its host; a piece, its region; a
+region, the whole body. While the screen is open, a change auto-equip makes after a chest shows at once.
 
-  Markers are pushed apart so they don't overlap, with a line back to their spot, and a legend explains them. Hovering
-  a marker names the slot and what's in it. The panel lists every slot, layer by layer, with what fills it or why
-  nothing does.
-- **A slot.** Choosing a slot, on the figure or in the list, lists every piece that can fill it. Each has its item,
-  whether it's worn or what's in its way, and a Wear or Take-off button that shows the change in power. Its tooltip
-  names what the piece would take off.
-- **A piece.** Its item and stats, what it fills and keeps free, its forge, rank, mastery and focus, and "Open its
-  slots" if it brings a board.
-- **A board.** The piece large in the middle with its slots round it. Slots it doesn't open are greyed. Clicking a slot
-  lists what can be set there.
-
-Putting something on flies its icon onto the figure (or onto its tile or board slot) with a burst and the site's
-flash. Taking something off flies it away. Esc steps out one level at a time.
-
-On the main screen, the middle panel shows a small figure wearing what counts, the 14 regions with what's worn in each,
-and the latest finds. The reveal marks each card WORN, KEPT (for another set) or salvaged.
+On the main screen, the middle panel shows the small figure from the front, wearing what counts (pointing at it lights
+a region; clicking it opens the equipment screen there), the 14 regions with what's worn in each, and the latest
+finds. The reveal marks each card WORN, KEPT (for another set) or salvaged.
 
 ## Unlocks
 
@@ -270,8 +307,10 @@ The game check (`progsim --game`) still checks that the session works: chests, t
 | `progsim --anatomy` | Counts by level, kind and region; slots by region; same-site slots that never go together; when pieces open; sizes; the largest set; the search checked against brute force and timed |
 | `progsim --anatomy --play=2` | A sensible player's knight after two hours: what's worn by region, and what's kept with what blocks it |
 | `progsim --debug-wear` | Why the first chest's pieces do or don't go on (weights, values, the objective) |
-| `--demo=screens --hours=2` | Screenshots of the body, each region, a chosen slot, a piece and a board (`equipment*`) |
+| `--demo=screens --hours=2` | Screenshots of the body, each region, a chosen slot, a worn piece pointed at, a piece and one of its slots, and the mouse on the figure: a slot pointed at, the wheel into the head, a piece pointed at, a right click back (`equipment*`) |
 | `tools/equipment_art.py check` | The equipment screen's delivered art against its spec ([art-handoff-equipment.md](art-handoff-equipment.md)) |
+| `tools/equipment_art.py import` | The checked art into `assets/equipment/`: keyed, each view cut out, the backdrops and the glyph atlas |
+| `tools/equipment_map.py` | The map of the art (sites, slot points, pages, what covers what) into `assets/equipment/`, checked, with review sheets in `shots_map/` |
 
 ## Adding a piece
 
@@ -282,6 +321,8 @@ The game check (`progsim --game`) still checks that the session works: chests, t
 3. The family comes from its name (`Anatomy.FamilyOf`). For a new family, add its picture to `tools/placeholders.py`
    (`ICONS`), run `python3 tools/placeholders.py --only icons`, `python3 tools/art.py manifest` and
    `godot --headless --path . --import`.
-4. Draw it on the doll in `DollPieces.cs` if the generic drawing for its layer isn't enough. Give its site a shape or
-   anchor in `Figure.cs` if it's new.
+4. A new slot needs a point on the art, and a new site an area: run `python3 tools/art.py manifest`, then add the
+   site's cut lines and seed in `tools/equipment_map.py` (and a point for the slot if spreading it over its site
+   won't do), run it until it reports no problems, check `shots_map/`, and run `godot --headless --path . --import`.
+   On the figure a piece is painted by its layer; a picture of its own comes with phase 2.
 5. Run `progsim --anatomy` (validation, exactness, speed) and the screens demo, and look at the region.

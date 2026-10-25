@@ -10,8 +10,9 @@ namespace LootFall.View;
 /// opening: a chest of each tier opened in turn, from Common to Transcendent (screens reveal_*), and the pause holding
 ///   one; title: the title, settings, a new game and the pause menu; welcome: a save written and read back in memory as
 ///   if two hours had passed (checks the round trip, shows the welcome back); screens: the lane with auto-open on, then
-///   every screen over it in turn (each kind's armoury, talents, codex, prestige, settings). --hours=N starts each where a sensible player
-///   would be after N hours.
+///   every screen over it in turn (the equipment screen's body, each region, a slot, a piece and its slots, then the
+///   mouse on it: a slot pointed at, the wheel into a region, a worn piece pointed at, a right click back; talents,
+///   codex, prestige, settings). --hours=N starts each where a sensible player would be after N hours.
 /// </summary>
 public static class Demos
 {
@@ -113,12 +114,13 @@ public static class Demos
         await Wait(m, 0.3);
         var g = m.Game;
         void Show(Control c) => g.Open(c);
-        // The equipment: the whole body, then each region (zooming in), a piece in detail and a board.
+        // The equipment: the whole body, then each region (zooming in), a slot, a worn piece pointed at (what it covers lit,
+        // what it keeps free in red), the piece in detail, one of its own slots.
         var eq = new EquipmentScreen(g);
         Show(eq);
         await Wait(m, 0.9);
         m.Moment("equipment");
-        foreach (var region in Figure.Regions)
+        foreach (var region in EquipmentMap.Regions)
         {
             if (!GodotObject.IsInstanceValid(eq) || eq.Closing) break;
             eq.ShowRegion(region);
@@ -138,21 +140,80 @@ public static class Demos
         }
         if (GodotObject.IsInstanceValid(eq) && !eq.Closing)
         {
-            // A piece with a board: the first one worn that brings one, in detail and then its board.
-            int host = -1;
+            // A worn piece with slots of its own (the headwear if there is one): pointed at, in detail, one of its slots.
+            int host = -1, head = s.C.Anatomy.CellId("scalp.head");
+            for (int i = 0; i < s.C.SlotCount && host < 0; i++)
+                if (s.H.Active[i] && Array.IndexOf(s.C.Slots[i].Takes, head) >= 0 && s.C.Slots[i].Brings.Length > 0) host = i;
             for (int i = 0; i < s.C.SlotCount && host < 0; i++)
                 if (s.H.Active[i] && s.C.Slots[i].Brings.Length > 0 && s.C.Slots[i].Board == Anatomy.Body) host = i;
             if (host >= 0)
             {
+                eq.ShowRegion(Describe.Region(s.C, s.C.Slots[host]));
+                await Wait(m, 0.7);
+                eq.Preview(host);
+                await Wait(m, 0.25);
+                m.Moment("equipment_cover");
+                await Wait(m, 0.2);
                 eq.ShowPiece(host);
                 await Wait(m, 0.7);
                 m.Moment("equipment_piece");
                 await Wait(m, 0.2);
-                eq.ShowBoard(s.C.Slots[host].Brings[0].Board, host);
-                await Wait(m, 0.7);
-                m.Moment("equipment_board");
+                var d = s.C.Slots[host];
+                if (d.Brings.Length > 0 && d.Brings[0].Opens.Length > 0)
+                {
+                    eq.PickCell(d.Brings[0].Opens[0]);
+                    await Wait(m, 0.5);
+                    m.Moment("equipment_own");
+                    await Wait(m, 0.2);
+                }
+            }
+        }
+        if (GodotObject.IsInstanceValid(eq) && !eq.Closing)
+        {
+            // The mouse on the figure, as a player would use it: through the viewport, so the input handling is what's
+            // tested.
+            var vp = m.GetViewport();
+            void Move(Vector2 at) => vp.PushInput(new InputEventMouseMotion { Position = at, GlobalPosition = at }, true);
+            void Button(Vector2 at, MouseButton b)
+            {
+                vp.PushInput(new InputEventMouseButton { Position = at, GlobalPosition = at, ButtonIndex = b, Pressed = true }, true);
+                vp.PushInput(new InputEventMouseButton { Position = at, GlobalPosition = at, ButtonIndex = b, Pressed = false }, true);
+            }
+            eq.ShowBody();
+            await Wait(m, 0.9);
+            // A slot on the right forearm pointed at: its site and region light, its name shows.
+            var arm = eq.Doll.GlobalCellPoint(s.C.Anatomy.CellId("R.forearm.skin"));
+            Move(arm + new Vector2(0, 1));
+            await Wait(m, 0.3);
+            m.Moment("equipment_point_slot");
+            await Wait(m, 0.2);
+            // The wheel turned in over the head: into its page.
+            var head = eq.Doll.GlobalCellPoint(s.C.Anatomy.CellId("brow.skin"));
+            Move(head);
+            Button(head, MouseButton.WheelUp);
+            await Wait(m, 1.0);
+            m.Moment("equipment_wheel_in");
+            await Wait(m, 0.2);
+            // A worn piece pointed at: its area lit in its colour, what it keeps free in red, its name and slots.
+            int worn = -1;
+            foreach (var cell in s.C.Cells)
+                if (cell.Board == Anatomy.Body && cell.Region == "Head" && eq.Doll.Filling(cell.Id) is var f && f >= 0 && s.C.Slots[f].Keeps.Length > 0)
+                {
+                    worn = cell.Id;
+                    break;
+                }
+            if (worn >= 0)
+            {
+                Move(eq.Doll.GlobalCellPoint(worn));
+                await Wait(m, 0.3);
+                m.Moment("equipment_point_piece");
                 await Wait(m, 0.2);
             }
+            // A right click: back to the whole body.
+            Button(head, MouseButton.Right);
+            await Wait(m, 1.0);
+            m.Moment("equipment_back_out");
+            await Wait(m, 0.2);
         }
         if (GodotObject.IsInstanceValid(eq)) eq.Close();
         await Wait(m, 0.3);

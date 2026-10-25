@@ -8,27 +8,29 @@ using LootFall.Progression;
 namespace LootFall.View;
 
 /// <summary>
-/// The equipment screen (G; docs/equipment.md, "The screen"): the knight as a paper doll on the left, the slots on the
-/// right. The whole body first (level 1): click a region to zoom in. In a region every slot it has is listed, layer by
-/// layer, with a marker on the doll for each; choose a slot to see every piece that can fill it, what wearing it would do
-/// and what it would take off. A piece with slots of its own opens its board (level 3), drawn as the piece with its
-/// slots round it, and a few of those go a level deeper. Putting something on flies it onto the doll, and what it takes
-/// off flies away. Auto-equip wears the strongest set the slots allow; a choice made here turns it off. Esc steps out a
-/// level at a time.
+/// The equipment screen (G; docs/equipment.md, "The screen"): the knight on the left (<see cref="PaperDoll"/>), the slots
+/// on the right. The whole body first, front and back, every slot a dot: click a part of him, or a dot, to zoom into its
+/// region's page (the head, hands and feet on their close-ups). There every slot that shows has a marker and is listed,
+/// site by site; a worn piece is one marker over what it covers, with its own slots on it (and listed under it), and the
+/// slots it covers or keeps free don't show. Choose a slot to see every piece that can fill it, what wearing it would do
+/// and what it would take off; choose a worn piece to see it in detail. Pointing at a row lights its place on the
+/// figure. Putting something on flies it onto the figure, and what it takes off flies away. Auto-equip wears the
+/// strongest set the slots allow; a choice made here turns it off. Esc steps out a level at a time.
 /// </summary>
 public partial class EquipmentScreen : Overlay
 {
     const float StageX = 24, StageY = 124, StageW = 1080, StageH = 812, SideX = 1124, SideW = 612;
     readonly Panel _p;
     readonly PaperDoll _doll;
-    readonly BoardView _boardView;
+    /// <summary>The figure (for the demos, which point at it).</summary>
+    public PaperDoll Doll => _doll;
     readonly HBoxContainer _crumbs;
     readonly Control _head;
     readonly ScrollContainer _scroll;
     readonly VBoxContainer _list;
-    readonly Button _turn, _whole, _slots;
+    readonly Button _whole, _slots;
     string _region;
-    int _piece = -1, _board = -1, _host = -1, _cell = -1;
+    int _piece = -1, _cell = -1;
     readonly Dictionary<int, Control> _cellRows = new();
     /// <summary>A line about the last thing done (shown once, under the body's heading).</summary>
     string _note;
@@ -43,32 +45,28 @@ public partial class EquipmentScreen : Overlay
         _p.AddChild(Ui.Box(new Color("#0d0a13"), Look.Edge, 12).Place(StageX, StageY, StageW, StageH));
         _doll = new PaperDoll(g.S).Place(StageX + 4, StageY + 4, StageW - 8, StageH - 8);
         _doll.RegionClicked += r => ShowRegion(r);
-        _doll.CellClicked += c =>
+        _doll.CellClicked += PickCell;
+        _doll.PieceClicked += ShowPiece;
+        _doll.BackClicked += Back;
+        // A click beside the figure lets go of the slot chosen.
+        _doll.NothingClicked += () =>
         {
-            _cell = c;
+            if (_cell < 0) return;
+            _cell = -1;
             Rebuild();
         };
         _p.AddChild(_doll);
-        _boardView = new BoardView(this).Place(StageX + 4, StageY + 4, StageW - 8, StageH - 8);
-        _boardView.Visible = false;
-        _p.AddChild(_boardView);
         _crumbs = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore }.Place(StageX, 72, StageW, 44);
         _crumbs.AddThemeConstantOverride("separation", 6);
         _p.AddChild(_crumbs);
-        _turn = Ui.Button("Turn round", () =>
-        {
-            _doll.Back = !_doll.Back;
-            _doll.Frame(_region == "Back" && !_doll.Back ? null : _region, true);
-        }, size: Look.Small).Place(StageX + StageW - 186, StageY + 14, 170, 44);
-        _whole = Ui.Button("Whole body", ShowBody, size: Look.Small).Place(StageX + StageW - 366, StageY + 14, 170, 44);
+        _whole = Ui.Button("Whole body", ShowBody, size: Look.Small).Place(StageX + StageW - 186, StageY + 14, 170, 44);
         _slots = Ui.Button("Hide slots", () =>
         {
             _doll.ShowSlots(!_doll.ShowAll);
             _slots.Text = _doll.ShowAll ? "Hide slots" : "Show slots";
-        }, size: Look.Small).Place(StageX + StageW - 546, StageY + 14, 170, 44);
+        }, size: Look.Small).Place(StageX + StageW - 186, StageY + 14, 170, 44);
         _p.AddChild(_slots);
         _p.AddChild(_whole);
-        _p.AddChild(_turn);
         _head = new Control { MouseFilter = MouseFilterEnum.Ignore }.Place(SideX, 72, SideW, 150);
         _p.AddChild(_head);
         _scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }.Place(SideX, 226, SideW, 712);
@@ -80,19 +78,47 @@ public partial class EquipmentScreen : Overlay
         else ShowBody();
     }
 
-    public override void _Ready() => Main.Instance?.Moment(_region == null ? "equipment" : "equipment_" + _region.Replace(' ', '_').ToLowerInvariant(), 0.6);
+    public override void _Ready() => Main.Instance?.Moment(_region == null ? "equipment" : "equipment_" + _region.Replace(' ', '_').ToLowerInvariant(), 0.8);
 
-    /// <summary>Esc: out of a piece or a board, then out of the region, then closed.</summary>
+    double _check;
+    int _signature;
+
+    /// <summary>What's worn, in one number: auto-equip may change it while the screen is open (after a chest), and then
+    /// the screen shows the new set.</summary>
+    int Signature()
+    {
+        unchecked
+        {
+            int h = 17;
+            for (int s = 0; s < C.SlotCount; s++)
+                if (H.Active[s]) h = h * 31 + s * 7 + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(H.Gear[s]);
+            return h;
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        _check -= delta;
+        if (_check > 0) return;
+        _check = 0.4;
+        int sig = Signature();
+        if (sig == _signature) return;
+        bool first = _signature == 0;
+        _signature = sig;
+        if (!first) Rebuild();
+    }
+
+    /// <summary>Esc: out of a piece (to the piece it's set in, or its region), then out of the region, then closed.</summary>
     public override void Back()
     {
-        if (_board >= 0)
+        if (_piece >= 0)
         {
-            int host = _host;
-            var hd = C.Slots[host];
-            if (hd.Board != Anatomy.Body) ShowBoard(hd.Board, H.HostOf[hd.Board] >= 0 ? H.HostOf[hd.Board] : C.Boards[hd.Board].Hosts[0]);
-            else ShowPiece(host);
+            var d = C.Slots[_piece];
+            int host = d.Board == Anatomy.Body ? -1 : H.HostOf[d.Board];
+            if (host >= 0) ShowPiece(host);
+            else ShowRegion(_region ?? Describe.Region(C, d));
         }
-        else if (_piece >= 0) ShowRegion(_region ?? Describe.Region(C, C.Slots[_piece]));
+        else if (_cell >= 0) ShowRegion(_region);
         else if (_region != null) ShowBody();
         else Close();
     }
@@ -102,63 +128,60 @@ public partial class EquipmentScreen : Overlay
     public void ShowBody()
     {
         _region = null;
-        _piece = _board = _host = _cell = -1;
-        _doll.Visible = true;
-        _boardView.Visible = false;
-        _doll.Lit.Clear();
-        _doll.Frame(null);
+        _piece = _cell = -1;
+        _doll.Show(null);
         Rebuild();
     }
 
-    public void ShowRegion(string region, bool instant = false)
+    public void ShowRegion(string region) => ShowRegion(region, false);
+
+    public void ShowRegion(string region, bool instant)
     {
+        if (region == null)
+        {
+            ShowBody();
+            return;
+        }
+        if (_region != region) _doll.Show(region, instant);
         _region = region;
-        _piece = _board = _host = _cell = -1;
-        _doll.Visible = true;
-        _boardView.Visible = false;
-        _doll.Lit.Clear();
-        _doll.Frame(region, instant);
+        _piece = _cell = -1;
         Rebuild();
     }
 
+    /// <summary>A piece in detail: its region's page, its area lit and the rest dimmed, its own slots listed.</summary>
     public void ShowPiece(int s)
     {
         var d = C.Slots[s];
-        _piece = s;
-        _board = _host = -1;
-        _cell = -1;
         string region = Describe.Region(C, d);
-        if (d.Board == Anatomy.Body)
-        {
-            _boardView.Visible = false;
-            _doll.Visible = true;
-            if (_region != region) _doll.Frame(region);
-            _region = region;
-            _doll.Lit.Clear();
-            foreach (int c in d.Takes) _doll.Lit.Add(c);
-        }
-        Rebuild();
-    }
-
-    public void ShowBoard(int board, int host)
-    {
-        _board = board;
-        _host = host;
-        _piece = -1;
+        if (_region != region) _doll.Show(region);
+        _region = region;
+        _piece = s;
         _cell = -1;
-        _region = Describe.Region(C, C.Slots[host]);
-        _doll.Visible = false;
-        _boardView.Visible = true;
-        _boardView.Show(board, host);
         Rebuild();
     }
 
-    /// <summary>A slot on the board view was clicked.</summary>
+    /// <summary>A slot chosen (on the figure or in the list): on the body, its row opens in its region; a piece's own,
+    /// in that piece's detail.</summary>
     public void PickCell(int cell)
     {
+        var c = C.Cells[cell];
+        if (c.Board != Anatomy.Body)
+        {
+            int host = H.HostOf[c.Board] >= 0 ? H.HostOf[c.Board] : C.Boards[c.Board].Hosts[0];
+            if (_piece != host) ShowPiece(host);
+            _cell = _cell == cell ? -1 : cell;
+            Rebuild();
+            return;
+        }
+        if (_region != c.Region) _doll.Show(c.Region);
+        _region = c.Region;
+        _piece = -1;
         _cell = _cell == cell ? -1 : cell;
         Rebuild();
     }
+
+    /// <summary>Points at a piece, as the mouse over its row would (its area lit on the figure).</summary>
+    public void Preview(int s) => _doll.PreviewPiece = s;
 
     // ------------------------------------------------------------------------------------------------ the panel
 
@@ -168,14 +191,19 @@ public partial class EquipmentScreen : Overlay
         foreach (var c in _head.GetChildren()) c.QueueFree();
         _cellRows.Clear();
         _doll.Refresh();
-        _boardView.QueueRedraw();
-        _turn.Visible = _whole.Visible = !_boardView.Visible;
-        _slots.Visible = !_boardView.Visible && _region == null;
-        _doll.Hint = _region == null ? "Click a part of the body, or any dot to go straight to that slot" : "Drag to look around, wheel to zoom, Esc to step back";
-        _doll.PickedCell = _cell;
+        _whole.Visible = _region != null;
+        _slots.Visible = _region == null;
+        _doll.Hint = _region == null ? "Click a part of him (or turn the wheel over it) to zoom in, or a dot to go straight to that slot"
+            : "Point at anything to see what it is. Wheel to zoom, right-click or Esc to step back";
+        // The slot chosen, or the one the piece in detail is set in (its marker on its host).
+        _doll.PickedCell = _cell >= 0 ? _cell : _piece >= 0 && C.Slots[_piece].Board != Anatomy.Body ? C.Slots[_piece].Takes[0] : -1;
+        _doll.FocusPiece = _piece >= 0 ? (C.Slots[_piece].Board == Anatomy.Body ? _piece : _doll.Cov.BodyHost(_piece)) : -1;
+        // A piece in detail that isn't worn: where it would go, lit.
+        _doll.GhostPiece = _piece >= 0 && !H.Active[_piece] && C.Slots[_piece].Board == Anatomy.Body ? _piece : -1;
+        _doll.PointedCell = _doll.PreviewPiece = -1;
+        _doll.PointedRegion = null;
         Crumbs();
-        if (_board >= 0) BoardPanel();
-        else if (_piece >= 0) PiecePanel(_piece);
+        if (_piece >= 0) PiecePanel(_piece);
         else if (_region != null) RegionPanel();
         else BodyPanel();
         G.Battle.RefreshGear();
@@ -186,6 +214,14 @@ public partial class EquipmentScreen : Overlay
     {
         _head.AddChild(Ui.Text(title, Look.Header, Look.Gold, Look.Display).Place(0, 0, SideW, 50));
         if (sub != null) _head.AddChild(Ui.Text(sub, Look.Small, Look.Muted, Look.Ui).Wrapped().Place(0, 54, SideW - 10, 96));
+    }
+
+    /// <summary>A row of wrapped text, as tall as the text.</summary>
+    void TextRow(string text, int size, Color colour)
+    {
+        float w = SideW - 40;
+        float h = Look.Ui.GetMultilineStringSize(text, HorizontalAlignment.Left, w, size).Y + 8;
+        Row(h).AddChild(Ui.Text(text, size, colour, Look.Ui).Wrapped().Place(8, 2, w, h));
     }
 
     Control Row(float height)
@@ -211,27 +247,17 @@ public partial class EquipmentScreen : Overlay
             string r = _region;
             path.Add((r, () => ShowRegion(r)));
         }
-        if (_board >= 0)
+        if (_piece >= 0)
         {
-            // The chain of hosts down to this board.
+            // The chain of pieces down to this one: the piece on the body, what's set in it, and so on.
             var chain = new List<int>();
-            for (int h = _host, guard = 0; h >= 0 && guard < 6; guard++)
+            for (int h = _piece, guard = 0; h >= 0 && guard < 6; guard++)
             {
                 chain.Insert(0, h);
                 var hd = C.Slots[h];
                 h = hd.Board == Anatomy.Body ? -1 : H.HostOf[hd.Board] >= 0 ? H.HostOf[hd.Board] : C.Boards[hd.Board].Hosts[0];
             }
-            for (int i = 0; i < chain.Count; i++)
-            {
-                int h = chain[i];
-                int b = i + 1 < chain.Count ? C.Slots[chain[i + 1]].Board : _board;
-                path.Add((Describe.Base(C.Slots[h].Name), () => ShowBoard(b, h)));
-            }
-        }
-        else if (_piece >= 0)
-        {
-            int s = _piece;
-            path.Add((Describe.Base(C.Slots[s].Name), () => ShowPiece(s)));
+            foreach (int h in chain) path.Add((Describe.Base(C.Slots[h].Name), () => ShowPiece(h)));
         }
         for (int i = 0; i < path.Count; i++) Crumb(path[i].Item1, path[i].Item2, i == path.Count - 1);
     }
@@ -258,7 +284,7 @@ public partial class EquipmentScreen : Overlay
         row.AddChild(Ui.Button("Wear the best set", WearBest, Look.Gold, Look.Body).Place(272, 4, 300, 50));
         row.AddChild(Ui.Text("Auto-equip weighs every set the slots allow, boards and all, and wears the strongest. Putting something on by hand turns it off.",
             Look.Small, Look.Muted, Look.Ui).Wrapped().Place(0, 62, SideW - 30, 56));
-        foreach (var region in Figure.Regions) RegionRow(region);
+        foreach (var region in EquipmentMap.Regions) RegionRow(region);
     }
 
     void RegionRow(string region)
@@ -296,7 +322,11 @@ public partial class EquipmentScreen : Overlay
         row.AddChild(canvas);
         var b = new Button { Flat = true, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand }.Place(0, 0, SideW - 22, 52);
         b.Pressed += () => ShowRegion(region);
-        b.MouseEntered += () => _doll.Hover = region;
+        b.MouseEntered += () => _doll.PointedRegion = region;
+        b.MouseExited += () =>
+        {
+            if (_doll.PointedRegion == region) _doll.PointedRegion = null;
+        };
         row.AddChild(b);
     }
 
@@ -307,7 +337,7 @@ public partial class EquipmentScreen : Overlay
         var cells = C.Cells.Where(c => c.Board == Anatomy.Body && c.Region == _region).ToList();
         int worn = C.Slots.Count(d => H.Active[d.Index] && Describe.Region(C, d) == _region);
         int open = C.Slots.Count(d => H.Open[d.Index] && Describe.Region(C, d) == _region);
-        Head(_region, $"{cells.Count} slots, {worn} pieces worn, {open} kinds of piece open. Choose a slot (here or on the figure) to see what can fill it.");
+        Head(_region, $"{cells.Count} slots, {worn} pieces worn, {open} kinds of piece open. Choose a slot (here or on the figure) to see what can fill it, or a worn piece to see it.");
         string site = null;
         foreach (var cell in cells)
         {
@@ -319,15 +349,29 @@ public partial class EquipmentScreen : Overlay
             }
             CellRow(cell);
             if (_cell == cell.Id) Candidates(cell);
+            // A worn piece's own slots, under the first slot it fills.
+            int fill = _doll.Filling(cell.Id);
+            if (fill >= 0 && C.Slots[fill].Takes[0] == cell.Id)
+                foreach (int own in _doll.Cov.OwnSlots(fill))
+                {
+                    CellRow(C.Cells[own], 28);
+                    if (_cell == own) Candidates(C.Cells[own]);
+                }
         }
         if (_cell >= 0 && _cellRows.TryGetValue(_cell, out var row)) Callable.From(() => _scroll.EnsureControlVisible(row)).CallDeferred();
     }
 
-    /// <summary>A slot: what fills it, or why nothing does. Click to see what could.</summary>
-    void CellRow(Cell cell)
+    /// <summary>A slot: what fills it, or why nothing does. Click to see what could; point at it to light it on the
+    /// figure.</summary>
+    void CellRow(Cell cell, float indent = 0)
     {
         int fill = _doll.Filling(cell.Id), keep = _doll.Keeping(cell.Id);
-        // A board's slot on the board view: what's set there by its host, even if it doesn't count.
+        int host = cell.Board == Anatomy.Body ? -1 : _piece >= 0 && C.Slots[_piece].Brings.Any(b => b.Board == cell.Board) ? _piece : H.HostOf[cell.Board];
+        int under = -1;
+        if (cell.Board == Anatomy.Body && fill < 0 && keep < 0)
+            foreach (var v in new[] { "front", "back" })
+                if (EquipmentMap.View(v) is { } mv && mv.Points.ContainsKey(cell.Key) && _doll.Cov.HiddenBy(cell.Id, mv) is var by && by >= 0) under = by;
+        // A board's slot: what's set there, even if it doesn't count now.
         if (cell.Board != Anatomy.Body)
         {
             fill = -1;
@@ -339,7 +383,7 @@ public partial class EquipmentScreen : Overlay
         }
         var candidates = Pieces(cell);
         bool anyOpen = candidates.Any(s => H.Open[s]);
-        bool opened = cell.Board == Anatomy.Body || _host < 0 || C.Boards[cell.Board].Opens1(_host, cell.Id);
+        bool opened = cell.Board == Anatomy.Body || host < 0 || C.Boards[cell.Board].Opens1(host, cell.Id);
         string state;
         Color colour = Look.Muted;
         if (fill >= 0)
@@ -349,8 +393,9 @@ public partial class EquipmentScreen : Overlay
             colour = it != null ? Look.TierText(it.Rarity) : Look.Text;
             if (!H.Active[fill]) state += " (waiting)";
         }
-        else if (!opened) state = $"not on this {Describe.Base(C.Slots[_host].Name).ToLowerInvariant()}";
+        else if (!opened) state = $"not on this {Describe.Base(C.Slots[host].Name).ToLowerInvariant()}";
         else if (keep >= 0) state = $"kept free by the {Describe.Base(C.Slots[keep].Name).ToLowerInvariant()}";
+        else if (under >= 0 && candidates.Any(s => H.Open[s] && H.Gear[s] != null)) state = $"free, under the {Describe.Base(C.Slots[under].Name).ToLowerInvariant()}";
         else if (!anyOpen)
         {
             int first = candidates.Where(s => !C.Slots[s].Prestige).Select(s => C.Slots[s].UnlockDepth).DefaultIfEmpty(0).Min();
@@ -362,23 +407,36 @@ public partial class EquipmentScreen : Overlay
         var row = Row(50);
         _cellRows[cell.Id] = row;
         int shown = fill;
+        float w = SideW - 22 - indent;
         var canvas = new Canvas(c =>
         {
-            var rect = new Rect2(0, 0, SideW - 22, 48);
+            var rect = new Rect2(0, 0, w, 48);
             c.DrawStyleBox(Ui.Frame(picked ? new Color("#241c33") : new Color("#16111f"), picked ? Look.Gold : fill >= 0 ? Look.EdgeLight : Look.Edge, 8, picked ? 2 : 1, 0, 0), rect);
             if (shown >= 0 && H.Gear[shown] != null)
                 ItemTile.Draw(c, new Rect2(6, 4, 40, 40), Describe.Family(C.Slots[shown]), H.Gear[shown].Rarity, numeral: false, tier: ItemTile.Tier(H.Gear[shown]));
-            else c.DrawStyleBox(Ui.Frame(Colors.Transparent, keep >= 0 ? new Color(Look.Bad, 0.6f) : Look.Edge, 6, 1, 0, 0), new Rect2(6, 4, 40, 40));
+            else
+            {
+                c.DrawStyleBox(Ui.Frame(Colors.Transparent, keep >= 0 ? new Color(Look.Bad, 0.6f) : Look.Edge, 6, 1, 0, 0), new Rect2(6, 4, 40, 40));
+                if (EquipmentMap.Glyphs is { } g)
+                    c.DrawTextureRectRegion(g, new Rect2(14, 12, 24, 24), EquipmentMap.GlyphRect(cell.Board == Anatomy.Body ? EquipmentMap.GlyphOf(cell.Layer) : "mod"),
+                        new Color(Look.Muted, 0.8f));
+            }
             c.DrawString(Look.UiBold, new Vector2(56, 22), cell.Name, HorizontalAlignment.Left, 170, 17, Look.Text);
-            c.DrawString(Look.Ui, new Vector2(56, 42), state, HorizontalAlignment.Left, SideW - 22 - 66, 16, colour);
-            c.DrawString(Look.Ui, new Vector2(SideW - 22 - 150, 22), Layer(cell), HorizontalAlignment.Right, 140, 14, Look.Dim);
-        }) { MouseFilter = MouseFilterEnum.Ignore }.Place(0, 0, SideW - 22, 48);
+            c.DrawString(Look.Ui, new Vector2(56, 42), state, HorizontalAlignment.Left, w - 66, 16, colour);
+            c.DrawString(Look.Ui, new Vector2(w - 150, 22), cell.Board == Anatomy.Body ? Layer(cell) : "its own slot", HorizontalAlignment.Right, 140, 14, Look.Dim);
+        }) { MouseFilter = MouseFilterEnum.Ignore }.Place(indent, 0, w, 48);
         row.AddChild(canvas);
-        var b = new Button { Flat = true, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand }.Place(0, 0, SideW - 22, 48);
+        if (indent > 0) row.AddChild(new Canvas(c => c.DrawLine(new Vector2(indent / 2, -4), new Vector2(indent / 2, 24), Look.Edge, 2)) { MouseFilter = MouseFilterEnum.Ignore }.Place(0, 0, indent, 48));
+        var b = new Button { Flat = true, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand }.Place(indent, 0, w, 48);
         b.Pressed += () =>
         {
             _cell = _cell == cell.Id ? -1 : cell.Id;
             Rebuild();
+        };
+        b.MouseEntered += () => _doll.PointedCell = cell.Id;
+        b.MouseExited += () =>
+        {
+            if (_doll.PointedCell == cell.Id) _doll.PointedCell = -1;
         };
         row.AddChild(b);
     }
@@ -420,6 +478,9 @@ public partial class EquipmentScreen : Overlay
             c.DrawString(Look.Ui, new Vector2(96, 62), state, HorizontalAlignment.Left, 230, 14, stateColour);
         }) { MouseFilter = MouseFilterEnum.Ignore }.Place(0, 0, SideW - 22, 68);
         row.AddChild(canvas);
+        var whole = new Button { Flat = true, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand }.Place(24, 0, SideW - 46, 66);
+        whole.Pressed += () => ShowPiece(s);
+        row.AddChild(whole);
         if (open && it != null)
         {
             // The button says what it would do to the knight's power.
@@ -443,6 +504,16 @@ public partial class EquipmentScreen : Overlay
         var more = Ui.Button(">", () => ShowPiece(s), size: Look.Small).Place(SideW - 22 - 96, 12, 70, 44);
         more.TooltipText = "This piece in detail";
         row.AddChild(more);
+        // Pointing at the piece lights on the figure what it would cover and keep free.
+        foreach (var c in row.GetChildren())
+            if (c is Control b && b.MouseFilter != MouseFilterEnum.Ignore)
+            {
+                b.MouseEntered += () => _doll.PreviewPiece = s;
+                b.MouseExited += () =>
+                {
+                    if (_doll.PreviewPiece == s) _doll.PreviewPiece = -1;
+                };
+            }
     }
 
     /// <summary>Whether a piece is worn, and if not why not.</summary>
@@ -511,25 +582,44 @@ public partial class EquipmentScreen : Overlay
             }
         }
         // Where it goes.
-        var fills = Row(54);
-        fills.AddChild(Ui.Text("Fills: " + Describe.Cells(C, d.Takes), Look.Small, Look.Text, Look.Ui).Wrapped().Place(8, 2, SideW - 40, 52));
-        if (d.Keeps.Length > 0)
-        {
-            var keeps = Row(54);
-            keeps.AddChild(Ui.Text("Keeps free: " + Describe.Cells(C, d.Keeps), Look.Small, Look.Bad.Lerp(Look.Text, 0.4f), Look.Ui).Wrapped().Place(8, 2, SideW - 40, 52));
-        }
-        // Its own slots.
+        TextRow("Fills: " + Describe.Cells(C, d.Takes), Look.Small, Look.Text);
+        if (d.Keeps.Length > 0) TextRow("Keeps free: " + Describe.Cells(C, d.Keeps), Look.Small, Look.Bad.Lerp(Look.Text, 0.4f));
+        // Its own slots: the ones it opens first, then the rest of its board's (another piece of the kind may open them).
         foreach (var (b, opens) in d.Brings)
         {
             var board = C.Boards[b];
             int set = board.Slots.Count(x => H.Worn[x] && H.Active[x]);
-            var row = Row(60);
-            row.AddChild(Ui.Text($"Its slots: {board.Name}", Look.Body, Look.Gold, Look.UiBold).Place(8, 4, 360, 28));
-            row.AddChild(Ui.Text($"{opens.Length} of the board's {board.Size} slots, {set} filled", Look.Small, Look.Muted, Look.Ui).Place(8, 30, 360, 24));
-            int bb = b;
-            row.AddChild(Ui.Button("Open its slots", () => ShowBoard(bb, s), Look.Gold, Look.Small).Place(SideW - 22 - 200, 8, 196, 44));
+            var head = Row(34);
+            head.AddChild(Ui.Text($"ITS SLOTS: {board.Name.ToUpperInvariant()}", 17, Look.Gold, Look.UiBold).Place(4, 8, 330, 24));
+            head.AddChild(Ui.Text($"{opens.Length} of {board.Size} open, {set} filled", Look.Small, Look.Muted, Look.Ui, HorizontalAlignment.Right).Place(330, 8, SideW - 360, 24));
+            foreach (int id in opens.Concat(C.Anatomy.Boards[b].Cells.Except(opens)))
+            {
+                var cell = C.Cells[id];
+                CellRow(cell, 12);
+                if (_cell == cell.Id) Candidates(cell);
+            }
+        }
+        // What it covers: the slots under it, still there to fill.
+        if (d.Board == Anatomy.Body && H.Active[s])
+        {
+            var under = new List<int>();
+            foreach (var v in new[] { "front", "back" })
+                if (EquipmentMap.View(v) is { } mv)
+                    foreach (int c in _doll.Cov.Beneath(s, mv))
+                        if (!under.Contains(c) && mv.Points.ContainsKey(C.Cells[c].Key)) under.Add(c);
+            if (under.Count > 0)
+            {
+                var head = Row(34);
+                head.AddChild(Ui.Text("UNDER IT OR KEPT FREE BY IT", 17, Look.Muted, Look.UiBold).Place(4, 8, SideW - 30, 24));
+                foreach (int c in under)
+                {
+                    CellRow(C.Cells[c], 12);
+                    if (_cell == c) Candidates(C.Cells[c]);
+                }
+            }
         }
         if (open) Upgrades(s);
+        if (_cell >= 0 && _cellRows.TryGetValue(_cell, out var picked)) Callable.From(() => _scroll.EnsureControlVisible(picked)).CallDeferred();
     }
 
     /// <summary>Forge, rank and mastery for a piece (what the armoury's detail had).</summary>
@@ -584,26 +674,6 @@ public partial class EquipmentScreen : Overlay
         Rebuild();
     }
 
-    // ------------------------------------------------------------------------------------------------ level 3 and 4: a piece's board
-
-    void BoardPanel()
-    {
-        var board = C.Boards[_board];
-        var host = C.Slots[_host];
-        bool hosting = H.HostOf[_board] == _host;
-        string sub = hosting ? $"What's set in the {Describe.Base(host.Name).ToLowerInvariant()} counts while it's worn."
-            : H.HostOf[_board] >= 0 ? $"The {Describe.Base(C.Slots[H.HostOf[_board]].Name).ToLowerInvariant()} holds this board now; this shows the slots the {Describe.Base(host.Name).ToLowerInvariant()} would open."
-            : $"Nothing worn brings this board now: what's set waits for the {Describe.Base(host.Name).ToLowerInvariant()} (or another that brings it).";
-        Head($"{board.Name}: its slots", sub);
-        foreach (int cid in C.Anatomy.Boards[_board].Cells)
-        {
-            var cell = C.Cells[cid];
-            CellRow(cell);
-            if (_cell == cid) Candidates(cell);
-        }
-        if (_cell >= 0 && _cellRows.TryGetValue(_cell, out var row)) Callable.From(() => _scroll.EnsureControlVisible(row)).CallDeferred();
-    }
-
     // ------------------------------------------------------------------------------------------------ putting on and taking off
 
     void WearBest()
@@ -645,8 +715,7 @@ public partial class EquipmentScreen : Overlay
         var it = H.Gear[s];
         if (it == null) return;
         int cell = d.Takes[0];
-        Vector2 spot = _boardView.Visible && d.Board == _board ? _boardView.SlotPoint(cell)
-            : d.Board == Anatomy.Body ? _doll.GlobalCellPoint(cell) : _doll.GlobalOf(Figure.SiteAnchor(C.Cells[C.Slots[H.HostOf[d.Board] >= 0 ? H.HostOf[d.Board] : C.Boards[d.Board].Hosts[0]].Takes[0]].Site));
+        Vector2 spot = _doll.GlobalCellPoint(cell);
         var panel = from != null ? from.GetGlobalRect().GetCenter() : new Vector2(SideX + 80 + 80, 600);
         var icon = new Painter(p => ItemTile.Draw(p, new Rect2(-30, -30, 60, 60), d.Family, it.Rarity, numeral: false, tier: ItemTile.Tier(it))) { Position = on ? panel : spot, ZIndex = 50 };
         AddChild(icon);
@@ -667,109 +736,6 @@ public partial class EquipmentScreen : Overlay
         {
             var t = icon.CreateTween();
             t.TweenProperty(icon, "modulate:a", 0f, 0.42f);
-        }
-    }
-
-    // ------------------------------------------------------------------------------------------------ the board view
-
-    /// <summary>
-    /// A piece's board drawn as the piece in the middle (its picture, large) with its slots round it: what's set in each,
-    /// the slots this piece doesn't open greyed, and lines to the middle. Clicking a slot opens it in the panel.
-    /// </summary>
-    public partial class BoardView : Control
-    {
-        readonly EquipmentScreen _e;
-        int _board = -1, _host = -1;
-        readonly List<(int Cell, Vector2 At)> _slots = new();
-        float _t;
-
-        public BoardView(EquipmentScreen e)
-        {
-            _e = e;
-            MouseFilter = MouseFilterEnum.Stop;
-        }
-
-        public void Show(int board, int host)
-        {
-            _board = board;
-            _host = host;
-            QueueRedraw();
-        }
-
-        Content C => _e.C;
-        Hero H => _e.H;
-
-        public Vector2 SlotPoint(int cell)
-        {
-            foreach (var (c, at) in _slots)
-                if (c == cell) return GetGlobalTransformWithCanvas() * at;
-            return GetGlobalTransformWithCanvas() * (Size / 2);
-        }
-
-        public override void _Process(double delta)
-        {
-            _t += (float)delta;
-            QueueRedraw();
-        }
-
-        public override void _GuiInput(InputEvent e)
-        {
-            if (e is not InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true } b) return;
-            foreach (var (c, at) in _slots)
-                if (at.DistanceTo(b.Position) < 52)
-                {
-                    _e.PickCell(c);
-                    AcceptEvent();
-                    return;
-                }
-        }
-
-        public override void _Draw()
-        {
-            _slots.Clear();
-            if (_board < 0) return;
-            var def = C.Boards[_board];
-            var cells = C.Anatomy.Boards[_board].Cells;
-            var centre = Size / 2 + new Vector2(0, -10);
-            int hi = Array.IndexOf(def.Hosts, _host);
-            var host = C.Slots[_host];
-            var hostItem = H.Gear[_host];
-            // The slots round the piece.
-            float radius = Mathf.Min(Size.X, Size.Y) * 0.36f;
-            for (int i = 0; i < cells.Count; i++)
-            {
-                float a = -Mathf.Pi / 2 + Mathf.Tau * i / cells.Count;
-                var at = centre + new Vector2(Mathf.Cos(a) * radius * 1.25f, Mathf.Sin(a) * radius);
-                _slots.Add((cells[i], at));
-                bool opened = hi >= 0 && def.Opens[hi][i];
-                DrawLine(centre + (at - centre).Normalized() * 110, at - (at - centre).Normalized() * 46, opened ? new Color(Look.Gold, 0.35f) : new Color(Look.Dim, 0.25f), 2, true);
-            }
-            // The piece itself.
-            for (int i = 3; i >= 1; i--) DrawCircle(centre, 96 + 18 * i, new Color(hostItem != null ? Look.Tier(hostItem.Rarity) : Look.Edge, 0.05f), true, -1, true);
-            ItemTile.Draw(this, new Rect2(centre - new Vector2(90, 90), new Vector2(180, 180)), host.Family, hostItem != null && H.Open[_host] ? hostItem.Rarity : -1,
-                hostItem?.Affixes ?? 0, numeral: false, time: _t, tier: ItemTile.Tier(hostItem));
-            DrawString(Look.Display, centre + new Vector2(-200, 128), host.Name, HorizontalAlignment.Center, 400, 26, Look.Gold);
-            DrawString(Look.Ui, centre + new Vector2(-200, 154), H.HostOf[_board] == _host ? "worn: its slots count" : "not worn: its slots wait", HorizontalAlignment.Center, 400, 17,
-                H.HostOf[_board] == _host ? Look.Good : Look.Muted);
-            for (int i = 0; i < _slots.Count; i++)
-            {
-                var (cid, at) = _slots[i];
-                var cell = C.Cells[cid];
-                bool opened = hi >= 0 && def.Opens[hi][i];
-                int fill = -1;
-                foreach (int s in def.Slots)
-                    if (H.Worn[s] && Array.IndexOf(C.Slots[s].Takes, cid) >= 0) fill = s;
-                var rect = new Rect2(at - new Vector2(40, 40), new Vector2(80, 80));
-                if (fill >= 0 && H.Gear[fill] != null)
-                {
-                    ItemTile.Draw(this, rect, C.Slots[fill].Family, H.Gear[fill].Rarity, numeral: false, time: _t, tier: ItemTile.Tier(H.Gear[fill]));
-                    if (!H.Active[fill]) DrawRect(rect, new Color(0, 0, 0, 0.45f));
-                    if (C.Slots[fill].Brings.Length > 0) Ink.Glint(this, rect.End - new Vector2(10, 10), 8, Look.Gold);
-                }
-                else DrawStyleBox(Ui.Frame(new Color("#120e19"), opened ? Look.EdgeLight : new Color(Look.Dim, 0.4f), 10, opened ? 2 : 1, 0, 0), rect);
-                if (_e._cell == cid) DrawStyleBox(Ui.Frame(Colors.Transparent, Look.Gold, 12, 3, 0, 0), rect.Grow(5));
-                DrawString(Look.Ui, at + new Vector2(-80, 60), cell.Name, HorizontalAlignment.Center, 160, 15, opened ? Look.Text : Look.Dim);
-            }
         }
     }
 }
