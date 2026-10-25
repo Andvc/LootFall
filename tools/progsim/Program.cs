@@ -15,6 +15,7 @@ using LootFall.Progression;
 // progsim --tune [--hours=1000]: fits the open-ended systems' power knobs to their targets (see Tuner below).
 // progsim --sweep [--hours=3000]: the check with each key parameter 20% lower and 25% higher (see Sweep below).
 // progsim --game [--hours=N]: plays the game's session headless and checks its pace, saves and time away (GameTest.cs).
+// progsim --anatomy: the equipment anatomy's counts and a check of the loadout search against brute force.
 // progsim --manifest=PATH: writes the content the art needs (realms and their monsters, item families, eras) as JSON,
 // for tools/art.py.
 var arg = (string name, string fallback) => args.FirstOrDefault(a => a.StartsWith($"--{name}="))?.Split('=', 2)[1] ?? fallback;
@@ -54,6 +55,8 @@ if (args.Contains("--sweep") || args.Contains("--content-sweep"))
 }
 
 if (args.Contains("--game")) return GameTest.Run(hours, seed);
+if (args.Contains("--debug-wear")) { AnatomyReport.DebugFirst(seed); return 0; }
+if (args.Contains("--anatomy")) return AnatomyReport.Run(seed, double.Parse(arg("play", "0"), CultureInfo.InvariantCulture));
 if (arg("manifest", null) is string manifest) return ArtContent.Write(manifest);
 
 if (args.Contains("--check"))

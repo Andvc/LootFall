@@ -6,8 +6,8 @@ namespace LootFall.Progression;
 /// <summary>
 /// A sensible player's choices for one world: what each stat is worth now (by finite differences of how deep the hero
 /// pushes and farms), which drops to put on, how to spend gold, materials, talent points and the prestige currencies,
-/// where mastery focus goes, and when a reset pays. The simulator plays with it; the game uses it for its autopilot
-/// and its auto-equip, and to preview what a choice would give.
+/// where mastery focus goes, which set of pieces to wear (<see cref="Wear"/>), and when a reset pays. The simulator plays
+/// with it; the game uses it for its autopilot and its auto-equip, and to preview what a choice would give.
 /// </summary>
 public sealed class Strategy : ILootTaker
 {
@@ -21,6 +21,11 @@ public sealed class Strategy : ILootTaker
     readonly Item[] _tradeItems;
     readonly double[] _forgeScore, _forgeCost;
     readonly PriorityQueue<int, double> _heap = new();
+    readonly Loadout _loadout;
+    readonly double[] _values;
+    readonly bool[] _cand, _chosen, _backup;
+    /// <summary>Whether a kept item changed since the set was last chosen.</summary>
+    bool _dirty;
 
     /// <summary>When set, transcendence decisions are written here (progsim --debug-prestige).</summary>
     public List<string> Log;
@@ -36,7 +41,18 @@ public sealed class Strategy : ILootTaker
         _tradePicks = new Item[n];
         _forgeScore = new double[n];
         _forgeCost = new double[n];
+        _loadout = new Loadout(H.C);
+        _values = new double[n];
+        _cand = new bool[n];
+        _chosen = new bool[n];
+        _backup = new bool[n];
     }
+
+    /// <summary>Whether the best set is put on after each batch (the game's auto-equip; the simulator always does).</summary>
+    public bool AutoWear = true;
+
+    /// <summary>The last loadout search, for the screen and the tests.</summary>
+    public Loadout Search => _loadout;
 
     public double[] Weights => _w;
 
@@ -66,10 +82,13 @@ public sealed class Strategy : ILootTaker
             var s = (Stat)i;
             if (Stats.IsUtility(s)) continue;
             double d = Probe(s);
-            H.Total.V[i] += d;
+            double old = H.Total.V[i];
+            // A flat stat nothing gives yet is probed from a little of it (adding to nothing changes nothing), so the
+            // first piece that gives it is worth a great deal rather than nothing.
+            H.Total.V[i] = Stats.IsFlat(s) && old <= Scale.None + 1 ? d : old + d;
             var b = H.Fight.Prepare(H.Total);
             double r1 = stuck ? PowerAtOne(b) : Objective(b);
-            H.Total.V[i] -= d;
+            H.Total.V[i] = old;
             _w[i] = Math.Max(0, (r1 - r0) / d);
         }
         double more = 0.5 * (_w[(int)Stat.MoreDamage] + _w[(int)Stat.MoreHp]);
@@ -103,8 +122,10 @@ public sealed class Strategy : ILootTaker
     Item _pick;
     double _pickScore;
 
-    /// <summary>Equips a batch of drops: an item at least as good in every stat goes on at once; items that trade some
-    /// stats for others wait for <see cref="Trade"/>; everything is salvaged for materials. Returns whether gear changed.</summary>
+    /// <summary>Takes a batch of drops: for each piece, the best item kept (for a piece being worn, one at least as good
+    /// in every stat goes on at once and one that trades some stats for others waits for <see cref="Trade"/>; for one
+    /// that isn't, the better by what it would be worth worn); then the best set is worn; everything else is salvaged
+    /// for materials. Returns whether gear changed.</summary>
     public bool Take(LootRoll roll)
     {
         bool changed = false;
@@ -135,10 +156,14 @@ public sealed class Strategy : ILootTaker
         return Finish(changed);
     }
 
+    double _keptScore;
+
     void Begin(int s)
     {
         _old.Clear();
-        if (H.Gear[s] != null) H.Contribute(s, H.Gear[s], _old);
+        _keptScore = 0;
+        if (H.Active[s]) H.Contribute(s, H.Gear[s], _old);
+        else if (H.Gear[s] != null) _keptScore = Score(s, H.Gear[s]);
         _pick = null;
         _pickScore = 0;
     }
@@ -155,13 +180,26 @@ public sealed class Strategy : ILootTaker
 
     bool Settle(int s)
     {
-        if (_pick == null || H.Gear[s] != null && _pickScore <= 1e-9) return false;
+        if (_pick == null) return false;
+        if (!H.Active[s])
+        {
+            // Not worn now: keep whichever would be worth more worn (the set decides whether it goes on).
+            if (H.Gear[s] != null && _pickScore <= _keptScore + 1e-9) return false;
+            Applied?.Add((s, _pick, H.Gear[s] == null ? null : Copy(H.Gear[s]), _pickScore - _keptScore));
+            H.Gear[s] ??= new Item();
+            H.Gear[s].CopyFrom(_pick);
+            W.Events?.Upgrade(_pickScore - _keptScore);
+            _dirty = true;
+            return false;
+        }
+        if (H.Gear[s] != null && _pickScore <= 1e-9) return false;
         if (H.Gear[s] == null || Dominates(s, _pick))
         {
             Applied?.Add((s, _pick, H.Gear[s] == null ? null : Copy(H.Gear[s]), _pickScore));
             H.Gear[s] ??= new Item();
             H.Gear[s].CopyFrom(_pick);
             W.Events?.Upgrade(_pickScore);
+            _dirty = true;
             return true;
         }
         (_tradeItems[s] ??= new Item()).CopyFrom(_pick);
@@ -177,6 +215,77 @@ public sealed class Strategy : ILootTaker
         {
             H.RebuildGear();
             changed = true;
+            _dirty = true;
+        }
+        if (_dirty && AutoWear)
+        {
+            if (changed) H.Rebuild();
+            changed |= Wear();
+        }
+        return changed;
+    }
+
+    // ---------------------------------------------------------------- what to wear
+
+    /// <summary>What wearing slot <paramref name="s"/>'s item is worth now (reach by the weights): for a piece that
+    /// counts, what taking it off would lose; for one that doesn't, what putting it on would add.</summary>
+    public double Worth(int s)
+    {
+        var it = H.Gear[s];
+        if (it == null) return 0;
+        _new.Clear();
+        H.Contribute(s, it, _new);
+        double v = 0;
+        var t = H.Total.V;
+        bool on = H.Active[s];
+        for (int i = 0; i < Stats.Count; i++)
+        {
+            double n = _new.V[i];
+            if (Stats.IsFlat((Stat)i))
+            {
+                if (n <= Scale.None) continue;
+                v += _w[i] * (on ? t[i] - H.S.Sub(t[i], n) : H.S.Add(t[i], n) - t[i]);
+            }
+            else v += _w[i] * n;
+        }
+        return v;
+    }
+
+    /// <summary>
+    /// Puts on the best set (docs/equipment.md, "Choosing what to wear"): each kept item valued by the weights, the best
+    /// valid set of them found by the loadout search (conflicts, and what each host's board can hold), taken only if the
+    /// hero is at least as strong by the objective itself; then once more with the weights at the new set, since
+    /// trading pieces moves the balance between damage and health. Returns whether what's worn changed.
+    /// </summary>
+    public bool Wear()
+    {
+        _dirty = false;
+        bool changed = false;
+        int n = H.Gear.Length;
+        for (int round = 0; round < 2; round++)
+        {
+            for (int s = 0; s < n; s++)
+            {
+                _cand[s] = H.Open[s] && H.Gear[s] != null;
+                _values[s] = _cand[s] ? Worth(s) : 0;
+            }
+            Array.Copy(H.Worn, _chosen, n);
+            _loadout.Solve(_values, _cand, _chosen);
+            bool same = true;
+            for (int s = 0; s < n && same; s++) same = _chosen[s] == H.Worn[s];
+            if (same) break;
+            double before = Objective(H.Base);
+            Array.Copy(H.Worn, _backup, n);
+            Array.Copy(_chosen, H.Worn, n);
+            H.Rebuild();
+            if (Objective(H.Base) < before - 1e-9)
+            {
+                Array.Copy(_backup, H.Worn, n);
+                H.Rebuild();
+                break;
+            }
+            changed = true;
+            UpdateWeights();
         }
         return changed;
     }
@@ -193,7 +302,7 @@ public sealed class Strategy : ILootTaker
     public (double Score, bool Dominates) Judge(int s, Item it)
     {
         _old.Clear();
-        if (H.Gear[s] != null) H.Contribute(s, H.Gear[s], _old);
+        if (H.Active[s]) H.Contribute(s, H.Gear[s], _old);
         double score = Score(s, it);
         return (score, H.Gear[s] == null || Dominates(s, it));
     }
@@ -304,7 +413,7 @@ public sealed class Strategy : ILootTaker
         for (int s = 0; s < n; s++)
         {
             _forgeScore[s] = double.NegativeInfinity;
-            if (!H.Open[s] || H.Gear[s] == null) continue;
+            if (!H.Active[s]) continue;
             double v = SlotValue(s) * step;
             if (v <= 0) continue;
             _forgeCost[s] = H.ForgeCost(s).Log10;
@@ -387,7 +496,7 @@ public sealed class Strategy : ILootTaker
         Array.Clear(H.Focus);
         _heap.Clear();
         for (int s = 0; s < H.Gear.Length; s++)
-            if (H.Open[s] && H.Gear[s] != null) _heap.Enqueue(s, -(PoolValue(s) / H.MasteryNeed(s)));
+            if (H.Active[s]) _heap.Enqueue(s, -(PoolValue(s) / H.MasteryNeed(s)));
         for (int k = 0; k < H.FocusSlots && _heap.Count > 0; k++) H.Focus[_heap.Dequeue()] = true;
     }
 
@@ -489,6 +598,7 @@ public sealed class Strategy : ILootTaker
         SpendLayer(H.Ascension);
         H.UpdateUnlocks();
         H.Rebuild();
+        Wear();
     }
 
     /// <summary>What a transcendence would take the hero deeper by now (negative for a setback): what the stardust buys,
@@ -531,6 +641,7 @@ public sealed class Strategy : ILootTaker
         UpdateWeights();
         H.UpdateUnlocks();
         H.Rebuild();
+        Wear();
     }
 
     /// <summary>How much deeper (in the policy's objective) the ascension tree's stats take the hero now.</summary>

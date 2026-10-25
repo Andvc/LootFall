@@ -19,7 +19,7 @@ public partial class GameScreen : Control
     public readonly BattleView Battle;
     public readonly Hud Hud;
     public readonly ChestTray Tray;
-    public readonly KindTiles Tiles;
+    public readonly BodyTiles Tiles;
     public readonly Dock Dock;
     readonly Toasts _toasts;
     readonly Control _overlays;
@@ -62,7 +62,7 @@ public partial class GameScreen : Control
         _uiLayer.AddChild(Hud);
         Tray = new ChestTray(this);
         _uiLayer.AddChild(Tray);
-        Tiles = new KindTiles(this);
+        Tiles = new BodyTiles(this);
         _uiLayer.AddChild(Tiles);
         Dock = new Dock(this);
         _uiLayer.AddChild(Dock);
@@ -209,14 +209,15 @@ public partial class GameScreen : Control
         _overlays.AddChild(overlay);
     }
 
-    /// <summary>Esc: closes the top overlay; false when there was none.</summary>
+    /// <summary>Esc: steps the top overlay back (most simply close; the equipment screen zooms out first); false when
+    /// there was none.</summary>
     public bool CloseOverlay()
     {
         for (int i = _overlays.GetChildCount() - 1; i >= 0; i--)
         {
             if (_overlays.GetChild(i) is Overlay o && !o.Closing)
             {
-                o.Close();
+                o.Back();
                 return true;
             }
         }
@@ -295,6 +296,9 @@ public abstract partial class Overlay : Control
     }
 
     public override void _EnterTree() => CreateTween().TweenProperty(this, "modulate:a", 1f, 0.15f);
+
+    /// <summary>Esc: one step back, which for most overlays is closing.</summary>
+    public virtual void Back() => Close();
 
     public virtual void Close()
     {

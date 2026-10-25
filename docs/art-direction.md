@@ -67,8 +67,8 @@ mipmaps, and art is authored at twice its on-screen size, so it stays crisp up t
 |---|---|---|
 | The lane | y 0 to 640 | Parallax backdrop. The ground line is at y 575. The knight's feet are at x 480; monsters engage at x 760 and x 940 and walk in from x 2080. |
 | Top bar | y 0 to 96, over the lane | Level and XP, gold, shards, aether (once open). Depth, realm and the depth's progress (waves, then the boss) in the middle. Settings and menu on the right. |
-| Bottom panel | y 640 to 1080 | Left, x 0 to 520: the chest tray (the pile, Open, Auto). Middle, x 520 to 1400: the armoury's eight kind tiles and the latest finds. Right, x 1400 to 1920: the dock (Talents, Forge, Ranks, Codex, Ascend), each with its badge. |
-| Overlays | full screen | The armoury, the talent tree, the codex, the prestige trees, settings and the pause menu. A shade under each; Esc closes it. |
+| Bottom panel | y 640 to 1080 | Left, x 0 to 520: the chest tray (the pile, Open, Auto). Middle, x 520 to 1400: a small figure of the knight wearing what counts, his 14 regions with what's worn in each, and the latest finds. Right, x 1400 to 1920: the dock (Talents, Forge, Ranks, Codex, Ascend), each with its badge. |
+| Overlays | full screen | The equipment screen (a paper doll and the slots, [equipment.md](equipment.md)), the talent tree, the codex, the prestige trees, settings and the pause menu. A shade under each; Esc steps back or closes it. |
 
 The on-screen budget holds whatever the power level: at most **12 monsters and 10 floating numbers** at once. Growth
 shows as speed and reach, not as density.
@@ -139,8 +139,9 @@ Every icon is built from three layers:
 3. **State overlays**, drawn by code: the upgrade arrow and its verdict ("+3.2% reach"), the NEW badge for a first
    find, affix dots, the forge level, rank stars, mastery pips and the tier numeral.
 
-The 149 slots reduce to about **85 families**: left and right mirror one design, and the twenty finger and toe rings
-share two families, the 24 trinkets four. Each family comes in **five material tiers** following the codex eras:
+The 586 kinds of piece reduce to **238 families** (`Anatomy.FamilyOf`): left and right mirror one design, and
+numbered pieces share one (the ten finger rings are one family, the gems set in every board another). Each family comes
+in **five material tiers** following the codex eras:
 
 | Art tier | Codex eras | Materials |
 |---|---|---|

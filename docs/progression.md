@@ -1,5 +1,11 @@
 # LootFall progression framework
 
+> **On hold.** The equipment redesign ([equipment.md](equipment.md)) replaced the 149 slots below with 586 kinds of
+> piece on 545 slots, worn in sets the body allows. The budget is still 149 (`Params.ReferenceSlots`): pieces are sized
+> so that the largest set that can be worn at once adds up to it. The owner has put balance validation and the
+> regression checks on hold until the systems are redesigned, so the results here predate the change and will be
+> measured again then.
+
 The numerical foundation for growing LootFall from eight slots and a few hours of play into a game of abundance: 149
 equipment slots from head to toe, twelve rarities, a 3,259-node talent tree with endless paragon, per-slot forge,
 ranks and mastery, a codex of first finds, and two prestige layers, all of it able to keep a player progressing for

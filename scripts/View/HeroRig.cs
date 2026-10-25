@@ -17,14 +17,15 @@ public sealed class GearLook
     {
         var g = new GearLook();
         var slots = h.C.Slots;
+        // The rarest piece that counts among those that match (and its art tier).
         int Best(Func<SlotDef, bool> which, out int tier)
         {
             int best = -1;
             tier = 0;
             for (int s = 0; s < slots.Length; s++)
             {
+                if (!h.Active[s] || !which(slots[s])) continue;
                 var it = h.Gear[s];
-                if (it == null || !h.Open[s] || !which(slots[s])) continue;
                 if (it.Rarity > best || (it.Rarity == best && Ink.ArtTier(Hero.Era(it.Ilvl)) > tier))
                 {
                     best = it.Rarity;
@@ -33,33 +34,33 @@ public sealed class GearLook
             }
             return best;
         }
-        int Named(params string[] names) => Best(d => Array.IndexOf(names, d.Name) >= 0, out _);
-        g.Weapon = Best(d => d.Name == "Main Hand", out g.WeaponTier);
-        g.Shield = Best(d => d.Name == "Off Hand", out g.ShieldTier);
-        g.Helm = Best(d => d.Name == "Helm", out g.HelmTier);
-        g.Chest = Best(d => d.Name == "Breastplate", out g.ChestTier);
-        g.Tabard = Named("Tabard", "Tunic");
-        g.Cloak = Named("Cloak", "Mantle");
-        g.Pauldron = Best(d => d.Name.EndsWith("Pauldron"), out g.PauldronTier);
-        g.Gauntlet = Best(d => d.Name.EndsWith("Gauntlet"), out g.GauntletTier);
-        g.Belt = Named("Belt", "Sash");
-        g.Boots = Best(d => d.Name.EndsWith(" Boot"), out g.BootsTier);
-        g.Rings = Best(d => d.Kind == SlotKind.Jewelry && d.Name.EndsWith(" Ring") && d.Name != "Nose Ring", out _);
-        g.Neck = Best(d => d.Kind == SlotKind.Jewelry && !d.Name.EndsWith(" Ring"), out _);
-        g.Tattoo = Best(d => d.Kind == SlotKind.Tattoo, out _);
+        int Of(params string[] families) => Best(d => Array.IndexOf(families, d.Family) >= 0, out _);
+        g.Weapon = Best(d => d.Family is "main_hand" or "great_weapon", out g.WeaponTier);
+        g.Shield = Best(d => d.Family == "shield", out g.ShieldTier);
+        g.Helm = Best(d => d.Family is "great_helm" or "sallet" or "nasal_helm" or "horned_helm", out g.HelmTier);
+        g.Chest = Best(d => d.Family is "breastplate" or "cuirass" or "brigandine" or "full_plate_harness", out g.ChestTier);
+        g.Tabard = Of("tabard", "surcoat", "robe");
+        g.Cloak = Of("cloak", "cape", "mantle");
+        g.Pauldron = Best(d => d.Family is "pauldron" or "spaulder" or "full_arm_harness" or "full_plate_harness", out g.PauldronTier);
+        g.Gauntlet = Best(d => d.Family is "gauntlet" or "claw_gauntlet" or "hand_plate", out g.GauntletTier);
+        g.Belt = Of("belt", "girdle", "sash");
+        g.Boots = Best(d => d.Family is "boot" or "armoured_boot" or "sabaton", out g.BootsTier);
+        g.Rings = Of("ring", "knuckle_ring");
+        g.Neck = Of("amulet", "necklace", "choker", "torc", "chain_of_office");
+        g.Tattoo = Best(d => d.Kind == SlotKind.Tattoo && d.Board == Anatomy.Body, out _);
         g.Trinket = Best(d => d.Kind == SlotKind.Trinket, out _);
         for (int s = 0; s < slots.Length; s++)
-            if (slots[s].Kind == SlotKind.Trinket && h.Gear[s] != null && h.Open[s]) g.TrinketCount++;
-        g.Familiar = Named("Familiar");
-        g.Halo = Named("Halo");
-        g.Wings = Named("Wings");
-        g.Aura = Named("Aura");
-        g.Starcrown = Named("Starcrown");
-        g.Comet = Named("Comet");
-        g.Nebula = Named("Nebula");
-        g.Eclipse = Named("Eclipse");
-        g.Zenith = Named("Zenith");
-        g.Constellation = Best(d => d.Name.StartsWith("Constellation"), out _);
+            if (slots[s].Kind == SlotKind.Trinket && h.Active[s]) g.TrinketCount++;
+        g.Familiar = Of("familiar", "shoulder_familiar");
+        g.Halo = Of("halo");
+        g.Wings = Of("wings");
+        g.Aura = Of("aura");
+        g.Starcrown = Of("starcrown");
+        g.Comet = Of("comet");
+        g.Nebula = Of("shadow_cloak");
+        g.Eclipse = Of("eclipse");
+        g.Zenith = Of("ioun_stone");
+        g.Constellation = Of("constellation");
         return g;
     }
 }

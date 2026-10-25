@@ -54,6 +54,9 @@ public sealed class Automation
 {
     /// <summary>Open chests as they drop (no reveal; notable finds still announce themselves).</summary>
     public bool OpenChests;
+    /// <summary>Put on the best set of pieces whenever a better item is kept (docs/equipment.md). A choice made by hand
+    /// turns it off.</summary>
+    public bool Equip = true;
     /// <summary>Spend gold on forge levels and materials on ranks, where they're worth most.</summary>
     public bool Forge = true, Ranks = true;
     /// <summary>Spend talent points (the tree, then paragon) on what's worth most now.</summary>
@@ -275,8 +278,9 @@ public sealed class Session : IWorldEvents
 
     // ---------------------------------------------------------------- chests
 
-    /// <summary>Opens a chest: its best items go on (what's at least as good in every stat at once, trades if they leave
-    /// the hero ahead), first finds go into the codex, the rest is salvaged for materials.</summary>
+    /// <summary>Opens a chest: the best item for each kind of piece is kept (what's at least as good in every stat at
+    /// once, trades if they leave the hero ahead), the best set is worn (with auto-equip), first finds go into the
+    /// codex, the rest is salvaged for materials.</summary>
     public Opening Open(Chest chest, bool auto = false)
     {
         if (chest == null) return null;
@@ -286,6 +290,7 @@ public sealed class Session : IWorldEvents
         _openItems.Clear();
         _openItems.AddRange(chest.Items.OrderBy(x => x.Slot));
         _applied.Clear();
+        S.AutoWear = Auto.Equip;
         S.Equip(_openItems);
         var cards = new Dictionary<Item, Card>();
         foreach (var (slot, item) in chest.Items)
@@ -297,11 +302,18 @@ public sealed class Session : IWorldEvents
         foreach (var (slot, picked, replaced, score) in _applied)
         {
             if (!cards.TryGetValue(picked, out var card)) continue;
-            card.Equipped = true;
+            card.Kept = true;
             card.Replaced = replaced;
             card.Score = score;
-            o.Equipped++;
+            o.Kept++;
         }
+        // What's worn once the set is chosen.
+        foreach (var card in o.Cards)
+            if (card.Kept && H.Active[card.Slot] && Same(H.Gear[card.Slot], card.Item))
+            {
+                card.Equipped = true;
+                o.Equipped++;
+            }
         foreach (int key in chest.Found)
         {
             if (!H.Mark(key)) continue;
@@ -311,7 +323,7 @@ public sealed class Session : IWorldEvents
             if (card != null) card.New = true;
         }
         H.Materials += chest.Materials;
-        o.Salvaged = Math.Max(0, chest.ItemCount - o.Equipped);
+        o.Salvaged = Math.Max(0, chest.ItemCount - o.Kept);
         H.Rebuild();
         o.ReachAfter = H.Reach();
         o.Cards.Sort((a, b) => a.Item.Rarity != b.Item.Rarity ? a.Item.Rarity.CompareTo(b.Item.Rarity) : a.Equipped.CompareTo(b.Equipped));
@@ -321,6 +333,84 @@ public sealed class Session : IWorldEvents
         if (_away) _awaySummary?.Note(o);
         Emit(new GameEvent(EventKind.ChestOpened, o.Equipped, auto, data: o));
         return o;
+    }
+
+    static bool Same(Item a, Item b) => a != null && b != null && a.Rarity == b.Rarity && a.Ilvl == b.Ilvl && a.Quality == b.Quality && a.Affixes == b.Affixes;
+
+    // ---------------------------------------------------------------- what's worn
+
+    /// <summary>Puts on slot <paramref name="s"/>'s item by hand: whatever on its board it can't be worn with comes off.
+    /// A piece on a board stays set in it even while its host is off. Turns auto-equip off, so the choice stays.
+    /// Returns the slots taken off, or null if it can't go on.</summary>
+    public List<int> Wear(int s)
+    {
+        if (!H.Open[s] || H.Gear[s] == null || H.Worn[s]) return null;
+        var off = new List<int>();
+        foreach (int c in C.Slots[s].Conflicts)
+            if (H.Worn[c])
+            {
+                H.Worn[c] = false;
+                off.Add(c);
+            }
+        H.Worn[s] = true;
+        Auto.Equip = false;
+        H.Rebuild();
+        return off;
+    }
+
+    /// <summary>Takes slot <paramref name="s"/>'s piece off by hand (what's set in its boards stays set). Turns auto-equip off.</summary>
+    public bool TakeOff(int s)
+    {
+        if (!H.Worn[s]) return false;
+        H.Worn[s] = false;
+        Auto.Equip = false;
+        H.Rebuild();
+        return true;
+    }
+
+    /// <summary>Puts on the best set now, as auto-equip does after every chest. Returns whether anything changed.</summary>
+    public bool WearBest()
+    {
+        S.UpdateWeights();
+        return S.Wear();
+    }
+
+    /// <summary>The hero's power at the current depth, in LE (the mean of damage and health).</summary>
+    public double Power()
+    {
+        var f = H.Fight.At(H.Total, H.Base, Math.Max(1, H.RunDepth));
+        return 0.5 * (f.Dps + f.Hp);
+    }
+
+    /// <summary>What putting slot <paramref name="s"/> on would do: the power it would leave the hero with (a
+    /// multiplier) and what would come off.</summary>
+    public (double Power, List<int> Off) PreviewWear(int s)
+    {
+        var off = new List<int>();
+        foreach (int c in C.Slots[s].Conflicts)
+            if (H.Worn[c]) off.Add(c);
+        double before = Power();
+        var backup = (bool[])H.Worn.Clone();
+        foreach (int c in off) H.Worn[c] = false;
+        H.Worn[s] = true;
+        H.Rebuild();
+        double after = Power();
+        Array.Copy(backup, H.Worn, backup.Length);
+        H.Rebuild();
+        return (H.S.Pow(after - before), off);
+    }
+
+    /// <summary>What taking slot <paramref name="s"/>'s piece off would leave the hero with (a power multiplier).</summary>
+    public double PreviewTakeOff(int s)
+    {
+        if (!H.Worn[s]) return 1;
+        double before = Power();
+        H.Worn[s] = false;
+        H.Rebuild();
+        double after = Power();
+        H.Worn[s] = true;
+        H.Rebuild();
+        return H.S.Pow(after - before);
     }
 
     /// <summary>The rarity from which a chest is held for the player (see <see cref="Automation.HoldAt"/>).</summary>
@@ -424,7 +514,7 @@ public sealed class Session : IWorldEvents
             Auto.Focus = false;
             return true;
         }
-        if (!H.Open[s] || H.Gear[s] == null || FocusCount >= H.FocusSlots) return false;
+        if (!H.Active[s] || FocusCount >= H.FocusSlots) return false;
         H.Focus[s] = true;
         Auto.Focus = false;
         return true;
@@ -493,6 +583,7 @@ public sealed class Session : IWorldEvents
         if (Auto.SpendPrestige || auto) S.SpendLayer(H.Ascension);
         H.UpdateUnlocks();
         H.Rebuild();
+        S.Wear();
         Totals.Ascensions++;
         Emit(new GameEvent(EventKind.Ascended, depth, auto, gain));
         if (H.Ascension.Resets == 1) Emit(new GameEvent(EventKind.Unlocked, data: "Auto-forge and auto-ranks"));
@@ -515,6 +606,7 @@ public sealed class Session : IWorldEvents
         S.UpdateWeights();
         H.UpdateUnlocks();
         H.Rebuild();
+        S.Wear();
         Totals.Transcendences++;
         Emit(new GameEvent(EventKind.Transcended, depth, auto, gain));
         if (H.Transcendence.Resets == 1) Emit(new GameEvent(EventKind.Unlocked, data: "Autopilot"));

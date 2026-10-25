@@ -6,22 +6,78 @@ namespace LootFall.Progression;
 
 public enum SlotKind : byte { Weapon, Armor, Jewelry, Accessory, Trinket, Tattoo, Companion, Celestial }
 
-/// <summary>One equipment slot. Its numbers come from its kind and its place in the unlock order, never by hand.</summary>
+/// <summary>
+/// One kind of piece and where it goes (docs/equipment.md): the board it's worn on (the body, or a piece's own board),
+/// the cells it fills and keeps free, the boards it brings and the cells of them it opens. The framework calls it a
+/// slot: what it holds is the best item found for it, and its forge, ranks, mastery and codex entries are its own. Its
+/// numbers come from its kind, its size and its place in the unlock order, never by hand.
+/// </summary>
 public sealed class SlotDef
 {
     public int Index;
-    public string Name;
+    public string Name, Family;
     public SlotKind Kind;
     /// <summary>Share of the slot's flat budget that is damage; the rest is health and armor.</summary>
     public double Offense;
-    /// <summary>The slot's share of the gear budget (grows with unlock order, so late slots still matter).</summary>
+    /// <summary>The slot's share of the gear budget: its size, its kind's weight and its place in the unlock order.</summary>
     public double Weight;
+    /// <summary>Its size (the worth of the cells it fills, a little of those it keeps free), normalised so a whole body
+    /// adds up to Params.ReferenceSlots; percent affixes scale with it too, so many small pieces weigh what one big one does.</summary>
+    public double Size;
     /// <summary>Unlocked when the hero first reaches this depth; 0 when a prestige layer's node unlocks it instead.</summary>
     public int UnlockDepth;
     /// <summary>Which stats its affixes can roll, with weights.</summary>
     public Stat[] Pool;
     public double[] PoolWeights;
     public double PoolTotal;
+
+    /// <summary>The board it's worn on (0: the body) and its level (2 on the body, 3 on a piece's board, 4 deeper).</summary>
+    public int Board, Level, Tier;
+    public bool Prestige;
+    public Side Side;
+    /// <summary>Where it sits: the body region and site (null region for pieces on boards).</summary>
+    public string Region, Site;
+    /// <summary>Cells it fills and keeps free (Cell ids).</summary>
+    public int[] Takes, Keeps;
+    /// <summary>Boards it brings, with the cells of each it opens.</summary>
+    public (int Board, int[] Opens)[] Brings;
+    /// <summary>The slots on its board it can't be worn with.</summary>
+    public int[] Conflicts;
+    /// <summary>Its cells' indices within the board (for checking what a host opens).</summary>
+    public int[] LocalTakes;
+}
+
+/// <summary>A board's structure for the rules: its slots, the slots that bring it, and which of its cells each opens.</summary>
+public sealed class BoardDef
+{
+    public int Id, Level, Size;
+    public string Key, Name;
+    public int[] Slots;
+    /// <summary>Its cells (Cell ids), in board order.</summary>
+    public int[] Cells;
+    public int[] Hosts;
+    /// <summary>For each host (same order as <see cref="Hosts"/>), its cells opened, by index within the board.</summary>
+    public bool[][] Opens;
+
+    /// <summary>A cell's index within the board (-1 if it isn't on it).</summary>
+    public int Local(int cell) => Array.IndexOf(Cells, cell);
+
+    /// <summary>Whether host <paramref name="host"/> (a slot index) opens a cell of the board (by Cell id).</summary>
+    public bool Opens1(int host, int cell)
+    {
+        int h = Array.IndexOf(Hosts, host), c = Local(cell);
+        return h >= 0 && c >= 0 && Opens[h][c];
+    }
+
+    /// <summary>Whether host <paramref name="host"/> (a slot index) opens every cell slot <paramref name="s"/> fills.</summary>
+    public bool Opened(int host, SlotDef s)
+    {
+        int h = Array.IndexOf(Hosts, host);
+        if (h < 0) return false;
+        foreach (int c in s.LocalTakes)
+            if (!Opens[h][c]) return false;
+        return true;
+    }
 }
 
 /// <summary>One rarity tier: how many affixes, and the milestone that opens it.</summary>
@@ -44,49 +100,21 @@ public sealed class AffixDef
 }
 
 /// <summary>
-/// The reference content at full scale: 149 equipment slots from head to toe (more than any game on the market: ten
-/// rings, ten toe rings, earrings, tattoos, trinkets, a familiar and a mount, celestial slots for the late game), twelve
-/// rarity tiers, and the affix catalog. Generated from a few rules so the counts can grow without retuning by hand.
+/// The content at full scale: every piece the anatomy has (about 550, from a great helm to the stone in a ring and the
+/// keepsake in a pouch on the belt; docs/equipment.md) as slots in the order they open, the boards they're worn on,
+/// twelve rarity tiers, and the affix catalog. Generated from rules so the counts can grow without retuning by hand.
 /// </summary>
 public sealed class Content
 {
     public readonly SlotDef[] Slots;
+    public readonly BoardDef[] Boards;
+    public readonly Anatomy Anatomy;
     public readonly RarityDef[] Rarities;
     public readonly AffixDef[] Affixes;
     readonly double[] _percentBase = new double[Stats.Count];
 
     public int SlotCount => Slots.Length;
-
-    readonly (SlotKind Kind, string Name)[] _list;
-
-    /// <summary>The reference slot list, or one padded out to <paramref name="target"/> slots with generated ones (to test
-    /// how the framework scales with content).</summary>
-    static (SlotKind, string)[] BuildSlotList(int target)
-    {
-        var l = new List<(SlotKind, string)>();
-        void Add(SlotKind k, params string[] names) { foreach (var n in names) l.Add((k, n)); }
-        string[] sides = { "Left", "Right" };
-        string[] fingers = { "Thumb", "Index", "Middle", "Ring", "Little" };
-        Add(SlotKind.Weapon, "Main Hand", "Off Hand", "Sidearm", "Bow", "Quiver", "Throwing Knives");
-        Add(SlotKind.Armor, "Helm", "Breastplate", "Tunic", "Cloak", "Mantle", "Tabard", "Belt", "Tassets", "Gorget", "Visor", "Hood", "Greaves", "Faulds");
-        foreach (var s in sides) Add(SlotKind.Armor, $"{s} Pauldron", $"{s} Gauntlet", $"{s} Vambrace", $"{s} Elbow Guard", $"{s} Cuisse", $"{s} Kneeguard", $"{s} Shin Guard", $"{s} Boot");
-        Add(SlotKind.Jewelry, "Amulet", "Necklace", "Choker", "Circlet", "Diadem", "Nose Ring", "Hair Pin");
-        foreach (var s in sides) Add(SlotKind.Jewelry, $"{s} Earring", $"{s} Bracelet", $"{s} Armlet", $"{s} Anklet");
-        foreach (var s in sides) foreach (var f in fingers) Add(SlotKind.Jewelry, $"{s} {f} Ring", $"{s} {f} Toe Ring");
-        Add(SlotKind.Accessory, "Brooch", "Cloak Pin", "Sash", "Scabbard", "Bandolier", "Monocle", "Locket", "Signet", "Keyring", "Phylactery", "Left Pouch", "Right Pouch", "Left Garter", "Right Garter", "Spurs");
-        foreach (var t in new[] { "Charm", "Relic", "Talisman", "Idol" })
-            foreach (var n in new[] { "I", "II", "III", "IV", "V", "VI" }) Add(SlotKind.Trinket, $"{t} {n}");
-        Add(SlotKind.Tattoo, "Brow Tattoo", "Neck Tattoo", "Chest Tattoo", "Back Tattoo");
-        foreach (var s in sides) Add(SlotKind.Tattoo, $"{s} Shoulder Tattoo", $"{s} Arm Tattoo", $"{s} Hand Tattoo", $"{s} Thigh Tattoo", $"{s} Calf Tattoo");
-        Add(SlotKind.Companion, "Familiar", "Familiar's Collar", "Mount", "Saddle", "Barding", "Reins", "Banner", "Lantern", "Totem", "Satchel");
-        Add(SlotKind.Celestial, "Halo", "Wings", "Aura", "Starcrown", "Comet", "Nebula", "Eclipse", "Zenith");
-        foreach (var c in new[] { "Ram", "Bull", "Twins", "Crab", "Lion", "Maiden", "Scales", "Archer" }) Add(SlotKind.Celestial, $"Constellation of the {c}");
-        int celestial = l.Count(x => x.Item1 == SlotKind.Celestial);
-        string[] extra = { "Rune", "Sigil", "Ward", "Bead", "Glyph", "Seal" };
-        SlotKind[] extraKind = { SlotKind.Accessory, SlotKind.Trinket, SlotKind.Tattoo, SlotKind.Jewelry, SlotKind.Tattoo, SlotKind.Trinket };
-        for (int i = 0; l.Count < target; i++) l.Insert(l.Count - celestial, (extraKind[i % 6], $"{extra[i % 6]} {i / 6 + 1}"));
-        return l.ToArray();
-    }
+    public IReadOnlyList<Cell> Cells => Anatomy.Cells;
 
     /// <summary>Damage share, budget weight and affix pool per slot kind.</summary>
     static (double Offense, double Weight, (Stat, double)[] Pool) KindRule(SlotKind k) => k switch
@@ -101,28 +129,32 @@ public sealed class Content
         _ => (0.5, 1.5, new[] { (Stat.IncDamage, 2.0), (Stat.IncHp, 2.0), (Stat.CritDamage, 1.0), (Stat.MultiHit, 1.0), (Stat.AttackSpeed, 1.0), (Stat.Regen, 1.0), (Stat.ItemFind, 1.0), (Stat.Quantity, 1.0) }),
     };
 
-    /// <summary>The order slots open in: the eight classics first, then the kinds interleaved so every part of the body
-    /// fills gradually; celestial slots last (prestige nodes open those).</summary>
-    static readonly string[] ClassicSlots = { "Main Hand", "Breastplate", "Helm", "Left Gauntlet", "Left Boot", "Left Index Ring", "Amulet", "Off Hand" };
-
-    int[] UnlockOrder(Rng rng)
+    /// <summary>The order pieces open in: the start pieces, then by tier (classic, detail, exotic) with some overlap so
+    /// every part of the body fills gradually; a piece on a board after the first piece that brings it; the pieces the
+    /// transcendence tree opens last.</summary>
+    static List<PieceSpec> UnlockOrder(Anatomy a, Rng rng)
     {
-        var order = ClassicSlots.Select(n => Array.FindIndex(_list, s => s.Name == n)).ToList();
-        var byKind = _list.Select((s, i) => (s.Kind, i)).Where(x => !order.Contains(x.i) && x.Kind != SlotKind.Celestial)
-            .GroupBy(x => x.Kind).Select(g => new Queue<int>(g.Select(x => x.i).OrderBy(_ => rng.NextDouble()))).ToList();
-        while (byKind.Any(q => q.Count > 0))
+        string[] start = { "Main Hand", "Breastplate", "Sallet", "Right Boot" };
+        var key = new Dictionary<PieceSpec, double>();
+        foreach (var p in a.Pieces)
+            key[p] = p.Tier == Anatomy.StartTier ? Array.IndexOf(start, p.Name) * 1e-3 - 1 : p.Tier + 1.3 * rng.NextDouble() + (p.Prestige ? 100 : 0);
+        // Pieces on a board come after the first piece that brings it (a little after, so they don't arrive in a clump).
+        for (int pass = 0; pass < 4; pass++)
         {
-            // Draw from kinds in proportion to how many they have left, so all of them run out together.
-            int total = byKind.Sum(q => q.Count);
-            double pick = rng.NextDouble() * total;
-            foreach (var q in byKind)
+            bool moved = false;
+            foreach (var p in a.Pieces)
             {
-                if (pick < q.Count) { order.Add(q.Dequeue()); break; }
-                pick -= q.Count;
+                if (p.Board == Anatomy.Body) continue;
+                double host = a.Pieces.Where(h => h.Brings.Any(b => b.Board == p.Board)).Min(h => key[h]);
+                if (key[p] <= host)
+                {
+                    key[p] = host + 0.2 + 0.6 * rng.NextDouble();
+                    moved = true;
+                }
             }
+            if (!moved) break;
         }
-        order.AddRange(_list.Select((s, i) => (s.Kind, i)).Where(x => x.Kind == SlotKind.Celestial).Select(x => x.i));
-        return order.ToArray();
+        return a.Pieces.OrderBy(p => key[p]).ToList();
     }
 
     public static readonly string[] RarityNames =
@@ -134,34 +166,56 @@ public sealed class Content
     {
         scale ??= new ContentScale();
         var rng = new Rng(seed);
-        _list = BuildSlotList(scale.Slots);
-        var order = UnlockOrder(rng).ToList();
-        // Fewer slots than the reference list: the last to unlock (before the celestial ones) go.
-        while (scale.Slots > 0 && order.Count > scale.Slots)
-            order.RemoveAt(order.FindLastIndex(i => _list[i].Kind != SlotKind.Celestial));
-        int depthSlots = order.Count(i => _list[i].Kind != SlotKind.Celestial);
+        Anatomy = new Anatomy();
+        var order = UnlockOrder(Anatomy, rng);
+        // Less content (the content sweep): the last pieces to open by depth go, then any piece on a board nothing
+        // left brings.
+        if (scale.Slots > 0)
+        {
+            while (order.Count(x => !x.Prestige) > scale.Slots) order.RemoveAt(order.FindLastIndex(x => !x.Prestige));
+            for (bool dropped = true; dropped;)
+            {
+                dropped = false;
+                foreach (var x in order.ToList())
+                    if (x.Board != Anatomy.Body && !order.Any(h => h.Brings.Any(b => b.Board == x.Board)))
+                    {
+                        order.Remove(x);
+                        dropped = true;
+                    }
+            }
+        }
+        int depthSlots = order.Count(x => !x.Prestige);
+        int starts = order.Count(x => x.Tier == Anatomy.StartTier);
         var slots = new List<SlotDef>();
         for (int k = 0; k < order.Count; k++)
         {
-            var (kind, name) = _list[order[k]];
-            var rule = KindRule(kind);
-            int unlock = kind == SlotKind.Celestial ? 0
-                : k < scale.StartSlots ? 1
-                : (int)Math.Round(scale.SlotFirstDepth + (scale.SlotLastDepth - scale.SlotFirstDepth) * Math.Pow((k - scale.StartSlots + 1) / (double)Math.Max(1, depthSlots - scale.StartSlots), 2));
+            var x = order[k];
+            var rule = KindRule(x.Kind);
+            int unlock = x.Prestige ? 0
+                : k < starts ? 1
+                : (int)Math.Round(scale.SlotFirstDepth + (scale.SlotLastDepth - scale.SlotFirstDepth) * Math.Pow((k - starts + 1) / (double)Math.Max(1, depthSlots - starts), 2));
             slots.Add(new SlotDef
             {
-                Index = k,
-                Name = name,
-                Kind = kind,
-                Offense = name == "Off Hand" ? 0.5 : rule.Offense,
-                Weight = rule.Weight * Math.Pow(p.SlotWeightGrowth, k) * (k < ClassicSlots.Length ? p.ClassicWeight : 1),
-                UnlockDepth = unlock,
-                Pool = rule.Pool.Select(x => x.Item1).ToArray(),
-                PoolWeights = rule.Pool.Select(x => x.Item2).ToArray(),
-                PoolTotal = rule.Pool.Sum(x => x.Item2),
+                Index = k, Name = x.Name, Family = x.Family, Kind = x.Kind, Offense = rule.Offense, Size = x.Size, UnlockDepth = unlock,
+                Pool = rule.Pool.Select(y => y.Item1).ToArray(),
+                PoolWeights = rule.Pool.Select(y => y.Item2).ToArray(),
+                PoolTotal = rule.Pool.Sum(y => y.Item2),
+                Board = x.Board, Level = x.Level, Tier = x.Tier, Prestige = x.Prestige, Side = x.Side, Region = x.Region, Site = x.Site,
+                Takes = x.Takes, Keeps = x.Keeps, Brings = x.Brings,
             });
         }
         Slots = slots.ToArray();
+        Boards = BuildBoards();
+        // Sizes: the largest set that can be worn at once adds up to ReferenceSlots, so a whole body is budgeted like
+        // the reference content; then each slot's share of the flat budget.
+        var sizes = Slots.Select(x => x.Size).ToArray();
+        double full = new Loadout(this).Solve(sizes, Slots.Select(_ => true).ToArray(), new bool[Slots.Length]);
+        double growth = Math.Log(p.SlotWeightGrowth) * p.ReferenceSlots / Math.Max(1, Slots.Length);
+        foreach (var x in Slots)
+        {
+            x.Size *= p.ReferenceSlots / full;
+            x.Weight = KindRule(x.Kind).Weight * x.Size * Math.Exp(growth * x.Index);
+        }
 
         // Depth opens the first six tiers in the first hour; Ascended needs an ascension, and each tier after it one more
         // transcendence (and a depth that comes with it).
@@ -196,6 +250,57 @@ public sealed class Content
         foreach (var a in Affixes) _percentBase[(int)a.Stat] = a.Base;
     }
 
+    /// <summary>Each board's slots and hosts, each host's opened cells, and each slot's conflicts and local cells.</summary>
+    BoardDef[] BuildBoards()
+    {
+        var a = Anatomy;
+        var local = new int[a.Cells.Count];
+        foreach (var b in a.Boards)
+            for (int i = 0; i < b.Cells.Count; i++) local[b.Cells[i]] = i;
+        var takers = new List<int>[a.Cells.Count];
+        var keepers = new List<int>[a.Cells.Count];
+        for (int c = 0; c < a.Cells.Count; c++)
+        {
+            takers[c] = new List<int>();
+            keepers[c] = new List<int>();
+        }
+        foreach (var s in Slots)
+        {
+            s.LocalTakes = s.Takes.Select(c => local[c]).ToArray();
+            foreach (int c in s.Takes) takers[c].Add(s.Index);
+            foreach (int c in s.Keeps) keepers[c].Add(s.Index);
+        }
+        foreach (var s in Slots)
+        {
+            var set = new HashSet<int>();
+            foreach (int c in s.Takes)
+            {
+                set.UnionWith(takers[c]);
+                set.UnionWith(keepers[c]);
+            }
+            foreach (int c in s.Keeps) set.UnionWith(takers[c]);
+            set.Remove(s.Index);
+            s.Conflicts = set.OrderBy(x => x).ToArray();
+        }
+        return a.Boards.Select(b =>
+        {
+            var hosts = Slots.Where(s => s.Brings.Any(x => x.Board == b.Id)).Select(s => s.Index).ToArray();
+            return new BoardDef
+            {
+                Id = b.Id, Level = b.Level, Key = b.Key, Name = b.Name, Size = b.Cells.Count,
+                Slots = Slots.Where(s => s.Board == b.Id).Select(s => s.Index).ToArray(),
+                Cells = b.Cells.ToArray(),
+                Hosts = hosts,
+                Opens = hosts.Select(h =>
+                {
+                    var open = new bool[b.Cells.Count];
+                    foreach (int c in Slots[h].Brings.First(x => x.Board == b.Id).Opens) open[local[c]] = true;
+                    return open;
+                }).ToArray(),
+            };
+        }).ToArray();
+    }
+
     /// <summary>A percent affix's base size (0 for flat stats).</summary>
     public double PercentBase(Stat s) => _percentBase[(int)s];
 
@@ -207,8 +312,7 @@ public sealed class Content
 /// the content alone).</summary>
 public sealed class ContentScale
 {
-    /// <summary>Slots in all (0: the reference list of 149; fewer drops the last to unlock, more adds generated ones).</summary>
+    /// <summary>Pieces opened by depth (0: all of the anatomy's; fewer drops the last to open).</summary>
     public int Slots;
-    public int StartSlots = 4;
     public double SlotFirstDepth = 3, SlotLastDepth = 12000;
 }

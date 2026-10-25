@@ -20,7 +20,7 @@ public partial class Main : Node2D
 {
     public static Main Instance { get; private set; }
 
-    public const string Version = "Prototype 0.2";
+    public const string Version = "Prototype 0.3";
     const string SavePath = "user://save.json", BackupPath = "user://save.bak", TempPath = "user://save.tmp";
 
     /// <summary>There's a save this build couldn't read: starting over asks first.</summary>
@@ -188,7 +188,8 @@ public partial class Main : Node2D
         try
         {
             var d = SaveGame.FromJson(file.GetAsText());
-            return d != null && d.Version <= SaveData.CurrentVersion ? d : null;
+            // Only this version's saves: an older one's slots are another anatomy's.
+            return d != null && d.Version == SaveData.CurrentVersion ? d : null;
         }
         catch (Exception)
         {

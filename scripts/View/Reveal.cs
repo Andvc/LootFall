@@ -12,7 +12,8 @@ namespace LootFall.View;
 /// rarest thing inside, a ting a little higher at each, shaking harder; it bursts in the way its band calls for (a
 /// colour and a sound for A; a beam for B; a flash, shake and rays for C; for D a held reveal, the card glowing face
 /// down before it turns). The cards fan out above it, rarest last: what went on and what it replaced, first finds marked
-/// NEW, the rest salvaged into shards. Space or a click hurries it; then upgrades fly to the armoury and the rest to the
+/// NEW, the rest salvaged into shards. Space or a click hurries it; then what's worn flies onto the knight, what's kept to
+/// its region, and the rest to the
 /// shard counter. The outcome was settled before it began; the reveal only shows it.
 /// </summary>
 public partial class Reveal : Overlay
@@ -45,7 +46,7 @@ public partial class Reveal : Overlay
         var all = openings.SelectMany(o => o.Cards).ToList();
         _best = all.Count > 0 ? all.Max(c => c.Item.Rarity) : 0;
         // What's worth a card: upgrades and first finds first, then the rarest; shown rarest last.
-        _cards = all.OrderByDescending(c => c.Equipped || c.New).ThenByDescending(c => c.Item.Rarity).ThenByDescending(c => c.Score)
+        _cards = all.OrderByDescending(c => c.Kept || c.New).ThenByDescending(c => c.Item.Rarity).ThenByDescending(c => c.Score)
             .Take(MaxCards).OrderBy(c => c.Item.Rarity).ThenBy(c => c.Equipped).ToList();
         _chest = new Painter(DrawChest);
         AddChild(_chest);
@@ -163,11 +164,12 @@ public partial class Reveal : Overlay
         if (!IsInstanceValid(this)) return;
         // The summary.
         long items = _openings.Sum(o => o.Chest.ItemCount);
-        int equipped = _openings.Sum(o => o.Equipped), first = _openings.Sum(o => o.NewEntries);
+        int equipped = _openings.Sum(o => o.Equipped), kept = _openings.Sum(o => o.Kept) - equipped, first = _openings.Sum(o => o.NewEntries);
         double shards = _openings.Sum(o => o.Materials);
         double before = _openings[0].ReachBefore, after = _openings[^1].ReachAfter;
         var parts = new List<string> { _openings.Count > 1 ? $"{_openings.Count} chests, {Format.Int(items)} items" : $"{Format.Int(items)} items" };
-        if (equipped > 0) parts.Add($"{equipped} equipped");
+        if (equipped > 0) parts.Add($"{equipped} worn");
+        if (kept > 0) parts.Add($"{kept} kept for other sets");
         if (first > 0) parts.Add($"{first} first finds");
         if (shards > 0) parts.Add($"+{Format.Num(shards)} shards");
         if (after >= before + 1) parts.Add($"can reach depth {Format.Whole((long)after)}");
@@ -182,7 +184,7 @@ public partial class Reveal : Overlay
     {
         var it = card.Item;
         var slot = G.S.C.Slots[card.Slot];
-        var family = Describe.Family(slot.Name);
+        var family = Describe.Family(slot);
         var name = Describe.Name(G.S.C, card.Slot, it);
         var c = new Canvas(p =>
         {
@@ -204,8 +206,10 @@ public partial class Reveal : Overlay
         c.AddChild(Ui.Text(name, size, ink, Look.UiBold, HorizontalAlignment.Center).Wrapped().Place(8, 152, CardW - 16, tall ? 68 : 48));
         if (!tall)
             c.AddChild(Ui.Text(slot.Name, 15, light ? new Color(Look.Ink, 0.7f) : Look.Muted, Look.Ui, HorizontalAlignment.Center).Place(0, 198, CardW, 20));
-        string verdict = card.Equipped ? (card.Replaced == null ? "EQUIPPED" : $"EQUIPPED  > {Look.TierName(card.Replaced.Rarity)}") : "salvaged";
-        c.AddChild(Ui.Text(verdict, 16, card.Equipped ? (light ? new Color("#1f7a3a") : Look.Good) : Look.Dim, Look.Strong, HorizontalAlignment.Center).Place(0, 220, CardW, 22));
+        // Worn (and what it replaced), kept for another set (a piece the best set doesn't wear now), or salvaged.
+        string verdict = card.Equipped ? (card.Replaced == null ? "WORN" : $"WORN  > {Look.TierName(card.Replaced.Rarity)}") : card.Kept ? "KEPT" : "salvaged";
+        var tone = card.Equipped ? (light ? new Color("#1f7a3a") : Look.Good) : card.Kept ? (light ? new Color("#7a5a12") : Look.Gold) : Look.Dim;
+        c.AddChild(Ui.Text(verdict, 16, tone, Look.Strong, HorizontalAlignment.Center).Place(0, 220, CardW, 22));
         c.TooltipText = string.Join("\n", Describe.Lines(G.S.H, card.Slot, it));
         c.MouseFilter = MouseFilterEnum.Pass;
         return c;
@@ -232,14 +236,15 @@ public partial class Reveal : Overlay
             var node = _cardNodes[i];
             var card = _cards[i];
             var t = node.CreateTween().SetParallel();
-            if (card.Equipped)
+            if (card.Kept)
             {
-                var to = G.Tiles.TileCentre(G.S.C.Slots[card.Slot].Kind) - new Vector2(CardW / 2, CardH / 2);
+                // Worn: onto the doll where it goes; kept for another set: to its region's tile.
+                var spot = card.Equipped ? G.Tiles.SpotOf(card.Slot) : G.Tiles.TileCentre(Describe.Region(G.S.C, G.S.C.Slots[card.Slot]));
+                var to = spot - new Vector2(CardW / 2, CardH / 2) * 0.25f;
                 t.TweenProperty(node, "position", to, 0.45f).SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.In).SetDelay(i * 0.04);
                 t.TweenProperty(node, "scale", new Vector2(0.25f, 0.25f), 0.45f).SetDelay(i * 0.04);
-                int rarity = card.Item.Rarity;
-                var kind = G.S.C.Slots[card.Slot].Kind;
-                t.Chain().TweenCallback(Callable.From(() => G.Tiles.Ping(kind, rarity)));
+                int rarity = card.Item.Rarity, slot = card.Slot;
+                t.Chain().TweenCallback(Callable.From(() => G.Tiles.Ping(slot, rarity)));
             }
             else
             {

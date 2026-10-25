@@ -31,27 +31,25 @@ public static class Describe
     /// <summary>The slot's base noun without its side ("Left Index Ring" reads "Index Ring").</summary>
     public static string Base(string slot) => slot.StartsWith("Left ") ? slot[5..] : slot.StartsWith("Right ") ? slot[6..] : slot;
 
-    /// <summary>
-    /// The item family a slot's picture comes from (assets/icons/{family}.png, docs/art-direction.md "Items and icons"):
-    /// left and right share one design, the finger rings and the toe rings a family each, each trinket kind one, the
-    /// constellations one. About 85 in all.
-    /// </summary>
-    public static string Family(string slot)
+    /// <summary>What an item for the slot is called: its base noun without a numeral ("Brow Gem II" makes a "Brow Gem").</summary>
+    public static string Noun(SlotDef d)
     {
-        var b = Base(slot);
-        if (b.EndsWith("Toe Ring")) return "toe_ring";
-        if (b.EndsWith(" Ring") && b != "Nose Ring") return "ring";
-        if (b.StartsWith("Constellation")) return "constellation";
-        foreach (var t in new[] { "Charm", "Relic", "Talisman", "Idol" })
-            if (b.StartsWith(t + " ")) return t.ToLowerInvariant();
-        return b.ToLowerInvariant().Replace("'", "").Replace(' ', '_');
+        var b = Base(d.Name);
+        int space = b.LastIndexOf(' ');
+        return space > 0 && Array.IndexOf(Numerals, b[(space + 1)..]) >= 0 ? b[..space] : b;
     }
 
-    /// <summary>An item's name: a prefix from its first affix, the era's material and the slot, a suffix from another
+    static readonly string[] Numerals = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII" };
+
+    /// <summary>The item family a slot's picture comes from (assets/icons/{family}.png, docs/art-direction.md "Items and
+    /// icons"), from the anatomy: left and right share one design, every gem socket one, and so on.</summary>
+    public static string Family(SlotDef d) => d.Family;
+
+    /// <summary>An item's name: a prefix from its first affix, the era's material and the piece, a suffix from another
     /// affix ("Savage Mithril Helm of the Hawk"). Commons have no affixes and are plain ("Iron Helm").</summary>
     public static string Name(Content c, int slot, Item it)
     {
-        string baseName = $"{Era(it.Ilvl)} {Base(c.Slots[slot].Name)}";
+        string baseName = $"{Era(it.Ilvl)} {Noun(c.Slots[slot])}";
         string prefix = null, suffix = null;
         for (int i = 0; i < it.Affixes; i++)
         {
@@ -68,51 +66,36 @@ public static class Describe
         return (prefix != null ? prefix + " " : "") + baseName + (suffix != null ? " " + suffix : "");
     }
 
-    /// <summary>Where on the body (or the camp) a slot sits, for the armoury's grouping: head to toe, then the hands and
-    /// feet with their ten rings each.</summary>
-    public static string Region(SlotDef s)
+    /// <summary>The body region a slot is in: its own for a piece on the body, its board's hosts' for one on a board.</summary>
+    public static string Region(Content c, SlotDef s)
     {
-        string n = s.Name;
-        bool Has(params string[] words)
+        for (int guard = 0; s.Region == null && guard < 8; guard++)
         {
-            foreach (var w in words)
-                if (n.Contains(w)) return true;
-            return false;
+            var hosts = c.Boards[s.Board].Hosts;
+            if (hosts.Length == 0) return "Beyond";
+            s = c.Slots[hosts[0]];
         }
-        switch (s.Kind)
+        return s.Region ?? "Beyond";
+    }
+
+    /// <summary>Where a piece goes, for a reader: "Head: scalp" for the body, "Helm: brow socket II" on a board.</summary>
+    public static string Where(Content c, SlotDef s)
+    {
+        var cell = c.Cells[s.Takes[0]];
+        if (s.Board == Anatomy.Body) return $"{cell.Region}: {cell.SiteName.ToLowerInvariant()}";
+        return $"{c.Boards[s.Board].Name}: {cell.Name.ToLowerInvariant()}";
+    }
+
+    /// <summary>The cells a piece fills, by name ("scalp (helm), brow (brow guard)").</summary>
+    public static string Cells(Content c, IEnumerable<int> cells)
+    {
+        var parts = new List<string>();
+        foreach (int id in cells)
         {
-            case SlotKind.Weapon:
-                return "In hand and at the belt";
-            case SlotKind.Armor:
-                if (Has("Helm", "Visor", "Hood", "Gorget")) return "Head";
-                if (Has("Breastplate", "Tunic", "Tabard", "Cloak", "Mantle")) return "Body";
-                if (Has("Pauldron", "Vambrace", "Elbow", "Gauntlet")) return "Arms";
-                if (Has("Belt", "Tassets", "Faulds")) return "Waist";
-                if (Has("Boot")) return "Feet";
-                return "Legs";
-            case SlotKind.Jewelry:
-                if (n.EndsWith("Toe Ring")) return n.StartsWith("Left") ? "Left foot" : "Right foot";
-                if (n.EndsWith(" Ring") && n != "Nose Ring") return n.StartsWith("Left") ? "Left hand" : "Right hand";
-                if (Has("Amulet", "Necklace", "Choker")) return "Neck";
-                if (Has("Bracelet", "Armlet")) return "Arms";
-                if (Has("Anklet")) return "Ankles";
-                return "Head";
-            case SlotKind.Trinket:
-                return n.Split(' ')[0] + "s";
-            case SlotKind.Tattoo:
-                if (Has("Brow", "Neck")) return "Head and neck";
-                if (Has("Chest", "Back")) return "Body";
-                if (Has("Shoulder", "Arm", "Hand")) return "Arms";
-                return "Legs";
-            case SlotKind.Companion:
-                if (Has("Familiar")) return "The familiar";
-                if (Has("Mount", "Saddle", "Barding", "Reins")) return "The mount";
-                return "The camp";
-            case SlotKind.Celestial:
-                return n.StartsWith("Constellation") ? "Constellations" : "The heavens";
-            default:
-                return "Carried";
+            var cell = c.Cells[id];
+            parts.Add(cell.Board == Anatomy.Body ? $"{cell.SiteName.ToLowerInvariant()} ({cell.Name.ToLowerInvariant()})" : cell.Name.ToLowerInvariant());
         }
+        return string.Join(", ", parts);
     }
 
     static string[] AffixNames(Content c, Stat s)

@@ -4,9 +4,11 @@
 
 A knight fights ever deeper, depth after depth, through eight realms that come round again harder each time. Every
 depth's monsters and its boss fill a chest. Open it and the haul climbs through twelve rarities, from Common to
-Transcendent, before the cards turn over. Whatever beats what the knight wears goes on by itself, across 149 slots from
-helm to toe rings, tattoos, companions and celestial slots. Gold forges the slots, shards from everything else rank them,
-and levels pay talent points into a tree of 3,259 nodes. First finds fill the codex, and its power with them. When a run
+Transcendent, before the cards turn over. The knight gears up from the crown of his head to the tips of his toes:
+586 kinds of piece on 545 slots, from helms and the crests set in them to toe rings, tattoos, a steed's horseshoes and
+the stars. Every piece takes room, and many keep other room free. Some have slots of their own. Auto-equip wears the
+strongest whole set the body allows ([equipment.md](equipment.md)). Gold forges the pieces, shards from everything else
+rank them, and levels pay talent points into a tree of 3,259 nodes. First finds fill the codex, and its power with them. When a run
 slows, ascension trades it for aether, which buys power for good; later, transcendence trades the ascension tree for
 stardust. The game is built to keep a player progressing for thousands of hours, and it shows that growth as speed and
 reach rather than as clutter.
@@ -29,11 +31,12 @@ choices in user://settings.cfg.
 2. **Chests fill.** A depth's drops (its waves and its boss) go into one chest, sealed when the boss falls. The chest
    drops into the tray; from Epic up, a beam in the colour of the rarest thing inside marks it.
 3. **Open them.** Click a chest or press Space. The opening climbs through the rarities inside, then the cards turn
-   over, rarest last. Upgrades fly to their kind's tile; the rest is salvaged into shards.
-4. **Gear goes on by itself.** An item goes on when it's at least as good in every stat, or when trading one stat for
-   another leaves the knight ahead. The player never compares numbers. They see the knight change and the push get
-   faster.
-5. **Spend.** Gold forges slots, shards rank them, mastery grows on worn slots (faster on focused ones), and talent
+   over, rarest last. Upgrades fly to the knight's figure; the rest is salvaged into shards.
+4. **Gear goes on by itself.** A better item replaces the one kept for its piece. Auto-equip then weighs every whole set
+   the body allows, with pieces that clash and pieces with slots of their own, and wears the strongest. The player
+   never has to compare numbers. They see the knight change and the push get faster, and can dress him by hand in the
+   equipment screen.
+5. **Spend.** Gold forges pieces, shards rank them, mastery grows on worn pieces (faster on focused ones), and talent
    points go into the tree. Forge, ranks, talents and the prestige trees each have a button that spends the best way,
    and later their own automation.
 6. **Reset.** Past depth 150, kills earn aether. Ascending ends the run for its aether, which buys permanent power
@@ -50,12 +53,12 @@ a toast. After the first ascension, everything that opened by depth stays open.
 
 | System | Opens at | What it does |
 |---|---|---|
-| Forge | depth 3 | Gold into forge levels per slot. |
+| Forge | depth 3 | Gold into forge levels per piece. |
 | Talents | level 2 | The tree: a wheel of sectors (damage, health, speed, crit, loot, gold and more), notables and keystones; paragon points after it's full. |
-| Codex | 8 first finds | Every slot, rarity, quality band and era is an entry; first finds add to its power. |
+| Codex | 8 first finds | Every piece, rarity, quality band and era is an entry; first finds add to its power. |
 | Auto-open | depth 10 | Chests open as they drop. Chests holding the rarest tier found so far wait for the player. |
-| Ranks | depth 25 | Shards into ranks per slot. |
-| Mastery | depth 40 | Worn slots grow mastery; focused slots grow faster. |
+| Ranks | depth 25 | Shards into ranks per piece. |
+| Mastery | depth 40 | Worn pieces grow mastery; focused pieces grow faster. |
 | Ascension | depth 150 | Reset the run for aether and a permanent tree. |
 | Auto-forge, auto-ranks | the first ascension | The "all" buttons run by themselves. |
 | Transcendence | a tenth of the aether it needs | Reset the ascension tree for stardust and a stronger next cycle. |
@@ -63,11 +66,11 @@ a toast. After the first ascension, everything that opened by depth stays open.
 
 ## Chests
 
-- **What one holds.** The items that could matter: at most four per slot, the best kept, plus how many of each rarity
+- **What one holds.** The items that could matter: at most four per piece, the best kept, plus how many of each rarity
   dropped in all (salvaged on opening), their shards and the first finds they made.
 - **Kinds.** Boss chests come from a depth cleared, guardian chests from every tenth depth, and monster chests from
   farming a depth (sealed after a depth's worth of kills). A new hero starts with one chest that holds something for
-  each open slot.
+  each open piece.
 - **The pile.** It holds 100 chests; past that, new ones pour into the last, so nothing is lost. The next one opened is
   the best kind first, oldest first among those.
 - **Auto-open.** It opens chests as they arrive, and the reveal is skipped. Notable finds still pop: a new tier, a
@@ -84,7 +87,8 @@ Rarities come in four bands, and the opening is longer and louder for each (see 
 3. Up to eight cards turn over, rarest last.
 4. A Divine or rarer card glows face down before it turns.
 5. The summary counts what went on, what was found for the first time and what was salvaged.
-6. Leaving sends upgrades to their tiles and the rest to the shard counter.
+6. Leaving sends what's worn to the knight's figure, what's kept for another set to its region, and the rest to the
+   shard counter.
 
 Space or a click hurries an opening; once it's done, the next press puts it away.
 
@@ -132,13 +136,13 @@ The screen layout is set out in [art-direction.md](art-direction.md) ("The scree
 - **The lane** across the top, with a bar over it showing level and XP, gold, shards and aether, the depth and realm,
   and the depth's progress.
 - **The chest tray** at the bottom left.
-- **The armoury's eight kind tiles and the latest finds** in the middle, with **the dock** (each system's button and
-  badge) on the right.
+- **The knight's figure, his 14 regions and the latest finds** in the middle, with **the dock** (each system's button
+  and badge) on the right.
 
 | Action | Input |
 |---|---|
 | Open the next chest; hurry an opening | Space or Enter, or click the chest |
-| Armoury (every slot by body region, forge, ranks, mastery focus) | G, or its dock button |
+| Equipment (the figure, each region's slots, the pieces that fill them, their boards; forge, ranks, focus) | G, or its dock button |
 | Talents (pan with drag, zoom with the wheel) | T |
 | Codex | C |
 | Ascension and transcendence | A |
@@ -158,7 +162,7 @@ be read.
 
 | What | How |
 |---|---|
-| The numbers hold for 3,000 hours | `progsim --check` (CI) |
+| The numbers hold for 3,000 hours | `progsim --check` (on hold during the equipment redesign; CI runs it when asked) |
 | The game keeps up with the simulated player; chests, the stage, saves and time away add up | `progsim --game --hours=1` (CI) |
 | It plays from a new game, exported, on Windows | The bot for four minutes (CI, "Autoplay finished") |
 | It looks right | The bot and the demos under Xvfb with `--shots` (see the README) |

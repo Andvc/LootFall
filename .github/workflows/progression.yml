@@ -1,14 +1,15 @@
 name: Progression check
 
-# The progression framework's acceptance test (scripts/Progression/Checks.cs): 3,000 simulated hours for an active, an
-# idle and a never-prestiging player, checked for stability, growth without walls or runaway, prestige that pays, idle
-# play that keeps up, every system mattering, progress that keeps showing and content that lasts. Then the game layer
-# (tools/progsim/GameTest.cs): the session played for an hour keeps up with the simulated player, every chest goes
-# somewhere, the battle's choreography adds up, saves round-trip and time away pays.
+# On hold: the owner has put numerical balance validation and regression testing on hold while the game's systems are
+# redesigned (docs/equipment.md, "Balance"), so this runs only when started by hand from the Actions tab.
+#
+# The equipment: the anatomy validates and the loadout search matches a brute force on random problems
+# (tools/progsim/AnatomyReport.cs). The game layer (tools/progsim/GameTest.cs): the session played for an hour keeps up
+# with the simulated player, every chest goes somewhere, the battle's choreography adds up, saves round-trip and time
+# away pays. The progression framework's acceptance test (scripts/Progression/Checks.cs): 3,000 simulated hours for an
+# active, an idle and a never-prestiging player, checked for stability, growth without walls or runaway, prestige that
+# pays, idle play that keeps up, every system mattering, progress that keeps showing and content that lasts.
 on:
-  push:
-    branches: [main, "prototype/**"]
-    paths: ["scripts/Progression/**", "scripts/Game/**", "tools/progsim/**", ".github/workflows/progression.yml"]
   workflow_dispatch:
 
 jobs:
@@ -22,10 +23,14 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Acceptance test
-        run: |
-          dotnet build tools/progsim -c Release
-          dotnet tools/progsim/bin/Release/net8.0/progsim.dll --check --hours=3000
+      - name: Build
+        run: dotnet build tools/progsim -c Release
+
+      - name: Equipment
+        run: dotnet tools/progsim/bin/Release/net8.0/progsim.dll --anatomy
 
       - name: Game layer
         run: dotnet tools/progsim/bin/Release/net8.0/progsim.dll --game --hours=1
+
+      - name: Acceptance test
+        run: dotnet tools/progsim/bin/Release/net8.0/progsim.dll --check --hours=3000

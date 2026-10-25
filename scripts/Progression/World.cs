@@ -226,7 +226,7 @@ public sealed class World
         double gain = dt / 3600 * P.MasteryRate * H.MasteryGain;
         for (int s = 0; s < H.Gear.Length; s++)
         {
-            if (!H.Open[s] || H.Gear[s] == null) continue;
+            if (!H.Active[s]) continue;
             H.MasteryXp[s] += gain * (H.Focus[s] ? P.MasteryFocus : 1);
             while (H.MasteryXp[s] >= H.MasteryNeed(s))
             {
@@ -371,7 +371,8 @@ public sealed class World
     /// <summary>Starts a transcendence cycle with the echo of the last one's aether (with any Aether Echo bought since).</summary>
     public void StartCycle(Big cycleAether) => H.Ascension.Currency = cycleAether * EchoShare();
 
-    /// <summary>A new run: back to the start depth (deeper with Head Start, with basic gear there), no gear, forge or gold.</summary>
+    /// <summary>A new run: back to the start depth (deeper with Head Start, with basic gear there), no gear, forge or gold,
+    /// nothing worn (whoever plays chooses the set again).</summary>
     public void ResetRun()
     {
         // The run that ends: how deep it got (depth only rises within a run) and how long it lasted.
@@ -385,6 +386,7 @@ public sealed class World
         H.Gold = Big.Zero;
         double keep = Math.Min(0.5, H.Ascension.PerkTotal(Perk.ForgeKeep));
         for (int s = 0; s < H.Forge.Length; s++) H.Forge[s] = (int)(H.Forge[s] * keep);
+        Array.Clear(H.Worn);
         for (int s = 0; s < H.Gear.Length; s++)
         {
             H.Gear[s] = null;

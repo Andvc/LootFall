@@ -113,13 +113,49 @@ public static class Demos
         await Wait(m, 0.3);
         var g = m.Game;
         void Show(Control c) => g.Open(c);
-        for (int k = 0; k < 8; k++)
+        // The equipment: the whole body, then each region (zooming in), a piece in detail and a board.
+        var eq = new EquipmentScreen(g);
+        Show(eq);
+        await Wait(m, 0.9);
+        m.Moment("equipment");
+        foreach (var region in Figure.Regions)
         {
-            Show(new Armoury(g, (SlotKind)k));
-            await Wait(m, 0.7);
-            g.CloseOverlay();
-            await Wait(m, 0.25);
+            if (!GodotObject.IsInstanceValid(eq) || eq.Closing) break;
+            eq.ShowRegion(region);
+            await Wait(m, 0.75);
+            m.Moment("equipment_" + region.Replace(' ', '_').ToLowerInvariant());
+            await Wait(m, 0.2);
         }
+        if (GodotObject.IsInstanceValid(eq) && !eq.Closing)
+        {
+            // A slot chosen: every piece that can fill the helm's place, with what wearing each would do.
+            eq.ShowRegion("Head");
+            await Wait(m, 0.6);
+            eq.PickCell(s.C.Anatomy.CellId("scalp.armor"));
+            await Wait(m, 0.4);
+            m.Moment("equipment_slot");
+            await Wait(m, 0.2);
+        }
+        if (GodotObject.IsInstanceValid(eq) && !eq.Closing)
+        {
+            // A piece with a board: the first one worn that brings one, in detail and then its board.
+            int host = -1;
+            for (int i = 0; i < s.C.SlotCount && host < 0; i++)
+                if (s.H.Active[i] && s.C.Slots[i].Brings.Length > 0 && s.C.Slots[i].Board == Anatomy.Body) host = i;
+            if (host >= 0)
+            {
+                eq.ShowPiece(host);
+                await Wait(m, 0.7);
+                m.Moment("equipment_piece");
+                await Wait(m, 0.2);
+                eq.ShowBoard(s.C.Slots[host].Brings[0].Board, host);
+                await Wait(m, 0.7);
+                m.Moment("equipment_board");
+                await Wait(m, 0.2);
+            }
+        }
+        if (GodotObject.IsInstanceValid(eq)) eq.Close();
+        await Wait(m, 0.3);
         Show(new TalentScreen(g));
         await Wait(m, 0.8);
         m.Moment("talents");

@@ -171,8 +171,9 @@ public sealed class Card
 {
     public int Slot;
     public Item Item;
-    /// <summary>Whether it went on, what it replaced (null for an empty slot) and its score (reach by the weights).</summary>
-    public bool Equipped;
+    /// <summary>Whether it was kept (the best found for its piece now), what it replaced (null for none) and its score
+    /// (reach by the weights); whether it's worn once the best set is chosen.</summary>
+    public bool Kept, Equipped;
     public Item Replaced;
     public double Score;
     /// <summary>Whether it was a first find for the codex.</summary>
@@ -189,5 +190,5 @@ public sealed class Opening
     public long Salvaged;
     public double Materials;
     public double ReachBefore, ReachAfter;
-    public int Equipped;
+    public int Kept, Equipped;
 }

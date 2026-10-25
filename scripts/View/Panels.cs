@@ -161,12 +161,12 @@ public partial class ChestTray : Control
         foreach (var card in o.Cards.Where(c => c.Equipped).OrderByDescending(c => c.Item.Rarity))
         {
             if (flown++ >= 4) break;
-            var family = Describe.Family(_g.S.C.Slots[card.Slot].Name);
+            var family = Describe.Family(_g.S.C.Slots[card.Slot]);
             int rarity = card.Item.Rarity, tier = ItemTile.Tier(card.Item);
             var icon = new Painter(p => ItemTile.Draw(p, new Rect2(-28, -28, 56, 56), family, rarity, numeral: false, tier: tier)) { Position = at };
             _g.Fly.AddChild(icon);
-            var target = _g.Tiles.TileCentre(_g.S.C.Slots[card.Slot].Kind);
-            Fx.Fly(icon, target, 0.6f + flown * 0.06f, 140, () => _g.Tiles.Ping(_g.S.C.Slots[card.Slot].Kind, rarity));
+            int slot = card.Slot;
+            Fx.Fly(icon, _g.Tiles.SpotOf(slot), 0.6f + flown * 0.06f, 140, () => _g.Tiles.Ping(slot, rarity));
         }
         _g.Tiles.AddFinds(o);
         Refresh();
@@ -174,50 +174,84 @@ public partial class ChestTray : Control
 }
 
 /// <summary>
-/// The armoury at a glance (bottom middle): one tile per slot kind (open slots out of all, the rarest worn, how the
-/// rarities spread), and the latest finds below. A tile opens the armoury on its kind (docs/art-direction.md: an
-/// overview by kind, then a grid by body region).
+/// The equipment at a glance (bottom middle): the knight as a small paper doll (click a part of him to open the equipment
+/// screen there), a tile per body region (pieces worn, how their rarities spread), and the latest finds. Upgrades fly
+/// onto the doll, to the place they're worn.
 /// </summary>
-public partial class KindTiles : Control
+public partial class BodyTiles : Control
 {
     readonly GameScreen _g;
     readonly Canvas _canvas;
+    readonly PaperDoll _doll;
     readonly List<(Card Card, double Time)> _finds = new();
-    readonly float[] _ping = new float[8];
-    readonly int[] _pingRarity = new int[8];
+    readonly Dictionary<string, (float Ping, int Rarity)> _ping = new();
     float _t;
-    const float X0 = 540, TileW = 206, TileH = 124, Gap = 10, Y0 = 52;
+    const float X0 = 540, DollW = 232, DollH = 384, TilesX = X0 + 244, TileW = 304, TileH = 38, Gap = 6, Y0 = 50;
 
-    public KindTiles(GameScreen g)
+    public BodyTiles(GameScreen g)
     {
         _g = g;
         this.Place(0, Look.LaneH, Look.W, Look.H - Look.LaneH);
         MouseFilter = MouseFilterEnum.Ignore;
-        _canvas = new Canvas(DrawTiles).Place(0, 0, Look.W, Look.H - Look.LaneH);
+        _doll = new PaperDoll(g.S) { Small = true, TooltipText = "Click a part of the knight to see what he wears there" }.Place(X0, Y0 - 6, DollW, DollH);
+        _doll.RegionClicked += r => g.Open(new EquipmentScreen(g, r));
+        AddChild(_doll);
+        _canvas = new Canvas(DrawTiles) { MouseFilter = MouseFilterEnum.Ignore }.Place(0, 0, Look.W, Look.H - Look.LaneH);
         AddChild(_canvas);
-        for (int k = 0; k < 8; k++)
+        for (int i = 0; i < Figure.Regions.Length; i++)
         {
-            var kind = (SlotKind)k;
-            var b = new Button { Flat = true, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand, TooltipText = $"Open the armoury: {Describe.Kind(kind)}" }
-                .Place(X0 + (k % 4) * (TileW + Gap), Y0 + (k / 4) * (TileH + Gap), TileW, TileH);
-            b.Pressed += () => g.Open(new Armoury(g, kind));
+            string region = Figure.Regions[i];
+            var b = new Button { Flat = true, FocusMode = FocusModeEnum.None, MouseDefaultCursorShape = CursorShape.PointingHand, TooltipText = $"Equipment: {region}" }
+                .Place(TileRect(i).Position.X, TileRect(i).Position.Y, TileW, TileH);
+            b.Pressed += () => g.Open(new EquipmentScreen(g, region));
             AddChild(b);
         }
     }
 
-    public void Refresh() => _canvas.QueueRedraw();
+    static Rect2 TileRect(int i) => new(TilesX + (i % 2) * (TileW + Gap), Y0 + 2 + (i / 2) * (TileH + Gap), TileW, TileH);
 
-    public Vector2 TileCentre(SlotKind k) => Position + new Vector2(X0 + ((int)k % 4) * (TileW + Gap) + TileW / 2, Y0 + ((int)k / 4) * (TileH + Gap) + TileH / 2);
-
-    public void Ping(SlotKind k, int rarity)
+    public void Refresh()
     {
-        _ping[(int)k] = 1;
-        _pingRarity[(int)k] = rarity;
+        _doll.Refresh();
+        _canvas.QueueRedraw();
+    }
+
+    /// <summary>Where a piece goes on the small doll (on screen): its first cell on the body, or its host's.</summary>
+    public Vector2 SpotOf(int slot)
+    {
+        var c = _g.S.C;
+        var h = _g.S.H;
+        var d = c.Slots[slot];
+        for (int guard = 0; guard < 6 && d.Board != Anatomy.Body; guard++)
+        {
+            int host = h.HostOf[d.Board] >= 0 ? h.HostOf[d.Board] : c.Boards[d.Board].Hosts[0];
+            d = c.Slots[host];
+        }
+        return _doll.GlobalOf(Figure.Anchor(c.Cells[d.Takes[0]]));
+    }
+
+    /// <summary>The middle of a region's tile (on screen).</summary>
+    public Vector2 TileCentre(string region)
+    {
+        int i = Array.IndexOf(Figure.Regions, region);
+        return Position + (i >= 0 ? TileRect(i).GetCenter() : new Vector2(TilesX, Y0));
+    }
+
+    /// <summary>Lights where a piece went: its place on the doll and its region's tile.</summary>
+    public void Ping(int slot, int rarity)
+    {
+        var c = _g.S.C;
+        var d = c.Slots[slot];
+        string region = Describe.Region(c, d);
+        _ping[region] = (1, rarity);
+        while (d.Board != Anatomy.Body && c.Boards[d.Board].Hosts.Length > 0) d = c.Slots[_g.S.H.HostOf[d.Board] >= 0 ? _g.S.H.HostOf[d.Board] : c.Boards[d.Board].Hosts[0]];
+        _doll.Refresh();
+        _doll.FlashSite(c.Cells[d.Takes[0]].Site, Look.Tier(rarity));
     }
 
     public void AddFinds(Opening o)
     {
-        foreach (var c in o.Cards.Where(c => c.Equipped || c.New).OrderBy(c => c.Item.Rarity))
+        foreach (var c in o.Cards.Where(c => c.Kept || c.New).OrderBy(c => c.Item.Rarity))
             _finds.Add((c, Time.GetTicksMsec() / 1000.0));
         while (_finds.Count > 10) _finds.RemoveAt(0);
         _canvas.QueueRedraw();
@@ -226,86 +260,70 @@ public partial class KindTiles : Control
     public override void _Process(double delta)
     {
         _t += (float)delta;
-        for (int i = 0; i < 8; i++) _ping[i] = Mathf.MoveToward(_ping[i], 0, (float)delta * 1.5f);
+        foreach (var k in _ping.Keys.ToList())
+        {
+            var (p, r) = _ping[k];
+            _ping[k] = (Mathf.MoveToward(p, 0, (float)delta * 1.5f), r);
+        }
         _canvas.QueueRedraw();
     }
 
     void DrawTiles(Canvas c)
     {
-        var h = _g.S.H;
-        c.DrawString(Look.UiBold, new Vector2(X0, 38), "ARMOURY", HorizontalAlignment.Left, -1, 20, Look.Muted);
-        for (int k = 0; k < 8; k++)
+        var s = _g.S;
+        var h = s.H;
+        c.DrawString(Look.UiBold, new Vector2(X0, 38), "EQUIPMENT", HorizontalAlignment.Left, -1, 20, Look.Muted);
+        // Each region: pieces worn, open and in all, and the spread of rarities worn.
+        var worn = new Dictionary<string, int[]>();
+        var open = new Dictionary<string, int>();
+        foreach (var r in Figure.Regions)
         {
-            var kind = (SlotKind)k;
-            var r = new Rect2(X0 + (k % 4) * (TileW + Gap), Y0 + (k / 4) * (TileH + Gap), TileW, TileH);
-            int open = 0, total = 0, best = -1;
-            var counts = new int[Look.Tiers];
-            string family = null;
-            for (int s = 0; s < h.Gear.Length; s++)
-            {
-                if (_g.S.C.Slots[s].Kind != kind) continue;
-                total++;
-                if (!h.Open[s]) continue;
-                open++;
-                var it = h.Gear[s];
-                if (it == null) continue;
-                counts[it.Rarity]++;
-                if (it.Rarity > best)
-                {
-                    best = it.Rarity;
-                    family = Describe.Family(_g.S.C.Slots[s].Name);
-                }
-            }
-            var edge = best >= 0 ? Look.Tier(best) : Look.Edge;
-            var box = Ui.Frame(open > 0 ? Look.PanelLight : new Color("#151019"), open > 0 ? edge.Darkened(0.2f) : Look.Edge, 10, 2, 4, 0);
-            c.DrawStyleBox(box, r);
-            if (_ping[k] > 0)
-            {
-                var glow = Ui.Frame(Colors.Transparent, new Color(Look.Tier(_pingRarity[k]), _ping[k]), 12, 4, 0, 0);
-                c.DrawStyleBox(glow, r.Grow(3));
-            }
-            if (open == 0)
-            {
-                c.DrawString(Look.UiBold, r.Position + new Vector2(14, 34), Describe.Kind(kind).ToUpperInvariant(), HorizontalAlignment.Left, -1, 19, Look.Dim);
-                int first = FirstUnlock(kind);
-                c.DrawString(Look.Ui, r.Position + new Vector2(14, 64), first > 0 ? $"opens at depth {Format.Whole(first)}" : "opened by transcending", HorizontalAlignment.Left, TileW - 20, 18, Look.Dim);
-                continue;
-            }
-            ItemTile.Draw(c, new Rect2(r.Position + new Vector2(TileW - 84, 12), new Vector2(72, 72)), family, best, numeral: false, time: _t);
-            c.DrawString(Look.UiBold, r.Position + new Vector2(14, 34), Describe.Kind(kind).ToUpperInvariant(), HorizontalAlignment.Left, TileW - 100, 19, Look.Text);
-            c.DrawString(Look.Numbers, r.Position + new Vector2(14, 66), $"{open} / {total}", HorizontalAlignment.Left, -1, 24, Look.Text);
-            c.DrawString(Look.Ui, r.Position + new Vector2(14, 88), "slots open", HorizontalAlignment.Left, -1, 16, Look.Muted);
-            // The spread of rarities worn: a bar in tier colours.
-            float x = r.Position.X + 14, wsum = TileW - 28;
-            int worn = counts.Sum();
-            if (worn > 0)
+            worn[r] = new int[Look.Tiers];
+            open[r] = 0;
+        }
+        foreach (var d in s.C.Slots)
+        {
+            string r = Describe.Region(s.C, d);
+            if (!open.ContainsKey(r)) continue;
+            if (h.Open[d.Index]) open[r]++;
+            if (h.Active[d.Index]) worn[r][h.Gear[d.Index].Rarity]++;
+        }
+        for (int i = 0; i < Figure.Regions.Length; i++)
+        {
+            string region = Figure.Regions[i];
+            var rect = TileRect(i);
+            var counts = worn[region];
+            int n = counts.Sum(), best = -1;
+            for (int t = counts.Length - 1; t >= 0 && best < 0; t--)
+                if (counts[t] > 0) best = t;
+            var box = Ui.Frame(open[region] > 0 ? Look.PanelLight : new Color("#151019"), best >= 0 ? Look.Tier(best).Darkened(0.25f) : Look.Edge, 8, 2, 0, 0);
+            c.DrawStyleBox(box, rect);
+            if (_ping.TryGetValue(region, out var ping) && ping.Ping > 0)
+                c.DrawStyleBox(Ui.Frame(Colors.Transparent, new Color(Look.Tier(ping.Rarity), ping.Ping), 10, 3, 0, 0), rect.Grow(2));
+            c.DrawString(Look.UiBold, rect.Position + new Vector2(10, 25), region.ToUpperInvariant(), HorizontalAlignment.Left, 150, 16, open[region] > 0 ? Look.Text : Look.Dim);
+            c.DrawString(Look.Numbers, rect.Position + new Vector2(150, 25), open[region] > 0 ? $"{n} worn" : "-", HorizontalAlignment.Left, 70, 16, Look.Muted);
+            float x = rect.Position.X + 224, w = TileW - 234;
+            if (n > 0)
                 for (int t = 0; t < counts.Length; t++)
                 {
                     if (counts[t] == 0) continue;
-                    float w = wsum * counts[t] / worn;
-                    c.DrawRect(new Rect2(x, r.Position.Y + TileH - 22, w, 10), Look.Tier(t));
-                    x += w;
+                    float ww = w * counts[t] / n;
+                    c.DrawRect(new Rect2(x, rect.Position.Y + 15, ww, 9), Look.Tier(t));
+                    x += ww;
                 }
         }
         // The latest finds.
-        c.DrawString(Look.UiBold, new Vector2(X0, Y0 + 2 * (TileH + Gap) + 20), "LATEST FINDS", HorizontalAlignment.Left, -1, 18, Look.Muted);
+        float fy = Y0 + 7 * (TileH + Gap) + 8;
         double now = Time.GetTicksMsec() / 1000.0;
         for (int i = 0; i < _finds.Count; i++)
         {
             var (card, when) = _finds[_finds.Count - 1 - i];
             float age = (float)(now - when);
-            var r = new Rect2(X0 + i * 86, Y0 + 2 * (TileH + Gap) + 30, 78, 78);
-            if (r.End.X > X0 + 4 * (TileW + Gap)) break;
-            ItemTile.Draw(c, r, Describe.Family(_g.S.C.Slots[card.Slot].Name), card.Item.Rarity, card.Item.Affixes, card.New && age < 30, card.Equipped && age < 30, numeral: true, time: _t, tier: ItemTile.Tier(card.Item));
+            var r = new Rect2(TilesX + i * 62, fy, 56, 56);
+            if (r.End.X > TilesX + 2 * TileW + Gap) break;
+            ItemTile.Draw(c, r, Describe.Family(s.C.Slots[card.Slot]), card.Item.Rarity, card.Item.Affixes, card.New && age < 30, card.Equipped && age < 30, numeral: false, time: _t,
+                tier: ItemTile.Tier(card.Item));
         }
-    }
-
-    int FirstUnlock(SlotKind kind)
-    {
-        int best = int.MaxValue;
-        foreach (var s in _g.S.C.Slots)
-            if (s.Kind == kind && s.UnlockDepth > 0) best = Math.Min(best, s.UnlockDepth);
-        return best == int.MaxValue ? 0 : best;
     }
 }
 
@@ -336,7 +354,7 @@ public partial class Dock : Control
             _badges[b] = badge;
             return b;
         }
-        Armoury = B("Armoury", 0, 0, () => g.Open(new Armoury(g, SlotKind.Weapon)), new Color("#7a87a3"));
+        Armoury = B("Equipment", 0, 0, () => g.Open(new EquipmentScreen(g)), new Color("#7a87a3"));
         Talents = B("Talents", 1, 0, () => g.Open(new TalentScreen(g)), new Color("#3fbf9a"));
         Forge = B("Forge all", 0, 1, () => { if (g.S.ForgeAll()) { g.Battle.Hero.Flash(Look.Gold, 0.5f); Main.Instance?.Sfx?.PlayGroup("equip_metal", 1f, -8); } }, Look.Gold);
         Ranks = B("Rank all", 1, 1, () => { if (g.S.RankAll()) { g.Battle.Hero.Flash(Look.Shards, 0.5f); Main.Instance?.Sfx?.PlayGroup("powerup", 1.2f, -10); } }, Look.Shards);

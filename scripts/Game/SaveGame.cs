@@ -14,7 +14,8 @@ namespace LootFall.Game;
 /// </summary>
 public sealed class SaveData
 {
-    public const int CurrentVersion = 1;
+    /// <summary>2: the equipment anatomy (about 550 kinds of piece, what's worn) replaced the 149 fixed slots.</summary>
+    public const int CurrentVersion = 2;
 
     public int Version = CurrentVersion;
     /// <summary>When it was written (Unix seconds), to work out the time away.</summary>
@@ -37,6 +38,8 @@ public sealed class SaveData
     public int[] Forge, Rank, Mastery;
     public double[] MasteryXp;
     public bool[] Focus;
+    /// <summary>What's put on (by slot), and the slot names in order, so a save can tell its slots are this build's.</summary>
+    public bool[] Worn;
     public string Codex;
     /// <summary>The codex's worth as summed when found (summing it again in another order differs in the last digits).</summary>
     public double CodexValue;
@@ -166,7 +169,7 @@ public static class SaveGame
             RunDepth = h.RunDepth, EverDepth = h.EverDepth, Level = h.Level, Xp = BigData.Of(h.Xp), Gold = BigData.Of(h.Gold),
             Materials = h.Materials, Gear = h.Gear.Select(ItemData.Of).ToArray(),
             Forge = (int[])h.Forge.Clone(), Rank = (int[])h.Rank.Clone(), Mastery = (int[])h.Mastery.Clone(),
-            MasteryXp = (double[])h.MasteryXp.Clone(), Focus = (bool[])h.Focus.Clone(), Codex = Bits(h.Codex), CodexValue = h.CodexValue,
+            MasteryXp = (double[])h.MasteryXp.Clone(), Focus = (bool[])h.Focus.Clone(), Worn = (bool[])h.Worn.Clone(), Codex = Bits(h.Codex), CodexValue = h.CodexValue,
             Talents = Bits(h.Talents.Allocated), Points = h.Talents.Points, ParagonDamage = h.Talents.ParagonDamage, ParagonHp = h.Talents.ParagonHp,
             Ascension = LayerData.Of(h.Ascension), Transcendence = LayerData.Of(h.Transcendence),
             Chests = s.Pile.Waiting.Select(ChestData.Of).ToList(), Filling = ChestData.Of(s.Pile.Filling), FillingKills = s.Pile.Kills,
@@ -225,6 +228,7 @@ public static class SaveGame
             h.Mastery[i] = Get(d.Mastery, i);
             h.MasteryXp[i] = d.MasteryXp != null && i < d.MasteryXp.Length ? d.MasteryXp[i] : 0;
             h.Focus[i] = d.Focus != null && i < d.Focus.Length && d.Focus[i];
+            h.Worn[i] = d.Worn != null && i < d.Worn.Length && d.Worn[i];
         }
         var codex = Unbits(d.Codex, h.Codex.Length);
         for (int k = 0; k < codex.Length; k++)
@@ -238,6 +242,7 @@ public static class SaveGame
         if (d.Auto != null)
         {
             s.Auto.OpenChests = d.Auto.OpenChests;
+            s.Auto.Equip = d.Auto.Equip;
             s.Auto.Forge = d.Auto.Forge;
             s.Auto.Ranks = d.Auto.Ranks;
             s.Auto.Talents = d.Auto.Talents;

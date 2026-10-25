@@ -30,7 +30,8 @@ public sealed class Item
 /// Everything the hero has, from gear to prestige layers, and how it adds up to one sheet of stats. The systems and what
 /// resets them:
 /// <list type="bullet">
-/// <item>Gear (149 slots): items by depth, rarity, quality and affixes. Reset by ascension.</item>
+/// <item>Gear (about 550 slots, docs/equipment.md): the best item found for each kind of piece, by depth, rarity,
+/// quality and affixes; only what's worn counts (<see cref="Worn"/>, <see cref="Active"/>). Reset by ascension.</item>
 /// <item>Forge (gold, per slot): +ForgeStep a level to the slot's flat stats, exponential cost; gold scales with depth,
 /// so forge levels track depth (a "slope" system). Reset by ascension.</item>
 /// <item>Slot ranks (materials, per slot): polynomial cost; materials are counted, not scaled, so ranks grow with time
@@ -58,10 +59,18 @@ public sealed class Hero
     /// budgeted value.</summary>
     public readonly double PoolScale;
 
+    /// <summary>The best item found for each slot (kept whether or not it's worn).</summary>
     public readonly Item[] Gear;
     public readonly int[] Forge, Rank, Mastery;
     public readonly double[] MasteryXp;
     public readonly bool[] Open, Focus;
+    /// <summary>Pieces put on: on the body, or set in a board (a board's pieces stay set while its host is off).</summary>
+    public readonly bool[] Worn;
+    /// <summary>Pieces that count now: worn, open, with an item, and (on a board) the board's host counts and opens
+    /// every cell they fill. See <see cref="UpdateActive"/>.</summary>
+    public readonly bool[] Active;
+    /// <summary>Each board's host now (a slot index, -1 when nothing worn brings it).</summary>
+    public readonly int[] HostOf;
     public int OpenCount;
 
     public const int QualityBands = 4, Eras = 16;
@@ -108,6 +117,9 @@ public sealed class Hero
         MasteryXp = new double[n];
         Open = new bool[n];
         Focus = new bool[n];
+        Worn = new bool[n];
+        Active = new bool[n];
+        HostOf = new int[c.Boards.Length];
         Codex = new bool[n * Content.RarityNames.Length * QualityBands * Eras];
         _forgeStepLe = S.Le(1 + p.ForgeStep);
         _damageBudget = S.Le(p.DamagePerBudget);
@@ -141,7 +153,7 @@ public sealed class Hero
         int celestialSeen = 0;
         foreach (var d in C.Slots)
         {
-            bool open = d.Kind == SlotKind.Celestial ? celestialSeen++ < celestial : EverDepth >= d.UnlockDepth;
+            bool open = d.Prestige ? celestialSeen++ < celestial : EverDepth >= d.UnlockDepth;
             if (open && !Open[d.Index])
             {
                 Open[d.Index] = true;
@@ -177,7 +189,8 @@ public sealed class Hero
             into.Add(S, Stat.FlatHp, b + _slotHpLe[s]);
             into.Add(S, Stat.Armor, b + _slotArmorLe[s]);
         }
-        double tier = TierMult(it.Ilvl);
+        // Percent affixes scale with the piece's size, like its flat stats (a nose stud's are a fifth of a breastplate's).
+        double tier = TierMult(it.Ilvl) * C.Slots[s].Size;
         for (int i = 0; i < (Knock == Sys.Affixes ? 0 : it.Affixes); i++)
         {
             var stat = it.Stats[i];
@@ -199,13 +212,44 @@ public sealed class Hero
 
     // ---------------------------------------------------------------- totals
 
-    /// <summary>Recomputes the gear sheet (after any change to gear, forge, ranks or mastery).</summary>
+    /// <summary>Recomputes the gear sheet (after any change to gear, what's worn, forge, ranks or mastery).</summary>
     public void RebuildGear()
     {
+        UpdateActive();
         GearSheet.Clear();
         for (int s = 0; s < Gear.Length; s++)
-            if (Open[s] && Gear[s] != null) Contribute(s, Gear[s], GearSheet);
+            if (Active[s]) Contribute(s, Gear[s], GearSheet);
     }
+
+    /// <summary>
+    /// Works out what counts from what's worn, from the body down: a piece on the body counts when it's worn, open and
+    /// has an item; a board's host is the counting piece that brings it; a piece on a board counts when its host opens
+    /// every cell it fills.
+    /// </summary>
+    public void UpdateActive()
+    {
+        Array.Fill(HostOf, -1);
+        int deepest = 2;
+        foreach (var d in C.Slots) deepest = Math.Max(deepest, d.Level);
+        for (int level = 2; level <= deepest; level++)
+            foreach (var d in C.Slots)
+            {
+                if (d.Level != level) continue;
+                int s = d.Index;
+                bool on = Worn[s] && Open[s] && Gear[s] != null;
+                if (on && d.Board != Anatomy.Body)
+                {
+                    int host = HostOf[d.Board];
+                    on = host >= 0 && C.Boards[d.Board].Opened(host, d);
+                }
+                Active[s] = on;
+                if (on)
+                    foreach (var (b, _) in d.Brings) HostOf[b] = s;
+            }
+    }
+
+    /// <summary>Whether two slots can't be worn together (same board, one fills a cell the other fills or keeps free).</summary>
+    public bool Conflict(int a, int b) => Array.BinarySearch(C.Slots[a].Conflicts, b) >= 0;
 
     /// <summary>Recomputes what ranks and mastery give the hero (after either changes).</summary>
     public void RebuildSlots()

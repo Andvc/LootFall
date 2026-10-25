@@ -17,6 +17,9 @@ public partial class CodexScreen : Overlay
     readonly Canvas _canvas;
     SlotKind _kind = SlotKind.Weapon;
     readonly int _eras, _rarities;
+    // Counted once, in one pass over the open slots' entries: found and in all, by kind and by era and rarity.
+    readonly int[] _foundByKind = new int[8], _totalByKind = new int[8];
+    readonly int[,] _heatFound, _heatTotal;
 
     public CodexScreen(GameScreen g) : base(g)
     {
@@ -37,24 +40,26 @@ public partial class CodexScreen : Overlay
         }
         _canvas = new Canvas(DrawCodex).Place(270, 150, 1470, 790);
         p.AddChild(_canvas);
-    }
-
-    (int Found, int Total) Count(Func<int, int, int, int, bool> where)
-    {
-        var h = G.S.H;
-        int found = 0, total = 0;
-        int slots = G.S.C.SlotCount;
+        _heatFound = new int[_eras, _rarities];
+        _heatTotal = new int[_eras, _rarities];
+        var slots = g.S.C.Slots;
         for (int era = 0; era < _eras; era++)
-            for (int s = 0; s < slots; s++)
+            for (int sl = 0; sl < slots.Length; sl++)
+            {
+                // Only open slots can be found in, so only they count toward what can be found by now.
+                if (!h.Open[sl]) continue;
+                int k = (int)slots[sl].Kind;
                 for (int r = 0; r < _rarities; r++)
                     for (int b = 0; b < Hero.QualityBands; b++)
                     {
-                        // Only open slots can be found in, so only they count toward what can be found by now.
-                        if (!h.Open[s] || !where(era, s, r, b)) continue;
-                        total++;
-                        if (h.Codex[h.CodexKey(era, s, r, b)]) found++;
+                        bool f = h.Codex[h.CodexKey(era, sl, r, b)];
+                        _totalByKind[k]++;
+                        _heatTotal[era, r]++;
+                        if (!f) continue;
+                        _foundByKind[k]++;
+                        _heatFound[era, r]++;
                     }
-        return (found, total);
+            }
     }
 
     void DrawCodex(Canvas c)
@@ -66,7 +71,7 @@ public partial class CodexScreen : Overlay
         for (int k = 0; k < 8; k++)
         {
             var kind = (SlotKind)k;
-            var (f, t) = Count((e, s, r, b) => slots[s].Kind == kind);
+            int f = _foundByKind[k], t = _totalByKind[k];
             float y = 40 + k * 34;
             c.DrawString(Look.UiBold, new Vector2(0, y + 20), Describe.Kind(kind), HorizontalAlignment.Left, 150, 18, kind == _kind ? Look.Gold : Look.Text);
             var bar = new Rect2(160, y + 6, 360, 18);
@@ -85,7 +90,7 @@ public partial class CodexScreen : Overlay
             c.DrawString(Look.UiBold, new Vector2(hx, y + 18), Look.TierName(r), HorizontalAlignment.Left, 104, 16, Look.TierText(r));
             for (int era = 0; era < _eras; era++)
             {
-                var (f, t) = Count((e, s, rr, b) => e == era && rr == r);
+                int f = _heatFound[era, r], t = _heatTotal[era, r];
                 float share = t > 0 ? (float)f / t : 0;
                 var cell = new Rect2(hx + 110 + era * cw, y + 2, cw - 4, ch - 4);
                 c.DrawRect(cell, new Color("#1a1524"));
@@ -101,7 +106,7 @@ public partial class CodexScreen : Overlay
             int col = row / 12;
             float x = col * 490, y = sy + 20 + (row % 12) * 34;
             if (x > 1000) break;
-            ItemTile.Draw(c, new Rect2(x, y, 28, 28), Describe.Family(s.Name), h.Gear[s.Index]?.Rarity ?? -1, numeral: false, tier: ItemTile.Tier(h.Gear[s.Index]));
+            ItemTile.Draw(c, new Rect2(x, y, 28, 28), Describe.Family(s), h.Gear[s.Index]?.Rarity ?? -1, numeral: false, tier: ItemTile.Tier(h.Gear[s.Index]));
             c.DrawString(Look.Ui, new Vector2(x + 36, y + 21), s.Name, HorizontalAlignment.Left, 190, 16, Look.Text);
             for (int r = 0; r < Look.Tiers; r++)
             {

@@ -19,11 +19,11 @@ static class ArtContent
         var data = new
         {
             realms = Bestiary.Realms.Select((r, i) => new { key = r.Key, name = r.Name, era = i, monsters = r.Monsters.Select(Monster), guardian = Monster(r.Guardian) }),
-            families = c.Slots.GroupBy(s => Describe.Family(s.Name)).Select(g => new { family = g.Key, kind = g.First().Kind.ToString(), slots = g.Select(s => s.Name) }),
+            families = c.Slots.GroupBy(s => Describe.Family(s)).Select(g => new { family = g.Key, kind = g.First().Kind.ToString(), slots = g.Select(s => s.Name) }),
             eras = Describe.Eras,
         };
         File.WriteAllText(path, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
-        Console.WriteLine($"Wrote {path}: {Bestiary.Realms.Length} realms, {c.Slots.Select(s => Describe.Family(s.Name)).Distinct().Count()} item families");
+        Console.WriteLine($"Wrote {path}: {Bestiary.Realms.Length} realms, {c.Slots.Select(s => Describe.Family(s)).Distinct().Count()} item families");
         return 0;
     }
 }

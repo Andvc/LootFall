@@ -91,7 +91,7 @@ public partial class Bot : Node
         {
             switch (_peeks++)
             {
-                case 0: _game.Open(new Armoury(_game, SlotKind.Weapon)); Main.Instance?.Moment("armoury", 0.5); break;
+                case 0: _game.Open(new EquipmentScreen(_game, "Right hand")); break;
                 case 1: if (s.Unlocked(Feature.Talents)) { _game.Open(new TalentScreen(_game)); Main.Instance?.Moment("talents", 0.6); } break;
                 case 2: if (s.Unlocked(Feature.Codex)) { _game.Open(new CodexScreen(_game)); Main.Instance?.Moment("codex", 0.5); } break;
                 case 3: _game.Open(new PrestigeScreen(_game)); Main.Instance?.Moment("prestige", 0.5); break;
