@@ -64,6 +64,11 @@ public sealed class Automation
     public bool SpendPrestige = true;
     /// <summary>Ascend by the sensible rule (the autopilot).</summary>
     public bool Ascend = true;
+    /// <summary>With auto-open on, chests holding something this rare wait for the player to open them
+    /// (<see cref="HoldNewest"/>: the newest tier open; <see cref="HoldNone"/>: none wait).</summary>
+    public int HoldAt = HoldNewest;
+
+    public const int HoldNewest = -1, HoldNone = 99;
 }
 
 /// <summary>What happened while the player was away.</summary>
@@ -174,8 +179,7 @@ public sealed class Session : IWorldEvents
             Emit(new GameEvent(EventKind.ChestSealed, dropped.Depth, data: dropped));
         }
 
-        if (Auto.OpenChests && Unlocked(Feature.AutoOpen) || _away)
-            while (Pile.Waiting.Count > 0) Open(Pile.Next(), auto: true);
+        if (Auto.OpenChests && Unlocked(Feature.AutoOpen) || _away) OpenUnheld();
 
         if (W.Time >= NextChores)
         {
@@ -317,6 +321,23 @@ public sealed class Session : IWorldEvents
         if (_away) _awaySummary?.Note(o);
         Emit(new GameEvent(EventKind.ChestOpened, o.Equipped, auto, data: o));
         return o;
+    }
+
+    /// <summary>The rarity from which a chest is held for the player (see <see cref="Automation.HoldAt"/>).</summary>
+    public int HoldTier => Auto.HoldAt == Automation.HoldNewest ? H.MaxRarity : Auto.HoldAt;
+
+    public bool Held(Chest c) => c.BestRarity >= HoldTier;
+
+    /// <summary>Opens the waiting chests that aren't held; while away, all of them (the welcome back shows the best of
+    /// what they held, so nothing waits that could have been helping).</summary>
+    void OpenUnheld()
+    {
+        for (int i = 0; i < Pile.Waiting.Count;)
+        {
+            var c = Pile.Waiting[i];
+            if (!_away && Held(c)) i++;
+            else Open(c, auto: true);
+        }
     }
 
     /// <summary>Opens every waiting chest; returns the openings.</summary>

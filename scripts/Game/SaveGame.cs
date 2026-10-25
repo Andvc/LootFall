@@ -244,6 +244,7 @@ public static class SaveGame
             s.Auto.Focus = d.Auto.Focus;
             s.Auto.SpendPrestige = d.Auto.SpendPrestige;
             s.Auto.Ascend = d.Auto.Ascend;
+            s.Auto.HoldAt = d.Auto.HoldAt;
         }
         if (d.Totals != null)
         {
