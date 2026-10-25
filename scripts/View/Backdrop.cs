@@ -40,8 +40,9 @@ public partial class Backdrop : Node2D
         float k = 0.86f - darken;
         _far = new Node2D { ZIndex = 0, Modulate = new Color(k, k, k + darken * 0.3f, 0) };
         var tex = Assets.Backdrop(realm.Key);
-        for (int i = 0; i < 2; i++)
-            _far.AddChild(new Sprite2D { Texture = tex, Centered = false, Position = new Vector2(i * 1920 + (i == 1 ? 1920 : 0), 0), Scale = new Vector2(i == 1 ? -1 : 1, 1) });
+        // Normal, mirrored, normal: the pair repeats every 3840 px and the third copy covers the screen at any offset.
+        for (int i = 0; i < 3; i++)
+            _far.AddChild(new Sprite2D { Texture = tex, Centered = false, Position = new Vector2(i == 1 ? 3840 : i * 1920, 0), Scale = new Vector2(i == 1 ? -1 : 1, 1) });
         AddChild(_far);
         MoveChild(_far, 0);
         var t = CreateTween().SetParallel();
@@ -60,13 +61,7 @@ public partial class Backdrop : Node2D
     public void Scroll(float dx)
     {
         _scroll += dx;
-        if (_far != null)
-        {
-            float x = -(_scroll * FarSpeed % 3840);
-            _far.Position = new Vector2(x, 0);
-            // The mirrored pair repeats every 3840 px; a second copy follows it.
-            if (_far.GetChildCount() == 2 && x < -1920) _far.Position = new Vector2(x + 3840, 0);
-        }
+        if (_far != null) _far.Position = new Vector2(-(_scroll * FarSpeed % 3840), 0);
         _ground.QueueRedraw();
         _front.QueueRedraw();
     }

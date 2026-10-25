@@ -49,7 +49,8 @@ public partial class CodexScreen : Overlay
                 for (int r = 0; r < _rarities; r++)
                     for (int b = 0; b < Hero.QualityBands; b++)
                     {
-                        if (!where(era, s, r, b)) continue;
+                        // Only open slots can be found in, so only they count toward what can be found by now.
+                        if (!h.Open[s] || !where(era, s, r, b)) continue;
                         total++;
                         if (h.Codex[h.CodexKey(era, s, r, b)]) found++;
                     }

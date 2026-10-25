@@ -254,11 +254,6 @@ public partial class TalentScreen : Overlay
             for (int i = 0; i <= 16; i++) pts.Add(centre + Vector2.FromAngle(a0 + (a1 - a0) * i / 16) * radius);
             c.DrawColoredPolygon(pts.ToArray(), new Color(SectorColors[s], 0.045f));
             c.DrawLine(centre, centre + Vector2.FromAngle(a0) * radius, new Color(SectorColors[s], 0.15f), 2, true);
-            if (_zoom < 0.3f)
-            {
-                var at = centre + Vector2.FromAngle((a0 + a1) / 2) * radius * 0.62f;
-                c.DrawString(Look.Display, at - new Vector2(120, 0), TalentTree.SectorNames[s].ToUpperInvariant(), HorizontalAlignment.Center, 240, 30, new Color(SectorColors[s], 0.75f));
-            }
         }
         var view = new Rect2(ToMap(Vector2.Zero), size / _zoom).Grow(60 / _zoom);
         var onPath = new HashSet<int>(_path);
@@ -286,7 +281,8 @@ public partial class TalentScreen : Overlay
         if (otherLines.Count > 0) c.DrawMultiline(otherLines.ToArray(), new Color("#3a3150"), Math.Max(1f, 2f * lw));
         if (takenLines.Count > 0) c.DrawMultiline(takenLines.ToArray(), new Color("#e9d39a"), Math.Max(1.5f, 4f * lw));
         if (pathLines.Count > 0) c.DrawMultiline(pathLines.ToArray(), new Color(1, 1, 1, 0.85f), Math.Max(1.5f, 3f * lw));
-        // Nodes: size by class, frame by state. The thousands of minors go into one mesh (a rim disc under a fill disc each).
+        // Nodes: size by class, frame by state. The thousands of minors go into one mesh first (a rim disc under a fill
+        // disc each), then the notables and keystones over them, then the names over everything.
         var verts = new List<Vector2>();
         var cols = new List<Color>();
         void Disc(Vector2 at, float r, Color col)
@@ -302,44 +298,32 @@ public partial class TalentScreen : Overlay
                 cols.Add(col);
             }
         }
-        for (int i = 0; i < _tree.Nodes.Count; i++)
+        (Color Fill, Color Rim, Color Sector, bool Taken) Style(int i)
         {
             var n = _tree.Nodes[i];
-            var m = new Vector2((float)_layout.X[i], (float)_layout.Y[i]);
-            if (!view.HasPoint(m)) continue;
-            var at = ToScreen(i);
-            float r = n.Kind switch { NodeKind.Keystone => 24, NodeKind.Notable => 16, NodeKind.Start => 30, NodeKind.Path => 13, _ => 10 } * Math.Max(0.35f, _zoom);
             var sc = n.Sector >= 0 ? SectorColors[n.Sector] : Look.Gold;
             bool taken = alloc[i];
             bool reachable = !taken && Adjacent(i, alloc);
             var fill = taken ? sc : reachable ? sc.Darkened(0.55f) : new Color("#1d1727");
             var rim = taken ? sc.Lightened(0.45f) : reachable ? sc.Lerp(Colors.White, 0.2f) : new Color("#4a4060");
             if (onPath.Contains(i)) rim = Colors.White;
-            if (n.Kind == NodeKind.Keystone)
+            return (fill, rim, sc, taken);
+        }
+        float Radius(NodeKind k) => k switch { NodeKind.Keystone => 24, NodeKind.Notable => 16, NodeKind.Start => 30, NodeKind.Path => 13, _ => 10 } * Math.Max(0.35f, _zoom);
+        var shown = new List<int>();
+        for (int i = 0; i < _tree.Nodes.Count; i++)
+        {
+            if (!view.HasPoint(new Vector2((float)_layout.X[i], (float)_layout.Y[i]))) continue;
+            if (_tree.Nodes[i].Kind != NodeKind.Minor)
             {
-                var pts = new Vector2[8];
-                for (int k = 0; k < 8; k++) pts[k] = at + Vector2.FromAngle(Mathf.Pi / 8 + k * Mathf.Tau / 8) * r;
-                if (taken) c.DrawCircle(at, r * 1.7f, new Color(sc, 0.18f), true, -1, true);
-                c.DrawColoredPolygon(pts, fill);
-                var closed = new Vector2[9];
-                Array.Copy(pts, closed, 8);
-                closed[8] = pts[0];
-                c.DrawPolyline(closed, rim, Math.Max(1.5f, 4 * _zoom), true);
+                shown.Add(i);
+                continue;
             }
-            else if (n.Kind == NodeKind.Minor)
-            {
-                Disc(at, r + Math.Max(1.2f, 2.5f * _zoom), rim);
-                Disc(at, r, fill);
-            }
-            else
-            {
-                if (taken) c.DrawCircle(at, r * 1.6f, new Color(sc, 0.16f), true, -1, true);
-                c.DrawCircle(at, r, fill, true, -1, true);
-                c.DrawArc(at, r, 0, Mathf.Tau, 24, rim, Math.Max(1.2f, 4 * _zoom), true);
-            }
-            if (i == _hover) c.DrawArc(at, r + 6, 0, Mathf.Tau, 28, Look.Gold, 2.5f, true);
-            if ((n.Kind == NodeKind.Keystone && _zoom > 0.16f) || (n.Kind == NodeKind.Notable && _zoom > 0.55f))
-                c.DrawString(Look.UiBold, at + new Vector2(-90, r + 20), n.Name, HorizontalAlignment.Center, 180, n.Kind == NodeKind.Keystone ? 18 : 14, taken ? Look.Text : Look.Muted);
+            var (fill, rim, _, _) = Style(i);
+            var at = ToScreen(i);
+            float r = Radius(NodeKind.Minor);
+            Disc(at, r + Math.Max(1.2f, 2.5f * _zoom), rim);
+            Disc(at, r, fill);
         }
         if (verts.Count > 0)
         {
@@ -352,6 +336,48 @@ public partial class TalentScreen : Overlay
             _discs.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
             c.DrawMesh(_discs, null);
         }
+        foreach (int i in shown)
+        {
+            var n = _tree.Nodes[i];
+            var (fill, rim, sc, taken) = Style(i);
+            var at = ToScreen(i);
+            float r = Radius(n.Kind);
+            if (n.Kind == NodeKind.Keystone)
+            {
+                var pts = new Vector2[8];
+                for (int k = 0; k < 8; k++) pts[k] = at + Vector2.FromAngle(Mathf.Pi / 8 + k * Mathf.Tau / 8) * r;
+                if (taken) c.DrawCircle(at, r * 1.7f, new Color(sc, 0.18f), true, -1, true);
+                c.DrawColoredPolygon(pts, fill);
+                var closed = new Vector2[9];
+                Array.Copy(pts, closed, 8);
+                closed[8] = pts[0];
+                c.DrawPolyline(closed, rim, Math.Max(1.5f, 4 * _zoom), true);
+            }
+            else
+            {
+                if (taken) c.DrawCircle(at, r * 1.6f, new Color(sc, 0.16f), true, -1, true);
+                c.DrawCircle(at, r, fill, true, -1, true);
+                c.DrawArc(at, r, 0, Mathf.Tau, 24, rim, Math.Max(1.2f, 4 * _zoom), true);
+            }
+        }
+        if (_hover >= 0) c.DrawArc(ToScreen(_hover), Radius(_tree.Nodes[_hover].Kind) + 6, 0, Mathf.Tau, 28, Look.Gold, 2.5f, true);
+        foreach (int i in shown)
+        {
+            var n = _tree.Nodes[i];
+            if (!((n.Kind == NodeKind.Keystone && _zoom > 0.16f) || (n.Kind == NodeKind.Notable && _zoom > 0.55f))) continue;
+            var at = ToScreen(i) + new Vector2(-100, Radius(n.Kind) + 20);
+            int fs = n.Kind == NodeKind.Keystone ? 18 : 14;
+            c.DrawString(Look.UiBold, at + new Vector2(1.5f, 1.5f), n.Name, HorizontalAlignment.Center, 200, fs, Look.Ink);
+            c.DrawString(Look.UiBold, at, n.Name, HorizontalAlignment.Center, 200, fs, alloc[i] ? Look.Text : Look.Muted);
+        }
+        if (_zoom < 0.3f)
+            for (int s = 0; s < TalentTree.Sectors; s++)
+            {
+                float a = -Mathf.Pi / 2 + (s + 0.5f) * Mathf.Tau / 6;
+                var at = centre + Vector2.FromAngle(a) * radius * 0.66f - new Vector2(130, 0);
+                c.DrawString(Look.Display, at + new Vector2(2, 2), TalentTree.SectorNames[s].ToUpperInvariant(), HorizontalAlignment.Center, 260, 32, Look.Ink);
+                c.DrawString(Look.Display, at, TalentTree.SectorNames[s].ToUpperInvariant(), HorizontalAlignment.Center, 260, 32, SectorColors[s].Lightened(0.2f));
+            }
         c.DrawString(Look.Ui, new Vector2(16, size.Y - 16), "Drag to move  |  wheel to zoom  |  click a node to take the path to it", HorizontalAlignment.Left, -1, 16, Look.Dim);
     }
 

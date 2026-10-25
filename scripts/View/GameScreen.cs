@@ -29,7 +29,8 @@ public partial class GameScreen : Control
     /// <summary>Where chests, icons and shards fly from the lane to the panels.</summary>
     public readonly Control Fly;
     public Reveal Reveal { get; private set; }
-    int _openSlots;
+    /// <summary>The level the level toast showing counts from (-1 when none is showing).</summary>
+    int _openSlots, _toastLevelFrom = -1;
     readonly AwaySummary _welcome;
 
     public GameScreen(Session s, AwaySummary welcome)
@@ -113,7 +114,10 @@ public partial class GameScreen : Control
                 Tray.AutoOpened((Opening)e.Data);
                 break;
             case EventKind.Level:
-                _toasts.Show($"Level {S.H.Level}", e.Value > 1 ? $"+{e.Value} talent points" : "+1 talent point", Look.Xp);
+                if (_toastLevelFrom < 0 || S.H.Level - e.Value < _toastLevelFrom) _toastLevelFrom = S.H.Level - e.Value;
+                int gained = S.H.Level - _toastLevelFrom;
+                _toasts.Show($"Level {S.H.Level}", gained > 1 ? $"+{gained} levels, +{gained} talent points" : "+1 talent point", Look.Xp, "level");
+                GetTree().CreateTimer(4.0, false).Timeout += () => _toastLevelFrom = -1;
                 Main.Instance?.Sfx?.PlayGroup("powerup", 1f, -8);
                 Battle.Hero.Flash(Look.Xp, 0.6f);
                 break;
@@ -324,8 +328,19 @@ public partial class Toasts : Control
         this.Place(Look.W - 420, 84, 400, 500);
     }
 
-    public void Show(string title, string text, Color accent)
+    readonly Dictionary<string, (Control Box, Label Title, Label Text)> _keyed = new();
+
+    /// <summary>A toast; with a <paramref name="key"/>, one still showing with the same key is updated instead (levels
+    /// that come several a minute stay one note).</summary>
+    public void Show(string title, string text, Color accent, string key = null)
     {
+        if (key != null && _keyed.TryGetValue(key, out var k) && IsInstanceValid(k.Box) && k.Box.Modulate.A > 0.5f)
+        {
+            k.Title.Text = title;
+            k.Text.Text = text;
+            Fx.Bump(k.Box, 1.05f, 0.15f);
+            return;
+        }
         _live.RemoveAll(c => !IsInstanceValid(c));
         while (_live.Count >= 5)
         {
@@ -333,8 +348,11 @@ public partial class Toasts : Control
             _live.RemoveAt(0);
         }
         var box = Ui.Box(new Color("#16111f", 0.95f), accent, 10).Place(420, 0, 380, 64);
-        box.AddChild(Ui.Text(title, 22, accent, Look.UiBold).Place(16, 6, 350, 28));
-        box.AddChild(Ui.Text(text, 20, Look.Text, Look.Ui).Place(16, 32, 350, 28));
+        var t1 = Ui.Text(title, 22, accent, Look.UiBold).Place(16, 6, 350, 28);
+        var t2 = Ui.Text(text, 20, Look.Text, Look.Ui).Place(16, 32, 350, 28);
+        box.AddChild(t1);
+        box.AddChild(t2);
+        if (key != null) _keyed[key] = (box, t1, t2);
         AddChild(box);
         _live.Add(box);
         for (int i = 0; i < _live.Count; i++)

@@ -23,7 +23,7 @@ public partial class TitleScreen : Control
         AddChild(_backdrop);
         AddChild(Ui.Gradient(new Color(Look.Bg, 0f), new Color(Look.Bg, 1f), 0, 380, Look.W, 280));
         AddChild(new ColorRect { Color = Look.Bg, MouseFilter = MouseFilterEnum.Ignore }.Place(0, 640, Look.W, 440));
-        _hero = new HeroRig { Position = new Vector2(560, Look.Ground), Scale = Vector2.One * 1.25f };
+        _hero = new HeroRig { Position = new Vector2(560, Look.Ground), Scale = Vector2.One * 1.25f, ZIndex = 12 };
         AddChild(_hero);
         var title = Ui.Text("LOOTFALL", 120, Look.Gold, Look.Display, HorizontalAlignment.Center, 18).Place(0, 120, Look.W, 150);
         AddChild(title);

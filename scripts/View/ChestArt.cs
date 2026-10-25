@@ -32,7 +32,7 @@ public static class ChestArt
             float t = i / 11f;
             float ang = Mathf.Pi + Mathf.Pi * t;
             var p = new Vector2(foot.X + Mathf.Cos(ang) * (w / 2 - w * 0.01f), y0 + Mathf.Sin(ang) * lidH);
-            lidPts[i] = hinge + (p - hinge).Rotated(-lid * 1.3f);
+            lidPts[i] = hinge + (p - hinge).Rotated(-lid * 0.95f) * (1 - 0.35f * lid);
         }
         if (lid >= 0.5f) Ink.Shaded(c, lidPts, wood, Ink.Line);
         // Box.

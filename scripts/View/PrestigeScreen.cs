@@ -57,8 +57,9 @@ public partial class PrestigeScreen : Overlay
         string preview = "";
         if (!trans && gain > Big.Zero)
         {
+            // Preview is the reach the aether would add, in depths.
             double deeper = s.AscendPreview();
-            preview = deeper > 0 ? $", about {Format.Percent(deeper)} deeper next run" : "";
+            preview = deeper >= 1 ? $": the next run should reach about {Format.Whole((long)deeper)} depths deeper" : "";
         }
         _body.AddChild(Ui.Text(gain > Big.Zero ? $"A reset now pays +{Format.Count(gain)} {currency}{preview}." : $"No {currency} earned yet this {(trans ? "cycle" : "run")}.",
             Look.Sub, gain > Big.Zero ? colour : Look.Muted, Look.UiBold).Place(32, 70, 1000, 40));

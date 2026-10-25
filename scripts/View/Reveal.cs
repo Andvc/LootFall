@@ -47,7 +47,7 @@ public partial class Reveal : Overlay
         // What's worth a card: upgrades and first finds first, then the rarest; shown rarest last.
         _cards = all.OrderByDescending(c => c.Equipped || c.New).ThenByDescending(c => c.Item.Rarity).ThenByDescending(c => c.Score)
             .Take(MaxCards).OrderBy(c => c.Item.Rarity).ThenBy(c => c.Equipped).ToList();
-        _chest = new Painter(DrawChest) { ZIndex = 5 };
+        _chest = new Painter(DrawChest);
         AddChild(_chest);
         _cardLayer = new Control { MouseFilter = MouseFilterEnum.Ignore }.Place(0, 0, Look.W, Look.H);
         AddChild(_cardLayer);
@@ -191,11 +191,14 @@ public partial class Reveal : Overlay
             p.DrawStyleBox(face, r);
             ItemTile.Draw(p, new Rect2(CardW / 2 - 56, 18, 112, 112), family, it.Rarity, it.Affixes, card.New, card.Equipped, time: _t);
         }).Place(0, 0, CardW, CardH);
-        c.AddChild(Ui.Text(Look.TierName(it.Rarity).ToUpperInvariant(), 15, Look.TierText(it.Rarity), Look.Strong, HorizontalAlignment.Center).Place(0, 132, CardW, 20));
-        c.AddChild(Ui.Text(name, 18, Look.Text, Look.UiBold, HorizontalAlignment.Center).Wrapped().Place(8, 152, CardW - 16, 48));
-        c.AddChild(Ui.Text(slot.Name, 15, Look.Muted, Look.Ui, HorizontalAlignment.Center).Place(0, 198, CardW, 20));
+        // A light face (Eternal's silver) takes dark ink.
+        bool light = Look.TierFace(it.Rarity).Luminance > 0.55f;
+        var ink = light ? Look.Ink : Look.Text;
+        c.AddChild(Ui.Text(Look.TierName(it.Rarity).ToUpperInvariant(), 15, light ? Look.Tier(it.Rarity).Darkened(0.55f) : Look.TierText(it.Rarity), Look.Strong, HorizontalAlignment.Center).Place(0, 132, CardW, 20));
+        c.AddChild(Ui.Text(name, 18, ink, Look.UiBold, HorizontalAlignment.Center).Wrapped().Place(8, 152, CardW - 16, 48));
+        c.AddChild(Ui.Text(slot.Name, 15, light ? new Color(Look.Ink, 0.7f) : Look.Muted, Look.Ui, HorizontalAlignment.Center).Place(0, 198, CardW, 20));
         string verdict = card.Equipped ? (card.Replaced == null ? "EQUIPPED" : $"EQUIPPED  > {Look.TierName(card.Replaced.Rarity)}") : "salvaged";
-        c.AddChild(Ui.Text(verdict, 16, card.Equipped ? Look.Good : Look.Dim, Look.Strong, HorizontalAlignment.Center).Place(0, 220, CardW, 22));
+        c.AddChild(Ui.Text(verdict, 16, card.Equipped ? (light ? new Color("#1f7a3a") : Look.Good) : Look.Dim, Look.Strong, HorizontalAlignment.Center).Place(0, 220, CardW, 22));
         c.TooltipText = string.Join("\n", Describe.Lines(G.S.H, card.Slot, it));
         c.MouseFilter = MouseFilterEnum.Pass;
         return c;

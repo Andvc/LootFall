@@ -74,7 +74,7 @@ public partial class ChestTray : Control
     void DrawPile(Canvas c)
     {
         var waiting = _g.S.Pile.Waiting;
-        int n = Math.Min(6, waiting.Count);
+        int n = Math.Min(4, waiting.Count);
         var at = new Vector2(150, 300);
         if (n == 0)
         {
@@ -87,11 +87,11 @@ public partial class ChestTray : Control
         for (int i = n - 1; i >= 0; i--)
         {
             var chest = i == 0 ? next : waiting[waiting.Count - 1 - i];
-            float x = at.X + (i % 2 == 0 ? -1 : 1) * (i * 14), y = at.Y - i * 34;
+            float x = at.X + (i % 2 == 0 ? -1 : 1) * (i * 16), y = at.Y - i * 26;
             float s = 1 + (i == 0 ? _bump * 0.12f : 0);
             float w = (i == 0 ? 200 : 170) * s;
             var foot = new Vector2(i == 0 ? at.X : x, i == 0 ? at.Y : y - 6);
-            if (i == 0) foot.Y = at.Y - Math.Min(5, n - 1) * 34 - 4;
+            if (i == 0) foot.Y = at.Y - Math.Min(3, n - 1) * 26 - 4;
             ChestArt.Draw(c, foot, w, chest.Kind, chest.BestRarity, 0, i == 0 ? 1 : 0, _t);
         }
     }
