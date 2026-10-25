@@ -29,6 +29,8 @@ static class GameTest
         var tree = new TalentTree(new Params());
         var (gap, ga, gb) = layout.Closest();
         Check("the talent tree's map has room for every node", gap >= 30, $"closest two {gap:0} px apart ({tree.Nodes[ga].Kind} r{tree.Nodes[ga].Ring} s{tree.Nodes[ga].Sector}, {tree.Nodes[gb].Kind} r{tree.Nodes[gb].Ring} s{tree.Nodes[gb].Sector}), {2 * layout.Radius:0} px across");
+        StageCheck(seed, Check);
+
         var s = Session.NewGame(seed);
         var sim = new Sim(new Params(), new Content(new Params()), new TalentTree(new Params()), Profile.Active(), seed);
         int mark = 0;
@@ -65,6 +67,55 @@ static class GameTest
 
         Console.WriteLine(failures == 0 ? $"All game checks pass ({clock.Elapsed.TotalSeconds:0}s)." : $"{failures} game checks FAIL ({clock.Elapsed.TotalSeconds:0}s).");
         return failures == 0 ? 0 : 1;
+    }
+
+    /// <summary>
+    /// The battle as the screen shows it (<see cref="Stage"/>), at 30 frames a second: ten minutes of a new game, then a
+    /// run after an ascension. Every depth cleared shows its boss falling (or a leap), every monster that comes on falls,
+    /// the hero never falls, and overkill after a reset leaps depths by the hundred.
+    /// </summary>
+    static void StageCheck(int seed, Action<string, bool, string> check)
+    {
+        var s = Session.NewGame(seed);
+        var stage = new Stage(s);
+        var cues = new int[Enum.GetValues<Cue>().Length];
+        double lowest = 1;
+        int leapt = 0;
+        void Watch(double seconds)
+        {
+            Array.Clear(cues);
+            lowest = 1;
+            leapt = 0;
+            const double dt = 1.0 / 30;
+            for (double t = 0; t < seconds; t += dt)
+            {
+                s.Tick(dt);
+                s.Events.Clear();
+                if (s.Pile.Waiting.Count > 0) s.OpenAll();
+                stage.Advance(dt);
+                foreach (var c in stage.Cues)
+                {
+                    cues[(int)c.Kind]++;
+                    if (c.Kind == Cue.Leap) leapt += c.Count;
+                }
+                lowest = Math.Min(lowest, stage.HeroHp);
+            }
+        }
+        int before = s.H.RunDepth;
+        Watch(600);
+        int cleared = s.H.RunDepth - before;
+        check("the battle shows each depth's boss fall", cues[(int)Cue.BossDown] + leapt == cleared && cleared > 5,
+            $"{cleared} depths, {cues[(int)Cue.BossDown]} bosses down, {cues[(int)Cue.Leap]} leaps");
+        check("every monster on the lane falls, the hero never", cues[(int)Cue.Kill] >= cues[(int)Cue.Spawn] - 2 && lowest > 0,
+            $"{cues[(int)Cue.Spawn]} came, {cues[(int)Cue.Kill]} fell, {cues[(int)Cue.Hit]} blows, hero at {lowest:P0} or more");
+
+        // Overkill after a reset: on to the second ascension, then five minutes of the run that follows.
+        while (s.H.Ascension.Resets < 2 && s.Time < 60 * 3600) Play(s, 1);
+        stage = new Stage(s);
+        before = s.H.RunDepth;
+        Watch(300);
+        check("after a reset, overkill leaps depths by the hundred", leapt >= 100,
+            $"{s.H.Ascension.Resets} ascensions: depth {before} -> {s.H.RunDepth} in 5m, {leapt} in {cues[(int)Cue.Leap]} leaps");
     }
 
     /// <summary>Plays <paramref name="seconds"/> as a sensible active player.</summary>

@@ -59,6 +59,8 @@ public sealed class Combat
         /// <summary>Health recovered per second, as a share of health (regeneration and leech).</summary>
         public double Sustain;
         public double Crit, Dodge, Armor;
+        /// <summary>Chances of a block and of a blow striking twice (for the screen; already in Taken and Dps).</summary>
+        public double Block, Multi;
     }
 
     /// <summary>The depth-independent parts of offense and defense (flat totals and buckets), computed once per sheet.</summary>
@@ -98,6 +100,8 @@ public sealed class Combat
             Crit = crit,
             Dodge = dodge,
             Armor = armor,
+            Block = block,
+            Multi = multi,
         };
     }
 

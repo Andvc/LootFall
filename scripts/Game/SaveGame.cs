@@ -22,6 +22,8 @@ public sealed class SaveData
     public int Seed;
 
     public double Time, DepthProgress, RunStart, CycleStart, LastRun;
+    /// <summary>The depths the push under way clears at once (0 when none is under way).</summary>
+    public int Skip;
     public double Accum, NextChores, NextAutopilot, NextFocus;
     public int LastPeak;
     public List<double[]> RunDepths = new();
@@ -158,7 +160,7 @@ public static class SaveGame
         {
             SavedAt = now, Seed = seed,
             Time = w.Time, Accum = s.Accum, NextChores = s.NextChores, NextAutopilot = s.NextAutopilot, NextFocus = s.NextFocus,
-            DepthProgress = w.DepthProgress, RunStart = w.RunStart, CycleStart = w.CycleStart, LastRun = w.LastRun,
+            DepthProgress = w.DepthProgress, Skip = w.Skip, RunStart = w.RunStart, CycleStart = w.CycleStart, LastRun = w.LastRun,
             LastPeak = w.LastPeak, RunDepths = w.RunDepths.Select(x => new[] { x.Time, x.Depth }).ToList(),
             PendingAether = BigData.Of(w.PendingAether), Rng = w.Rng.State,
             RunDepth = h.RunDepth, EverDepth = h.EverDepth, Level = h.Level, Xp = BigData.Of(h.Xp), Gold = BigData.Of(h.Gold),
@@ -194,6 +196,7 @@ public static class SaveGame
         s.NextAutopilot = d.NextAutopilot;
         s.NextFocus = d.NextFocus;
         w.DepthProgress = d.DepthProgress;
+        w.Skip = d.Skip;
         w.RunStart = d.RunStart;
         w.CycleStart = d.CycleStart;
         w.LastRun = d.LastRun;

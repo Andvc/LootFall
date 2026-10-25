@@ -99,6 +99,9 @@ public sealed class World
     public double Time;
     /// <summary>How far through the next depth the push is (0 to 1), when it's still fighting there.</summary>
     public double DepthProgress;
+    /// <summary>How many depths the push under way clears at once (decided when it starts, by overkill; 0 between
+    /// depths). Kept until it's done, so the size of a step doesn't decide whether a skip happens.</summary>
+    public int Skip;
     /// <summary>When this run and this transcendence cycle started, the run's depth at each decision (to tell climbing
     /// from a plateau), and the last run's peak and length.</summary>
     public double RunStart, CycleStart;
@@ -138,14 +141,18 @@ public sealed class World
         for (int guard = 0; guard < 20000 && timeLeft > 0; guard++)
         {
             int next = H.RunDepth + 1;
-            if (!H.Fight.CanClear(H.Total, b, next)) { DepthProgress = 0; break; }
+            if (!H.Fight.CanClear(H.Total, b, next))
+            {
+                DepthProgress = 0;
+                Skip = 0;
+                break;
+            }
             var f = H.Fight.At(H.Total, b, next);
             double rate = H.Fight.KillRate(f, next);
             bool guardian = Combat.IsGuardian(next);
             double need = P.KillsPerDepth / rate + Math.Min(P.BossTime, H.Fight.Boss(f, next, guardian).Time);
-            // Overkill: clear several depths in one go (checking the last one can be cleared at all).
-            int skip = DepthProgress > 0 ? 1 : H.Fight.Skip(f, next);
-            if (skip > 1 && !H.Fight.CanClear(H.Total, b, next + skip - 1)) skip = 1;
+            // Overkill: clear several depths in one go.
+            int skip = Skip = PlannedSkip(f, next);
             if (skip > 1)
             {
                 next += skip - 1;
@@ -164,6 +171,7 @@ public sealed class World
             aether += a;
             if (DepthProgress < 1 - 1e-9) break;
             DepthProgress = 0;
+            Skip = 0;
             o.Cleared += next - H.RunDepth;
             o.Skipped = skip > 1;
             H.RunDepth = next;
@@ -232,6 +240,16 @@ public sealed class World
 
         if (gearChanged) H.Rebuild();
         return o;
+    }
+
+    /// <summary>How many depths the push from <paramref name="next"/> clears at once: the skip under way, or a new one
+    /// decided by overkill (checking the last depth it would reach can be cleared at all).</summary>
+    public int PlannedSkip(in Combat.Frame f, int next)
+    {
+        if (DepthProgress > 0 && Skip > 0) return Skip;
+        int skip = H.Fight.Skip(f, next);
+        if (skip > 1 && !H.Fight.CanClear(H.Total, H.Base, next + skip - 1)) skip = 1;
+        return skip;
     }
 
     /// <summary>Adds XP and takes the levels it buys (a talent point each); returns how many.</summary>
@@ -363,6 +381,7 @@ public sealed class World
         int start = Math.Max(1, (int)(H.EverDepth * head));
         H.RunDepth = start;
         DepthProgress = 0;
+        Skip = 0;
         H.Gold = Big.Zero;
         double keep = Math.Min(0.5, H.Ascension.PerkTotal(Perk.ForgeKeep));
         for (int s = 0; s < H.Forge.Length; s++) H.Forge[s] = (int)(H.Forge[s] * keep);

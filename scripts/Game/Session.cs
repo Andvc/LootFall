@@ -602,10 +602,20 @@ public sealed class Session : IWorldEvents
             fi.BossTime = Math.Min(P.BossTime, H.Fight.Boss(f, next, fi.Guardian).Time);
             fi.BossDamage = H.Fight.Boss(f, next, fi.Guardian).Damage;
             fi.WaveDamage = H.Fight.WaveDamage(f, next);
-            fi.Skip = W.DepthProgress > 0 ? 1 : H.Fight.Skip(f, next);
-            double waves = P.KillsPerDepth / fi.KillRate;
-            fi.Need = waves + fi.BossTime;
-            fi.WaveShare = waves / fi.Need;
+            fi.Skip = W.PlannedSkip(f, next);
+            if (fi.Skip > 1)
+            {
+                // A wave and a boss at the animation floor clear them all (World.Step).
+                fi.Need = H.Fight.SkipTime;
+                fi.WaveShare = (P.WaveSize * P.MinKillTime + P.WaveGap) / fi.Need;
+                fi.Guardian = false;
+            }
+            else
+            {
+                double waves = P.KillsPerDepth / fi.KillRate;
+                fi.Need = waves + fi.BossTime;
+                fi.WaveShare = waves / fi.Need;
+            }
             fi.Progress = W.DepthProgress;
         }
         else
@@ -619,10 +629,18 @@ public sealed class Session : IWorldEvents
             fi.WaveDamage = H.Fight.WaveDamage(f, farm);
             fi.Skip = 1;
             fi.BlockedBy = Combat.IsGuardian(next) ? "guardian" : "boss";
+            // What the next depth asks: its boss in time, its waves and its boss without falling.
+            var fn = H.Fight.At(H.Total, b, next);
+            var (time, damage) = H.Fight.Boss(fn, next, Combat.IsGuardian(next));
+            double waves = H.Fight.WaveDamage(fn, next);
+            fi.NeedDamage = time / P.BossTime;
+            fi.NeedHealth = Math.Max(waves, damage) / P.PushWaveDamage;
         }
+        fi.Next = next;
         fi.MonsterHpLe = H.Fight.MonsterHpLe(fi.Depth);
         fi.MonsterDpsLe = H.Fight.MonsterDpsLe(fi.Depth);
         fi.Speed = b.Speed;
+        fi.CritDamage = b.CritDamage;
         return fi;
     }
 }
@@ -644,8 +662,16 @@ public struct FightInfo
     /// <summary>Depths cleared at a time by overkill (1 when there's none).</summary>
     public int Skip;
     public double MonsterHpLe, MonsterDpsLe;
+    /// <summary>A critical blow's extra damage (0.5: half as much again).</summary>
+    public double CritDamage;
+    /// <summary>The depth after the deepest cleared this run.</summary>
+    public int Next;
     /// <summary>What stops the push while farming: the next depth's "boss" or "guardian".</summary>
     public string BlockedBy;
+    /// <summary>While farming: how many times the damage the next boss needs (its time over the limit), and how many
+    /// times the health its waves and boss need (their share of health over the most a push may take). A push goes
+    /// ahead once both are at most 1.</summary>
+    public double NeedDamage, NeedHealth;
 }
 
 /// <summary>The game's running totals.</summary>
