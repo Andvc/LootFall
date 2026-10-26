@@ -17,7 +17,9 @@ Phase 1 (the bare knight, the close-ups, the backdrops and the glyphs) is in
 [art-handoff-equipment.md](art-handoff-equipment.md), and the style rules are in [art-direction.md](art-direction.md).
 What the slots and pieces are, and how the screen works, is in [equipment.md](equipment.md).
 
-**Status: requested on 25 October 2026.** Nothing is delivered yet.
+**Status: requested on 25 October 2026; arriving in batches.** The first delivery (26 October, 181 files: the 13
+plates, 165 pictures of pieces worn and 3 held pieces, all from batch 1) is in the game
+([its notes](equipment-pieces-delivery-20261026.md)). The list ticks off what's delivered.
 
 ## At a glance
 
@@ -400,19 +402,23 @@ given, centred, filling about 60% of the cell and clear of its edges.
 
 ## After delivery
 
-This is what will be done with the files:
-1. **Import them** into `assets/equipment/`:
-   - key out the green;
-   - crop each file to what's drawn, keeping its place on its base;
-   - cut family files into their pieces by the body's map;
-   - find the plain steel, to give it the era's colour;
-   - split the pieces that hang behind him into their behind and front parts.
-2. **Map the plates' sites** as the figure's are mapped, so that pointing, lighting and the slot markers work on them.
-3. **Draw them on the screen:**
-   - each region bare and equipped, in layer order;
-   - lit in its own shape when pointed at, and faint as a preview;
-   - the held pieces at his sides, the companions with him, and the set pieces on their hosts;
-   - the whole figure drawn from the plates where it has no picture of its own.
+`python3 tools/equipment_pieces.py import` brings every delivered file that passes its checks into
+`assets/equipment/` (then run `godot --headless --path . --import`). [equipment.md](equipment.md), "The pieces' own
+pictures", says how the screen draws them.
+1. **Import** (done):
+   - the green keyed out;
+   - each file cropped to what's drawn, keeping its place on its base;
+   - family files cut into their pieces by the body's map;
+   - the pieces that hang behind him split into their behind and front parts;
+   - on his back, the hole each picture left for his braid closed, and the plate's braid laid over it.
+2. **The plates' sites** (done): the figure's map moved onto each plate, so that pointing, lighting and the slot
+   markers work on them.
+3. **On the screen:**
+   - done: each region bare and equipped, in layer order; the plain steel in the era's metal; lit in its own shape when
+     pointed at, and faint as a preview; the held pieces at his sides on the whole figure; the whole figure drawn from
+     the plates where it has no picture of its own;
+   - when their files arrive: the companions with him, the set pieces on their hosts (D), and a hand's held piece
+     beside it on its close-up.
 
 ## Not in this handoff
 

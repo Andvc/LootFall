@@ -130,6 +130,12 @@ public partial class PaperDoll : Control
         public bool Leaving;
         // Outlines mapped to the screen, kept while the panel doesn't move.
         public readonly Dictionary<Vector2[], (int Version, Vector2[] Dst)> Mapped = new();
+        // The pieces drawn by pictures of their own here (no fill, no ink line round their sites), and those pictures
+        // with the piece each is drawn for and where it lies in this view's pixels, innermost first.
+        public readonly HashSet<int> ArtPieces = new();
+        public readonly List<(PieceArt Art, int Piece, Rect2 Rect)> Art = new();
+        // The layers painted again among the pictures (their ink lines go with them).
+        public readonly HashSet<int> Passes = new();
         public int Version, LinesDrawn;
         public Vector2 MappedOffset;
         public float MappedScale;
@@ -216,6 +222,16 @@ public partial class PaperDoll : Control
         return new Place { Clip = new Rect2(M(q.Clip.Position), q.Clip.Size * s), Scale = q.Scale * s, Anchor = q.Anchor, Alpha = alpha };
     }
 
+    /// <summary>Where a view of the figure's space sits so it lines up exactly with another of that space at a place
+    /// (a plate over its region of the figure, the figure round a plate, one plate beside another).</summary>
+    static Place Aligned(MapView b, Place at, MapView a)
+    {
+        var corner = a.FromSpace(b.ToSpace(Vector2.Zero));
+        float scale = at.Scale * a.SpaceScale / b.SpaceScale;
+        var offset = at.Offset + corner * at.Scale;
+        return new Place { Clip = new Rect2(offset, b.Size * scale), Scale = scale, Anchor = b.Size / 2, Alpha = 0 };
+    }
+
     static Place Grown(Place p, float k, float alpha) => new()
     {
         Clip = new Rect2(p.Clip.GetCenter() - p.Clip.Size * k / 2, p.Clip.Size * k), Scale = p.Scale * k, Anchor = p.Anchor, Alpha = alpha,
@@ -260,6 +276,7 @@ public partial class PaperDoll : Control
             p.Node = new FigurePanel(v) { MouseFilter = MouseFilterEnum.Ignore, Size = Size };
             var shown = p;
             p.Node.Lines.OnDraw = c => DrawLines(c, shown);
+            p.Node.DrawInks = (c, layer) => DrawInks(c, shown, layer);
             AddChild(p.Node);
             MoveChild(p.Node, _top.GetIndex());
             // A close-up grows out of the figure; the figure shrinks back out of the close-up it was showing.
@@ -271,6 +288,9 @@ public partial class PaperDoll : Control
             }
             else if (old.FirstOrDefault(q => Origins.TryGetValue(q.V.Name, out var oq) && oq.Main && oq.Figure == v.Name) is { } close)
                 from = Around(v, Origins[close.V.Name].Sites, close.From, close.V);
+            // A plate grows out of the figure (or the figure round a plate, or one plate out of another) lined up exactly.
+            else if (v.Space != null && old.FirstOrDefault(q => q.V.Space == v.Space) is { } same)
+                from = Aligned(v, same.From, same.V);
             if (from != null) placed.Add(p);
             p.From = from;
             p.AlphaFrom = 0;
@@ -290,6 +310,8 @@ public partial class PaperDoll : Control
             }
             else if (next.FirstOrDefault(q => Origins.TryGetValue(q.V.Name, out var oq) && oq.Main && oq.Figure == p.V.Name) is { } close)
                 to = Around(p.V, Origins[close.V.Name].Sites, close.To, close.V);
+            else if (p.V.Space != null && next.FirstOrDefault(q => !q.Leaving && q.V.Space == p.V.Space) is { } same)
+                to = Aligned(p.V, same.To, same.V);
             if (to != null) placed.Add(p);
             p.To = to;
             p.AlphaFrom = p.From.Alpha;
@@ -335,6 +357,8 @@ public partial class PaperDoll : Control
         _hoverSite = default;
         _hoverMarker = _hoverPiece = -1;
         _markersDirty = true;
+        _pagesVersion++;
+        UpdateArt();
         UpdateLuts();
     }
 
@@ -360,6 +384,7 @@ public partial class PaperDoll : Control
         }
         _move = 1;
         _markersDirty = true;
+        _pagesVersion++;
     }
 
     /// <summary>The panels at this point of a page change.</summary>
@@ -413,6 +438,7 @@ public partial class PaperDoll : Control
         _areas.Clear();
         _pieceLoops.Clear();
         _regionCounts.Clear();
+        _artState = -1;
         _markersDirty = true;
         UpdateLuts();
     }
@@ -565,9 +591,12 @@ public partial class PaperDoll : Control
                 {
                     var site = v.Sites[i];
                     string key = site.Key;
-                    busy = new Color(0, 0, site.Busy ? 1 : 0, 0);
                     box = new Color(site.Box.Position.X / v.Size.X, site.Box.Position.Y / v.Size.Y, site.Box.End.X / v.Size.X, site.Box.End.Y / v.Size.Y);
-                    if (Cov.Top.TryGetValue(key, out var top))
+                    // The outermost piece here that has no picture of its own on this panel (those are drawn over it),
+                    // and its layer, for the pass that paints it over the pictures below it.
+                    var top = Cov.TopExcept(key, p.ArtPieces);
+                    busy = new Color(top.Piece >= 0 ? ((int)top.Layer + 1) / 255f : 0, 0, site.Busy ? 1 : 0, 0);
+                    if (top.Piece >= 0)
                     {
                         var (c, mat, shine, r) = FillOf(top.Piece, top.Layer);
                         fill = new Color(c.R, c.G, c.B, mat / 255f);
@@ -602,6 +631,144 @@ public partial class PaperDoll : Control
         var it = H.Gear[piece];
         var c = it != null ? Look.Tier(it.Rarity) : Look.Gold;
         return new Color(c.Lerp(Colors.White, 0.2f), strength);
+    }
+
+    int _artState = -1, _pagesVersion;
+
+    /// <summary>Each panel's pieces' pictures (docs/art-handoff-equipment-pieces.md): every counting piece that has one
+    /// on its view (or, on the figure and its plates, on another view of that side), innermost layer first, in its era's
+    /// metal, dimmed off the page's region; and the piece shown where it would go, faint. Rebuilt when what's worn,
+    /// shown or lit changes.</summary>
+    void UpdateArt()
+    {
+        int focus = FocusPiece >= 0 && H.Active[FocusPiece] ? FocusPiece : -1;
+        int show = Showing;
+        int state = HashCode.Combine(_wornVersion, _pagesVersion, Region, focus, show, _shown.Count);
+        if (state == _artState) return;
+        _artState = state;
+        foreach (var p in _shown)
+        {
+            if (p.Node == null) continue;
+            var v = p.V;
+            p.ArtPieces.Clear();
+            p.Art.Clear();
+            var seen = new HashSet<PieceArt>();
+            // From behind, his braid hangs over what he wears and under what's on his head, so his head's pieces go
+            // over the rest there.
+            bool back = v.Space == "back";
+            var list = new List<(PieceArt Art, int Piece, float Fade, bool Head)>();
+            foreach (int s in Cov.Pieces)
+            {
+                var d = C.Slots[s];
+                if (d.Board != Anatomy.Body || EquipmentMap.ArtOn(d.Name, v) is not { } art) continue;
+                p.ArtPieces.Add(s);
+                if (seen.Add(art)) list.Add((art, s, 1, back && Describe.Region(C, d) == "Head"));
+            }
+            if (show >= 0 && !H.Active[show] && C.Slots[show].Board == Anatomy.Body && EquipmentMap.ArtOn(C.Slots[show].Name, v) is { } ghost
+                && seen.Add(ghost))
+                list.Add((ghost, show, 0.5f, back && Describe.Region(C, C.Slots[show]) == "Head"));
+            list.Sort((a, b) => a.Head != b.Head ? a.Head.CompareTo(b.Head)
+                : a.Art.Under(b.Art) is var c && c != 0 ? c : a.Piece.CompareTo(b.Piece));
+            // Behind him the order turns round: what's further out on his back is further from us.
+            var draws = new List<ArtDraw>();
+            var behind = new List<ArtDraw>();
+            foreach (var (art, s, fade, head) in list)
+            {
+                var rect = v.FromView(EquipmentMap.View(art.View), art.Rect);
+                p.Art.Add((art, s, rect));
+                var draw = new ArtDraw
+                {
+                    Art = art, ViewRect = rect, Era = Ink.Metal(ItemTile.Tier(H.Gear[s])), Dim = PieceDim(s, v, focus), Fade = fade,
+                    Glow = s == show ? Tint(s, 0.62f) : s == focus ? Tint(s, 0.28f) : fade < 1 ? new Color(Look.Gold, 0.3f) : default,
+                    UnderHair = back && !head,
+                };
+                if (art.Behind != null) behind.Insert(0, draw with { Behind = true });
+                if (art.Texture != null) draws.Add(draw);
+            }
+            // What's painted by its layer over a piece with a picture is painted again after the pictures below it.
+            p.Passes.Clear();
+            var fills = new SortedSet<Layer>();
+            foreach (var site in v.Sites.Skip(1))
+                if (Cov.TopExcept(site.Key, p.ArtPieces) is { Piece: >= 0 } top) fills.Add(top.Layer);
+            foreach (var layer in fills)
+            {
+                if (!draws.Any(d => d.Art != null && d.Art.Layer < layer)) continue;
+                int at = draws.FindIndex(d => d.Art != null && d.Art.Layer >= layer);
+                draws.Insert(at < 0 ? draws.Count : at, ArtDraw.FillPass(layer));
+                p.Passes.Add((int)layer);
+            }
+            // What he holds stands just behind him, nearer than what hangs down his back.
+            var all = behind.Where(d => !d.Art.Held).Concat(behind.Where(d => d.Art.Held)).ToList();
+            all.AddRange(draws);
+            p.Node.SetArt(all);
+        }
+    }
+
+    /// <summary>How much a piece's picture dims where it's off the body, as the sites round it do: outside the page's
+    /// region, or while another piece is shown in detail.</summary>
+    float PieceDim(int piece, MapView v, int focus)
+    {
+        float dim = 0;
+        if (Region == "Beyond") dim = 0.45f;
+        else if (Region != null && Describe.Region(C, C.Slots[piece]) != Region) dim = v.Closeup ? 0.3f : 0.78f;
+        if (focus >= 0 && piece != focus) dim = Mathf.Max(dim, 0.55f);
+        return dim;
+    }
+
+    // Pictures' outlines in a view's pixels (moved from the view they were painted on), kept.
+    readonly Dictionary<(string, PieceArt), Vector2[][]> _artLoops = new();
+
+    Vector2[][] ArtLoops(MapView v, PieceArt art)
+    {
+        if (_artLoops.TryGetValue((v.Name, art), out var got)) return got;
+        var src = EquipmentMap.View(art.View);
+        got = src == v ? art.Loops : art.Loops.Select(l => l.Select(q => v.FromSpace(src.ToSpace(q))).ToArray()).ToArray();
+        _artLoops[(v.Name, art)] = got;
+        return got;
+    }
+
+    /// <summary>The outline lit round a piece on a panel: its pictures' own where it has them, else its sites'.</summary>
+    Vector2[][] FillLoops(Shown p, int piece)
+    {
+        if (p.ArtPieces.Contains(piece) || (piece == Showing && !H.Active[piece]))
+        {
+            var loops = new List<Vector2[]>();
+            foreach (var (art, s, _) in p.Art)
+                if (s == piece || Array.IndexOf(art.Pieces, C.Slots[piece].Name) >= 0) loops.AddRange(ArtLoops(p.V, art));
+            if (loops.Count > 0) return loops.ToArray();
+        }
+        return PieceLoops(p.V, piece).Fills;
+    }
+
+    /// <summary>The worn piece whose picture is under a point on screen (the topmost), with its panel.</summary>
+    (Shown P, int Piece) ArtUnder(Vector2 screen)
+    {
+        for (int i = _shown.Count - 1; i >= 0; i--)
+        {
+            var p = _shown[i];
+            if (p.Leaving || p.Now.Alpha < 0.5f || p.Node == null) continue;
+            var now = Cam(p.Now);
+            if (p.Node.ClipArt && !now.Clip.HasPoint(screen)) continue;
+            var at = now.Unmap(screen);
+            for (int j = p.Art.Count - 1; j >= 0; j--)
+            {
+                var (art, piece, rect) = p.Art[j];
+                if (!H.Active[piece] || !rect.HasPoint(at)) continue;
+                if (InsideLoops(ArtLoops(p.V, art), at)) return (p, piece);
+            }
+        }
+        return (null, -1);
+    }
+
+    /// <summary>Whether a point is inside loops (even-odd, so holes count out).</summary>
+    static bool InsideLoops(Vector2[][] loops, Vector2 q)
+    {
+        bool inside = false;
+        foreach (var l in loops)
+            for (int i = 0, j = l.Length - 1; i < l.Length; j = i++)
+                if ((l[i].Y > q.Y) != (l[j].Y > q.Y) && q.X < (l[j].X - l[i].X) * (q.Y - l[i].Y) / (l[j].Y - l[i].Y) + l[i].X)
+                    inside = !inside;
+        return inside;
     }
 
     static readonly Dictionary<string, Cell> Fakes = new();
@@ -943,6 +1110,7 @@ public partial class PaperDoll : Control
         }
         if (_markersDirty) BuildMarkers();
         LayoutMarkers();
+        UpdateArt();
         UpdateLuts();
         foreach (var p in _shown)
         {
@@ -1059,6 +1227,7 @@ public partial class PaperDoll : Control
         _hoverMarker = Small ? -1 : MarkerAt(at);
         var (p, site) = SiteUnder(at);
         string key = p != null ? p.V.Sites[site].Key : null;
+        var (_, art) = _hoverMarker >= 0 ? (null, -1) : ArtUnder(at);
         _hoverRegion = null;
         _hoverSite = default;
         _hoverPiece = -1;
@@ -1068,6 +1237,9 @@ public partial class PaperDoll : Control
             if (m.Kind == Kind.Worn) _hoverPiece = m.Piece;
             else if (Overview) _hoverRegion = RegionOf(m);
         }
+        // A piece's picture under the mouse (on him, or beside him: a sword, a cloak's drape).
+        else if (art >= 0 && (Overview || Small)) _hoverRegion = Describe.Region(C, C.Slots[art]);
+        else if (art >= 0 && InPage(C.Cells[C.Slots[art].Takes[0]])) _hoverPiece = art;
         else if (key != null)
         {
             if (Overview || Small) _hoverRegion = _regionOf.GetValueOrDefault(key);
@@ -1090,6 +1262,17 @@ public partial class PaperDoll : Control
                 PickedCell = m.Cell;
                 CellClicked?.Invoke(m.Cell);
             }
+            return;
+        }
+        var (_, art) = ArtUnder(at);
+        if (art >= 0 && (Overview || Small))
+        {
+            RegionClicked?.Invoke(Describe.Region(C, C.Slots[art]));
+            return;
+        }
+        if (art >= 0 && InPage(C.Cells[C.Slots[art].Takes[0]]))
+        {
+            PieceClicked?.Invoke(art);
             return;
         }
         var (p, site) = SiteUnder(at);
@@ -1160,12 +1343,14 @@ public partial class PaperDoll : Control
         DrawTextureRect(tex, new Rect2(pos, size), false, new Color(1, 1, 1, alpha));
     }
 
-    /// <summary>A soft shadow under a figure's feet.</summary>
+    static readonly string[] Feet = { "R.foot", "L.foot", "R.heel", "L.heel" };
+
+    /// <summary>A soft shadow under a figure's feet (on a plate, where its feet are).</summary>
     void Floor(Shown p)
     {
-        if (p.V.Closeup) return;
+        if (p.V.Closeup || !Feet.Any(p.V.Has)) return;
         var now = Cam(p.Now);
-        var feet = Box(p.V, new[] { "R.foot", "L.foot", "R.heel", "L.heel" });
+        var feet = Box(p.V, Feet);
         var c = now.Map(new Vector2(feet.GetCenter().X, feet.End.Y));
         float w = feet.Size.X * now.Scale * 0.75f;
         DrawSetTransform(c, 0, new Vector2(1, 0.14f));
@@ -1191,15 +1376,10 @@ public partial class PaperDoll : Control
 
     // ------------------------------------------------------------------------------------------------ drawing: lines on a panel
 
-    /// <summary>A panel's lines, clipped to it: an ink line round each worn piece (a trim inside plate and heavy cloth
-    /// on a page), then what's lit (the piece pointed at in its colour, what it keeps free in red, a slot or a region in
-    /// gold, the piece in detail).</summary>
-    void DrawLines(Canvas c, Shown p)
+    /// <summary>Where a panel's lines go on screen now (the mapped loops are kept until it moves).</summary>
+    (float Alpha, float Scale) LinesAt(Shown p)
     {
         var now = Cam(p.Now);
-        float a = now.Alpha;
-        if (a < 0.02f) return;
-        var v = p.V;
         var off = now.Offset - now.Clip.Position;
         float k = now.Scale;
         if (p.MappedOffset != off || !Mathf.IsEqualApprox(p.MappedScale, k))
@@ -1209,22 +1389,40 @@ public partial class PaperDoll : Control
             p.MappedScale = k;
         }
         if (p.Mapped.Count > 800) p.Mapped.Clear();
+        return (now.Alpha, k);
+    }
+
+    /// <summary>The ink lines round the pieces painted by their layer, drawn with the paint (under the pictures, or
+    /// with their layer's pass among them), and a trim inside plate and heavy cloth on a page. A piece with its own
+    /// picture here has its own ink line.</summary>
+    void DrawInks(Canvas c, Shown p, int pass)
+    {
+        if (Small) return;
+        var (a, k) = LinesAt(p);
+        if (a < 0.02f) return;
         bool fine = k > 0.8f;
-        if (!Small)
+        float ink = Mathf.Clamp(0.8f + k * 0.75f, 1.1f, 3.2f);
+        float inset = Mathf.Snapped(3.4f / Mathf.Max(0.3f, p.To.Scale), 0.25f);
+        foreach (var (piece, area) in Areas(p.V))
         {
-            float ink = Mathf.Clamp(0.8f + k * 0.75f, 1.1f, 3.2f);
-            float inset = Mathf.Snapped(3.4f / Mathf.Max(0.3f, p.To.Scale), 0.25f);
-            foreach (var (piece, area) in Areas(v))
-            {
-                // Outside the page's region (dimmed), a faint line and no trim.
-                bool here = Overview || Region == "Beyond" || area.Regions.Contains(Region);
-                foreach (var loop in area.Loops(fine)) c.DrawPolyline(Map(p, loop), new Color(Look.Ink, (here ? 0.9f : 0.4f) * a), ink, true);
-                if (!fine || Overview || !here || area.Layer is not (Layer.Armor or Layer.Over)) continue;
-                var trim = area.Layer == Layer.Over ? Look.Tier(H.Gear[piece]?.Rarity ?? 0).Lerp(Colors.Black, 0.15f)
-                    : Ink.Metal(ItemTile.Tier(H.Gear[piece])).Light.Lerp(Colors.White, 0.2f);
-                foreach (var loop in area.Trim(inset)) c.DrawPolyline(Map(p, loop), new Color(trim, 0.75f * a), Mathf.Clamp(k * 0.9f, 1.2f, 2.4f), true);
-            }
+            if (p.ArtPieces.Contains(piece) || (p.Passes.Contains((int)area.Layer) ? (int)area.Layer : -1) != pass) continue;
+            // Outside the page's region (dimmed), a faint line and no trim.
+            bool here = Overview || Region == "Beyond" || area.Regions.Contains(Region);
+            foreach (var loop in area.Loops(fine)) c.DrawPolyline(Map(p, loop), new Color(Look.Ink, (here ? 0.9f : 0.4f) * a), ink, true);
+            if (!fine || Overview || !here || area.Layer is not (Layer.Armor or Layer.Over)) continue;
+            var trim = area.Layer == Layer.Over ? Look.Tier(H.Gear[piece]?.Rarity ?? 0).Lerp(Colors.Black, 0.15f)
+                : Ink.Metal(ItemTile.Tier(H.Gear[piece])).Light.Lerp(Colors.White, 0.2f);
+            foreach (var loop in area.Trim(inset)) c.DrawPolyline(Map(p, loop), new Color(trim, 0.75f * a), Mathf.Clamp(k * 0.9f, 1.2f, 2.4f), true);
         }
+    }
+
+    /// <summary>What's lit on a panel, over everything and clipped to it: the piece pointed at in its colour, what it
+    /// keeps free in red, a slot or a region in gold, the piece in detail.</summary>
+    void DrawLines(Canvas c, Shown p)
+    {
+        var (a, _) = LinesAt(p);
+        if (a < 0.02f) return;
+        var v = p.V;
         // What's lit.
         float pulse = 0.7f + 0.3f * Mathf.Sin(_t * 4);
         string region = LitRegion;
@@ -1232,12 +1430,11 @@ public partial class PaperDoll : Control
         if (Small) return;
         int focus = FocusPiece >= 0 && H.Active[FocusPiece] ? FocusPiece : -1;
         int show = Showing;
-        if (focus >= 0 && focus != show) Glow(c, p, PieceLoops(v, focus).Fills, RarityOf(focus), a * pulse);
+        if (focus >= 0 && focus != show) Glow(c, p, FillLoops(p, focus), RarityOf(focus), a * pulse);
         if (show >= 0)
         {
-            var (fills, keeps) = PieceLoops(v, show);
-            Glow(c, p, keeps, Look.Bad, a * 0.8f, 0.6f);
-            Glow(c, p, fills, RarityOf(show), a);
+            Glow(c, p, PieceLoops(v, show).Keeps, Look.Bad, a * 0.8f, 0.6f);
+            Glow(c, p, FillLoops(p, show), RarityOf(show), a);
         }
         int cell = LitCell;
         if (cell >= 0 && C.Cells[cell].Board == Anatomy.Body)

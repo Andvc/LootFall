@@ -7,12 +7,14 @@
 //   row 2  r: the fill's shine (its rarity), a: how much to dim it (outside the region shown, or while one piece is
 //          chosen)
 //   row 3  the piece's rarity colour (the ink of a tattoo)
-//   row 4  b: 1 where the art is busy (hair, a beard): its strands don't show through what's worn over it, which is
-//          shaded as a smooth dome lit from the top left instead of by the art's light
+//   row 4  r: the fill's layer + 1 (0 for none); b: 1 where the art is busy (hair, a beard): its strands don't show
+//          through what's worn over it, which is shaded as a smooth dome lit from the top left instead of by the art's
+//          light
 //   row 5  the site's box (x0, y0, x1, y1, as shares of the picture), for that dome
 // Sites meet smoothly at any zoom: each pixel takes the two sites that cover most of it (of the four map pixels round
 // it) and blends them over one screen pixel. The ink lines round what's worn are drawn over this, in vector
-// (PaperDoll's outlines).
+// (PaperDoll's outlines). Pieces with pictures of their own are drawn over it (piece.gdshader); where a piece painted
+// here is worn over one of them, a pass of this shader at that layer paints its sites again, over the pictures below.
 shader_type canvas_item;
 
 uniform sampler2D sites : filter_nearest, repeat_disable;
@@ -20,6 +22,8 @@ uniform sampler2D lut : filter_nearest, repeat_disable;
 uniform vec2 sites_size = vec2(1.0);
 uniform float time = 0.0;
 uniform float fade = 1.0;
+// -1 for the picture itself; a layer for a pass that paints only the sites whose fill is on it.
+uniform int pass_layer = -1;
 
 int site_px(ivec2 p) {
 	p = clamp(p, ivec2(0), ivec2(sites_size) - ivec2(1));
@@ -137,6 +141,12 @@ void fragment() {
 	if (b != dom && cb > csec) { sec = b; csec = cb; }
 	if (c != dom && cc > csec) { sec = c; csec = cc; }
 	if (d != dom && cd > csec) { sec = d; csec = cd; }
+	// In a pass, only the sites whose fill is on its layer.
+	bool own_dom = dom > 0 && int(row(dom, 4).r * 255.0 + 0.5) == pass_layer + 1;
+	bool own_sec = sec != dom && sec > 0 && int(row(sec, 4).r * 255.0 + 0.5) == pass_layer + 1;
+	if (pass_layer >= 0 && !own_dom && !own_sec) {
+		discard;
+	}
 	// The light, blurred a little (more over hair), so strands and the beard's spikes don't speckle what's worn.
 	float r = mix(1.2, 3.2, row(dom, 4).b);
 	vec2 o = TEXTURE_PIXEL_SIZE * r;
@@ -157,5 +167,9 @@ void fragment() {
 	if (sec != dom && m > 0.002) {
 		col = mix(col, shade(sec, art.rgb, lum, soft, texel), m);
 	}
-	COLOR = vec4(col, art.a * fade);
+	float keep = 1.0;
+	if (pass_layer >= 0 && sec != dom) {
+		keep = mix(own_dom ? 1.0 : 0.0, own_sec ? 1.0 : 0.0, m);
+	}
+	COLOR = vec4(col, art.a * fade * keep);
 }

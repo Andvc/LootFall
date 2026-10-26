@@ -37,6 +37,11 @@ Make what each file is painted on, then check what's made:
     python3 tools/equipment_pieces.py sheet <ids>    # review sheets in review/pieces/
     python3 tools/equipment_pieces.py list           # ticks off the full list
 
+Then bring what's delivered into the game:
+
+    python3 tools/equipment_pieces.py import         # into assets/equipment/ (plates/, pieces/, sprites/, pieces.json)
+    godot --headless --path . --import
+
 ## The phase-1 delivery
 
 The 25 October 2026 delivery includes ten primary PNGs and eight optional alternatives.

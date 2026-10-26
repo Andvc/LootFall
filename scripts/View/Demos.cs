@@ -12,7 +12,9 @@ namespace LootFall.View;
 ///   if two hours had passed (checks the round trip, shows the welcome back); screens: the lane with auto-open on, then
 ///   every screen over it in turn (the equipment screen's body, each region, a slot, a piece and its slots, then the
 ///   mouse on it: a slot pointed at, the wheel into a region, a worn piece pointed at, a right click back; talents,
-///   codex, prestige, settings). --hours=N starts each where a sensible player would be after N hours.
+///   codex, prestige, settings); pieces: every delivered picture of a piece on the knight, in outfits of pieces that go
+///   together, each in another era's metal, on the whole body and each region it's in (pieces_N, pieces_N_REGION).
+///   --hours=N starts each where a sensible player would be after N hours.
 /// </summary>
 public static class Demos
 {
@@ -31,6 +33,9 @@ public static class Demos
                 break;
             case "screens":
                 Screens(m, hours);
+                break;
+            case "pieces":
+                Pieces(m, Math.Max(hours, 0.5));
                 break;
             default:
                 GD.PrintErr($"No demo called {name}");
@@ -93,6 +98,64 @@ public static class Demos
         m.Game?.OpenPause();
         await Wait(m, 0.8);
         m.Moment("pause");
+        await Wait(m, 0.3);
+        m.QuitGame();
+    }
+
+    /// <summary>Every piece with a picture of its own (docs/art-handoff-equipment-pieces.md) worn on the knight: the
+    /// pieces in outfits that go together (each piece in the first that has room for it), each outfit in another era's
+    /// metal, shown on the whole body and on each region it's in.</summary>
+    static async void Pieces(Main m, double hours)
+    {
+        var s = Main.FastForward(m.Seed, hours);
+        m.StartPlaying(s, null);
+        s.Auto.Equip = false;
+        await Wait(m, 1.5);
+        var g = m.Game;
+        var eq = new EquipmentScreen(g);
+        g.Open(eq);
+        await Wait(m, 0.8);
+        var c = s.C;
+        var h = s.H;
+        var outfits = new System.Collections.Generic.List<System.Collections.Generic.List<int>>();
+        for (int i = 0; i < c.SlotCount; i++)
+        {
+            if (c.Slots[i].Board != Anatomy.Body || EquipmentMap.Art(c.Slots[i].Name).Count == 0) continue;
+            var outfit = outfits.Find(o => o.TrueForAll(j => Array.IndexOf(c.Slots[i].Conflicts, j) < 0));
+            if (outfit == null) outfits.Add(outfit = new System.Collections.Generic.List<int>());
+            outfit.Add(i);
+        }
+        // One item level in each of the five metals' eras.
+        double[] ilvls = { 50, 300, 1200, 5000, 20000 };
+        var rng = new Rng(m.Seed);
+        for (int k = 0; k < outfits.Count; k++)
+        {
+            if (!GodotObject.IsInstanceValid(eq) || eq.Closing) break;
+            for (int i = 0; i < c.SlotCount; i++) h.Worn[i] = false;
+            var regions = new System.Collections.Generic.HashSet<string>();
+            foreach (int i in outfits[k])
+            {
+                h.Open[i] = true;
+                var it = new Item();
+                h.Roll(rng, i, ilvls[k % ilvls.Length], 1 + (i + k) % 6, 0.8, it);
+                h.Gear[i] = it;
+                h.Worn[i] = true;
+                regions.Add(Describe.Region(c, c.Slots[i]));
+            }
+            h.Rebuild();
+            GD.Print($"Outfit {k + 1}: {string.Join(", ", outfits[k].ConvertAll(i => c.Slots[i].Name))}");
+            eq.ShowBody();
+            await Wait(m, 1.0);
+            m.Moment($"pieces_{k + 1}");
+            foreach (var region in EquipmentMap.Regions)
+            {
+                if (!regions.Contains(region) || !GodotObject.IsInstanceValid(eq) || eq.Closing) continue;
+                eq.ShowRegion(region);
+                await Wait(m, 0.8);
+                m.Moment($"pieces_{k + 1}_" + region.Replace(' ', '_').ToLowerInvariant());
+                await Wait(m, 0.1);
+            }
+        }
         await Wait(m, 0.3);
         m.QuitGame();
     }

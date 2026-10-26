@@ -58,7 +58,9 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
      - `title`: the title, settings, a new game and the pause menu;
      - `welcome`: a save round trip and two hours away (prints "Save round trip ok");
      - `screens`: the lane, the equipment screen (the body, each region, a chosen slot, a piece and its board), talents,
-       codex, prestige and settings (add `--hours=2` or more).
+       codex, prestige and settings (add `--hours=2` or more);
+     - `pieces`: every piece with delivered pictures worn, in outfits that don't clash, the body and each region
+       (screens `pieces_*`).
    - **Moments** are named in code (`Main.Moment`) and captured the frame after the call; the first of each is kept. A
      demo must wait before closing what it captured.
    - Keep screenshot folders named `shots*` (git- and export-ignored).
@@ -74,9 +76,12 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
    - `python3 tools/equipment_map.py` maps the body's sites and every slot onto it (docs/equipment.md, "The figure").
      Run it after a site or slot is added or renamed: it must report 0 problems. Look at `shots_map/`, then run
      `godot --headless --path . --import`.
-   - Phase 2, the bare regions and every piece as worn, is specified in `docs/art-handoff-equipment-pieces.md`.
-     `python3 tools/equipment_pieces.py spec` and `list` rewrite its file list (`art/equipment/handoff-pieces.json`,
-     `docs/art-handoff-equipment-pieces-list.md`) after pieces or the map change; `check` validates deliveries.
+   - Phase 2, the bare regions and every piece as worn, is specified in `docs/art-handoff-equipment-pieces.md` and
+     arrives in batches.
+     - `python3 tools/equipment_pieces.py spec` and `list` rewrite its file list (`art/equipment/handoff-pieces.json`,
+       `docs/art-handoff-equipment-pieces-list.md`) after pieces or the map change; `check` validates deliveries.
+     - `import` brings what's delivered into `assets/equipment/` (`plates/`, `pieces/`, `sprites/`, `pieces.json`).
+       Then run `godot --headless --path . --import` and look at `--demo=pieces --hours=1`.
 
 ## Conventions
 
@@ -141,8 +146,11 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
     neutral and static.
 - **The knight** on the lane is a code-drawn rig (`HeroRig.cs`) whose look follows his gear (`GearLook`). On the
   equipment screen he is the delivered art (`PaperDoll`, `assets/equipment/`), with what counts painted over the areas
-  it covers by its layer (`Coverage`, `assets/shaders/figure.gdshader`) and an ink line round it (`Outlines`). Pieces'
-  own pictures come with phase 2 of the art handoff (`docs/art-handoff-equipment-pieces.md`).
+  it covers by its layer (`Coverage`, `assets/shaders/figure.gdshader`) and an ink line round it (`Outlines`).
+  - Phase 2 of the handoff (`docs/art-handoff-equipment-pieces.md`) brings each region's bare plate and each piece's
+    own pictures. Plates take the figure's place on the region pages, in the same space (`MapView.Space`).
+  - Pieces with pictures are drawn over him in layer order (`FigurePanel.SetArt`, `assets/shaders/piece.gdshader`),
+    their plain steel in the era's metal. The rest are still painted by layer.
 - **Monsters** are single pictures moved by body plan (`MonsterActor.cs`).
 - **Final art** will be AI-generated and comes in through the pipeline:
   - `tools/art.py manifest` lists every asset with its sizes and prompt;
@@ -157,8 +165,8 @@ The Python art tools need Pillow and numpy. `tools/placeholders.py` also needs r
 
 ## Known gaps
 
-- The art is stand-in, except the equipment screen's knight (phase 1 of its handoff, without pictures of the pieces
-  yet). The lane's knight is drawn from shapes in code, not from a parts sheet.
+- The art is stand-in, except the equipment screen's knight and the pieces' pictures delivered so far (181 of phase
+  2's 869 files). The lane's knight is drawn from shapes in code, not from a parts sheet.
 - Sounds and music were chosen by name and by analysis, not by ear. Music doesn't change by realm.
 - The Windows .exe has the default Godot icon.
 - There is one hero, no challenges and no third prestige layer (see "Not yet" in `docs/design.md`).

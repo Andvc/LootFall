@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Godot;
 using LootFall.Progression;
@@ -19,16 +20,35 @@ public sealed class MapSite
 }
 
 /// <summary>
-/// One picture of the knight (docs/equipment.md, "The figure"): the figure from the front or from behind, or one view
-/// of a close-up (the head from either side or the front, a hand's back or palm, a foot's top or sole). In its own
-/// pixels: the art, which body site each pixel is (for the mouse, highlights and fills), each site's area, and every
-/// slot's point on it.
+/// One picture of the knight (docs/equipment.md, "The figure"): the figure from the front or from behind, a plate (a
+/// region of the figure redrawn sharp), or one view of a close-up (the head from either side or the front, a hand's
+/// back or palm, a foot's top or sole). In its own pixels: the art, which body site each pixel is (for the mouse,
+/// highlights and fills), each site's area, and every slot's point on it.
 /// </summary>
 public sealed class MapView
 {
     public string Name;
     public Vector2 Size;
     public bool Closeup;
+    /// <summary>The figure view this one lies in ("front" or "back": itself, or a plate cut from it), or null for a
+    /// close-up. Views in one space line up exactly: <see cref="SpaceOrigin"/> is where this view's corner lies in the
+    /// figure's pixels, <see cref="SpaceScale"/> this view's pixels per figure pixel.</summary>
+    public string Space;
+    public Vector2 SpaceOrigin;
+    public float SpaceScale = 1;
+    /// <summary>A plate: the region whose page it is.</summary>
+    public string PlateOf;
+
+    public Vector2 ToSpace(Vector2 p) => SpaceOrigin + p / SpaceScale;
+    public Vector2 FromSpace(Vector2 p) => (p - SpaceOrigin) * SpaceScale;
+
+    /// <summary>A rectangle in another view of the same space, in this view's pixels.</summary>
+    public Rect2 FromView(MapView other, Rect2 r)
+    {
+        if (other == this) return r;
+        var a = FromSpace(other.ToSpace(r.Position));
+        return new Rect2(a, r.Size / other.SpaceScale * SpaceScale);
+    }
     public Texture2D Texture, SitesTexture;
     /// <summary>The site map: each pixel's site, row by row (its size is the picture's, <see cref="Size"/>).</summary>
     public byte[] Ids = Array.Empty<byte>();
@@ -91,6 +111,33 @@ public sealed class MapPanel
 }
 
 /// <summary>
+/// One picture of a piece as it's worn (docs/art-handoff-equipment-pieces.md), painted on one view: the pieces it shows
+/// (those on the same sites share one), its layer, where it lies in the view's pixels, its texture (and the part of it
+/// behind his body, for what hangs behind him), whether its plain steel takes the era's metal, and its outline loops in
+/// the view's pixels. Held pieces stand beside him on the figure from the front. Within a layer, what hangs behind him
+/// (<see cref="Drape"/>) goes over the rest on his back, and smaller pieces go over bigger ones (<see cref="Area"/>, in
+/// the whole figure's pixels): <see cref="Under"/>. (From behind, his head's pieces also go over the rest: the paper
+/// doll sees to that.)
+/// </summary>
+public sealed class PieceArt
+{
+    public string[] Pieces;
+    public string Family, View, TexturePath, BehindPath;
+    public Layer Layer;
+    public Rect2 Rect;
+    public bool Metal, Held, Drape;
+    public int Area;
+    public Vector2[][] Loops;
+
+    /// <summary>The order pictures are drawn in on a panel (negative when this one goes under the other).</summary>
+    public int Under(PieceArt o) =>
+        Layer != o.Layer ? Layer.CompareTo(o.Layer) : Drape != o.Drape ? Drape.CompareTo(o.Drape) : o.Area.CompareTo(Area);
+    Texture2D _tex, _behind;
+    public Texture2D Texture => TexturePath == null ? null : _tex ??= GD.Load<Texture2D>(TexturePath);
+    public Texture2D Behind => BehindPath == null ? null : _behind ??= GD.Load<Texture2D>(BehindPath);
+}
+
+/// <summary>
 /// The equipment screen's map of the art (assets/equipment/map.json, written by tools/equipment_map.py from the
 /// delivered pictures): every view, every body site's area on each, every slot's point, the pages each body region
 /// opens (the head, hands and feet on their close-ups, the rest on the figure, both sides where both have slots), and
@@ -107,6 +154,7 @@ public static class EquipmentMap
 
     static bool _loaded;
     static readonly Dictionary<string, MapView> _views = new();
+    static readonly Dictionary<string, List<PieceArt>> _art = new();
     static readonly Dictionary<string, List<MapPanel>> _pages = new();
     static readonly Dictionary<string, List<(string Leaf, int Depth, bool Wrap)>> _covers = new();
     static readonly Dictionary<string, int> _glyph = new();
@@ -139,6 +187,30 @@ public static class EquipmentMap
                 new() { View = "back", Rect = new Rect2(Vector2.Zero, View("back").Size) },
             };
         return _pages.TryGetValue(region, out var p) ? p : Page(null);
+    }
+
+    /// <summary>A piece's pictures (by its name), on every view it was painted on; empty until its art is delivered.</summary>
+    public static IReadOnlyList<PieceArt> Art(string piece)
+    {
+        Load();
+        return _art.TryGetValue(piece, out var list) ? list : Array.Empty<PieceArt>();
+    }
+
+    /// <summary>A piece's picture to draw on a view: the one painted on it, else (on a view of the figure's space) the one
+    /// on the whole figure, else the sharpest on another plate of that side. Null if it has none there.</summary>
+    public static PieceArt ArtOn(string piece, MapView v)
+    {
+        var list = Art(piece);
+        if (list.Count == 0) return null;
+        PieceArt figure = null, plate = null;
+        foreach (var a in list)
+        {
+            if (a.View == v.Name) return a;
+            if (v.Space == null || View(a.View) is not { } av || av.Space != v.Space) continue;
+            if (av.PlateOf == null) figure = a;
+            else if (plate == null || av.SpaceScale > View(plate.View).SpaceScale) plate = a;
+        }
+        return figure ?? plate;
     }
 
     /// <summary>The leaf sites (those with an area on some view) a site covers, how far down, and whether only what's
@@ -209,6 +281,7 @@ public static class EquipmentMap
         {
             var j = vp.Value;
             var v = new MapView { Name = vp.Name, Size = V(j.GetProperty("size")), Closeup = j.GetProperty("closeup").GetBoolean() };
+            if (!v.Closeup) v.Space = v.Name;
             v.Load(j.GetProperty("texture").GetString(), j.GetProperty("sites_texture").GetString());
             foreach (var sj in j.GetProperty("sites").EnumerateArray())
             {
@@ -265,6 +338,90 @@ public static class EquipmentMap
         var backdrops = root.GetProperty("backdrops");
         _stage = GD.Load<Texture2D>(backdrops.GetProperty("stage").GetString());
         _board = GD.Load<Texture2D>(backdrops.GetProperty("board").GetString());
+        LoadPieces();
+    }
+
+    /// <summary>The phase-2 art (assets/equipment/pieces.json, written by `tools/equipment_pieces.py import`): the
+    /// plates, the region pages they make, and every piece's pictures.</summary>
+    static void LoadPieces()
+    {
+        const string path = "res://assets/equipment/pieces.json";
+        if (!FileAccess.FileExists(path)) return;
+        using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
+        using var doc = JsonDocument.Parse(file.GetAsText());
+        var root = doc.RootElement;
+        foreach (var pp in root.GetProperty("plates").EnumerateObject())
+        {
+            var j = pp.Value;
+            var r = j.GetProperty("rect");
+            var v = new MapView
+            {
+                Name = pp.Name, Size = V(j.GetProperty("size")), Space = j.GetProperty("view").GetString(),
+                SpaceOrigin = new Vector2(r[0].GetSingle(), r[1].GetSingle()), SpaceScale = j.GetProperty("scale").GetSingle(),
+                PlateOf = j.GetProperty("region").GetString(),
+            };
+            v.Load(j.GetProperty("texture").GetString(), j.GetProperty("sites_texture").GetString());
+            foreach (var sj in j.GetProperty("sites").EnumerateArray())
+            {
+                var box = sj.GetProperty("box");
+                var site = new MapSite
+                {
+                    Id = v.Sites.Count, Key = sj.GetProperty("key").GetString(), Busy = sj.GetProperty("busy").GetBoolean(),
+                    Box = new Rect2(box[0].GetSingle(), box[1].GetSingle(), box[2].GetSingle() - box[0].GetSingle(), box[3].GetSingle() - box[1].GetSingle()),
+                    Outline = Array.Empty<Vector2[]>(),
+                };
+                site.Centre = site.Box.GetCenter();
+                v.Index[site.Key] = site.Id;
+                v.Sites.Add(site);
+            }
+            foreach (var cp in j.GetProperty("points").EnumerateObject()) v.Points[cp.Name] = V(cp.Value);
+            _views[v.Name] = v;
+        }
+        foreach (var pp in root.GetProperty("pages").EnumerateObject())
+        {
+            // A region's plates take the place of its panels on the figure, side for side.
+            if (!_pages.TryGetValue(pp.Name, out var page)) continue;
+            foreach (var name in pp.Value.EnumerateArray())
+            {
+                var plate = _views[name.GetString()];
+                int i = page.FindIndex(p => p.View == plate.Space);
+                var panel = new MapPanel { View = plate.Name, Rect = new Rect2(Vector2.Zero, plate.Size) };
+                if (i >= 0) page[i] = panel;
+                else page.Add(panel);
+            }
+        }
+        foreach (var aj in root.GetProperty("art").EnumerateArray())
+        {
+            var r = aj.GetProperty("rect");
+            var loops = new List<Vector2[]>();
+            foreach (var ring in aj.GetProperty("loops").EnumerateArray())
+            {
+                var pts = new List<Vector2>();
+                foreach (var p in ring.EnumerateArray()) pts.Add(V(p));
+                pts.Add(pts[0]);
+                loops.Add(pts.ToArray());
+            }
+            var art = new PieceArt
+            {
+                Pieces = aj.GetProperty("pieces").EnumerateArray().Select(x => x.GetString()).ToArray(),
+                Family = aj.GetProperty("family").GetString(), View = aj.GetProperty("view").GetString(),
+                Layer = Enum.Parse<Layer>(aj.GetProperty("layer").GetString()),
+                Rect = new Rect2(r[0].GetSingle(), r[1].GetSingle(), r[2].GetSingle(), r[3].GetSingle()),
+                Metal = aj.GetProperty("metal").GetBoolean(),
+                Held = aj.TryGetProperty("held", out var held) && held.GetBoolean(),
+                Drape = aj.TryGetProperty("drape", out var drape) && drape.GetBoolean(),
+                Area = aj.TryGetProperty("area", out var area) ? area.GetInt32() : 0,
+                TexturePath = aj.GetProperty("texture").ValueKind == JsonValueKind.String ? aj.GetProperty("texture").GetString() : null,
+                BehindPath = aj.GetProperty("behind").ValueKind == JsonValueKind.String ? aj.GetProperty("behind").GetString() : null,
+                Loops = loops.ToArray(),
+            };
+            if (!_views.ContainsKey(art.View)) continue;
+            foreach (var piece in art.Pieces)
+            {
+                if (!_art.TryGetValue(piece, out var list)) _art[piece] = list = new List<PieceArt>();
+                list.Add(art);
+            }
+        }
     }
 
     /// <summary>Lets go of the pictures (before quitting).</summary>
@@ -272,6 +429,7 @@ public static class EquipmentMap
     {
         Outlines.Release();
         _views.Clear();
+        _art.Clear();
         _pages.Clear();
         _covers.Clear();
         _glyph.Clear();

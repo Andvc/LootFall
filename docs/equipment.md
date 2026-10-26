@@ -231,6 +231,47 @@ drawn with what he wears on it.
   close-up takes over. Every other region's page shows the part of the figure it's on, from both sides where both have
   slots (an arm's front and back), with the rest of the body dimmed.
 
+### The pieces' own pictures
+
+Phase 2 of the art ([art-handoff-equipment-pieces.md](art-handoff-equipment-pieces.md)) arrives in batches.
+`tools/equipment_pieces.py import` brings what's delivered and passes its checks into `assets/equipment/`, and lists
+it in `pieces.json`. Until a piece's pictures arrive, it's painted by its layer as above.
+
+- **Plates** (`plates/`): the neck, torso, back, waist, arms and legs bare, each side at two to five times the
+  figure's size, with a site map moved over from the figure's.
+  - A plate takes the figure's place on its region's page.
+  - It lies in its view's space (`MapView.Space`, `SpaceOrigin`, `SpaceScale`), so it lines up with the figure
+    exactly, and the page still grows out of his body and fades into the plate.
+- **Worn pieces** (`pieces/<base>/`): a family's picture on each view it shows on, cut into one picture per set of
+  pieces on the same sites, and cropped. The two bracelets on a wrist share one picture, shown while either is worn.
+  - Each picture keeps its outline, which the mouse is tested against.
+  - A view with no picture of a piece borrows one from the same space: the figure's, or a plate's scaled down.
+- **Drawing them** (`FigurePanel.SetArt`, `assets/shaders/piece.gdshader`): over the panel, in layer order (ink, under,
+  mail, plate, over, jewellery, held, grafted).
+  - Within a layer, what hangs behind him (a cloak, a cape, a quiver) goes over the rest on his back, and smaller pieces
+    go over bigger ones (a pauldron over a breastplate).
+  - What hangs behind him is split at import: from the front, the part past his body is drawn behind the picture.
+  - A piece with a picture isn't filled: the fill shows the outermost piece without one (`Coverage.TopExcept`), and
+    the line round a piece is its picture's own.
+  - A piece still painted by its layer and worn over one with a picture (a leg harness over trousers) is painted again
+    at its place among the pictures: a pass of the figure shader at its layer (`FillPass`) repaints its sites, with
+    its ink line. The ink lines of painted pieces under a picture stay under it.
+  - The plain steel of armour, weapons and jewellery (its grey pixels) is mapped onto the era's metal (`Ink.Metal`:
+    iron, steel, mithril, starsteel, void). Coloured parts keep their colours.
+  - Each pixel dims and lights with the site under it, as the figure does, so pointing at a region or a piece lights
+    its pictures too. A piece that isn't worn, when chosen, shows faint where it would go.
+- **His braid** lies over what he wears on his back, and under what's on his head. Each picture left a hole where its
+  painter drew the braid, never quite where the plate has it.
+  - The import closes the hole with the piece's own colours where the piece runs close on both sides of it, and lays
+    the plate's braid over it (`under_hair`), so every picture shows the same braid.
+  - On the back views the shader shows the panel's own braid over the pieces below his head (sharp even on a picture
+    borrowed from the whole figure), and his head's pieces are drawn over the rest.
+  - From the front and in profile the braid stays behind what he wears.
+- **Held pieces** (`sprites/`): the sword, the dagger and the shield stand on the floor beside him on the whole figure
+  from the front, as tall as they'd be: the main hand's at his right, the off hand's at his left (`HELD`).
+  - They stand just behind him, so his legs and what's on them stay in front, and nearer than what hangs down his back.
+  - The mouse finds them by the part that shows.
+
 ## The screen
 
 `EquipmentScreen` (G, or the dock's Equipment button) has the knight on the left and the slots on the right.
@@ -313,6 +354,8 @@ The game check (`progsim --game`) still checks that the session works: chests, t
 | `tools/equipment_map.py` | The map of the art (sites, slot points, pages, what covers what) into `assets/equipment/`, checked, with review sheets in `shots_map/` |
 | `tools/equipment_pieces.py spec`, `list` | Phase 2's art: every file to make for the bare regions and the pieces as worn, written to `art/equipment/handoff-pieces.json` and [the full list](art-handoff-equipment-pieces-list.md) ([art-handoff-equipment-pieces.md](art-handoff-equipment-pieces.md)) |
 | `tools/equipment_pieces.py inputs`, `check`, `sheet` | What each file is painted on (bases, masks, guides in `art/equipment/inputs/`), the delivered files against the spec, and review sheets |
+| `tools/equipment_pieces.py import` | The delivered files that pass their checks into `assets/equipment/` (`plates/`, `pieces/`, `sprites/`, `pieces.json`); run `godot --headless --path . --import` after it |
+| `--demo=pieces --hours=1` | Every delivered piece worn, in outfits of pieces that don't clash, each in another era's metal: the body and each region with pieces (`pieces_*`) |
 
 ## Adding a piece
 

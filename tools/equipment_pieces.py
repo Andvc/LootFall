@@ -13,6 +13,10 @@
   check    checks the delivered files against the spec (size, background, where the piece is, how much of its area
            it covers, the ink outline, no key green, plates against their seeds). Exit code 1 if any fails.
   sheet    review sheets in art/equipment/review/pieces/: each delivered file over its base, marked with its result.
+  import   brings what's delivered and passes into the game (assets/equipment/plates/, pieces/, sprites/ and
+           pieces.json): each plate keyed with its site map and slot points; each family file keyed, cut into its
+           pieces, cropped, split into what's behind him and in front where it hangs behind, with its outline; the held
+           pieces placed beside him. Then run `godot --headless --path . --import`. Needs scipy and scikit-image too.
 
 Usage:
   python3 tools/equipment_pieces.py spec
@@ -20,6 +24,7 @@ Usage:
   python3 tools/equipment_pieces.py inputs [ids or prefixes...]
   python3 tools/equipment_pieces.py check [ids or prefixes...]
   python3 tools/equipment_pieces.py sheet [ids or prefixes...]
+  python3 tools/equipment_pieces.py import
 
 An id is a delivered file's path under art/equipment/ without ".png" (plates/torso, pieces/figure_front/cloak,
 sprites/main_hand); a prefix picks every id starting with it (pieces/head_front/). The body, its sites and slots come
@@ -2051,11 +2056,391 @@ def list_cmd(_args):
     print(f"Wrote docs/art-handoff-equipment-pieces-list.md: {len(assets)} files")
 
 
+# ---------------------------------------------------------------------------------------------------------------- import
+
+PIECES_OUT = os.path.join(EQUIP, "pieces")
+PLATES_OUT = os.path.join(EQUIP, "plates")
+SPRITES_OUT = os.path.join(EQUIP, "sprites")
+PIECES_JSON = os.path.join(EQUIP, "pieces.json")
+# Kinds whose plain steel the game recolours for each era (cloth, ink and the rest keep their colours).
+METAL_KINDS = ("Armor", "Weapon", "Jewelry")
+# Where a held piece stands beside him on the whole figure, from the front: his side (his right is the viewer's left),
+# its height as a share of his, and whether it floats at the hand rather than standing on the floor.
+HELD = {"main_hand": ("R", 0.52, False), "great_weapon": ("R", 0.7, False), "off_hand": ("L", 0.27, False),
+        "shield": ("L", 0.42, False), "torch": ("L", 0.36, False), "focus_orb": ("L", 0.13, True)}
+
+
+def keep_exact(p):
+    """A site map is read pixel for pixel: imported lossless and without mipmaps."""
+    if os.path.exists(p):
+        text = open(p).read()
+        text = text.replace("mipmaps/generate=true", "mipmaps/generate=false")
+        for mode in ("1", "2", "3", "4"):
+            text = text.replace(f"compress/mode={mode}", "compress/mode=0")
+    else:
+        text = '[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=0\nmipmaps/generate=false\n'
+    with open(p, "w") as f:
+        f.write(text)
+
+
+def res(p):
+    return "res://" + os.path.relpath(p, ROOT).replace(os.sep, "/")
+
+
+def save_png(arr, p, mode="RGBA"):
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    Image.fromarray(np.round(arr).astype(np.uint8), mode).save(p, optimize=True)
+
+
+def loops_of(mask, origin, scale, tolerance=1.2):
+    """The outline of a picture's shape as loops in a view's pixels (for lighting it in its own shape)."""
+    from skimage import measure
+    out = []
+    padded = np.pad(mask.astype(np.float32), 1)
+    for c in measure.find_contours(padded, 0.5):
+        if len(c) < 12:
+            continue
+        c = measure.approximate_polygon(c, tolerance)
+        pts = [[round(origin[0] + (x - 1) / scale, 1), round(origin[1] + (y - 1) / scale, 1)] for y, x in c]
+        if len(pts) >= 4:
+            out.append(pts)
+    out.sort(key=len, reverse=True)
+    return out[:12]
+
+
+def plate_ids(b, body):
+    """A plate's site map: the figure's, moved onto the plate (each site's area scaled smoothly, the likeliest site at
+    each pixel), kept to the plate's own body and filled out to its edge."""
+    from scipy import ndimage
+    v = b.V
+    W, H = b.size
+    x0, y0 = max(0, int(b.rect[0]) - 2), max(0, int(b.rect[1]) - 2)
+    x1, y1 = min(v.w, int(b.rect[2]) + 3), min(v.h, int(b.rect[3]) + 3)
+    present = [int(i) for i in np.unique(v.ids[y0:y1, x0:x1]) if i]
+    best = np.zeros((H, W), np.float32)
+    ids = np.zeros((H, W), np.uint8)
+    data = (1 / b.k, 0, b.rect[0], 0, 1 / b.k, b.rect[1])
+    for sid in present:
+        m = Image.fromarray(((v.ids == sid) * 255).astype(np.float32), "F")
+        m = np.asarray(m.transform((W, H), Image.AFFINE, data, Image.BILINEAR))
+        better = m > best
+        best[better] = m[better]
+        ids[better] = sid
+    ids[(best < 1) | ~body] = 0
+    hole = body & (ids == 0)
+    if hole.any() and (ids > 0).any():
+        _, (iy, ix) = ndimage.distance_transform_edt(ids == 0, return_indices=True)
+        ids[hole] = ids[iy[hole], ix[hole]]
+    return ids, present
+
+
+def import_plate(b):
+    """A delivered plate into the game: its picture, its site map and its slots' points, in its own pixels."""
+    rgba = ea.keyed(plate_file(b.name))
+    body = rgba[..., 3] > 127
+    name = "plate_" + b.name
+    ids, present = plate_ids(b, body)
+    # Number the sites on the plate 1.. in the figure's order.
+    remap = np.zeros(256, np.uint8)
+    keys, sites = [], []
+    figure_sites = {s["key"]: s for s in MAP["views"][b.view]["sites"]}
+    for sid in sorted(present):
+        if not (ids == sid).any():
+            continue
+        remap[sid] = len(keys) + 1
+        key = b.V.keys[sid - 1]
+        keys.append(key)
+        ys, xs = np.where(ids == sid)
+        sites.append({"key": key, "box": [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1],
+                      "busy": bool(figure_sites.get(key, {}).get("busy", False))})
+    ids = remap[ids]
+    save_png(rgba, os.path.join(PLATES_OUT, name + ".png"))
+    sites_png = os.path.join(PLATES_OUT, name + "_sites.png")
+    save_png(ids, sites_png, "L")
+    keep_exact(sites_png + ".import")
+    W, H = b.size
+    points = {}
+    for cell, (x, y) in MAP["overview"].get(b.view, {}).items():
+        px, py = (x - b.rect[0]) * b.k, (y - b.rect[1]) * b.k
+        if 0 <= px < W and 0 <= py < H:
+            points[cell] = [round(px, 1), round(py, 1)]
+    return name, {"view": b.view, "region": b.region, "rect": list(b.rect), "scale": round(b.k, 5), "size": [W, H],
+                  "texture": res(os.path.join(PLATES_OUT, name + ".png")), "sites_texture": res(sites_png),
+                  "sites": sites, "points": points}
+
+
+_HAIR = {}
+# The views where his hair hangs over what he wears: from behind. From the front it's behind his neck, and in profile
+# the sides of what's round his neck are nearer than the braid down the middle of his back.
+HAIR_OVER = ("back",)
+
+
+def hair_of(b):
+    """Where his hair lies over what he wears on a base (his braid down his back and the back of his neck), and the
+    base's own picture: the hair site less the skin round it. None where there's none."""
+    if b.name not in _HAIR:
+        got = None
+        if b.view in HAIR_OVER and b.has("hair"):
+            if b.kind == "plate":
+                pic = ea.keyed(plate_file(b.name))
+                ids, _ = plate_ids(b, pic[..., 3] > 127)
+                hair = ids == b.V.index["hair"]
+            else:
+                pic = b.from_view(b.V.rgba())
+                hair = b.mask(["hair"])
+            # The site reaches a little past the braid: its skin (bright, warm) isn't hair.
+            hair &= (pic[..., 0] < 135) & (pic[..., 3] > 127)
+            if hair.sum() > 30:
+                got = hair, pic
+        _HAIR[b.name] = got
+    return _HAIR[b.name]
+
+
+def under_hair(b, rgba):
+    """A piece's picture with his hair over it as the base has it. Each picture left a hole where its painter drew his
+    hair, never quite the base's hair: the hole is closed with the piece's own colours where the piece runs on both
+    sides of it, and the base's hair is laid over the piece, so every picture shows the same hair, over it."""
+    from scipy import ndimage
+    got = hair_of(b)
+    if got is None:
+        return rgba
+    hair, pic = got
+    drawn = rgba[..., 3] > 127
+    r = b.U
+    band = grow(hair, r)
+    if not (band & drawn).any():
+        return rgba
+    # Rows where the piece runs on both sides of the hair, near enough to be the same piece behind it: close to the
+    # hair's edges where the row has hair (not a collar rising away from it), and anywhere near below its tip.
+    ys, xs = np.where(hair)
+    reach = int(xs.max() - xs.min() + 2 * r)
+    H, W = drawn.shape
+    idx = np.arange(W)[None, :].repeat(H, 0)
+    left = np.maximum.accumulate(np.where(drawn, idx, -10 ** 6), axis=1)
+    right = np.minimum.accumulate(np.where(drawn, idx, 10 ** 6)[:, ::-1], axis=1)[:, ::-1]
+    ry = np.arange(H)
+    has = hair.any(axis=1)
+    hl = hair.argmax(axis=1)
+    hr = W - 1 - hair[:, ::-1].argmax(axis=1)
+    close = ~has | ((hl - left[ry, hl] <= r) & (right[ry, hr] - hr <= r))
+    # A row or two that misses (where the braid's tie is lighter, say) between rows that pass, passes.
+    close = ndimage.binary_closing(close, structure=np.ones(max(3, int(r / 2)), bool))
+    gap = band & ~drawn & (idx - left <= reach) & (right - idx <= reach) & close[:, None]
+    inside = drawn | gap
+    out = rgba.copy()
+    if gap.any():
+        # Each pixel takes the nearer side's colour along its row, past the line drawn round the hole (a line across,
+        # like a collar's edge, carries on behind the hair), and so does that line.
+        e = line_px(b) + 2
+        clean = drawn & (rgba[..., 3] > 250) & (rgba[..., 1] <= np.maximum(rgba[..., 0], rgba[..., 2]) + 6)
+        src = ndimage.binary_erosion(clean, structure=np.ones((1, 2 * e + 1), bool))
+        gap = gap | (grow(gap, e) & drawn & band & ~src)
+        sl = np.maximum.accumulate(np.where(src, idx, -10 ** 6), axis=1)
+        sr = np.minimum.accumulate(np.where(src, idx, 10 ** 6)[:, ::-1], axis=1)[:, ::-1]
+        pick = np.where(idx - sl <= sr - idx, sl, sr)
+        ok = (pick >= 0) & (pick < W)
+        _, (iy, ix) = ndimage.distance_transform_edt(~(src if src.any() else drawn), return_indices=True)
+        rows = np.arange(H)[:, None].repeat(W, 1)
+        iy, ix = np.where(ok, rows, iy), np.where(ok, pick, ix)
+        out[gap, :3] = rgba[iy[gap], ix[gap], :3]
+        out[gap, 3] = 255
+    over = hair & inside
+    out[over, :3] = pic[over, :3]
+    out[over, 3] = 255
+    return out
+
+
+def target(b):
+    """The view a picture painted on a base draws on, and how the base's pixels map to it (origin, scale)."""
+    if b.kind == "plate":
+        return "plate_" + b.name, (0.0, 0.0), 1.0
+    return b.view, (b.rect[0], b.rect[1]), b.k
+
+
+def import_piece(a, plates_in):
+    """A delivered family file into the game: cut into its pieces (those on the same sites share a picture), each
+    cropped to what's drawn, split into what's behind him and in front where it hangs behind, with its outline."""
+    from scipy import ndimage
+    b = BASES[a["base"]]
+    if b.kind == "plate" and b.name not in plates_in:
+        return []
+    F = family(a["family"])
+    rgba = load_rgba(path(a["file"]))
+    if a["pieces"] and BY_NAME[a["pieces"][0]]["region"] != "Head":
+        rgba = under_hair(b, rgba)
+    alpha = rgba[..., 3]
+    drawn = alpha > 4
+    if not drawn.any():
+        return []
+    groups = OrderedDict()
+    for name in a["pieces"]:
+        ls = tuple(sorted(set(l for l in F.leaves[name] if b.has(l))))
+        groups.setdefault(ls, []).append(name)
+    owner = np.zeros(drawn.shape, np.int32)
+    if len(groups) > 1:
+        dists = []
+        for ls in groups:
+            m = b.mask(list(ls))
+            dists.append(ndimage.distance_transform_edt(~m) if m.any() else np.full(drawn.shape, 1e9, np.float32))
+        owner = np.argmin(np.stack(dists), 0)
+    behind_split = bool(a.get("behind"))
+    if behind_split:
+        if b.kind == "plate":
+            body = ea.keyed(plate_file(b.name))[..., 3] > 127
+        else:
+            body = b.from_view(b.V.rgba())[..., 3] > 127
+        body = grow(body, 2)
+    view, origin, scale = target(b)
+    kind = BY_NAME[a["pieces"][0]]["kind"] if a["pieces"] else ""
+    layer = max(F.layers, key=LAYERS.index) if F.layers else "Adorn"
+    out = []
+    for gi, names in enumerate(groups.values()):
+        mine = drawn & (owner == gi)
+        if mine.sum() < 30:
+            continue
+        ys, xs = np.where(mine)
+        x0, y0 = max(0, xs.min() - 2), max(0, ys.min() - 2)
+        x1, y1 = min(drawn.shape[1], xs.max() + 3), min(drawn.shape[0], ys.max() + 3)
+        part = rgba[y0:y1, x0:x1].copy()
+        part[..., 3] *= mine[y0:y1, x0:x1]
+        stem = a["family"] + (f".{gi}" if len(groups) > 1 else "")
+        folder = os.path.join(PIECES_OUT, b.name)
+        # For the order within a layer: what hangs behind him goes over the rest on his back, and smaller pieces over
+        # bigger ones (its area is in the whole figure's pixels, the same on every view of it).
+        entry = {"pieces": names, "family": a["family"], "layer": layer, "metal": kind in METAL_KINDS,
+                 "drape": bool(F.spec.get("behind")), "area": int(round(mine.sum() / b.k ** 2)),
+                 "view": view, "rect": [round(origin[0] + x0 / scale, 2), round(origin[1] + y0 / scale, 2),
+                                        round((x1 - x0) / scale, 2), round((y1 - y0) / scale, 2)],
+                 "base": b.name, "texture": None, "behind": None,
+                 "loops": loops_of(mine[y0:y1, x0:x1], (origin[0] + x0 / scale, origin[1] + y0 / scale), scale)}
+        if behind_split:
+            inside = body[y0:y1, x0:x1]
+            front, back = part.copy(), part.copy()
+            front[..., 3] *= inside
+            back[..., 3] *= ~inside
+            if back[..., 3].max() > 4:
+                save_png(back, os.path.join(folder, stem + ".behind.png"))
+                entry["behind"] = res(os.path.join(folder, stem + ".behind.png"))
+            part = front
+        if part[..., 3].max() > 4:
+            save_png(part, os.path.join(folder, stem + ".png"))
+            entry["texture"] = res(os.path.join(folder, stem + ".png"))
+        out.append(entry)
+    return out
+
+
+def held_rect(name, aspect):
+    """Where a held piece stands on the whole figure from the front, in its pixels: on the floor in the gap between
+    his hand and his thigh, on his side for it (or floating at the hand), as tall as it really is beside him."""
+    side, share, floats = HELD[name]
+    v = BASES["figure_front"]
+    hand, thigh = v.box([f"{side}.hand", f"{side}.thumb", f"{side}.index", f"{side}.little"]), v.box([f"{side}.thigh", f"{side}.outthigh"])
+    feet = v.box(["R.foot", "L.foot", "R.bigtoe", "L.bigtoe"])
+    to_view = lambda x: v.rect[0] + x / v.k
+    gap = (to_view(hand[2]), to_view(thigh[0])) if side == "R" else (to_view(thigh[2]), to_view(hand[0]))
+    cx = (gap[0] + gap[1]) / 2
+    h = share * U_FIG * 100
+    w = h * aspect
+    if floats:
+        cy = v.rect[1] + (hand[1] + hand[3]) / 2 / v.k
+        return [round(cx - w / 2, 2), round(cy - h / 2, 2), round(w, 2), round(h, 2)]
+    floor = v.rect[1] + feet[3] / v.k
+    return [round(cx - w / 2, 2), round(floor - h, 2), round(w, 2), round(h, 2)]
+
+
+def import_sprite(a):
+    """A held piece into the game: it stands just behind him (his body in front of it, the rest beside him), so its
+    outline, for the mouse, is the part that shows."""
+    from scipy import ndimage
+    name = a["file"].split("/")[-1][:-4]
+    if name not in HELD:
+        return []
+    rgba = load_rgba(path(a["file"]))
+    drawn = rgba[..., 3] > 4
+    if not drawn.any():
+        return []
+    ys, xs = np.where(drawn)
+    x0, y0, x1, y1 = xs.min(), ys.min(), xs.max() + 1, ys.max() + 1
+    part = rgba[y0:y1, x0:x1]
+    out_png = os.path.join(SPRITES_OUT, name + ".png")
+    save_png(part, out_png)
+    rect = held_rect(name, (x1 - x0) / (y1 - y0))
+    scale = (y1 - y0) / rect[3]
+    v = VIEWS["front"]
+    body = ndimage.binary_erosion(v.rgba()[..., 3] > 127, iterations=2)
+    H, W = part.shape[:2]
+    vx = np.floor(rect[0] + (np.arange(W) + 0.5) / scale).astype(int)
+    vy = np.floor(rect[1] + (np.arange(H) + 0.5) / scale).astype(int)
+    hidden = body[np.clip(vy, 0, v.h - 1)][:, np.clip(vx, 0, v.w - 1)]
+    hidden &= ((vy >= 0) & (vy < v.h))[:, None] & ((vx >= 0) & (vx < v.w))[None, :]
+    shows = drawn[y0:y1, x0:x1] & ~hidden
+    ps = body_pieces(a["family"])
+    return [{"pieces": [p["name"] for p in ps], "family": a["family"], "layer": "Hold", "metal": True, "drape": False,
+             "area": int(round(drawn.sum() / scale ** 2)), "view": "front",
+             "rect": rect, "base": "sprites/" + name, "texture": None, "behind": res(out_png), "held": True,
+             "loops": loops_of(shows, (rect[0], rect[1]), scale, 2.0)}]
+
+
+def import_cmd(_args):
+    """Brings what's delivered and passes its checks into assets/equipment/ (plates/, pieces/, sprites/,
+    pieces.json); run `godot --headless --path . --import` after it."""
+    assets = [a for a in build() if os.path.exists(path(a["file"]))]
+    ok = {a["id"] for a in assets if check_one(a).ok}
+    bad = [a["id"] for a in assets if a["id"] not in ok]
+    if bad:
+        print(f"Left out, failing their checks: {', '.join(bad)}")
+    for folder in (PIECES_OUT, PLATES_OUT, SPRITES_OUT):
+        if os.path.isdir(folder):
+            for dirpath, _, files in os.walk(folder):
+                for f in files:
+                    if f.endswith(".png") or f.endswith(".png.import"):
+                        os.remove(os.path.join(dirpath, f))
+    data = OrderedDict(about="Written by `python3 tools/equipment_pieces.py import` from the delivered art in "
+                             "art/equipment/ (docs/art-handoff-equipment-pieces.md); don't edit by hand.",
+                       plates=OrderedDict(), pages=OrderedDict(), art=[])
+    plates_in = set()
+    for a in assets:
+        if a["class"] == "plate" and a["id"] in ok:
+            b = BASES[a["base"]]
+            name, entry = import_plate(b)
+            data["plates"][name] = entry
+            plates_in.add(b.name)
+            print(f"  plate {name}: {entry['size'][0]}x{entry['size'][1]}, {len(entry['sites'])} sites, "
+                  f"{len(entry['points'])} slot points")
+    for region, panels in MAP["pages"].items():
+        names = []
+        for panel in panels:
+            key = PLATE_NAMES.get((region, panel["view"]))
+            if key and key in plates_in:
+                names.append("plate_" + key)
+        if names:
+            data["pages"][region] = names
+    n = 0
+    for a in assets:
+        if a["id"] not in ok:
+            continue
+        if a["class"] == "piece":
+            got = import_piece(a, plates_in)
+        elif a["class"] == "sprite":
+            got = import_sprite(a)
+        else:
+            got = []
+        data["art"].extend(got)
+        n += len(got)
+    with open(PIECES_JSON, "w") as f:
+        json.dump(data, f, separators=(",", ":"))
+    size = sum(os.path.getsize(os.path.join(d, f)) for folder in (PIECES_OUT, PLATES_OUT, SPRITES_OUT) if os.path.isdir(folder)
+               for d, _, fs in os.walk(folder) for f in fs) // (1024 * 1024)
+    print(f"Wrote assets/equipment/pieces.json: {len(data['plates'])} plates, {n} pictures of pieces "
+          f"({size} MB of textures). Next: godot --headless --path . --import")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("spec")
     sub.add_parser("list")
+    sub.add_parser("import")
     for name in ("inputs", "check", "sheet"):
         c = sub.add_parser(name)
         c.add_argument("ids", nargs="*")
@@ -2066,6 +2451,8 @@ def main():
         spec_cmd(args)
     elif args.cmd == "list":
         list_cmd(args)
+    elif args.cmd == "import":
+        import_cmd(args)
     elif args.cmd == "inputs":
         inputs(args)
     elif args.cmd == "check":

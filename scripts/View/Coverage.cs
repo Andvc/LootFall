@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LootFall.Progression;
 
 namespace LootFall.View;
@@ -19,6 +20,8 @@ public sealed class Coverage
     public readonly int[] FillOf, KeepOf;
     /// <summary>For each leaf site: the piece whose fill shows there, its layer and how far down its site it reaches.</summary>
     public readonly Dictionary<string, (int Piece, Layer Layer, int Depth)> Top = new();
+    /// <summary>For each leaf site: every piece over it, outermost first.</summary>
+    public readonly Dictionary<string, List<(int Piece, Layer Layer, int Depth)>> Stack = new();
     /// <summary>The pieces that count.</summary>
     public readonly List<int> Pieces = new();
 
@@ -40,6 +43,7 @@ public sealed class Coverage
         Array.Fill(KeepOf, -1);
         Pieces.Clear();
         Top.Clear();
+        Stack.Clear();
         for (int s = 0; s < C.SlotCount; s++)
         {
             if (!H.Active[s]) continue;
@@ -57,9 +61,27 @@ public sealed class Coverage
                     if (wrap && !Wraps(cell.Layer)) continue;
                     if (!Top.TryGetValue(leaf, out var t) || cell.Layer > t.Layer || (cell.Layer == t.Layer && depth < t.Depth))
                         Top[leaf] = (s, cell.Layer, depth);
+                    if (!Stack.TryGetValue(leaf, out var list)) Stack[leaf] = list = new List<(int, Layer, int)>();
+                    list.Add((s, cell.Layer, depth));
                 }
             }
         }
+        foreach (var list in Stack.Values)
+        {
+            // Outermost first: the higher layer, then the site reached most directly; ties keep their order.
+            var sorted = list.Select((e, i) => (e, i)).OrderByDescending(x => x.e.Layer).ThenBy(x => x.e.Depth).ThenBy(x => x.i).Select(x => x.e).ToList();
+            list.Clear();
+            list.AddRange(sorted);
+        }
+    }
+
+    /// <summary>The outermost piece over a leaf site, leaving some out (those drawn by pictures of their own), or -1.</summary>
+    public (int Piece, Layer Layer, int Depth) TopExcept(string leaf, HashSet<int> skip)
+    {
+        if (Stack.TryGetValue(leaf, out var list))
+            foreach (var e in list)
+                if (!skip.Contains(e.Piece)) return e;
+        return (-1, Layer.Skin, 0);
     }
 
     /// <summary>The leaf sites a cell's site covers on a view, for its layer.</summary>
