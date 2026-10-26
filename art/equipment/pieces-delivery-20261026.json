@@ -3,8 +3,8 @@
   "status": "partial_delivery",
   "based_on": "e0ede57368aa1bde6e94a6baf67898631053183c",
   "requested_files": 869,
-  "delivered_files": 83,
-  "remaining_files": 786,
+  "delivered_files": 124,
+  "remaining_files": 745,
   "assets": [
     {
       "id": "plates/neck",
@@ -1413,6 +1413,703 @@
       "original_size": [
         1035,
         1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/trousers",
+      "file": "art/equipment/pieces/figure_front/trousers.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "522386d2ff977e97bc8987a45e105206944ba4ceb4d0c3ff58a00c9b79ebf911",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_R_back/ring",
+      "file": "art/equipment/pieces/hand_R_back/ring.png",
+      "batch": 1,
+      "size": [
+        992,
+        1568
+      ],
+      "format": "RGB",
+      "sha256": "ef1925b43f7bdf0b5825f4847c133842cac4b503c5a33797ec7b4aee3dce7eb5",
+      "original_size": [
+        998,
+        1576
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 4
+    },
+    {
+      "id": "pieces/foot_R_top/sandal",
+      "file": "art/equipment/pieces/foot_R_top/sandal.png",
+      "batch": 1,
+      "size": [
+        816,
+        1904
+      ],
+      "format": "RGB",
+      "sha256": "ac5696a74ccdaaaae20f8bf46e32b3a4b1e61b626638093f72e543335ea5446a",
+      "original_size": [
+        821,
+        1915
+      ],
+      "selected_stage": "toe_occlusion",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/head_front/hood",
+      "file": "art/equipment/pieces/head_front/hood.png",
+      "batch": 1,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "9602b80f205598dfedf70c87cc62f25bb7056b02e83f5b54d55c59fbaa109e6e",
+      "original_size": [
+        979,
+        1606
+      ],
+      "selected_stage": "crown_fit",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/figure_back/trousers",
+      "file": "art/equipment/pieces/figure_back/trousers.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "8be9f2ef62baad4c25e0152b1510240bd39abb233462de37548d8e88d113e23c",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/hood",
+      "file": "art/equipment/pieces/figure_front/hood.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "888b0b264425777a8e60f3d002c06459c7f16e0166ab16e1699ad770bd316c05",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "opening_fit",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/figure_back/hood",
+      "file": "art/equipment/pieces/figure_back/hood.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "501d950cac72e8e270594408a6c726482190f491763ad2446121c21bb9549849",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "cape_fit",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/head_right/hood",
+      "file": "art/equipment/pieces/head_right/hood.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "2032f5607a31f2efb176978b70b5d7782a7eaffd14a4454068129ce92bb6e129",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "crown_fit",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/head_left/hood",
+      "file": "art/equipment/pieces/head_left/hood.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "a8a1b006b348191d010968761d31d8adbd6162a854fa4ce140e7ff901269e171",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/sandal",
+      "file": "art/equipment/pieces/figure_front/sandal.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "28acf10ea97d5d9946b27307410ff6fea707a8ef7374653027c8d0f89f0c2a6c",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "skin_cleanup",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/figure_back/sandal",
+      "file": "art/equipment/pieces/figure_back/sandal.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "685778944b9bf5b6f9ad22a70a9060cb54059d5773fadf22dae51f4327c9d948",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "skin_cleanup",
+      "selected_attempt": 4
+    },
+    {
+      "id": "pieces/foot_L_top/sandal",
+      "file": "art/equipment/pieces/foot_L_top/sandal.png",
+      "batch": 1,
+      "size": [
+        816,
+        1904
+      ],
+      "format": "RGB",
+      "sha256": "5603fdbc9d37274a269a97c1607639f25b38b3001097fd946050e52d7cac39fe",
+      "original_size": [
+        821,
+        1916
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/foot_L_sole/sandal",
+      "file": "art/equipment/pieces/foot_L_sole/sandal.png",
+      "batch": 1,
+      "size": [
+        800,
+        1920
+      ],
+      "format": "RGB",
+      "sha256": "d70699e6250eca686373fb069044c11313fcb77c505a7a314be3651a4b7c66da",
+      "original_size": [
+        809,
+        1942
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/foot_R_sole/sandal",
+      "file": "art/equipment/pieces/foot_R_sole/sandal.png",
+      "batch": 1,
+      "size": [
+        816,
+        1920
+      ],
+      "format": "RGB",
+      "sha256": "f502942bfcbd52acf89d45fd32edc086303c4bc8345d4df6d46a49bfc09a886d",
+      "original_size": [
+        817,
+        1923
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/waist_front/trousers",
+      "file": "art/equipment/pieces/waist_front/trousers.png",
+      "batch": 1,
+      "size": [
+        1504,
+        1024
+      ],
+      "format": "RGB",
+      "sha256": "3bbfa8c08e6aae4dec1f49a134e123745facac8cdb47ba3be253f46cd444889c",
+      "original_size": [
+        1520,
+        1035
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/waist_back/trousers",
+      "file": "art/equipment/pieces/waist_back/trousers.png",
+      "batch": 1,
+      "size": [
+        1488,
+        1040
+      ],
+      "format": "RGB",
+      "sha256": "7f609c8af181cc02686cc4b5071c23b751bae77beebf3aacba1e75c843dba98c",
+      "original_size": [
+        1501,
+        1048
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_front/trousers",
+      "file": "art/equipment/pieces/right_leg_front/trousers.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "bb774eb4a2dec2b2a4b37ba494e25d5b8421d23873478f9db4756cbb45d678bd",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_back/trousers",
+      "file": "art/equipment/pieces/right_leg_back/trousers.png",
+      "batch": 1,
+      "size": [
+        880,
+        1760
+      ],
+      "format": "RGB",
+      "sha256": "245ab85824559ef409c9c195c177e1741cc3571e4497b3c2b1d2743180bcf360",
+      "original_size": [
+        887,
+        1774
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_front/trousers",
+      "file": "art/equipment/pieces/left_leg_front/trousers.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "96c8f8183b21c5c66836d51caf54467de78e9f41bfe53b1ab0c00a4ec6a52927",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_back/trousers",
+      "file": "art/equipment/pieces/left_leg_back/trousers.png",
+      "batch": 1,
+      "size": [
+        896,
+        1744
+      ],
+      "format": "RGB",
+      "sha256": "f11b07063fe889ed0950611f7ed3328005e14b1411ca613d3bd989d483df15b8",
+      "original_size": [
+        899,
+        1750
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_R_palm/ring",
+      "file": "art/equipment/pieces/hand_R_palm/ring.png",
+      "batch": 1,
+      "size": [
+        992,
+        1568
+      ],
+      "format": "RGB",
+      "sha256": "fcafd07a12209868a676ea6a0cbf0e9f9797ce0007376f9c4e5fc48a1c164449",
+      "original_size": [
+        997,
+        1577
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_back/ring",
+      "file": "art/equipment/pieces/hand_L_back/ring.png",
+      "batch": 1,
+      "size": [
+        1008,
+        1552
+      ],
+      "format": "RGB",
+      "sha256": "1a5c87f61e2566332a82191a8f90f1b5f95b0ef0d46a0c8d2e283255df81cb28",
+      "original_size": [
+        1011,
+        1555
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_palm/ring",
+      "file": "art/equipment/pieces/hand_L_palm/ring.png",
+      "batch": 1,
+      "size": [
+        1008,
+        1536
+      ],
+      "format": "RGB",
+      "sha256": "11f1b59455928ee5826b68cfb515300ac2364e223a442f116663c9e0f78cebc6",
+      "original_size": [
+        1016,
+        1548
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_front/poleyn",
+      "file": "art/equipment/pieces/right_leg_front/poleyn.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "f5579911726f7d89388c70e7503dac19eee7187163c00c58baff13cf7d2b5087",
+      "original_size": [
+        871,
+        1805
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_front/anklet",
+      "file": "art/equipment/pieces/right_leg_front/anklet.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "3327ed5e92013b9a0a2f6b7eb37e1a1de4a0843b0eeb43366bad10f8b1c49228",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "chain_edge",
+      "selected_attempt": 4
+    },
+    {
+      "id": "pieces/right_arm_front/vambrace",
+      "file": "art/equipment/pieces/right_arm_front/vambrace.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "251a3c5042f5deb53b7848295a5e77221bebae13e1109c5c79ff8dda6024d5d2",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "cuff_fit",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/right_arm_front/couter",
+      "file": "art/equipment/pieces/right_arm_front/couter.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "edd1e96fbb6d1336501333827b7709bc6a90421fcc9bb429c51d93502a913c7c",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/neck/amulet",
+      "file": "art/equipment/pieces/neck/amulet.png",
+      "batch": 1,
+      "size": [
+        1328,
+        1168
+      ],
+      "format": "RGB",
+      "sha256": "d1aca4a63c6bdaefc6e4d985a94bf6c04cbb20853d01ac43fac4077d18a19e4b",
+      "original_size": [
+        1337,
+        1177
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_back/poleyn",
+      "file": "art/equipment/pieces/right_leg_back/poleyn.png",
+      "batch": 1,
+      "size": [
+        880,
+        1760
+      ],
+      "format": "RGB",
+      "sha256": "ac9d6049ae6e5ebccdae9d8225a93bbbf80bc3d4ea21789d2a8946da8374273d",
+      "original_size": [
+        887,
+        1774
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_front/poleyn",
+      "file": "art/equipment/pieces/left_leg_front/poleyn.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "4820aeada9741df8a558264b8f308afd0718a1b59a7981731101e11b0da61738",
+      "original_size": [
+        871,
+        1805
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_back/poleyn",
+      "file": "art/equipment/pieces/left_leg_back/poleyn.png",
+      "batch": 1,
+      "size": [
+        896,
+        1744
+      ],
+      "format": "RGB",
+      "sha256": "799bb4ff45a60abdf40eb65e4634ee3fcec98315790107e01b78d0a328125bd8",
+      "original_size": [
+        899,
+        1750
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_back/anklet",
+      "file": "art/equipment/pieces/right_leg_back/anklet.png",
+      "batch": 1,
+      "size": [
+        880,
+        1760
+      ],
+      "format": "RGB",
+      "sha256": "10318888c2c8396861a732f7f7b09e89e2904cc8b9d588486658eea4f1ea1473",
+      "original_size": [
+        887,
+        1774
+      ],
+      "selected_stage": "chain_redraw",
+      "selected_attempt": 4
+    },
+    {
+      "id": "pieces/left_leg_front/anklet",
+      "file": "art/equipment/pieces/left_leg_front/anklet.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "f293003f63df41afa2ca78fb9c4f95e92e56b14ac1aa9ac6da12810b4f3b7ca6",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "chain_redraw",
+      "selected_attempt": 5
+    },
+    {
+      "id": "pieces/left_leg_back/anklet",
+      "file": "art/equipment/pieces/left_leg_back/anklet.png",
+      "batch": 1,
+      "size": [
+        896,
+        1744
+      ],
+      "format": "RGB",
+      "sha256": "680d66183f814c880b2a6fc426deaf0ba91edbb84e167e89531f26ee42c01506",
+      "original_size": [
+        899,
+        1748
+      ],
+      "selected_stage": "chain_redraw",
+      "selected_attempt": 4
+    },
+    {
+      "id": "pieces/left_arm_front/couter",
+      "file": "art/equipment/pieces/left_arm_front/couter.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "2df8fe1c26b0651df3992ed38f7b4e6630a6ba6340f9108eeb08b0a55b6dcbda",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_back/couter",
+      "file": "art/equipment/pieces/left_arm_back/couter.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "40b89e1f415e47e5f41039be756f6006ef3a4393846d2e5e5ac7f87182095fb0",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_back/couter",
+      "file": "art/equipment/pieces/right_arm_back/couter.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "8c8bc627e26ae777cf52041879b306108c9a8e698b52cd11bdd5db48b2e3ba27",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/torso/amulet",
+      "file": "art/equipment/pieces/torso/amulet.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "7869d95ca8005f6600f9b293bf8fe94738f0f3035f11805edfd690f295a70faa",
+      "original_size": [
+        1111,
+        1416
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_back/vambrace",
+      "file": "art/equipment/pieces/right_arm_back/vambrace.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "6ee52cea784a15afa1c82eae7cd8c100d4fbabf04d385c993b3d294558cef9d5",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_front/vambrace",
+      "file": "art/equipment/pieces/left_arm_front/vambrace.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "08a498617ef8b6804ef2b53f586f48d9cbacc779f3060bc98eeb4ecac62d50f1",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_back/vambrace",
+      "file": "art/equipment/pieces/left_arm_back/vambrace.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "f8e8eaf30d59975c410b71a2c4e2b470d8a439b3aa93abaeeb8f56b0f353dacd",
+      "original_size": [
+        967,
+        1627
       ],
       "selected_stage": "isolate",
       "selected_attempt": 1
