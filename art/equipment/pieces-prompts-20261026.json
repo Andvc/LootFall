@@ -1,0 +1,496 @@
+{
+  "date": "2026-10-26",
+  "method": "Built-in image_gen tool",
+  "model": "The built-in tool does not expose an exact model identifier.",
+  "background": "Flat key green #00ff00, as requested by the repository importer.",
+  "source_spec": "art/equipment/handoff-pieces.json",
+  "source_commit": "e0ede57368aa1bde6e94a6baf67898631053183c",
+  "notes": [
+    "Originals and intermediate attempts are archived locally; only selected deliverables are uploaded.",
+    "Image 1 is the edit target; other inputs are the guide and family master described in each prompt.",
+    "Export uses a small whole-canvas resize to the required dimensions, with no cropping or repositioning.",
+    "Only pixels already identified as key green by the importer are normalized to pure green."
+  ],
+  "generations": [
+    {
+      "id": "plates/neck",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__neck__restore__01.png",
+      "source_size": [
+        1337,
+        1176
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's neck and collarbones from the front, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 29 px wide round him and thinner inner lines about 12 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nCritical registration: reproduce the supplied cropped image on exactly the same 1328 x 1168 canvas and crop. This is a precise tracing restoration; keep every contour and interior landmark in its original pixel position. Keep the eyes clipped by the top edge, shoulders clipped by side edges and chest clipped by the bottom edge. Match the actual source colours closely, with crisp flat fills. Do not redesign the man, change his expression, add detail, expand the crop, or center his head."
+    },
+    {
+      "id": "plates/torso",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__torso__restore__01.png",
+      "source_size": [
+        1110,
+        1417
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's chest and belly from the front, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 14 px wide round him and thinner inner lines about 6 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Output canvas exactly 1104 x 1408, same crop and shape. Restore the existing linework crisply with minimal changes. Preserve every contour, navel, nipple, fold and shading boundary in the source pixel locations. Do not invent new anatomy. The body continues through each canvas edge where shown. Pure flat #00ff00 background. Flat fills, not gradients. No recentering, enlargement, zooming or added detail."
+    },
+    {
+      "id": "plates/back",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__back__restore__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's back from behind, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 12 px wide round him and thinner inner lines about 5 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Output canvas exactly 1088 x 1440, same crop and shape. Restore the existing linework crisply with minimal changes. Preserve every contour, braid segment, muscle line, fold and shading boundary in its source location. Match source colours. Do not invent new anatomy. Body continues through canvas edges exactly as shown. Pure flat #00ff00 background; flat colour fills. No recentering, enlargement, zooming or added detail."
+    },
+    {
+      "id": "plates/waist_front",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__waist_front__restore__01.png",
+      "source_size": [
+        1520,
+        1035
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's waist, hips and the top of the thighs from the front, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 18 px wide round him and thinner inner lines about 8 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 1504 x 1024 canvas, identical crop. Trace-restoration only: crisp existing outline, same silhouette, same waistband, fly seam, folds, navel and tiny partial arms at upper corners. Preserve all positions and source colour regions. No redesign, recentering, enlargement or new details. Flat fills, pure #00ff00 empty background."
+    },
+    {
+      "id": "plates/waist_back",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__waist_back__restore__01.png",
+      "source_size": [
+        1501,
+        1048
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's waist, hips and the top of the thighs from behind, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 17 px wide round him and thinner inner lines about 7 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 1488 x 1040 canvas, identical crop. Trace-restoration only: crisp existing outline, same silhouette, waistband, central back seam, folds, lower back and tiny partial arms at upper corners. Preserve all positions and source colour regions. No redesign, recentering, enlargement or new details. Flat fills, pure #00ff00 empty background."
+    },
+    {
+      "id": "plates/right_arm_front",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__right_arm_front__restore__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's right arm from the front, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 13 px wide round him and thinner inner lines about 6 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 960 x 1616 canvas and crop. This is the character's right arm from the front, positioned diagonally on the left of the image with partial torso at right. Trace and restore existing linework only. Keep all outline points, muscles, five fingers and cropped fingers at bottom edge unchanged in position. Keep source colour regions and adjacent torso/shorts. Do not complete cropped body parts, add detail, recenter, or zoom. Flat #00ff00 empty background."
+    },
+    {
+      "id": "plates/right_arm_back",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__right_arm_back__restore__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's right arm from behind, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 13 px wide round him and thinner inner lines about 5 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 960 x 1616 canvas and crop. Trace-restoration only: crisp existing outline, same shoulder, elbow, wrist, palm and partially cropped fingers. Keep silhouette and interior lines in the original positions, including the adjacent back and shorts cropped at left. Match source colour regions. No added detail, completed cropped body parts, recentering or zoom. Flat pure #00ff00 background."
+    },
+    {
+      "id": "plates/left_arm_front",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__left_arm_front__restore__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's left arm from the front, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 13 px wide round him and thinner inner lines about 6 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 960 x 1616 canvas and crop. Trace-restoration only: crisp existing outline, same shoulder, elbow, wrist, hand back and partially cropped fingers. Keep silhouette and interior lines in original positions, including adjacent torso and shorts cropped at left. Match source colour regions. No added detail, completed cropped body parts, recentering or zoom. Flat pure #00ff00 background."
+    },
+    {
+      "id": "plates/left_arm_back",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__left_arm_back__restore__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's left arm from behind, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 13 px wide round him and thinner inner lines about 5 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 960 x 1616 canvas and crop. Trace-restoration only: crisp existing outline, same shoulder, elbow, wrist, palm and partially cropped fingers. Keep silhouette and interior lines in original positions, including adjacent back and shorts cropped at right. Match source colour regions. No added detail, completed cropped body parts, recentering or zoom. Flat pure #00ff00 background."
+    },
+    {
+      "id": "plates/right_leg_front",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__right_leg_front__restore__01.png",
+      "source_size": [
+        871,
+        1806
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's right leg from the front, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 11 px wide round him and thinner inner lines about 5 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 864 x 1792 canvas and crop. Trace-restoration only: crisp existing outline, same thigh, kneecap, calf, ankle, foot and five toes. Preserve every landmark and outline location, including partial opposite leg at right, shorts at top, and hand fragment at upper left. No changes to anatomy, positions, crop or source colours; no recentering, zooming or adding detail. Pure flat #00ff00 empty background."
+    },
+    {
+      "id": "plates/right_leg_back",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__right_leg_back__restore__01.png",
+      "source_size": [
+        887,
+        1774
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's right leg from behind, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 12 px wide round him and thinner inner lines about 5 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 880 x 1760 canvas and crop. Trace-restoration only: crisp existing outline, same back of thigh, knee, calf, ankle and heel. Preserve every landmark and outline location, including partial opposite leg at left, shorts clipped by top edge, and palm fragment at upper right. No changes to anatomy, position, crop or source colours. No recentering, zooming or adding details. Pure flat #00ff00 background."
+    },
+    {
+      "id": "plates/left_leg_front",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__left_leg_front__restore__01.png",
+      "source_size": [
+        871,
+        1806
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's left leg from the front, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 11 px wide round him and thinner inner lines about 5 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 864 x 1792 canvas and crop. Trace-restoration only: crisp existing outline, same thigh, kneecap, calf, ankle, foot and five toes. Preserve every landmark and outline location, including partial opposite leg at left, shorts at top, and hand fragment at upper right. No changes to anatomy, positions, crop or source colours. No recentering, zooming or adding detail. Pure flat #00ff00 empty background."
+    },
+    {
+      "id": "plates/left_leg_back",
+      "stage": "restore",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "plates__left_leg_back__restore__01.png",
+      "source_size": [
+        899,
+        1750
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture: the knight's left leg from behind, up close, cropped from the whole figure and scaled up, so it is soft. Redraw it crisply at this size, line for line: the same man, pose, proportions and framing; his outline and every line inside it stay exactly where they are, so the picture still lines up with the whole figure. The same colours: skin shadow #9c5f48, mid #d08b6a, light #f0b693; hair and beard dark brown; the braies undyed linen (shadow #8f8270, mid #b9ad9b, light #ddd3c4). One clean ink outline (#15101f) about 12 px wide round him and thinner inner lines about 5 px wide for the muscles and folds, in three flat tones per material, light from the top left. Add nothing: no gear, jewellery, tattoos, scars, hair or muscles that aren't in the picture, and cut nothing off: where the picture's edge crosses his body, the body runs on to the edge. Background: perfectly flat pure green #00ff00 wherever there's no body.\nEdit target: supplied seed image. Exact 896 x 1744 canvas and crop. Trace-restoration only: crisp existing outline, same back of thigh, knee, calf, ankle and heel. Preserve every landmark and outline location, including partial opposite leg at right, shorts clipped by top edge, and palm fragment at upper left. No changes to anatomy, position, crop or source colours. No recentering, zooming or adding details. Pure flat #00ff00 background."
+    },
+    {
+      "id": "pieces/head_front/sallet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_front__sallet__paint__01.png",
+      "source_size": [
+        980,
+        1605
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck from the front. Paint him wearing a sallet: a rounded steel helmet sweeping back into a long tail over the nape, open at the face (eyes, nose and mouth free), its edge low over the cheeks, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1 is the edit target at 976 x 1600. Input 2 is a placement guide only: its tinted area marks where painting is allowed. Never copy its tint or guide outline. Fit the helmet around the existing skull and cheeks, cover the hair crown, and leave the eyes, nose and mouth visible. Preserve the face and all pixels outside the helmet. Keep the canvas and head position exactly unchanged. Simple practical medieval sallet, plain neutral steel, no crest, visor or extra decoration."
+    },
+    {
+      "id": "pieces/head_front/sallet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_front__sallet__isolate__01.png",
+      "source_size": [
+        980,
+        1605
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the sallet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the sallet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nOutput exactly 976 x 1600 at the identical full canvas framing. Remove the entire man's face, hair, braid, neck and shoulders. The centre face opening must be pure green as well. Keep the existing helmet alone, in the same original coordinates, shape and colours, including the two visible side tails; do not fill in the hidden rear plate, do not enlarge or recenter the helmet. Flat pure #00ff00 only outside the surviving helmet."
+    },
+    {
+      "id": "pieces/figure_front/sallet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__sallet__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a sallet: a rounded steel helmet sweeping back into a long tail over the nape, open at the face (eyes, nose and mouth free), its edge low over the cheeks, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1: edit target, the full-body base at 944 x 1664. Input 2: the approved front-view helmet master; exactly reproduce its rounded bowl, central ridge, rivets and open face with curved cheek sides at the small scale of this head. Input 3: allowed-area placement guide, never copy its tint or white outline. Preserve the full-body image, all proportions and green margins. Only paint the matching helmet at the head's existing location; do not zoom in or enlarge the man or helm."
+    },
+    {
+      "id": "pieces/figure_front/sallet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__sallet__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the sallet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the sallet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the full 944 x 1664 canvas. The helmet must remain SMALL at the same original head position near the upper center (approximately x=391..553, y=261..458); the rest of this tall canvas is entirely green. Remove the face through the face opening and remove every part of the man. Keep only the existing helmet pixels in place. Do not enlarge, recenter, crop or reconstruct any hidden steel."
+    },
+    {
+      "id": "pieces/figure_back/sallet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__sallet__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a sallet: a rounded steel helmet sweeping back into a long tail over the nape, open at the face (eyes, nose and mouth free), its edge low over the cheeks, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1: full-body BACK edit target at 944 x 1664. Input 2: approved helmet master seen from FRONT, design reference only. Input 3: back placement guide, never copy tint or outline. Paint the matching helmet seen strictly from BEHIND: rounded neutral steel bowl and central ridge ending in a swept nape tail, symmetrical rear silhouette. No front-face opening visible from this angle. Cover the skull hair but retain the braid below the helmet and the rest of the man unchanged. Same full-body scale, position and green margins, no zooming."
+    },
+    {
+      "id": "pieces/figure_back/sallet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__sallet__isolate__01.png",
+      "source_size": [
+        984,
+        1599
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the sallet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the sallet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nExact 944 x 1664 full canvas. Leave ONLY the existing small rear-view helmet around x=396..554,y=257..475, at exactly its current position. All the man's skin, braid, shorts and body become pure #00ff00 green. The rear steel bowl remains closed and unchanged. Do not enlarge, center or crop the helmet. Keep its original ink edge."
+    },
+    {
+      "id": "pieces/figure_back/sallet",
+      "stage": "isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__sallet__isolate__02.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the sallet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the sallet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nCRITICAL: keep the attached image's entire original tall canvas unchanged: width 944, height 1664, aspect ratio 0.5673077. This is pixel-registered background extraction. Replace the man with green while leaving the original helmet in exactly the same coordinates. Do not change canvas shape. Do not move, scale, enlarge or recenter the helmet; it occupies only the head area, about 16% of canvas width and 13% of canvas height, centered at x=50%, y=22%. Empty green below it occupies most of the frame. Keep all existing helmet ink edges."
+    },
+    {
+      "id": "pieces/head_right/sallet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_right__sallet__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his right side to us. Paint him wearing a sallet: a rounded steel helmet sweeping back into a long tail over the nape, open at the face (eyes, nose and mouth free), its edge low over the cheeks, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1 is the exact edit target, his head in profile facing LEFT, on a 1024 x 1504 canvas. Input 2 is the front master of this helmet: keep its same low central ridge, plain steel rounded crown, rolled rim, rivets and open face. Show that exact sallet from the character's RIGHT side in profile, with a long swept rear tail over his nape extending toward image right. Input 3 is a placement guide only, never copy its tint or white contour. Leave his eye, nose, mouth and beard visible. Keep all body proportions, positions, crop and background unchanged."
+    },
+    {
+      "id": "pieces/head_right/sallet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_right__sallet__isolate__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the sallet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the sallet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the full 1024 x 1504 canvas and identical aspect ratio and framing. Remove the whole face, beard, braid, neck and chest, leaving pure #00ff00 green. Keep only the existing right-profile helmet, including the swept nape tail that is visible, at the same coordinates with its ink outline. Do not fill in steel hidden behind the man's braid. No movement, enlargement or crop."
+    },
+    {
+      "id": "pieces/head_left/sallet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_left__sallet__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his left side to us. Paint him wearing a sallet: a rounded steel helmet sweeping back into a long tail over the nape, open at the face (eyes, nose and mouth free), its edge low over the cheeks, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1 is the exact edit target, his head in profile facing RIGHT, on a 1024 x 1504 canvas. Input 2 is the front master of this helmet. Input 3 is the completed opposite side for design continuity only; change perspective to the left side and retain top-left lighting. Show the same low central ridge, rounded neutral steel crown, rolled rim and three side rivets, with a swept rear tail extending toward image left. Input 4 is the placement guide only, never copy its tint or white contour. Leave the eye, nose, mouth and beard visible. Match the edit target's body proportions and position exactly. No crop, zoom or new decoration."
+    },
+    {
+      "id": "pieces/head_left/sallet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_left__sallet__isolate__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the sallet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the sallet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the full 1024 x 1504 canvas, aspect ratio, position and outline. Remove the face, beard, braid, neck and shoulders to pure #00ff00. Keep only the existing helmet, including visible rear tail, without filling hidden parts. One correction to its shading: the light must come from the IMAGE'S UPPER LEFT, regardless of the direction the head faces. Put the steel's light facet on the upper-left dome, the shadow on the lower-right, keeping the neutral grey palette and the same design. Use crisp flat colour regions, no smooth gradients. Do not mirror or move the helmet."
+    },
+    {
+      "id": "pieces/torso/breastplate",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__torso__breastplate__paint__01.png",
+      "source_size": [
+        1111,
+        1416
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's chest and belly from the front, up close. Paint him wearing a steel breastplate covering his chest and ribs, with a central ridge, a rolled top edge and leather straps at the sides, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 14 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1: fixed torso edit target, 1104 x 1408. Input 2: allowed-region guide; the tinted area covers upper chest and ribs, ending above the navel. Use it only for placement, do not copy tint, white lines or blocky mask edges. Make a simple broad steel breastplate fitted around the chest, central vertical ridge, rolled shallow neckline and smoothly shaped lower edge above the exposed belly. Brown leather side straps. No shoulder armour, abdominal plates, decorations or gear outside that guide. Preserve the exact man, canvas and framing. Three FLAT neutral steel tones, thick crisp dark outer ink."
+    },
+    {
+      "id": "pieces/torso/breastplate",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__torso__breastplate__isolate__01.png",
+      "source_size": [
+        1111,
+        1415
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the breastplate: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the breastplate exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the full 1104 x 1408 canvas, aspect ratio, framing and coordinates. Keep the breastplate AND its four brown leather side straps and rivets exactly as drawn. Remove all skin, body, hair, beard, neck, arms and shorts to pure #00ff00 green. The neck opening and all spaces outside the plate are green. Do not move, scale, crop or redesign the armour."
+    },
+    {
+      "id": "sprites/main_hand",
+      "stage": "generate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "sprites__main_hand__generate__01.png",
+      "source_size": [
+        768,
+        2048
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. A single game sprite on its own: a main-hand weapon: an arming sword with a straight double-edged blade, a simple crossguard, a leather-wrapped grip and a round pommel. Standing upright, point down, seen from the front with the flat of the blade toward the viewer, centred, filling 92% of the canvas's height, nothing cut off. Its outline is the ink (#15101f), about 8 px wide, with thinner lines inside. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.\nProduction canvas: exactly 768 x 2048 pixels, very tall 3:8 aspect ratio. One plain medieval arming sword, pommel at the top and blade point at the bottom, straight vertical axis at x=50%, complete sword from y=4% to96%. Simple straight narrow crossguard, round steel wheel pommel, short warm brown leather grip, long neutral-grey double-edged blade with a central fuller. Clean dark #15101f outer outline all around. Only THREE FLAT shades for steel and three flat shades for leather, hard graphic cel boundaries with no gradients. Pure flat #00ff00 background, no floor or shadows. No decorations, letters, runes, gems or extra parts."
+    },
+    {
+      "id": "pieces/foot_R_top/boot",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__foot_R_top__boot__paint__01.png",
+      "source_size": [
+        821,
+        1915
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the top of his right foot, toes up, with the ankle. Paint him wearing a sturdy brown leather boot on each foot, reaching just above the ankle, laced at the front, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1 is the edit target, a TOP view of the RIGHT FOOT with toes pointing UP and ankle at the BOTTOM, canvas 816 x 1904. Input 2 is a placement guide only. Paint one brown leather ankle boot around this exact foot: one rounded closed toe box covering all five toes together, a single vamp, front criss-cross laces over the instep, simple stitched panels, sturdy dark sole edge, cuff just above the ankle near the lower canvas. Keep foot orientation and exact proportions. This is NOT a side view or upright standing boot. Do not draw individual toe compartments. No metal armour, buckles, gems or embellishment. Flat warm brown leather tones, bold dark ink. Preserve framing and green background."
+    },
+    {
+      "id": "pieces/right_leg_front/boot",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_leg_front__boot__paint__01.png",
+      "source_size": [
+        871,
+        1806
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right leg from the front, up close. Paint him wearing a sturdy brown leather boot on each foot, reaching just above the ankle, laced at the front, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 11 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1 is the fixed leg base on a 864 x 1792 tall canvas. Input 2 is the approved boot design (top-view reference only): rounded closed toe, simple stitched brown leather panels, dark sole edge, crossed front laces. Input 3 is the allowed-area placement guide, never copy its tint. Fit the same ankle boots around BOTH visible feet at the very bottom: one fully visible right foot near x=210..432 and the narrow partial opposite foot clipped by the right edge. Boot cuffs stop just above the ankle at about y=1420, leaving the calves bare. Preserve the man's exact posture, leg positions, crop and green margins. No tall boots or added armour."
+    },
+    {
+      "id": "pieces/right_leg_front/boot",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_leg_front__boot__isolate__01.png",
+      "source_size": [
+        871,
+        1805
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the boots: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the boots exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve exact 864 x 1792 canvas shape and the current full-leg framing. Only the TWO brown leather boots survive, fixed at their current locations along the bottom: the complete boot near lower left-centre and the partial boot clipped by the right edge. Replace all skin including the leg inside each cuff, all shorts and hand fragments with pure #00ff00. Keep boots at the same size, position, perspective and detailed ink edges; do not center them or zoom in. Leave almost all the upper canvas green."
+    },
+    {
+      "id": "pieces/right_leg_back/boot",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_leg_back__boot__paint__01.png",
+      "source_size": [
+        887,
+        1774
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right leg from behind, up close. Paint him wearing a sturdy brown leather boot on each foot, reaching just above the ankle, laced at the front, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 12 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1: fixed BACK view of legs on 880 x 1760 canvas. Input 2: boot design master, viewed from top only as reference. Input 3: placement guide. Paint the matching warm brown leather ankle boots seen FROM BEHIND, with plain stitched heel panels and dark sole rims; the front laces are hidden from this viewpoint. One complete boot wraps the visible heel near the lower right-centre, and the tiny partial opposite foot at the left canvas edge gets the matching partial boot. Cuffs stop just above ankles at about y=1370. Preserve exact body and canvas positions. No crop, zoom, extra height, straps or decorations. Do not copy the guide tint."
+    },
+    {
+      "id": "pieces/right_leg_back/boot",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_leg_back__boot__isolate__01.png",
+      "source_size": [
+        887,
+        1774
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the boots: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the boots exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nExact 880 x 1760 full canvas and aspect ratio. Keep only the two existing BACK-VIEW boots in their current lower-canvas positions: the full boot toward the right and the narrow boot fragment cut off at the left edge. Remove all legs, shorts, hand and skin inside cuffs to pure #00ff00. Do not move, enlarge, center, crop or rotate the boots. Keep heel panels, brown stitches and sole rims unchanged, leaving the upper three quarters of the canvas green."
+    },
+    {
+      "id": "pieces/left_leg_front/boot",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_leg_front__boot__paint__01.png",
+      "source_size": [
+        871,
+        1806
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left leg from the front, up close. Paint him wearing a sturdy brown leather boot on each foot, reaching just above the ankle, laced at the front, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 11 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1 is the fixed front-view leg base at 864 x 1792. Input 2 is the approved boot master: rounded toe, brown stitched panels, dark sole rim and crossed front laces. Input 3 is the guide. Fit the same ankle boots onto BOTH visible feet at the canvas bottom: one complete left boot near x=435..665, and the partial opposite boot clipped at the LEFT edge. Cuffs stop above ankles around y=1420. Keep calves bare, exact posture, full-leg framing, proportions and green margins. Match material and design to the master. No tall boots, extra armour, crop or zoom. Never copy guide tint."
+    },
+    {
+      "id": "pieces/left_leg_front/boot",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_leg_front__boot__isolate__01.png",
+      "source_size": [
+        871,
+        1805
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the boots: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the boots exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve exact 864 x 1792 canvas shape and current full-leg framing. Only the TWO existing boots survive, fixed at their current lower-canvas positions: complete boot to the right of center, partial boot clipped by LEFT edge. Replace every part of the man, all skin inside cuffs, shorts and hand with pure #00ff00 green. Keep boot size, perspective, shape, stitching and ink outline. No movement, centering, crop, zoom or reconstruction of hidden parts."
+    },
+    {
+      "id": "pieces/left_leg_back/boot",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_leg_back__boot__paint__01.png",
+      "source_size": [
+        899,
+        1750
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left leg from behind, up close. Paint him wearing a sturdy brown leather boot on each foot, reaching just above the ankle, laced at the front, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 12 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1: fixed BACK leg view, 896 x 1744 canvas. Input 2: boot top-view design master. Input 3: allowed-area guide, never copy its tint. Paint matching short brown leather ankle boots seen FROM BEHIND on BOTH visible feet. The full left heel is near lower left-center; a tiny partial opposite heel is clipped at the RIGHT edge. Use the same plain stitched heel panels and dark sole rims; front laces hidden. Cuff above ankle near y=1360, not up the calf. Preserve exact leg pose, foot direction, crop, all green margins and body proportions. No zoom, movement or extra gear."
+    },
+    {
+      "id": "pieces/left_leg_back/boot",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_leg_back__boot__isolate__01.png",
+      "source_size": [
+        899,
+        1749
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the boots: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the boots exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve exact 896 x 1744 full canvas and aspect ratio. Keep only the existing two rear-view boots in their current bottom positions: full boot left of centre, partial boot clipped by the RIGHT edge. All skin, legs, shorts and hand fragment become perfectly flat #00ff00, including the skin inside cuffs. Leave boot shape, stitched heel panels, dark sole rims and ink edge unchanged. Do not recenter, enlarge, move, crop or rotate anything."
+    },
+    {
+      "id": "pieces/foot_R_sole/boot",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__foot_R_sole__boot__paint__01.png",
+      "source_size": [
+        818,
+        1923
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the sole of his right foot, toes up, with the ankle. Paint him wearing a sturdy brown leather boot on each foot, reaching just above the ankle, laced at the front, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nInput 1 is the exact edit target: the SOLE of the RIGHT FOOT, toes pointing UP, big toe on IMAGE RIGHT, heel and ankle at bottom, canvas 816 x 1920. Input 2 is the same boot's TOP-view design reference only. Input 3 is the allowed-region guide. Show this matching brown leather boot from DIRECTLY UNDERNEATH: one closed rounded forefoot sole covering all five toes together, a narrow waist, broad rounded heel and simple dark layered sole with a stitched perimeter and a few functional sole grooves. No visible front laces from underneath. No individual toe compartments, skin, foot pads, logos, writing or ornaments. Preserve foot orientation, exact outline fit, canvas framing and scale. Use flat brown tones and crisp dark ink. Green remains where there is no boot."
+    },
+    {
+      "id": "pieces/left_leg_back/boot",
+      "stage": "isolate",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_leg_back__boot__isolate__02.png",
+      "source_size": [
+        899,
+        1750
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the boots: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the boots exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise extraction from THIS attached clothed-leg image, not a redesign. Full canvas width896 height1744, same aspect and framing. Critical registration: the main boot's cuff starts at y=1360 (78% down the canvas) and its lowest dark sole edge ends at y=1692 (97% down); preserve the original 50-pixel green margin below it. Do not move it upward. Keep the narrow partial boot at the right edge at its own original coordinates as well. Replace all skin, legs, shorts and hands with pure #00ff00, including visible skin inside cuffs. Copy the two boots in place exactly, with their current outline and stitching. No shifting, recentering, zooming, resizing of contents or extra green margin under the feet."
+    },
+    {
+      "id": "pieces/left_leg_back/boot",
+      "stage": "align",
+      "attempt": 3,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_leg_back__boot__align__03.png",
+      "source_size": [
+        899,
+        1749
+      ],
+      "prompt": "Precise-object-edit for a pixel-registered 2D equipment overlay. Input 1 is the edit target: two rear-view brown ankle boots on a green 896 x 1744 canvas. Input 2 shows the original boots worn in the correct location. Correct ONE thing in input 1: translate BOTH boots straight DOWN by 32 pixels (about 1.84% of canvas height), with zero horizontal movement and NO scaling. The main boot's bottom sole must end about 50 pixels above the bottom canvas edge, not 82 pixels above it. Keep boot shape, all existing leather panels, stitching, sole, lighting and dark ink unchanged. Keep exactly the same full canvas shape. Entire rest of canvas pure #00ff00. Do not draw skin, legs or any body. This is a coordinate correction, not a new design."
+    },
+    {
+      "id": "pieces/left_leg_back/boot",
+      "stage": "align",
+      "attempt": 4,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_leg_back__boot__align__04.png",
+      "source_size": [
+        899,
+        1748
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the existing equipment OVERLAY to correct, on its full 896 x 1744 green canvas. Image 2 is the bare-body registration reference. Image 3 marks the allowed boot area. Return ONLY the corrected overlay on green, never any skin or body.\nThe current main boot is too short vertically at the bottom: when placed over image 2, the man's bare heel sticks out BELOW its sole. Correct that by extending the boot's brown heel and dark sole edge DOWN enough to completely hide the bare heel at the identical image coordinates. Its lowest sole edge must be at y=1695, leaving just 49 px of green below. Keep the top of the boot, horizontal position, orientation, panels, stitching and lighting unchanged. Cover the tiny opposite heel at the right edge similarly. Do not scale or recenter the canvas. No bare skin can remain or protrude when this overlay is placed on the reference. Output same tall canvas aspect; pure flat #00ff00 background."
+    }
+  ]
+}

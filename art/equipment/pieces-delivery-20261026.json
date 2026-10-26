@@ -1,0 +1,452 @@
+{
+  "date": "2026-10-26",
+  "status": "partial_delivery",
+  "based_on": "e0ede57368aa1bde6e94a6baf67898631053183c",
+  "requested_files": 869,
+  "delivered_files": 26,
+  "remaining_files": 843,
+  "assets": [
+    {
+      "id": "plates/neck",
+      "file": "art/equipment/plates/neck.png",
+      "batch": 1,
+      "size": [
+        1328,
+        1168
+      ],
+      "format": "RGB",
+      "sha256": "76ff2c6923b3f2675ff3bae0e1e9789b27220a262089ba9b41df80ca69812b25",
+      "original_size": [
+        1337,
+        1176
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/torso",
+      "file": "art/equipment/plates/torso.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "fcb169e5fa87fe8d0e18baa9f89cbc66bd9c1e567622ca07fd174868deaa338c",
+      "original_size": [
+        1110,
+        1417
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/back",
+      "file": "art/equipment/plates/back.png",
+      "batch": 1,
+      "size": [
+        1088,
+        1440
+      ],
+      "format": "RGB",
+      "sha256": "8d0dcace2c6331324db330ae6e5345bf289ae0f3ba35b97a7189b9f2d84cb982",
+      "original_size": [
+        1090,
+        1443
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/waist_front",
+      "file": "art/equipment/plates/waist_front.png",
+      "batch": 1,
+      "size": [
+        1504,
+        1024
+      ],
+      "format": "RGB",
+      "sha256": "4c419ba87e7ee9358ad45dfa21998a17977fd351ad4c1b0ba628bcd9283ed9cc",
+      "original_size": [
+        1520,
+        1035
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/waist_back",
+      "file": "art/equipment/plates/waist_back.png",
+      "batch": 1,
+      "size": [
+        1488,
+        1040
+      ],
+      "format": "RGB",
+      "sha256": "601ecc873109c115de55b2fc0edd23ca94ae37e7eb6d14ea9fd920b161083664",
+      "original_size": [
+        1501,
+        1048
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/right_arm_front",
+      "file": "art/equipment/plates/right_arm_front.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "46fd49e6c9b1c924b097f7304276d0a8fa601f6688cca695a421328c0fc2d7ce",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/right_arm_back",
+      "file": "art/equipment/plates/right_arm_back.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "e940323c2cecb851afecb33cc17507a566eb813577088a34984e7f10808e11c8",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/left_arm_front",
+      "file": "art/equipment/plates/left_arm_front.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "4df4ab2a0bad2637ee13fac79039828a895d89adb737f5f0235ffa1b0cac680b",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/left_arm_back",
+      "file": "art/equipment/plates/left_arm_back.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "7dd6e3eedc5998e3f491908109efee3507e4a968457f9346a6647f1aa7d734cb",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/right_leg_front",
+      "file": "art/equipment/plates/right_leg_front.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "2126aba7e721ba73b2cfaec055b7124b909a6392f42888490a91db364ab4d42d",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/right_leg_back",
+      "file": "art/equipment/plates/right_leg_back.png",
+      "batch": 1,
+      "size": [
+        880,
+        1760
+      ],
+      "format": "RGB",
+      "sha256": "12a79cf63f8f16e3e33026772101fcc4b9ffdbfc0a05d2a80a24094930846816",
+      "original_size": [
+        887,
+        1774
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/left_leg_front",
+      "file": "art/equipment/plates/left_leg_front.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "251411f41dea6541fbdaaf0f2efb794f6ae13869e325428d2609a9387b019f51",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "plates/left_leg_back",
+      "file": "art/equipment/plates/left_leg_back.png",
+      "batch": 1,
+      "size": [
+        896,
+        1744
+      ],
+      "format": "RGB",
+      "sha256": "24a579cf80a1dfa9699fdec15b791c5961295fc5371cb55bd07281609463e766",
+      "original_size": [
+        899,
+        1750
+      ],
+      "selected_stage": "restore",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_front/sallet",
+      "file": "art/equipment/pieces/head_front/sallet.png",
+      "batch": 1,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "7b1bb3e3b7cca3cfc3e7460c4a4f1609576c7425ac18a66d28ef314e4479c13f",
+      "original_size": [
+        980,
+        1605
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/sallet",
+      "file": "art/equipment/pieces/figure_front/sallet.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "05a58c3cb07d691fde73d963acb1ff84cb86256bf35f59034f78cb833b418850",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/sallet",
+      "file": "art/equipment/pieces/figure_back/sallet.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "86ba8eca682339648d4a7c1ee01c7b31eae81b0aaa53671dc6a8ba759b2a7add",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/head_right/sallet",
+      "file": "art/equipment/pieces/head_right/sallet.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "26c51ff856829b361b1912e19c9a835fc37ca587b5c317606802ba3133c28799",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_left/sallet",
+      "file": "art/equipment/pieces/head_left/sallet.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "dbf451ee9b5b921973186c86388cf63aa111a005b8fa0aa80aa36e379d2a32ef",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/torso/breastplate",
+      "file": "art/equipment/pieces/torso/breastplate.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "15016380865250ffcdbc852478f9836d11f2d72879765d4c58479176ee03a6e9",
+      "original_size": [
+        1111,
+        1415
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "sprites/main_hand",
+      "file": "art/equipment/sprites/main_hand.png",
+      "batch": 1,
+      "size": [
+        768,
+        2048
+      ],
+      "format": "RGB",
+      "sha256": "be886498adee9b67ece9465ed37a7e09e753ab37f56ca0ef8c76d7d536f1c68b",
+      "original_size": [
+        768,
+        2048
+      ],
+      "selected_stage": "generate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/foot_R_top/boot",
+      "file": "art/equipment/pieces/foot_R_top/boot.png",
+      "batch": 1,
+      "size": [
+        816,
+        1904
+      ],
+      "format": "RGB",
+      "sha256": "2e7b41fe159bb50b118b8caf8d7cee90407c92cfdd635c390b8d3b74b129d446",
+      "original_size": [
+        821,
+        1915
+      ],
+      "selected_stage": "paint",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_front/boot",
+      "file": "art/equipment/pieces/right_leg_front/boot.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "2a1796e3357541b025df9cdad9763a26f329684f15008ce42c77909a8fd90cd9",
+      "original_size": [
+        871,
+        1805
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_back/boot",
+      "file": "art/equipment/pieces/right_leg_back/boot.png",
+      "batch": 1,
+      "size": [
+        880,
+        1760
+      ],
+      "format": "RGB",
+      "sha256": "27f691da42bd6586d45e07d826339b44304e2be781665f09e0b67361180e9ed9",
+      "original_size": [
+        887,
+        1774
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_front/boot",
+      "file": "art/equipment/pieces/left_leg_front/boot.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "5e55a66a0b8d1ab63974486dde961a89404c234736e6ed325676d3b705e36e6c",
+      "original_size": [
+        871,
+        1805
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_back/boot",
+      "file": "art/equipment/pieces/left_leg_back/boot.png",
+      "batch": 1,
+      "size": [
+        896,
+        1744
+      ],
+      "format": "RGB",
+      "sha256": "c9f2ff4406cf73f69af6ed941d32d00c776ff0233d80b9c29bea75969371aef6",
+      "original_size": [
+        899,
+        1748
+      ],
+      "selected_stage": "align",
+      "selected_attempt": 4
+    },
+    {
+      "id": "pieces/foot_R_sole/boot",
+      "file": "art/equipment/pieces/foot_R_sole/boot.png",
+      "batch": 1,
+      "size": [
+        816,
+        1920
+      ],
+      "format": "RGB",
+      "sha256": "de25dbcfb7f611bceedad54c18ea64239ee8e1c094fa2043da4d6e4656d2b29c",
+      "original_size": [
+        818,
+        1923
+      ],
+      "selected_stage": "paint",
+      "selected_attempt": 1
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+PASS  plates/neck
+   ok  size: 1328x1168 (want 1328x1168)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 100% (at least 93%)
+   ok  same colours: differs from the seed by 2.3 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  plates/torso
+   ok  size: 1104x1408 (want 1104x1408)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 2.7 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  plates/back
+   ok  size: 1088x1440 (want 1088x1440)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 3.5 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 84% of his edge is dark ink
+PASS  plates/waist_front
+   ok  size: 1504x1024 (want 1504x1024)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 3.6 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 84% of his edge is dark ink
+PASS  plates/waist_back
+   ok  size: 1488x1040 (want 1488x1040)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 5.4 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  plates/right_arm_front
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 2.6 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  plates/right_arm_back
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 5.8 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 84% of his edge is dark ink
+PASS  plates/left_arm_front
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 97% (at least 93%)
+   ok  same colours: differs from the seed by 5.1 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 84% of his edge is dark ink
+PASS  plates/left_arm_back
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 5.2 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  plates/right_leg_front
+   ok  size: 864x1792 (want 864x1792)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 4.3 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  plates/right_leg_back
+   ok  size: 880x1760 (want 880x1760)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 3.4 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 84% of his edge is dark ink
+PASS  plates/left_leg_front
+   ok  size: 864x1792 (want 864x1792)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 99% (at least 93%)
+   ok  same colours: differs from the seed by 3.8 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  plates/left_leg_back
+   ok  size: 896x1744 (want 896x1744)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  lines up: its outline overlaps the seed's 98% (at least 93%)
+   ok  same colours: differs from the seed by 4.2 of 255 on average
+   ok  nothing added: 0.0% of the body changed a lot (gear, marks?)
+   ok  ink outline: 85% of his edge is dark ink
+PASS  pieces/head_front/sallet
+   ok  size: 976x1600 (want 976x1600)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 391519 pixels drawn (green key)
+   ok  in its place: 98% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 85% of the sites it fills (at least 75%)
+   ok  ink outline: 82% of its edge is dark ink
+PASS  pieces/figure_front/sallet
+   ok  size: 944x1664 (want 944x1664)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 15731 pixels drawn (green key)
+   ok  in its place: 97% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 89% of the sites it fills (at least 75%)
+   ok  ink outline: 60% of its edge is dark ink
+PASS  pieces/figure_back/sallet
+   ok  size: 944x1664 (want 944x1664)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 26212 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 92% of the sites it fills (at least 75%)
+   ok  ink outline: 81% of its edge is dark ink
+PASS  pieces/head_right/sallet
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 423052 pixels drawn (green key)
+   ok  in its place: 97% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 87% of the sites it fills (at least 75%)
+   ok  ink outline: 83% of its edge is dark ink
+PASS  pieces/head_left/sallet
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 413013 pixels drawn (green key)
+   ok  in its place: 97% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 87% of the sites it fills (at least 75%)
+   ok  ink outline: 83% of its edge is dark ink
+PASS  pieces/torso/breastplate
+   ok  size: 1104x1408 (want 1104x1408)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 374717 pixels drawn (green key)
+   ok  in its place: 99% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 84% of its edge is dark ink
+PASS  sprites/main_hand
+   ok  size: 768x2048 (want 768x2048)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  background: 100.0% of the border is background (green key)
+   ok  size on the canvas: its longer side is 95% of the canvas
+   ok  centred: its middle is at 50%, 50% of the canvas
+   ok  ink outline: 86% of its edge is dark ink
+PASS  pieces/foot_R_top/boot
+   ok  size: 816x1904 (want 816x1904)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 989871 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 82% of its edge is dark ink
+PASS  pieces/right_leg_front/boot
+   ok  size: 864x1792 (want 864x1792)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 73327 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 84% of its edge is dark ink
+PASS  pieces/right_leg_back/boot
+   ok  size: 880x1760 (want 880x1760)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 69887 pixels drawn (green key)
+   ok  in its place: 99% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 80% of its edge is dark ink
+PASS  pieces/left_leg_front/boot
+   ok  size: 864x1792 (want 864x1792)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 76813 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 83% of its edge is dark ink
+PASS  pieces/left_leg_back/boot
+   ok  size: 896x1744 (want 896x1744)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 68757 pixels drawn (green key)
+   ok  in its place: 99% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 82% of its edge is dark ink
+PASS  pieces/foot_R_sole/boot
+   ok  size: 816x1920 (want 816x1920)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 936408 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 84% of its edge is dark ink
+
+26 of 26 delivered files pass; 843 of 869 not delivered yet
