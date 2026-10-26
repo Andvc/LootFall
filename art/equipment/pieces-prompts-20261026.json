@@ -1463,6 +1463,570 @@
         1774
       ],
       "prompt": "Use case: precise-object-edit. Image 1 is the right rear thigh armor edit target; image 2 is the matching left rear thigh armor design and height reference; image 3 is the placement guide. Shorten ONLY the TOP of both steel shells in image 1 by about 100 pixels, leaving their bottom edges near y=700, widths and all horizontal coordinates unchanged. The new top edge should run shallowly from approximately (280,300) to (620,275), and the clipped other shell at y=300. Match image 2's approximately 400-pixel shell height. Keep the same rolled rims, steel shading, side fasteners, and original full 880 x 1760 canvas. Pure #00ff00 background, equipment only. No body, skin, clothing, masks, shadows, text, extra object or repositioning of the lower armor."
+    },
+    {
+      "id": "pieces/head_front/great_helm",
+      "stage": "registered_overlay",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_front__great_helm__registered_overlay__01.png",
+      "source_size": [
+        980,
+        1605
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck from the front. Paint him wearing a great helm: a flat-topped steel cylinder enclosing the whole head down to the neck, with a narrow horizontal eye slit, rows of small breathing holes on the right of the face, a vertical riveted ridge down the middle of the face, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nOUTPUT STAGE: Use image 1 only as the exact anatomy/placement reference; image 2 is the placement guide. Return the FINISHED ISOLATED EQUIPMENT OVERLAY, not the character wearing it. Only the flat-topped cylindrical steel great helm, enclosing the registered head from x=80..890,y=90..1220. Flat shallow-ellipse top, narrow horizontal eye slit at the character's eye level y=680, vertical riveted center reinforcement, two rows of small breathing holes on the wearer's right face side (viewer left). The eye slit and holes are dark voids. No visible face, ears, hair, braid, neck or shoulders; no crest, cross, logo, gold, plume, ornate filigree or flared collar. Preserve the full 976 x 1600 canvas and the equipment's worn coordinates and scale. Everything except the visible equipment must be perfectly flat #00ff00. No human, skin, body, clothing, green guide marks, white mask outlines, cast shadows or text. Match the reference ink weight; neutral steel and warm brown leather in three flat tone steps with upper-left illumination. Do not crop or recenter the equipment."
+    },
+    {
+      "id": "pieces/hand_R_back/glove",
+      "stage": "registered_overlay",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_R_back__glove__registered_overlay__01.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the back of his right hand, fingers up, with the wrist and forearm. Paint him wearing a soft brown leather glove on each hand, with a short cuff, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nOUTPUT STAGE: Use image 1 only as the exact anatomy/placement reference; image 2 is the placement guide. Return the FINISHED ISOLATED EQUIPMENT OVERLAY, not the character wearing it. A plain soft brown leather glove with five fitted fingers, subtle seam lines, three short stitched lines on the back of the hand, and a SHORT cuff ending at y=1130. Exactly trace the five visible fingers in their existing spread pose and coordinates. No armor, buckles, metal, bare fingernails, or anatomical skin folds. Preserve the full 992 x 1568 canvas and the equipment's worn coordinates and scale. Everything except the visible equipment must be perfectly flat #00ff00. No human, skin, body, clothing, green guide marks, white mask outlines, cast shadows or text. Match the reference ink weight; neutral steel and warm brown leather in three flat tone steps with upper-left illumination. Do not crop or recenter the equipment."
+    },
+    {
+      "id": "pieces/right_arm_front/pauldron",
+      "stage": "registered_overlay",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_front__pauldron__registered_overlay__01.png",
+      "source_size": [
+        966,
+        1628
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from the front, up close. Paint him wearing a large steel pauldron over each shoulder: three overlapping lames curving down over the top of the arm, the top lame with a raised ridge on the neck side, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nOUTPUT STAGE: Use image 1 only as the exact anatomy/placement reference; image 2 is the placement guide. Return the FINISHED ISOLATED EQUIPMENT OVERLAY, not the character wearing it. Only the three overlapping plain steel shoulder lames within the highlighted shoulder silhouette x=485..765,y=205..700. The top lame has a raised rim on the neck side. Small functional rivets, no spikes, engraving, insignia, gold or extra straps across the chest. Preserve the full 960 x 1616 canvas and the equipment's worn coordinates and scale. Everything except the visible equipment must be perfectly flat #00ff00. No human, skin, body, clothing, green guide marks, white mask outlines, cast shadows or text. Match the reference ink weight; neutral steel and warm brown leather in three flat tone steps with upper-left illumination. Do not crop or recenter the equipment."
+    },
+    {
+      "id": "pieces/right_arm_front/bracer",
+      "stage": "registered_overlay",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_front__bracer__registered_overlay__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from the front, up close. Paint him wearing a short steel bracer round each wrist and the base of the forearm, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nOUTPUT STAGE: Use image 1 only as the exact anatomy/placement reference; image 2 is the placement guide. Return the FINISHED ISOLATED EQUIPMENT OVERLAY, not the character wearing it. Only the short plain steel wrist bracer, about 170 pixels tall, in the marked wrist area x=205..405,y=1205..1395. Preserve its diagonal perspective around the wrist. Simple rolled top/bottom rims, two small plain rivets; no hand armor, glove or longer forearm sleeve. Preserve the full 960 x 1616 canvas and the equipment's worn coordinates and scale. Everything except the visible equipment must be perfectly flat #00ff00. No human, skin, body, clothing, green guide marks, white mask outlines, cast shadows or text. Match the reference ink weight; neutral steel and warm brown leather in three flat tone steps with upper-left illumination. Do not crop or recenter the equipment."
+    },
+    {
+      "id": "pieces/head_front/great_helm",
+      "stage": "paint",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_front__great_helm__paint__02.png",
+      "source_size": [
+        980,
+        1605
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck from the front. Paint him wearing a great helm: a flat-topped steel cylinder enclosing the whole head down to the neck, with a narrow horizontal eye slit, rows of small breathing holes on the right of the face, a vertical riveted ridge down the middle of the face, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the fixed character base EDIT TARGET. Image 2 supplies the exact equipment design. Image 3 is the placement guide. Paint the character wearing the reference equipment at the guide's size and location. Fit the same plain steel cylinder to the head: top at about y=95, bottom at y=1210, width fitting the hair and ears. Narrow eye slit aligned with the eyes at y=670. Enclose head and ears fully. Keep the neck, shoulders and braid below it unchanged. Match the reference's center riveted bar and two rows of three breathing holes on the viewer left. Return the character wearing the equipment, with every unrelated pixel unchanged. Preserve the full 976 x 1600 canvas, body, anatomy, pose, crop, clothing and pure-green background. Do not show the guide, text, shadows or extra equipment. Strong dark #15101f outline, three flat material tones and upper-left illumination."
+    },
+    {
+      "id": "pieces/hand_R_back/glove",
+      "stage": "paint",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_R_back__glove__paint__02.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the back of his right hand, fingers up, with the wrist and forearm. Paint him wearing a soft brown leather glove on each hand, with a short cuff, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the fixed character base EDIT TARGET. Image 2 supplies the exact equipment design. Image 3 is the placement guide. Paint the character wearing the reference equipment at the guide's size and location. Fit the exact same soft brown glove to the five spread fingers. SHORT cuff: its bottom must end at the guide line around y=1135, immediately below the base of the palm. No glove pixels below y=1150. The wrist and forearm below remain unchanged and uncovered. Return the character wearing the equipment, with every unrelated pixel unchanged. Preserve the full 992 x 1568 canvas, body, anatomy, pose, crop, clothing and pure-green background. Do not show the guide, text, shadows or extra equipment. Strong dark #15101f outline, three flat material tones and upper-left illumination."
+    },
+    {
+      "id": "pieces/right_arm_front/pauldron",
+      "stage": "paint",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_front__pauldron__paint__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from the front, up close. Paint him wearing a large steel pauldron over each shoulder: three overlapping lames curving down over the top of the arm, the top lame with a raised ridge on the neck side, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the fixed character base EDIT TARGET. Image 2 supplies the exact equipment design. Image 3 is the placement guide. Paint the character wearing the reference equipment at the guide's size and location. Fit the reference's three lames to the narrow highlighted shoulder silhouette. Keep all armor between x=480..765 and y=200..735. The raised neck-side rim follows x=750. The armor must not extend across the right-side chest or below the deltoid. Do not enlarge the shoulder; trace the guide boundary. Keep the exposed chest and upper arm unchanged. Return the character wearing the equipment, with every unrelated pixel unchanged. Preserve the full 960 x 1616 canvas, body, anatomy, pose, crop, clothing and pure-green background. Do not show the guide, text, shadows or extra equipment. Strong dark #15101f outline, three flat material tones and upper-left illumination."
+    },
+    {
+      "id": "pieces/right_arm_front/bracer",
+      "stage": "paint",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_front__bracer__paint__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from the front, up close. Paint him wearing a short steel bracer round each wrist and the base of the forearm, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the fixed character base EDIT TARGET. Image 2 supplies the exact equipment design. Image 3 is the placement guide. Paint the character wearing the reference equipment at the guide's size and location. Fit the same steel bracer ONLY to the highlighted narrow wrist band. It must be short: top corners near (265,1205) and (395,1255), bottom corners near (215,1345) and (380,1400). Nothing above y=1195. The lower forearm above the band and the hand below remain unchanged and uncovered. Return the character wearing the equipment, with every unrelated pixel unchanged. Preserve the full 960 x 1616 canvas, body, anatomy, pose, crop, clothing and pure-green background. Do not show the guide, text, shadows or extra equipment. Strong dark #15101f outline, three flat material tones and upper-left illumination."
+    },
+    {
+      "id": "pieces/head_front/great_helm",
+      "stage": "fit_isolate",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_front__great_helm__fit_isolate__02.png",
+      "source_size": [
+        980,
+        1605
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the great helm: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the great helm exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Image 1 is the painted equipment edit target. Image 2 is a strict placement guide only. Keep only the steel helm. Expand its side walls slightly to cover the whole original hair-and-ear width, with the left wall near x=80 and right near x=890. Keep its current top and bottom heights. Remove every eye, eyebrow, skin, hair and braid pixel, including both eye slit openings: these openings must be pure green. Keep the narrow steel eye-slit rims, riveted center bar and breathing holes. No head, neck or shoulders. Preserve the full 976 x 1600 canvas, with pure #00ff00 replacing all unrelated pixels. Preserve the piece's material colors and clean dark ink. No recentering, cropping, new equipment, guide marks, cast shadow or text. The final image is equipment ONLY on green."
+    },
+    {
+      "id": "pieces/hand_R_back/glove",
+      "stage": "fit_isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_R_back__glove__fit_isolate__02.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the glove: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the glove exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Image 1 is the painted equipment edit target. Image 2 is a strict placement guide only. Keep only the leather glove. Shorten its cuff by removing the bottom 100 pixels of leather: the finished cuff must end at y=1135, leaving EVERYTHING below y=1145 pure green. Do not move or resize the fingers or palm. The remaining cuff is just a narrow leather hem, not a wide rectangular sleeve. No skin, wrist or forearm remains. Preserve the full 992 x 1568 canvas, with pure #00ff00 replacing all unrelated pixels. Preserve the piece's material colors and clean dark ink. No recentering, cropping, new equipment, guide marks, cast shadow or text. The final image is equipment ONLY on green."
+    },
+    {
+      "id": "pieces/right_arm_front/pauldron",
+      "stage": "fit_isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_front__pauldron__fit_isolate__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the pauldron: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the pauldron exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Image 1 is the painted equipment edit target. Image 2 is a strict placement guide only. Keep only the shoulder armor, but fit its perimeter strictly to the highlighted area in image 2. Narrow the neck-side edge to x=760, and shorten the overlapping outer lower lames so their lowest outer corner is around (500,550). Keep the top ridge near (740,205) and the back return near (720,680). Three short overlapping lames must stay over the shoulder cap; no steel beyond the guide's white boundary across the chest or down the exposed upper arm. No human, skin, arm or chest remains. Preserve the full 960 x 1616 canvas, with pure #00ff00 replacing all unrelated pixels. Preserve the piece's material colors and clean dark ink. No recentering, cropping, new equipment, guide marks, cast shadow or text. The final image is equipment ONLY on green."
+    },
+    {
+      "id": "pieces/right_arm_front/bracer",
+      "stage": "fit_isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_front__bracer__fit_isolate__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracer: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracer exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Image 1 is the painted equipment edit target. Image 2 is a strict placement guide only. Keep only the wrist armor. Shorten its upper end: move its TOP rim down about 65 pixels, closer to the bottom rim, while its bottom edge and horizontal position remain fixed. Its top should follow the guide near y=1205..1265 and bottom near y=1335..1395. Nothing remains above y=1195. Preserve the neutral steel rolled rims and plain side rivets. Preserve the full 960 x 1616 canvas, with pure #00ff00 replacing all unrelated pixels. Preserve the piece's material colors and clean dark ink. No recentering, cropping, new equipment, guide marks, cast shadow or text. The final image is equipment ONLY on green."
+    },
+    {
+      "id": "pieces/head_front/great_helm",
+      "stage": "expand_shell",
+      "attempt": 3,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_front__great_helm__expand_shell__03.png",
+      "source_size": [
+        980,
+        1605
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the isolated steel helmet edit target. Image 2 shows the full head it must cover. The existing helmet is TOO SMALL: hair protrudes above and beside it, ears protrude beside it, and beard protrudes below it. Expand ONLY the outer steel shell to surround ALL of that head. Make the helmet 20 percent WIDER and 12 percent TALLER: left edge x=65, right edge x=915, top edge y=85, bottom center y=1230 on the full 976 x 1600 canvas. Keep the eye openings at the same original y=650 level and x positions; do not move them with the outer shell. Preserve the plain flat top, center riveted bar, six breathing holes and steel palette. Return equipment ONLY: no human, skin, hair, ear, neck or shoulders. Green inside eye openings and everywhere else outside the expanded helmet is exact #00ff00. No frame, text or other objects."
+    },
+    {
+      "id": "pieces/figure_front/glove",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__glove__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a soft brown leather glove on each hand, with a short cuff, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET. Image 2 is the approved plain soft brown glove with a narrow cuff hem. Image 3 is the placement guide. Keep the exact 944 x 1664 canvas and original finger positions, spread, scale, pose and crop. Dress only the visible hands. The cuff is a NARROW hem at the guide's wrist edge, not a forearm sleeve. Match the three short stitched lines on the back of the glove. Keep every other body, clothing and background pixel unchanged. All five fingers are fully covered in brown leather with no nails or skin. Do not add rings, metal armor, studs, buckles or long cuffs. No guide marks or text."
+    },
+    {
+      "id": "pieces/figure_back/glove",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__glove__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a soft brown leather glove on each hand, with a short cuff, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET. Image 2 is the approved plain soft brown glove with a narrow cuff hem. Image 3 is the placement guide. Keep the exact 944 x 1664 canvas and original finger positions, spread, scale, pose and crop. Dress only the visible hands. The cuff is a NARROW hem at the guide's wrist edge, not a forearm sleeve. This view shows the glove PALMS: use plain brown leather with subtle fold lines, no back-of-hand three-stripe stitching on the palm. Keep every other body, clothing and background pixel unchanged. All five fingers are fully covered in brown leather with no nails or skin. Do not add rings, metal armor, studs, buckles or long cuffs. No guide marks or text."
+    },
+    {
+      "id": "pieces/hand_L_back/glove",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_L_back__glove__paint__01.png",
+      "source_size": [
+        1011,
+        1556
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the back of his left hand, fingers up, with the wrist and forearm. Paint him wearing a soft brown leather glove on each hand, with a short cuff, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET. Image 2 is the approved plain soft brown glove with a narrow cuff hem. Image 3 is the placement guide. Keep the exact 1008 x 1552 canvas and original finger positions, spread, scale, pose and crop. Dress only the visible hands. The cuff is a NARROW hem at the guide's wrist edge, not a forearm sleeve. Match the three short stitched lines on the back of the glove. Keep every other body, clothing and background pixel unchanged. All five fingers are fully covered in brown leather with no nails or skin. Do not add rings, metal armor, studs, buckles or long cuffs. No guide marks or text."
+    },
+    {
+      "id": "pieces/hand_L_palm/glove",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_L_palm__glove__paint__01.png",
+      "source_size": [
+        1016,
+        1548
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the palm of his left hand, fingers up, with the wrist and forearm. Paint him wearing a soft brown leather glove on each hand, with a short cuff, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET. Image 2 is the approved plain soft brown glove with a narrow cuff hem. Image 3 is the placement guide. Keep the exact 1008 x 1536 canvas and original finger positions, spread, scale, pose and crop. Dress only the visible hands. The cuff is a NARROW hem at the guide's wrist edge, not a forearm sleeve. This view shows the glove PALMS: use plain brown leather with subtle fold lines, no back-of-hand three-stripe stitching on the palm. Keep every other body, clothing and background pixel unchanged. All five fingers are fully covered in brown leather with no nails or skin. Do not add rings, metal armor, studs, buckles or long cuffs. No guide marks or text."
+    },
+    {
+      "id": "pieces/hand_R_palm/glove",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_R_palm__glove__paint__01.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the palm of his right hand, fingers up, with the wrist and forearm. Paint him wearing a soft brown leather glove on each hand, with a short cuff, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET. Image 2 is the approved plain soft brown glove with a narrow cuff hem. Image 3 is the placement guide. Keep the exact 992 x 1568 canvas and original finger positions, spread, scale, pose and crop. Dress only the visible hands. The cuff is a NARROW hem at the guide's wrist edge, not a forearm sleeve. This view shows the glove PALMS: use plain brown leather with subtle fold lines, no back-of-hand three-stripe stitching on the palm. Keep every other body, clothing and background pixel unchanged. All five fingers are fully covered in brown leather with no nails or skin. Do not add rings, metal armor, studs, buckles or long cuffs. No guide marks or text."
+    },
+    {
+      "id": "pieces/head_front/great_helm",
+      "stage": "align_shell",
+      "attempt": 4,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_front__great_helm__align_shell__04.png",
+      "source_size": [
+        980,
+        1605
+      ],
+      "prompt": "Use case: precise-object-edit. Keep this full 976 x 1600 canvas. Correct only the helmet's vertical placement and lower length. First translate the entire helmet UP by 80 pixels, with no horizontal movement or width change. This puts the eye openings near y=670 and the top near y=85. Then shorten the very BOTTOM of the helmet by removing the lowest 120 pixels of steel and recreating the same rolled bottom rim at y=1230. Do not move the eye slit when shortening the bottom. The finished helmet must have a small green gap above it and a LARGE empty pure-green area below it, roughly the bottom quarter of the canvas. Retain the same broad width, center bar, steel colors, holes and ink. Equipment only on exact #00ff00. No human, shadows, cropping, text or extra objects."
+    },
+    {
+      "id": "pieces/figure_front/glove",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__glove__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gloves: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gloves exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the FULL 944 x 1664 canvas, glove positions, size, finger spread and narrow cuff hems. Keep ONLY the visible brown leather gloves. Replace every body, face, skin, wrist, clothing and non-glove pixel with flat pure #00ff00. The two small gloves remain at their exact original hand coordinates in the lower left and lower right of this large green canvas. Never enlarge or recenter them. No shadow, other object, guide or text."
+    },
+    {
+      "id": "pieces/figure_back/glove",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__glove__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gloves: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gloves exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the FULL 944 x 1664 canvas, glove positions, size, finger spread and narrow cuff hems. Keep ONLY the visible brown leather gloves. Replace every body, face, skin, wrist, clothing and non-glove pixel with flat pure #00ff00. The two small gloves remain at their exact original hand coordinates in the lower left and lower right of this large green canvas. Never enlarge or recenter them. No shadow, other object, guide or text."
+    },
+    {
+      "id": "pieces/hand_L_back/glove",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_L_back__glove__isolate__01.png",
+      "source_size": [
+        1019,
+        1543
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the glove: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the glove exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the FULL 1008 x 1552 canvas, glove positions, size, finger spread and narrow cuff hems. Keep ONLY the visible brown leather gloves. Replace every body, face, skin, wrist, clothing and non-glove pixel with flat pure #00ff00. Do not move the fingers or cuff; remove the forearm below the cuff completely. No shadow, other object, guide or text."
+    },
+    {
+      "id": "pieces/hand_L_palm/glove",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_L_palm__glove__isolate__01.png",
+      "source_size": [
+        1016,
+        1548
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the glove: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the glove exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the FULL 1008 x 1536 canvas, glove positions, size, finger spread and narrow cuff hems. Keep ONLY the visible brown leather gloves. Replace every body, face, skin, wrist, clothing and non-glove pixel with flat pure #00ff00. Do not move the fingers or cuff; remove the forearm below the cuff completely. No shadow, other object, guide or text."
+    },
+    {
+      "id": "pieces/hand_R_palm/glove",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_R_palm__glove__isolate__01.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the glove: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the glove exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPreserve the FULL 992 x 1568 canvas, glove positions, size, finger spread and narrow cuff hems. Keep ONLY the visible brown leather gloves. Replace every body, face, skin, wrist, clothing and non-glove pixel with flat pure #00ff00. Do not move the fingers or cuff; remove the forearm below the cuff completely. No shadow, other object, guide or text."
+    },
+    {
+      "id": "pieces/left_arm_front/bracer",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_front__bracer__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from the front, up close. Paint him wearing a short steel bracer round each wrist and the base of the forearm, inside the masked area only, fitted to him exactly as he is drawn. Only his left one is in this picture (on the viewer's right): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET; image 2 is the approved equipment design; image 3 is a placement guide. Preserve the full 960 x 1616 canvas, pose, anatomy, fingers and edge crop. Match the SHORT steel wrist bracer, with two rolled rims, plain neutral steel and two small side rivets. The top rim is close to the wrist, only inside the highlighted band; do not make a long forearm sleeve. The hand remains bare. This is the FRONT view. Change only the equipment site. Keep all other human, clothing and background pixels unchanged. No new accessories, text, guide marks, symbols or shadows."
+    },
+    {
+      "id": "pieces/left_arm_back/bracer",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_back__bracer__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from behind, up close. Paint him wearing a short steel bracer round each wrist and the base of the forearm, inside the masked area only, fitted to him exactly as he is drawn. Only his left one is in this picture (on the viewer's left): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET; image 2 is the approved equipment design; image 3 is a placement guide. Preserve the full 960 x 1616 canvas, pose, anatomy, fingers and edge crop. Match the SHORT steel wrist bracer, with two rolled rims, plain neutral steel and two small side rivets. The top rim is close to the wrist, only inside the highlighted band; do not make a long forearm sleeve. The hand remains bare. This is a REAR view: show the same piece's rear surface following the body perspective. Change only the equipment site. Keep all other human, clothing and background pixels unchanged. No new accessories, text, guide marks, symbols or shadows."
+    },
+    {
+      "id": "pieces/left_arm_front/pauldron",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_front__pauldron__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from the front, up close. Paint him wearing a large steel pauldron over each shoulder: three overlapping lames curving down over the top of the arm, the top lame with a raised ridge on the neck side, inside the masked area only, fitted to him exactly as he is drawn. Only his left one is in this picture (on the viewer's right): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET; image 2 is the approved equipment design; image 3 is a placement guide. Preserve the full 960 x 1616 canvas, pose, anatomy, fingers and edge crop. Match the compact three-lame steel shoulder plate exactly, including the raised neck-side rim and plain functional rivets. Fit the shoulder's existing curve and the guide's permitted width and height; no plate may cross across the torso or reach the elbow. No leather strap. This is the FRONT view. Change only the equipment site. Keep all other human, clothing and background pixels unchanged. No new accessories, text, guide marks, symbols or shadows."
+    },
+    {
+      "id": "pieces/left_arm_back/pauldron",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_back__pauldron__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from behind, up close. Paint him wearing a large steel pauldron over each shoulder: three overlapping lames curving down over the top of the arm, the top lame with a raised ridge on the neck side, inside the masked area only, fitted to him exactly as he is drawn. Only his left one is in this picture (on the viewer's left): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET; image 2 is the approved equipment design; image 3 is a placement guide. Preserve the full 960 x 1616 canvas, pose, anatomy, fingers and edge crop. Match the compact three-lame steel shoulder plate exactly, including the raised neck-side rim and plain functional rivets. Fit the shoulder's existing curve and the guide's permitted width and height; no plate may cross across the torso or reach the elbow. No leather strap. This is a REAR view: show the same piece's rear surface following the body perspective. Change only the equipment site. Keep all other human, clothing and background pixels unchanged. No new accessories, text, guide marks, symbols or shadows."
+    },
+    {
+      "id": "pieces/right_arm_back/pauldron",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_back__pauldron__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from behind, up close. Paint him wearing a large steel pauldron over each shoulder: three overlapping lames curving down over the top of the arm, the top lame with a raised ridge on the neck side, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's right): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET; image 2 is the approved equipment design; image 3 is a placement guide. Preserve the full 960 x 1616 canvas, pose, anatomy, fingers and edge crop. Match the compact three-lame steel shoulder plate exactly, including the raised neck-side rim and plain functional rivets. Fit the shoulder's existing curve and the guide's permitted width and height; no plate may cross across the torso or reach the elbow. No leather strap. This is a REAR view: show the same piece's rear surface following the body perspective. Change only the equipment site. Keep all other human, clothing and background pixels unchanged. No new accessories, text, guide marks, symbols or shadows."
+    },
+    {
+      "id": "pieces/right_arm_back/bracer",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_back__bracer__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from behind, up close. Paint him wearing a short steel bracer round each wrist and the base of the forearm, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's right): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character EDIT TARGET; image 2 is the approved equipment design; image 3 is a placement guide. Preserve the full 960 x 1616 canvas, pose, anatomy, fingers and edge crop. Match the SHORT steel wrist bracer, with two rolled rims, plain neutral steel and two small side rivets. The top rim is close to the wrist, only inside the highlighted band; do not make a long forearm sleeve. The hand remains bare. This is a REAR view: show the same piece's rear surface following the body perspective. Change only the equipment site. Keep all other human, clothing and background pixels unchanged. No new accessories, text, guide marks, symbols or shadows."
+    },
+    {
+      "id": "pieces/left_arm_front/bracer",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_front__bracer__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracer: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracer exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nKeep ONLY the visible short steel wrist bracer at its EXACT current coordinates, scale, perspective and rotation on the full 960 x 1616 canvas. All human, skin, arm, hand, torso, hair and clothing pixels become perfectly flat #00ff00. Do not move, recenter, enlarge, mirror, crop or complete occluded parts. Preserve every steel rivet, rolled rim, plate seam and clean dark outline. No cast shadow, guide line, text or new object."
+    },
+    {
+      "id": "pieces/left_arm_back/bracer",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_back__bracer__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracer: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracer exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nKeep ONLY the visible short steel wrist bracer at its EXACT current coordinates, scale, perspective and rotation on the full 960 x 1616 canvas. All human, skin, arm, hand, torso, hair and clothing pixels become perfectly flat #00ff00. Do not move, recenter, enlarge, mirror, crop or complete occluded parts. Preserve every steel rivet, rolled rim, plate seam and clean dark outline. No cast shadow, guide line, text or new object."
+    },
+    {
+      "id": "pieces/left_arm_front/pauldron",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_front__pauldron__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the pauldron: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the pauldron exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nKeep ONLY the visible three-lame steel shoulder plate at its EXACT current coordinates, scale, perspective and rotation on the full 960 x 1616 canvas. All human, skin, arm, hand, torso, hair and clothing pixels become perfectly flat #00ff00. Do not move, recenter, enlarge, mirror, crop or complete occluded parts. Preserve every steel rivet, rolled rim, plate seam and clean dark outline. No cast shadow, guide line, text or new object."
+    },
+    {
+      "id": "pieces/left_arm_back/pauldron",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_back__pauldron__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the pauldron: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the pauldron exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nKeep ONLY the visible three-lame steel shoulder plate at its EXACT current coordinates, scale, perspective and rotation on the full 960 x 1616 canvas. All human, skin, arm, hand, torso, hair and clothing pixels become perfectly flat #00ff00. Do not move, recenter, enlarge, mirror, crop or complete occluded parts. Preserve every steel rivet, rolled rim, plate seam and clean dark outline. No cast shadow, guide line, text or new object."
+    },
+    {
+      "id": "pieces/right_arm_back/pauldron",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_back__pauldron__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the pauldron: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the pauldron exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nKeep ONLY the visible three-lame steel shoulder plate at its EXACT current coordinates, scale, perspective and rotation on the full 960 x 1616 canvas. All human, skin, arm, hand, torso, hair and clothing pixels become perfectly flat #00ff00. Do not move, recenter, enlarge, mirror, crop or complete occluded parts. Preserve every steel rivet, rolled rim, plate seam and clean dark outline. No cast shadow, guide line, text or new object."
+    },
+    {
+      "id": "pieces/right_arm_back/bracer",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_back__bracer__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracer: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracer exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nKeep ONLY the visible short steel wrist bracer at its EXACT current coordinates, scale, perspective and rotation on the full 960 x 1616 canvas. All human, skin, arm, hand, torso, hair and clothing pixels become perfectly flat #00ff00. Do not move, recenter, enlarge, mirror, crop or complete occluded parts. Preserve every steel rivet, rolled rim, plate seam and clean dark outline. No cast shadow, guide line, text or new object."
+    },
+    {
+      "id": "pieces/figure_front/great_helm",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__great_helm__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a great helm: a flat-topped steel cylinder enclosing the whole head down to the neck, with a narrow horizontal eye slit, rows of small breathing holes on the right of the face, a vertical riveted ridge down the middle of the face, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character edit target; image 2 is the approved broad steel great helm; image 3 is the placement guide. This is the full-figure FRONT view. Fit the helmet over the small existing head near the top of the figure. Cover all hair above the neck and both ears. The eye slit aligns with his existing eyes. Leave the rest of the figure, braies, hands and feet unchanged. Use the same plain steel flat-topped cylinder with a rolled rim, minimal rivets and no decoration. Make it large enough to contain the original head outline; no hair or ears poking through its walls. Preserve the full 944 x 1664 canvas, original head position, pose, perspective, neck, shoulders, all other pixels and pure-green background. No recentering, crop, new armor, cloth hood, plume, text or guide marks."
+    },
+    {
+      "id": "pieces/figure_back/great_helm",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__great_helm__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a great helm: a flat-topped steel cylinder enclosing the whole head down to the neck, with a narrow horizontal eye slit, rows of small breathing holes on the right of the face, a vertical riveted ridge down the middle of the face, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character edit target; image 2 is the approved broad steel great helm; image 3 is the placement guide. This is the full-figure BACK view. Show the plain rear curved steel wall and flat top of the same helmet, with rolled rims and a quiet riveted center seam. NO eye slit, front center face bar, breathing holes or face visible on the back. Cover the entire skull and ears, while the existing braid emerges naturally below the rear rim. Use the same plain steel flat-topped cylinder with a rolled rim, minimal rivets and no decoration. Make it large enough to contain the original head outline; no hair or ears poking through its walls. Preserve the full 944 x 1664 canvas, original head position, pose, perspective, neck, shoulders, all other pixels and pure-green background. No recentering, crop, new armor, cloth hood, plume, text or guide marks."
+    },
+    {
+      "id": "pieces/head_right/great_helm",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_right__great_helm__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his right side to us. Paint him wearing a great helm: a flat-topped steel cylinder enclosing the whole head down to the neck, with a narrow horizontal eye slit, rows of small breathing holes on the right of the face, a vertical riveted ridge down the middle of the face, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character edit target; image 2 is the approved broad steel great helm; image 3 is the placement guide. This is the RIGHT SIDE of the helmet, with the character looking LEFT. Show a side profile that completely encloses the existing nose, beard, ear and cranial hair. The front center bar is on the far LEFT edge; only a foreshortened short eye slit is visible near the front. Show the two rows of three breathing holes on this right face side. The shell extends around the back of the head; keep the braid below the rear rim. Use the same plain steel flat-topped cylinder with a rolled rim, minimal rivets and no decoration. Make it large enough to contain the original head outline; no hair or ears poking through its walls. Preserve the full 1024 x 1504 canvas, original head position, pose, perspective, neck, shoulders, all other pixels and pure-green background. No recentering, crop, new armor, cloth hood, plume, text or guide marks."
+    },
+    {
+      "id": "pieces/head_left/great_helm",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_left__great_helm__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his left side to us. Paint him wearing a great helm: a flat-topped steel cylinder enclosing the whole head down to the neck, with a narrow horizontal eye slit, rows of small breathing holes on the right of the face, a vertical riveted ridge down the middle of the face, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the fixed character edit target; image 2 is the approved broad steel great helm; image 3 is the placement guide. This is the LEFT SIDE of the helmet, with the character looking RIGHT. Enclose the whole nose, beard, ear and cranial hair. The front center bar is on the far RIGHT edge; only a foreshortened short eye slit is visible near the front. This left side has a plain unperforated steel cheek: NO breathing holes on this side. Keep the braid below the rear rim. Use the same plain steel flat-topped cylinder with a rolled rim, minimal rivets and no decoration. Make it large enough to contain the original head outline; no hair or ears poking through its walls. Preserve the full 1024 x 1504 canvas, original head position, pose, perspective, neck, shoulders, all other pixels and pure-green background. No recentering, crop, new armor, cloth hood, plume, text or guide marks."
+    },
+    {
+      "id": "pieces/left_arm_front/pauldron",
+      "stage": "mirror_fit",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_front__pauldron__mirror_fit__02.png",
+      "source_size": [
+        966,
+        1628
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the approved matching shoulder armor on its full 960 x 1616 green canvas. Make its opposite-side view by mirroring its exact placement and outline HORIZONTALLY across the CENTER OF THE FULL CANVAS. Do not center the object itself. Image 2 shows the required opposite shoulder position. Preserve the same top height, bottom height, compact three-lame design, raised neck-side rim, rivets and scale. Keep the mirrored armor tightly fitted to the highlighted shoulder, with no extension beyond its boundary. Light still comes from upper left, so keep the neutral steel three-tone shading consistent. Output only the armor on pure #00ff00, no body, skin, guide line, shadow or text. Full 960 x 1616 canvas."
+    },
+    {
+      "id": "pieces/right_arm_back/pauldron",
+      "stage": "mirror_fit",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_back__pauldron__mirror_fit__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the approved matching shoulder armor on its full 960 x 1616 green canvas. Make its opposite-side view by mirroring its exact placement and outline HORIZONTALLY across the CENTER OF THE FULL CANVAS. Do not center the object itself. Image 2 shows the required opposite shoulder position. Preserve the same top height, bottom height, compact three-lame design, raised neck-side rim, rivets and scale. Keep the mirrored armor tightly fitted to the highlighted shoulder, with no extension beyond its boundary. Light still comes from upper left, so keep the neutral steel three-tone shading consistent. Output only the armor on pure #00ff00, no body, skin, guide line, shadow or text. Full 960 x 1616 canvas."
+    },
+    {
+      "id": "pieces/figure_front/great_helm",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__great_helm__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target, a painted equipment try-on. This is an edit of the attached picture. Keep only the great helm: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the great helm exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Output canvas 944 x 1664 pixels. Fixed registration is essential: no zoom, no crop, no translation, no centering, no enlargement. Keep the helmet at exactly its present position and size. Remove the complete human body, hair, braid, beard, eyes, skin and every non-helmet pixel to pure #00ff00. Preserve clean dark ink outlines. Keep the existing neutral steel tones and geometry. No text, watermark, frame or shadow."
+    },
+    {
+      "id": "pieces/figure_back/great_helm",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__great_helm__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target, a painted equipment try-on. This is an edit of the attached picture. Keep only the great helm: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the great helm exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Output canvas 944 x 1664 pixels. Fixed registration is essential: no zoom, no crop, no translation, no centering, no enlargement. Keep the helmet at exactly its present position and size. Remove the complete human body, hair, braid, beard, eyes, skin and every non-helmet pixel to pure #00ff00. Preserve clean dark ink outlines. Keep the existing neutral steel tones and geometry. No text, watermark, frame or shadow."
+    },
+    {
+      "id": "pieces/head_right/great_helm",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_right__great_helm__isolate__01.png",
+      "source_size": [
+        1035,
+        1519
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target, a painted equipment try-on. This is an edit of the attached picture. Keep only the great helm: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the great helm exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Output canvas 1024 x 1504 pixels. Fixed registration is essential: no zoom, no crop, no translation, no centering, no enlargement. Keep the helmet at exactly its present position and size. Remove the complete human body, hair, braid, beard, eyes, skin and every non-helmet pixel to pure #00ff00. Preserve clean dark ink outlines. Keep the existing neutral steel tones and geometry. No text, watermark, frame or shadow. One small correction: the visible right cheek must have SIX small round dark ventilation holes arranged in TWO horizontal rows of THREE, to match the front master. Only revise these holes; do not change the shell. Replace the visible eye and skin inside the narrow eye slit with pure green."
+    },
+    {
+      "id": "pieces/head_left/great_helm",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_left__great_helm__isolate__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target, a painted equipment try-on. This is an edit of the attached picture. Keep only the great helm: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the great helm exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Output canvas 1024 x 1504 pixels. Fixed registration is essential: no zoom, no crop, no translation, no centering, no enlargement. Keep the helmet at exactly its present position and size. Remove the complete human body, hair, braid, beard, eyes, skin and every non-helmet pixel to pure #00ff00. Preserve clean dark ink outlines. Keep the existing neutral steel tones and geometry. No text, watermark, frame or shadow. The left cheek is plain and unperforated. Replace the visible eye and skin inside the narrow eye slit with pure green."
+    },
+    {
+      "id": "pieces/figure_front/great_helm",
+      "stage": "crown_fit",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__great_helm__crown_fit__02.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Edit this registered isolated helmet on its green canvas. Canvas 944 x 1664. Make ONE small correction: extend the top crown of the helmet upward by 7 pixels, from about y278 to y271, without changing its width, lower rim, eye slits, holes, face bar, scale, position or other details. This will cover a tiny hair tuft on the underlying base. Keep the helmet at x390..553 and its bottom at y478. Preserve the plain steel cel tones and dark ink. Keep everything else pure #00ff00. Do not center, enlarge, crop, add a person or add any text."
     }
   ]
 }

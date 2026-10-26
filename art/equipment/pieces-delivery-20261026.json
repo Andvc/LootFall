@@ -3,8 +3,8 @@
   "status": "partial_delivery",
   "based_on": "e0ede57368aa1bde6e94a6baf67898631053183c",
   "requested_files": 869,
-  "delivered_files": 64,
-  "remaining_files": 805,
+  "delivered_files": 83,
+  "remaining_files": 786,
   "assets": [
     {
       "id": "plates/neck",
@@ -1093,6 +1093,329 @@
       ],
       "selected_stage": "isolate",
       "selected_attempt": 2
+    },
+    {
+      "id": "pieces/head_front/great_helm",
+      "file": "art/equipment/pieces/head_front/great_helm.png",
+      "batch": 1,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "7a8f71b892aedd5fc4a4cfb154f8cf0fd69aaba32d2aa868cce242d5093debb5",
+      "original_size": [
+        980,
+        1605
+      ],
+      "selected_stage": "align_shell",
+      "selected_attempt": 4
+    },
+    {
+      "id": "pieces/hand_R_back/glove",
+      "file": "art/equipment/pieces/hand_R_back/glove.png",
+      "batch": 1,
+      "size": [
+        992,
+        1568
+      ],
+      "format": "RGB",
+      "sha256": "8f2a3e6135e4cc21a6cb4f2f83f30df0843ff6f5cf00860c42c6b77f92aeed38",
+      "original_size": [
+        997,
+        1577
+      ],
+      "selected_stage": "fit_isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/right_arm_front/pauldron",
+      "file": "art/equipment/pieces/right_arm_front/pauldron.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "e491c247872fa0b3bd1ce548893a0484947a61398fc396239456e889c91715a0",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "fit_isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/right_arm_front/bracer",
+      "file": "art/equipment/pieces/right_arm_front/bracer.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "cf0d800a7e9707c97eeaea85193170e1d51aab35d70a7ea2676f204e8fc4f9de",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "fit_isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/figure_front/glove",
+      "file": "art/equipment/pieces/figure_front/glove.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "67e44e847ad5690f8096af010b8769accd4cac50b164e872157154eb970c3b97",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/glove",
+      "file": "art/equipment/pieces/figure_back/glove.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "7e4875c9feba0943887c64a57a59f812cb861bc2fc03222258c589330333757e",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_back/glove",
+      "file": "art/equipment/pieces/hand_L_back/glove.png",
+      "batch": 1,
+      "size": [
+        1008,
+        1552
+      ],
+      "format": "RGB",
+      "sha256": "ded2ed689e56d169537d17c3b7e3691d4759de58270289baf4d99f1be5dd2e60",
+      "original_size": [
+        1019,
+        1543
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_palm/glove",
+      "file": "art/equipment/pieces/hand_L_palm/glove.png",
+      "batch": 1,
+      "size": [
+        1008,
+        1536
+      ],
+      "format": "RGB",
+      "sha256": "b8c06a4cef8379ec4e1db1544e0d202015c896d032e6f7a7718af2d58cbbaa8a",
+      "original_size": [
+        1016,
+        1548
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_R_palm/glove",
+      "file": "art/equipment/pieces/hand_R_palm/glove.png",
+      "batch": 1,
+      "size": [
+        992,
+        1568
+      ],
+      "format": "RGB",
+      "sha256": "f7d2f796fa99d398e03d19472354b0fd81af44f485400a099fc2551eaa29f3d4",
+      "original_size": [
+        997,
+        1577
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_front/bracer",
+      "file": "art/equipment/pieces/left_arm_front/bracer.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "59333e3130cb99bc304e3c8153de670627992aa48ba289200d69c6d713a79a6a",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_back/bracer",
+      "file": "art/equipment/pieces/left_arm_back/bracer.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "18266ce8a6f9a932fc369ead784d7131e313028087ad7ac0e35499e2c6e613e8",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_front/pauldron",
+      "file": "art/equipment/pieces/left_arm_front/pauldron.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "a4c28a18230cec0f67d4af37e1d56c229f3216217378cc781a68fc0ec033aed0",
+      "original_size": [
+        966,
+        1628
+      ],
+      "selected_stage": "mirror_fit",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/left_arm_back/pauldron",
+      "file": "art/equipment/pieces/left_arm_back/pauldron.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "7a854e8d3dd39a2de664cdcdec6dfd306f87630639a6787ba3847dace2481f90",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_back/pauldron",
+      "file": "art/equipment/pieces/right_arm_back/pauldron.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "cebb55dd34e4df5b2215f3b9b779eb4e59964b082d649ea4e8e5fe88c526a8cc",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "mirror_fit",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/right_arm_back/bracer",
+      "file": "art/equipment/pieces/right_arm_back/bracer.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "85cec434a2f3472b3550a29f932364c01e760eac60a3f12e20d49ff35d1c0288",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/great_helm",
+      "file": "art/equipment/pieces/figure_front/great_helm.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "6efc0e7d021a7a94259659e613bd1d801f2b9825a5c8f5ffa6cadf08d4abeba2",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "crown_fit",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/figure_back/great_helm",
+      "file": "art/equipment/pieces/figure_back/great_helm.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "68c1a93e99f5ec91ca4471e8b64438647edc9b2ba1bbb35b617e734569244eb0",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_right/great_helm",
+      "file": "art/equipment/pieces/head_right/great_helm.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "53d41fa53c8b618944fda3bf230a646427d3acb3f1bb258e1f8960e17028f485",
+      "original_size": [
+        1035,
+        1519
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_left/great_helm",
+      "file": "art/equipment/pieces/head_left/great_helm.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "5bce3734e90da87e7e7928badbe427ef31be6cfff2370dd0820864dac0829068",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
     }
   ]
 }
