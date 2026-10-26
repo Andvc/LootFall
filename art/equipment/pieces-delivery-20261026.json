@@ -3,8 +3,8 @@
   "status": "partial_delivery",
   "based_on": "e0ede57368aa1bde6e94a6baf67898631053183c",
   "requested_files": 869,
-  "delivered_files": 47,
-  "remaining_files": 822,
+  "delivered_files": 64,
+  "remaining_files": 805,
   "assets": [
     {
       "id": "plates/neck",
@@ -804,6 +804,295 @@
       ],
       "selected_stage": "isolate",
       "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_front/cuisse",
+      "file": "art/equipment/pieces/right_leg_front/cuisse.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "8bc0dd59d78204fed4edee704c4c303bd3c1bb6b9ee58e2e5bbf6c5570fa638f",
+      "original_size": [
+        871,
+        1805
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_right/hair_pin",
+      "file": "art/equipment/pieces/head_right/hair_pin.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "eee2a5267bfaff6b3e9dfd766071a057f5ba20e29fbb6292bc268b4114e4bcdc",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/torso/pectoral_plate",
+      "file": "art/equipment/pieces/torso/pectoral_plate.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "23eecf259e54429bd581f8652bc90503ec2d50655e6cb2c15946261bad0c9924",
+      "original_size": [
+        1111,
+        1415
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_front/greave",
+      "file": "art/equipment/pieces/right_leg_front/greave.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "787e7352047f86313f3d999b11d31eaa25eac9e66854d6d0fb04689e3ff19246",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/back/kidney_dagger",
+      "file": "art/equipment/pieces/back/kidney_dagger.png",
+      "batch": 1,
+      "size": [
+        1088,
+        1440
+      ],
+      "format": "RGB",
+      "sha256": "4be7e9860ccaf5e2fbe78f83d321cf6eb2e1a1b457ab4e06ba78fcc8cad260a6",
+      "original_size": [
+        1090,
+        1443
+      ],
+      "selected_stage": "fit_isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/waist_front/tasset",
+      "file": "art/equipment/pieces/waist_front/tasset.png",
+      "batch": 1,
+      "size": [
+        1504,
+        1024
+      ],
+      "format": "RGB",
+      "sha256": "da1da538f154be30743831abb7891c8ea1ee5096e629961c0e96f62c639cc328",
+      "original_size": [
+        1519,
+        1035
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/torso/plackart",
+      "file": "art/equipment/pieces/torso/plackart.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "7a0fb6bd60f65e3358a48c9b4bd12972532403c3d68372fad61da07f045a17e3",
+      "original_size": [
+        1111,
+        1416
+      ],
+      "selected_stage": "fit_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/torso/brooch",
+      "file": "art/equipment/pieces/torso/brooch.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "32bafe89c85d55b972fef36af2548a07a9ac0baf00cc13933cf2f4f3d1d00f66",
+      "original_size": [
+        1111,
+        1416
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_front/armlet",
+      "file": "art/equipment/pieces/right_arm_front/armlet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "8b69a1b029b63c0c772e02d60ec16f5f628e35919494cc73dc2500dc133cc161",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "clean_key",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/right_leg_back/cuisse",
+      "file": "art/equipment/pieces/right_leg_back/cuisse.png",
+      "batch": 1,
+      "size": [
+        880,
+        1760
+      ],
+      "format": "RGB",
+      "sha256": "de9d0c436b724427485b9d7de0da9179840a4a9d5ba64953a4c5e430be26677c",
+      "original_size": [
+        887,
+        1774
+      ],
+      "selected_stage": "align_upper",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/left_leg_front/cuisse",
+      "file": "art/equipment/pieces/left_leg_front/cuisse.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "da4f1607546b35f4b8dde176030dbbc7aac55cff57dbd792461f136602bf025e",
+      "original_size": [
+        872,
+        1804
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_back/cuisse",
+      "file": "art/equipment/pieces/left_leg_back/cuisse.png",
+      "batch": 1,
+      "size": [
+        896,
+        1744
+      ],
+      "format": "RGB",
+      "sha256": "c7c6e342bcbdc90b7c390e5310f00f88847aaeab049c13607096c5f4a46df624",
+      "original_size": [
+        899,
+        1750
+      ],
+      "selected_stage": "extend_upper",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/head_front/hair_pin",
+      "file": "art/equipment/pieces/head_front/hair_pin.png",
+      "batch": 1,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "23df66070b72e325e6262641bd1ea81df2a9184baea422459ece2ac2288df54a",
+      "original_size": [
+        980,
+        1605
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_left/hair_pin",
+      "file": "art/equipment/pieces/head_left/hair_pin.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "15b2c88c51840ebcf59b18347ce313bfedf7072dc9442f29e4b00814e48fc9e6",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_back/greave",
+      "file": "art/equipment/pieces/right_leg_back/greave.png",
+      "batch": 1,
+      "size": [
+        880,
+        1760
+      ],
+      "format": "RGB",
+      "sha256": "f5ce4d02aaaa8596bce04454fe6ae15ac97df1dded61b9587d22d4bf72f24fea",
+      "original_size": [
+        887,
+        1774
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_back/greave",
+      "file": "art/equipment/pieces/left_leg_back/greave.png",
+      "batch": 1,
+      "size": [
+        896,
+        1744
+      ],
+      "format": "RGB",
+      "sha256": "464aacf93b3dc87b2692b8db1dd2db3f04c13b1a5060363a9c923f7db504f35b",
+      "original_size": [
+        899,
+        1750
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_front/greave",
+      "file": "art/equipment/pieces/left_leg_front/greave.png",
+      "batch": 1,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "65c5b9777b9e46eda805e6681230702cd5fae46c7dac97e5c30a4197afb25aac",
+      "original_size": [
+        871,
+        1805
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 2
     }
   ]
 }

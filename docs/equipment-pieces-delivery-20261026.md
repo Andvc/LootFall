@@ -1,6 +1,6 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies 47 requested files: the 13 bare-region plates, all 13 starting-equipment views, and the cloak, bracelet and gauntlet families. The full 869-file phase-2 checklist is authorized for production and incremental upload in upstream order, with family masters produced before their dependent views. This remains a partial delivery based on commit `e0ede57368aa1bde6e94a6baf67898631053183c`.
+This checkpoint supplies 64 requested files: the 13 bare-region plates, all 13 starting-equipment views, and the equipment families listed below. The full 869-file phase-2 checklist is authorized for production and incremental upload in upstream order, with family masters produced before their dependent views. This remains a partial delivery based on commit `e0ede57368aa1bde6e94a6baf67898631053183c`.
 
 | Group | Files | Contents |
 |---|---:|---|
@@ -12,7 +12,16 @@ This checkpoint supplies 47 requested files: the 13 bare-region plates, all 13 s
 | Cloak | 7 | Whole figure front/back, back plate, and four arm views |
 | Bracelet | 4 | Both arms from front and back; plain band and wooden beads |
 | Gauntlet | 10 | Whole figure front/back, four arm views, and both hands' backs and palms |
-| Total | 47 | One design per family, with no extra variants |
+| Cuisse | 4 | Both thighs from front and back |
+| Hair pin | 3 | Head front, right and left |
+| Pectoral plate | 1 | Paired steel chest plates |
+| Greave | 4 | Both lower legs from front and back |
+| Kidney dagger | 1 | Paired sheathed daggers on the lower back |
+| Tasset | 1 | Paired hip plates on the front waist |
+| Armlet | 1 | Coiled gold snake on the right upper arm |
+| Plackart | 1 | Steel abdomen plate |
+| Brooch | 1 | Plain round brass chest brooch |
+| Total | 64 | One design per family, with no extra variants |
 
 ## Files and review
 
@@ -24,6 +33,8 @@ This checkpoint supplies 47 requested files: the 13 bare-region plates, all 13 s
 
 Production PNGs are at their exact requested paths under `art/equipment/plates/`, `art/equipment/pieces/` and `art/equipment/sprites/`. The review sheets are inspection aids, not runtime textures.
 
+New review sheets: [cuisses](../art/equipment/review/pieces/cuisse.png), [hair pins](../art/equipment/review/pieces/hair_pin.png), [pectoral plates](../art/equipment/review/pieces/pectoral_plate.png), [greaves](../art/equipment/review/pieces/greave.png), [kidney daggers](../art/equipment/review/pieces/kidney_dagger.png), [tassets](../art/equipment/review/pieces/tasset.png), [armlet](../art/equipment/review/pieces/armlet.png), [plackart](../art/equipment/review/pieces/plackart.png), and [brooch](../art/equipment/review/pieces/brooch.png).
+
 ## Production and verification
 
 The images were made with the built-in `image_gen` tool using the upstream seeds, bases, placement guides and family references. Its exact model identifier is not exposed; no separate API or CLI model was selected. Paint, isolation and correction stages are recorded in the prompt set. The top and sole boot views already contained only the finished boot, so a second removal edit was unnecessary. Some seeded region images already wear the delivered whole-figure piece; those were restored and isolated in one edit, recorded as `restore_isolate`.
@@ -33,10 +44,12 @@ Each selected result was exported as an 8-bit RGB PNG with an sRGB profile. The 
 The phase-2 checker reports:
 
 ```text
-47 of 47 delivered files pass; 822 of 869 not delivered yet
+64 of 64 delivered files pass; 805 of 869 not delivered yet
 ```
 
 The unchanged phase-1 checker also reports `10 of 10 pass`. Review sheets were inspected over the registered bases. The front arm gauntlet cuffs were shortened to fit their permitted areas; finger placement and the intentional crop at the bottom edge were retained.
+
+The rear thigh plates were extended over the shorts hems to cover their specified sites, then their upper edges were aligned between views. The sheathed back daggers were reduced to fit their permitted area. The armlet's green fringe was cleaned. Hair-pin occlusion and the cropped opposite leg armor are intentional; do not complete the hidden or off-canvas parts.
 
 The phase-2 `areas()` function received a geometry correction. Cropped region bases lose off-canvas endpoints of reach primitives, so a calf-length cloak's mask stopped at the shoulder or waist despite the seeded artwork continuing downward. The correction projects the full-figure specification mask using the same coordinate transform as the artwork, then unions it with the original region mask. It uses the specification mask, not the generated asset silhouette. Acceptance thresholds and the 869-file specification are unchanged.
 
@@ -53,7 +66,7 @@ python3 -m unittest discover -s tools -p test_equipment_pieces.py
 
 ## Remaining work and integration
 
-Batch 1 has 230 files remaining; batches 2 and 3 have 299 and 293 respectively. The next requested files begin with cuisses and hair pins. Bracelet and gauntlet views listed later in batch 1 were completed with their family dependencies. No undelivered file is represented as finished.
+Batch 1 has 213 files remaining; batches 2 and 3 have 299 and 293 respectively. The next requested files begin with gloves, bracers, great helms and pauldrons. Bracelet and gauntlet views listed later in batch 1 were completed with their family dependencies. No undelivered file is represented as finished.
 
 Keep the plate coordinates unchanged. Regenerate inputs after adding the plates and after delivering a whole-figure master used to seed region views:
 
