@@ -3097,6 +3097,102 @@
       "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from behind, up close. Paint him wearing a steel vambrace enclosing each forearm from the wrist to the elbow, in two hinged halves, inside the masked area only, fitted to him exactly as he is drawn. Only his left one is in this picture (on the viewer's left): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nImage 1 is the edit target. Image 2 is its placement guide only. Image 3 is the approved design. Preserve the complete 960 by 1616 px base exactly. The armor is a compact steel forearm sleeve from wrist to BELOW elbow. Its upper rim follows the guide's top boundary, not the upper arm. Fit it entirely inside the white outline. Retain two hinged halves, rolled rims and small rivets, matching the reference; change perspective for this back view. No shoulder armor, elbow cup, glove or other equipment. Do not copy guide colours or move the arm."
     },
     {
+      "id": "pieces/figure_front/tabard",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__tabard__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a tabard: front and back panels joined at the shoulders, open at the sides, falling to mid-thigh, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. The cloth is madder red (#7a3b3b for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nExact canvas: 944 by 1664 pixels. Image 1 is the edit target. Image 2 is only a placement guide. Preserve the original body, pose, scale and full framing exactly, adding only the requested equipment within the guide; do not copy guide colours. Use a plain muted madder-red cloth panel with no emblem, belt or fasteners. Open sides and broad shoulder joins. Follow the guide hem near y1060; keep the panel centered between x370 and x574 below the waist. No sleeves or trousers. No lettering of any kind."
+    },
+    {
+      "id": "pieces/figure_front/shirt",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__shirt__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a plain sleeveless linen undershirt tucked into the braies, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. The cloth is undyed linen (#cfc5b4 for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nExact canvas: 944 by 1664 pixels. Image 1 is the edit target. Image 2 is only a placement guide. Preserve the original body, pose, scale and full framing exactly, adding only the requested equipment within the guide; do not copy guide colours. Plain undyed beige linen, sleeveless, simple round neck, hem tucked at the existing waistband. No buttons, trim, emblem, sleeves or extra garments. No lettering of any kind."
+    },
+    {
+      "id": "pieces/head_front/earring",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_front__earring__paint__01.png",
+      "source_size": [
+        979,
+        1606
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck from the front. Paint him wearing a small gold hoop in each earlobe, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nExact canvas: 976 by 1600 pixels. Image 1 is the edit target. Image 2 is only a placement guide. Preserve the original body, pose, scale and full framing exactly, adding only the requested equipment within the guide; do not copy guide colours. Exactly two small matching gold hoops, one through each earlobe. No stones or dangling charms. Fit within the ear guide. Their open centers must show the original underlying image. No lettering of any kind."
+    },
+    {
+      "id": "pieces/foot_R_top/toe_ring",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__foot_R_top__toe_ring__paint__01.png",
+      "source_size": [
+        821,
+        1915
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the top of his right foot, toes up, with the ankle. Paint him wearing a thin metal ring on each of the ten toes, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nExact canvas: 816 by 1904 pixels. Image 1 is the edit target. Image 2 is only a placement guide. Preserve the original body, pose, scale and full framing exactly, adding only the requested equipment within the guide; do not copy guide colours. This base shows ONE foot with FIVE toes. Add exactly FIVE thin neutral-grey steel bands, one around the base of each visible toe, below its nail. Do not add a second foot or ten bands on this foot. Keep toe positions fixed. No stones, gold, extra jewelry or shoes. No lettering of any kind."
+    },
+    {
+      "id": "pieces/back/backplate",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__back__backplate__paint__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's back from behind, up close. Paint him wearing a steel backplate shaped to his back, with a raised ridge down the spine, a rolled top edge below the neck and leather straps with buckles at the sides, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 12 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nExact canvas: 1088 by 1440 pixels. Image 1 is the edit target. Image 2 is only a placement guide. Preserve the original body, pose, scale and full framing exactly, adding only the requested equipment within the guide; do not copy guide colours. Plain neutral steel backplate with central raised spine ridge and brown side straps, without emblem or decoration. Follow the guide silhouette, especially the narrow lower central tongue and cut-away lower sides. The existing braid lies in front of the upper plate and remains visible; do not erase or paint over it. No lettering of any kind."
+    },
+    {
+      "id": "pieces/figure_front/baldric",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__baldric__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a broad brown leather baldric over the right shoulder, across the chest to the left hip, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nExact canvas: 944 by 1664 pixels. Image 1 is the edit target. Image 2 is only a placement guide. Preserve the original body, pose, scale and full framing exactly, adding only the requested equipment within the guide; do not copy guide colours. One plain broad brown leather diagonal strap from his anatomical right shoulder (viewer left) to his left hip (viewer right). Width about 45 px. No second crossing strap, pouch, sword, baldric ornament or chest clothing. No lettering of any kind."
+    },
+    {
+      "id": "pieces/neck/gorget",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__neck__gorget__paint__01.png",
+      "source_size": [
+        1337,
+        1176
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's neck and collarbones from the front, up close. Paint him wearing a steel gorget: overlapping plates round the neck and over the base of the neck, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 29 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nExact canvas: 1328 by 1168 pixels. Image 1 is the edit target. Image 2 is only a placement guide. Preserve the original body, pose, scale and full framing exactly, adding only the requested equipment within the guide; do not copy guide colours. Three overlapping neutral steel plates form a snug neck collar and shallow flared base inside the guide. Keep beard in front and visible. No helmet, chest plate, pauldrons, pendant, text or emblem. No lettering of any kind."
+    },
+    {
+      "id": "sprites/off_hand",
+      "stage": "generate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "sprites__off_hand__generate__01.png",
+      "source_size": [
+        887,
+        1774
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. A single game sprite on its own: an off-hand blade: a parrying dagger with a straight double-edged blade and a long crossguard. Standing upright, point down, seen from the front with the flat of the blade toward the viewer, centred, filling 70% of the canvas's height, nothing cut off. Its outline is the ink (#15101f), about 8 px wide, with thinner lines inside. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Background: perfectly flat pure green #00ff00 from edge to edge (or real transparency), with no floor, no ground shadow and nothing else on it.\nExact canvas: 768 by 2048 pixels. Keep the complete isolated dagger centered, point down, with generous green margins and 70% height; a plain steel long crossguard, short leather grip, simple metal pommel, no decoration. No lettering of any kind."
+    },
+    {
       "id": "pieces/right_arm_back/vambrace",
       "stage": "isolate",
       "attempt": 1,
@@ -3143,6 +3239,90 @@
         1627
       ],
       "prompt": "This is an edit of the attached picture. Keep only the vambrace: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the vambrace exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 960 by 1616 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline.  No lettering or other objects."
+    },
+    {
+      "id": "pieces/figure_front/tabard",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__tabard__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the tabard: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the tabard exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 944 by 1664 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline.  No lettering or other objects."
+    },
+    {
+      "id": "pieces/figure_front/shirt",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__shirt__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the shirt: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the shirt exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 944 by 1664 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline. Keep only the sleeveless shirt. Braies and their waistband must disappear; the shirt ends at its existing tucked hem. No lettering or other objects."
+    },
+    {
+      "id": "pieces/head_front/earring",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_front__earring__isolate__01.png",
+      "source_size": [
+        979,
+        1606
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the earrings: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the earrings exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 976 by 1600 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline. Keep only TWO gold hoops. Ears and skin in their open centers become pure green. No lettering or other objects."
+    },
+    {
+      "id": "pieces/foot_R_top/toe_ring",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__foot_R_top__toe_ring__isolate__01.png",
+      "source_size": [
+        821,
+        1915
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the toe rings: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the toe rings exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 816 by 1904 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline. Keep exactly FIVE steel toe bands; all toenails, foot and toe outlines become pure green. No lettering or other objects."
+    },
+    {
+      "id": "pieces/back/backplate",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__back__backplate__isolate__01.png",
+      "source_size": [
+        1089,
+        1444
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the backplate: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the backplate exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 1088 by 1440 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline. The braid in front of the backplate must become a precise GREEN hole; do not fill the hidden steel beneath it. No lettering or other objects."
+    },
+    {
+      "id": "pieces/figure_front/baldric",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__baldric__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the baldric: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the baldric exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 944 by 1664 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline.  No lettering or other objects."
+    },
+    {
+      "id": "pieces/neck/gorget",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__neck__gorget__isolate__01.png",
+      "source_size": [
+        1337,
+        1176
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gorget: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gorget exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nPrecise-object-edit: Keep the entire 1328 by 1168 px canvas and every equipment contour at its exact existing position, size and orientation. No cropping, recentering, enlargement or pose changes. All non-equipment pixels including skin, hair, body ink, braies and shadows become pure flat #00ff00. Keep the equipment's dark ink outline. The beard and skin above the collar become green. Keep its original occlusion along the beard edge; do not complete the hidden upper collar. No lettering or other objects."
     },
     {
       "id": "pieces/right_leg_front/anklet",
@@ -3193,6 +3373,18 @@
       "prompt": "Precise-object-edit: Clean the existing ankle ornaments on the SAME complete 896 by 1744 px canvas. Retain the exact arrangement, scale and coordinates of brown wooden beads above one fine gold chain, including the small cropped opposite-ankle fragment. Re-ink the contour of EVERY bead and EVERY chain link with a clearly solid dark #15101f outline, about 4 px wide. Keep small gold midtone interiors and narrow highlights fully enclosed by the dark edges. There must be no pale green or yellow-green edge pixels, greenish haze, skin silhouette, or shadow between or beneath the jewelry. Everything except the solid beads, solid gold links and their dark ink must be uniform pure #00ff00. Link openings are green holes with dark inside outlines. Do not crop, move, center, enlarge or add objects. No solid cuff or text."
     },
     {
+      "id": "sprites/off_hand",
+      "stage": "canvas_fit",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "sprites__off_hand__canvas_fit__02.png",
+      "source_size": [
+        768,
+        2048
+      ],
+      "prompt": "Use case: precise-object-edit. Reformat this parrying dagger sprite to a VERY TALL NARROW 3:8 aspect ratio canvas, EXACTLY 768 pixels wide by 2048 pixels high. Preserve the same dagger design: short leather grip, simple faceted steel pommel, long straight steel crossguard and straight double-edged neutral grey blade, point down. Center its vertical axis at x384. The COMPLETE dagger should occupy 70% of canvas height, from y307 to y1741, with large flat green margins above and below. The crossguard remains fully inside x80..688. Return the entire narrow 768 by 2048 canvas, not the old wider 1:2 canvas. Pure #00ff00 background edge to edge, dark #15101f outlines, three flat neutral steel tones, no gradients, floor, shadow, text, markings or other objects."
+    },
+    {
       "id": "pieces/right_leg_front/anklet",
       "stage": "chain_edge",
       "attempt": 4,
@@ -3241,6 +3433,138 @@
       "prompt": "Use case: precise-object-edit. Edit image 1, a registered game equipment overlay. Preserve the exact 896 by 1744 canvas aspect and all jewelry positions, including the cut-off fragment on the opposite edge. Clean up only the thin gold chain and outer ink. The chain must read as small interlocking gold links, each bounded by a solid near-black #15101f contour about 5 px thick. Tiny internal recesses of the links are very dark ink shadow, never yellow-green or olive. Use only flat warm gold, brown wooden beads, dark ink and a perfectly uniform pure #00ff00 background. Remove every soft green/yellow fringe around or within the chain. All large open spaces are exact pure green; no semitransparent edge, blur or glow. Keep each original bead, its position and size unchanged. Keep the chain's overall curve, endpoints and position unchanged. Do not shift the jewelry upwards or sideways. No ankle, skin, body, text, frame or extra objects. Output only the corrected overlay at the original registration."
     },
     {
+      "id": "pieces/figure_back/tabard",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__tabard__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a tabard: front and back panels joined at the shoulders, open at the sides, falling to mid-thigh, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. The cloth is madder red (#7a3b3b for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 944 by 1664 pixels, same full canvas and framing as image 1. Match the plain muted madder red panel, open sides, broad shoulder joins and undecorated hem. Rear panel extends only to y1045 on the 1664-pixel canvas, stays roughly x365..579 below the waist. Preserve the braid in front of the cloth. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/figure_back/shirt",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__shirt__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a plain sleeveless linen undershirt tucked into the braies, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. The cloth is undyed linen (#cfc5b4 for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 944 by 1664 pixels, same full canvas and framing as image 1. Match the plain undyed linen sleeveless shirt, no buttons, no sleeves, no belt or decorations. Hem ends at the top of the shorts waistband about y850; do not repaint the shorts waistband as part of the shirt. Braid stays in front. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/head_right/earring",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_right__earring__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his right side to us. Paint him wearing a small gold hoop in each earlobe, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 1024 by 1504 pixels, same full canvas and framing as image 1. Exactly one small plain gold hoop in the visible earlobe. Do not add a second floating earring; the opposite ear is hidden. Match the master hoop's thickness and plain design. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/foot_R_sole/toe_ring",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__foot_R_sole__toe_ring__paint__01.png",
+      "source_size": [
+        818,
+        1923
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the sole of his right foot, toes up, with the ankle. Paint him wearing a thin metal ring on each of the ten toes, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 816 by 1920 pixels, same full canvas and framing as image 1. There are five toes in this image: draw exactly five separate plain thin neutral steel bands, one around each toe below its tip, with the same width proportions as the master. No gems or settings, no sixth ring, no ankle jewelry. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/figure_back/baldric",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__baldric__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a broad brown leather baldric over the right shoulder, across the chest to the left hip, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 944 by 1664 pixels, same full canvas and framing as image 1. One plain brown diagonal strap only, no buckle or fittings. In this BACK view it runs from the wearer's right shoulder at viewer RIGHT down to the left hip at viewer LEFT. Width matches the front master. No crossing second strap. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/figure_back/gorget",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__gorget__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a steel gorget: overlapping plates round the neck and over the base of the neck, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 944 by 1664 pixels, same full canvas and framing as image 1. Exactly three overlapping neutral steel lames with small plain rivets, matching the master. Fit within the pink neck area of the guide, not across the chest. Preserve the original beard and braid in front of the metal. Do not cover the face or ears. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/head_right/gorget",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_right__gorget__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his right side to us. Paint him wearing a steel gorget: overlapping plates round the neck and over the base of the neck, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 1024 by 1504 pixels, same full canvas and framing as image 1. Exactly three overlapping neutral steel lames with small plain rivets, matching the master. Fit within the pink neck area of the guide, not across the chest. Preserve the original beard and braid in front of the metal. Do not cover the face or ears. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/head_front/gorget",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_front__gorget__paint__01.png",
+      "source_size": [
+        979,
+        1606
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck from the front. Paint him wearing a steel gorget: overlapping plates round the neck and over the base of the neck, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 976 by 1600 pixels, same full canvas and framing as image 1. Exactly three overlapping neutral steel lames with small plain rivets, matching the master. Fit within the pink neck area of the guide, not across the chest. Preserve the original beard and braid in front of the metal. Do not cover the face or ears. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/head_left/gorget",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_left__gorget__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his left side to us. Paint him wearing a steel gorget: overlapping plates round the neck and over the base of the neck, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 1024 by 1504 pixels, same full canvas and framing as image 1. Exactly three overlapping neutral steel lames with small plain rivets, matching the master. Fit within the pink neck area of the guide, not across the chest. Preserve the original beard and braid in front of the metal. Do not cover the face or ears. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/foot_L_top/toe_ring",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__foot_L_top__toe_ring__paint__01.png",
+      "source_size": [
+        821,
+        1915
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the top of his left foot, toes up, with the ankle. Paint him wearing a thin metal ring on each of the ten toes, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 816 by 1904 pixels, same full canvas and framing as image 1. There are five toes in this image: draw exactly five separate plain thin neutral steel bands, one around each toe below its tip, with the same width proportions as the master. No gems or settings, no sixth ring, no ankle jewelry. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/foot_L_sole/toe_ring",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__foot_L_sole__toe_ring__paint__01.png",
+      "source_size": [
+        809,
+        1942
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the sole of his left foot, toes up, with the ankle. Paint him wearing a thin metal ring on each of the ten toes, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 9 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 800 by 1920 pixels, same full canvas and framing as image 1. There are five toes in this image: draw exactly five separate plain thin neutral steel bands, one around each toe below its tip, with the same width proportions as the master. No gems or settings, no sixth ring, no ankle jewelry. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
       "id": "pieces/right_leg_back/anklet",
       "stage": "chain_redraw",
       "attempt": 4,
@@ -3287,6 +3611,438 @@
         1806
       ],
       "prompt": "Use case: precise-object-edit. Image 1 is the overlay to edit on its original 864 by 1792 canvas; image 2 is a reference for the bolder crisp chain drawing ONLY. Keep image 1 bead row and all jewelry positions exactly unchanged. REPLACE its thin threadlike chain with TEN clearly separated interlocked short oval gold links along the identical shallow curve. Each link has a visibly thick solid near-black #15101f outline, about 5 to 6 pixels wide, small warm gold inset face and BLACK recessed middle. This is a linked chain, not a smooth cuff. It must have visibly fewer, larger, cleaner links than image 1. Apply the same correction to the cropped chain fragment at the left edge. Do not move any jewelry, enlarge the whole anklet, copy image 2 positions, draw the body or add text. Keep the wooden beads exactly where they are. Every other pixel of the canvas is perfectly flat pure #00ff00. No olive, lime fringe, semitransparent edge, blur or glow. Preserve all framing."
+    },
+    {
+      "id": "pieces/figure_back/tabard",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__tabard__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the tabard: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the tabard exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. The braid lies in front of the upper cloth: replace the entire braid with pure green to preserve its occlusion, do not paint red over the braid area. Output exactly 944 by 1664 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/figure_back/shirt",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__shirt__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the shirt: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the shirt exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Keep only the actual shirt ending above the shorts' waistband, not the waistband or any braies. Reinforce the shirt's complete outer contour with a uniform 5 px near-black #15101f ink stroke, especially its pale lower hem and neckline. Output exactly 944 by 1664 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/head_right/earring",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_right__earring__isolate__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the earring: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the earring exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Keep exactly the one visible gold hoop, with any ear occlusion cut out in pure green. Output exactly 1024 by 1504 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/foot_R_sole/toe_ring",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__foot_R_sole__toe_ring__isolate__01.png",
+      "source_size": [
+        817,
+        1923
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the toe rings: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the toe rings exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Keep exactly five visible metal bands, no toe, skin or nail pixels. Output exactly 816 by 1920 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/figure_back/baldric",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__baldric__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the baldric: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the baldric exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Keep the single diagonal strap only; no shoulder, skin or shorts. Output exactly 944 by 1664 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/figure_back/gorget",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__gorget__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the gorget: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gorget exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Where beard or braid lies in front, replace those areas with pure green. No hidden metal behind hair should be invented. Output exactly 944 by 1664 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/head_right/gorget",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_right__gorget__isolate__01.png",
+      "source_size": [
+        1035,
+        1519
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the gorget: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gorget exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Where beard or braid lies in front, replace those areas with pure green. No hidden metal behind hair should be invented. Output exactly 1024 by 1504 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/head_front/gorget",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_front__gorget__isolate__01.png",
+      "source_size": [
+        979,
+        1606
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the gorget: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gorget exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Where beard or braid lies in front, replace those areas with pure green. No hidden metal behind hair should be invented. Output exactly 976 by 1600 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/head_left/gorget",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_left__gorget__isolate__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the gorget: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gorget exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Where beard or braid lies in front, replace those areas with pure green. No hidden metal behind hair should be invented. Output exactly 1024 by 1504 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/foot_L_top/toe_ring",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__foot_L_top__toe_ring__isolate__01.png",
+      "source_size": [
+        821,
+        1916
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the toe rings: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the toe rings exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Keep exactly five visible metal bands, no toe, skin or nail pixels. Output exactly 816 by 1904 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/foot_L_sole/toe_ring",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__foot_L_sole__toe_ring__isolate__01.png",
+      "source_size": [
+        809,
+        1942
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the toe rings: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the toe rings exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Keep exactly five visible metal bands, no toe, skin or nail pixels. Output exactly 800 by 1920 pixels. Preserve the full original canvas, scale and registration; do not move, crop, zoom or center the equipment. Keep a clear solid #15101f ink outline. Pure #00ff00 background only, no shadow, haze, text or other objects."
+    },
+    {
+      "id": "pieces/figure_front/shirt",
+      "stage": "ink_fit",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__shirt__ink_fit__02.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Edit this registered isolated shirt overlay on its original 944 by 1664 canvas. Strengthen ONLY the whole shirt's outer contour to a continuous solid near-black #15101f stroke about 5 pixels wide. This must include both shoulder edges, both armholes, the round neck opening, both waist sides and the complete lower hem. Keep the exact shirt position and silhouette; keep all linen colours and inner fold lines. The current pale thin boundary is insufficient, make the dark outline visibly bolder. Flat pure #00ff00 background edge to edge. No body, text, frame, crop, recentering or new objects."
+    },
+    {
+      "id": "pieces/head_left/earring",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__head_left__earring__paint__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: identity-preserve. Asset: registered LootFall equipment art. Image 1 is the edit target; image 2 is the family design reference; image 3 is the placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of his head and neck in profile, his left side to us. Paint him wearing a small gold hoop in each earlobe, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 8 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out. Output exactly 1024 by 1504 pixels, same full canvas and framing as image 1. Exactly one small plain gold hoop in the visible earlobe. Do not add a second floating earring; the opposite ear is hidden. Match the master hoop's thickness and plain design. Keep original registration; do not zoom or center the equipment. Never reproduce the pink guide or its white outline. Keep the complete original body and green background during this paint stage."
+    },
+    {
+      "id": "pieces/head_left/earring",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__head_left__earring__isolate__01.png",
+      "source_size": [
+        1035,
+        1520
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target. This is an edit of the attached picture. Keep only the earring: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the earring exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Keep the one small visible gold hoop only, exactly where it is; pure green in the hole and in the part hidden by the earlobe. Preserve the 1024x1504 full canvas, no crop or recentering, no shadow, no text, no body pixels."
+    },
+    {
+      "id": "pieces/figure_back/shirt",
+      "stage": "braid_occlusion",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__shirt__braid_occlusion__02.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is an isolated shirt overlay to correct, image 2 shows the same garment worn with the original braid in front. Keep every existing garment edge and fold in image 1 unchanged EXCEPT make the entire braid's occlusion a pure #00ff00 hole. On this 944x1664 full canvas the braid hangs from around x450..493,y474 down to y586. Cut that COMPLETE narrow dangling braid silhouette out of the cloth, including its lower tuft, using image 2 to trace it exactly. The green cutout must run continuously from the neckline down to the braid tip around y586. Do not stop the notch near y520 and do not paint cloth across the hidden braid. Keep only the visible cloth with its ink border, every other part pure green. No body, hair pixels, text, frame, recentering, crop or added objects. Preserve full registration."
+    },
+    {
+      "id": "pieces/figure_back/tabard",
+      "stage": "braid_occlusion",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__tabard__braid_occlusion__02.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is an isolated tabard overlay to correct, image 2 shows the same garment worn with the original braid in front. Keep every existing garment edge and fold in image 1 unchanged EXCEPT make the entire braid's occlusion a pure #00ff00 hole. On this 944x1664 full canvas the braid hangs from around x450..493,y474 down to y586. Cut that COMPLETE narrow dangling braid silhouette out of the cloth, including its lower tuft, using image 2 to trace it exactly. The green cutout must run continuously from the neckline down to the braid tip around y586. Do not stop the notch near y520 and do not paint cloth across the hidden braid. Keep only the visible cloth with its ink border, every other part pure green. No body, hair pixels, text, frame, recentering, crop or added objects. Preserve full registration."
+    },
+    {
+      "id": "pieces/figure_back/shirt",
+      "stage": "braid_fit",
+      "attempt": 3,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__shirt__braid_fit__03.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is a registered isolated shirt game overlay; image 2 is the EXACT underlying character at the SAME 944 x 1664 canvas. Fix ONLY the green braid-shaped hole in the cloth: the hole in image 1 is much too long and wide. Trace the ORIGINAL dark brown braid in image 2 precisely, keeping green only at the pixels actually occupied by that braid. Restore matching undyed linen cloth over the extra hole around and BELOW the real braid. The real braid lower tuft stops at y588, so EVERY existing green hole pixel at y590 through y655 must be filled with matching cloth. The hole at y480..525 is only about x453..486, and the tuft at y534..588 is about x456..483. Do not make a new long braid shape. The rest of the garment including all outer edges, position, folds, shadows and seams is unchanged. Do NOT include the body or hair in output. Keep only the cloth, with the corrected small hair-occlusion hole and all other background pure #00ff00. Preserve the full canvas and registration, no crop, no recentering, no text, no border."
+    },
+    {
+      "id": "pieces/figure_back/tabard",
+      "stage": "braid_fit",
+      "attempt": 3,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__tabard__braid_fit__03.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is a registered isolated tabard game overlay; image 2 is the EXACT underlying character at the SAME 944 x 1664 canvas. Fix ONLY the green braid-shaped hole in the cloth: the hole in image 1 is much too long and wide. Trace the ORIGINAL dark brown braid in image 2 precisely, keeping green only at the pixels actually occupied by that braid. Restore matching muted madder red cloth over the extra hole around and BELOW the real braid. The real braid lower tuft stops at y588, so EVERY existing green hole pixel at y590 through y655 must be filled with matching cloth. The hole at y480..525 is only about x453..486, and the tuft at y534..588 is about x456..483. Do not make a new long braid shape. The rest of the garment including all outer edges, position, folds, shadows and seams is unchanged. Do NOT include the body or hair in output. Keep only the cloth, with the corrected small hair-occlusion hole and all other background pure #00ff00. Preserve the full canvas and registration, no crop, no recentering, no text, no border."
+    },
+    {
+      "id": "pieces/torso/tabard",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__torso__tabard__restore_isolate__01.png",
+      "source_size": [
+        1111,
+        1416
+      ],
+      "prompt": "Use case: precise-object-edit. Input image 1 is the fixed registration edit target, already wearing the requested equipment. Input image 2 is a placement guide only; never reproduce its pink marks or guides. Output canvas 1104 x 1408 pixels, keep all coordinates, crop and scale unchanged. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's chest and belly from the front, up close, in which he already wears the tabard, soft and blurred because it was scaled up: redraw the tabard crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a tabard: front and back panels joined at the shoulders, open at the sides, falling to mid-thigh). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 14 px), with thinner lines inside it, and its light comes from the top left. The cloth is madder red (#7a3b3b for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nFinal delivery requirement for this single edit: This is an edit of the attached picture. Keep only the tabard: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the tabard exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nRestore the equipment's ink edge crisply without moving any seam or outline; all skin, hair, underwear and non-equipment areas must be pure flat #00ff00. Where the equipment runs off an edge of the canvas, continue it exactly to that edge. Keep the complete broad strap if present, do not crop its corners. No new design details, buckle, text or border."
+    },
+    {
+      "id": "pieces/torso/shirt",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__torso__shirt__restore_isolate__01.png",
+      "source_size": [
+        1110,
+        1417
+      ],
+      "prompt": "Use case: precise-object-edit. Input image 1 is the fixed registration edit target, already wearing the requested equipment. Input image 2 is a placement guide only; never reproduce its pink marks or guides. Output canvas 1104 x 1408 pixels, keep all coordinates, crop and scale unchanged. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's chest and belly from the front, up close, in which he already wears the shirt, soft and blurred because it was scaled up: redraw the shirt crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a plain sleeveless linen undershirt tucked into the braies). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 14 px), with thinner lines inside it, and its light comes from the top left. The cloth is undyed linen (#cfc5b4 for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nFinal delivery requirement for this single edit: This is an edit of the attached picture. Keep only the shirt: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the shirt exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nRestore the equipment's ink edge crisply without moving any seam or outline; all skin, hair, underwear and non-equipment areas must be pure flat #00ff00. Where the equipment runs off an edge of the canvas, continue it exactly to that edge. Keep the complete broad strap if present, do not crop its corners. No new design details, buckle, text or border."
+    },
+    {
+      "id": "pieces/torso/baldric",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__torso__baldric__restore_isolate__01.png",
+      "source_size": [
+        1111,
+        1416
+      ],
+      "prompt": "Use case: precise-object-edit. Input image 1 is the fixed registration edit target, already wearing the requested equipment. Input image 2 is a placement guide only; never reproduce its pink marks or guides. Output canvas 1104 x 1408 pixels, keep all coordinates, crop and scale unchanged. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's chest and belly from the front, up close, in which he already wears the baldric, soft and blurred because it was scaled up: redraw the baldric crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a broad brown leather baldric over the right shoulder, across the chest to the left hip). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 14 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nFinal delivery requirement for this single edit: This is an edit of the attached picture. Keep only the baldric: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the baldric exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nRestore the equipment's ink edge crisply without moving any seam or outline; all skin, hair, underwear and non-equipment areas must be pure flat #00ff00. Where the equipment runs off an edge of the canvas, continue it exactly to that edge. Keep the complete broad strap if present, do not crop its corners. No new design details, buckle, text or border."
+    },
+    {
+      "id": "pieces/back/baldric",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__back__baldric__restore_isolate__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "Use case: precise-object-edit. Input image 1 is the fixed registration edit target, already wearing the requested equipment. Input image 2 is a placement guide only; never reproduce its pink marks or guides. Output canvas 1088 x 1440 pixels, keep all coordinates, crop and scale unchanged. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's back from behind, up close, in which he already wears the baldric, soft and blurred because it was scaled up: redraw the baldric crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a broad brown leather baldric over the right shoulder, across the chest to the left hip). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 12 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nFinal delivery requirement for this single edit: This is an edit of the attached picture. Keep only the baldric: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the baldric exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nRestore the equipment's ink edge crisply without moving any seam or outline; all skin, hair, underwear and non-equipment areas must be pure flat #00ff00. Where the equipment runs off an edge of the canvas, continue it exactly to that edge. Keep the complete broad strap if present, do not crop its corners. No new design details, buckle, text or border."
+    },
+    {
+      "id": "pieces/figure_back/shirt",
+      "stage": "braid_fit",
+      "attempt": 4,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__shirt__braid_fit__04.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. This isolated shirt overlay must keep its exact 944x1664 canvas, all garment edges, seams and folds. Change ONLY the green notch descending from the middle of the neckline: make that notch 25 percent SHORTER vertically, anchored at the neckline, and 20 percent NARROWER. Fill the now unnecessary bottom and side parts of the notch with matching linen cloth. The final notch must stop at y584, NOT y610. It represents only the small lower part of a braid, not a whole braid. Preserve everything else, no shift or scale of the garment. Pure #00ff00 background, no body, no text."
+    },
+    {
+      "id": "pieces/figure_back/tabard",
+      "stage": "braid_fit",
+      "attempt": 4,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__tabard__braid_fit__04.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. This isolated tabard overlay must keep its exact 944x1664 canvas, all garment edges, seams and folds. Change ONLY the green notch descending from the middle of the neckline: make that notch 25 percent SHORTER vertically, anchored at the neckline, and 20 percent NARROWER. Fill the now unnecessary bottom and side parts of the notch with matching madder red cloth. The final notch must stop at y584, NOT y610. It represents only the small lower part of a braid, not a whole braid. Preserve everything else, no shift or scale of the garment. Pure #00ff00 background, no body, no text."
+    },
+    {
+      "id": "pieces/torso/tabard",
+      "stage": "restore_paint",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__torso__tabard__restore_paint__02.png",
+      "source_size": [
+        1111,
+        1416
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the fixed registered edit target. Image 2 is a placement guide, not a style reference. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's chest and belly from the front, up close, in which he already wears the tabard, soft and blurred because it was scaled up: redraw the tabard crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a tabard: front and back panels joined at the shoulders, open at the sides, falling to mid-thigh). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 14 px), with thinner lines inside it, and its light comes from the top left. The cloth is madder red (#7a3b3b for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nCRITICAL: keep the body present in this edit. Do not isolate anything yet. Restore ONLY the blurred tabard in the SAME pixel positions as image 1. Preserve neckline, shoulders, sides and hem exactly, unchanged framing 1104x1408. Do not zoom, crop, enlarge, center or expand the garment. Keep all underlying anatomy and green background unchanged. Restore the existing outline to a clean uniform crisp dark ink edge with the same width as the body's line. Do not change the clothing design or colour."
+    },
+    {
+      "id": "pieces/torso/shirt",
+      "stage": "restore_paint",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__torso__shirt__restore_paint__02.png",
+      "source_size": [
+        1111,
+        1416
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the fixed registered edit target. Image 2 is a placement guide, not a style reference. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's chest and belly from the front, up close, in which he already wears the shirt, soft and blurred because it was scaled up: redraw the shirt crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a plain sleeveless linen undershirt tucked into the braies). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 14 px), with thinner lines inside it, and its light comes from the top left. The cloth is undyed linen (#cfc5b4 for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nCRITICAL: keep the body present in this edit. Do not isolate anything yet. Restore ONLY the blurred shirt in the SAME pixel positions as image 1. Preserve neckline, shoulders, sides and hem exactly, unchanged framing 1104x1408. Do not zoom, crop, enlarge, center or expand the garment. Keep all underlying anatomy and green background unchanged. Restore the existing outline to a clean uniform crisp dark ink edge with the same width as the body's line. Do not change the clothing design or colour."
+    },
+    {
+      "id": "pieces/torso/baldric",
+      "stage": "restore_paint",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__torso__baldric__restore_paint__02.png",
+      "source_size": [
+        1111,
+        1416
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the fixed registered edit target. Image 2 is a placement guide, not a style reference. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's chest and belly from the front, up close, in which he already wears the baldric, soft and blurred because it was scaled up: redraw the baldric crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a broad brown leather baldric over the right shoulder, across the chest to the left hip). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 14 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nCRITICAL: keep the body present in this edit. Do not isolate anything yet. Restore ONLY the blurred baldric in the SAME pixel positions as image 1. Preserve neckline, shoulders, sides and hem exactly, unchanged framing 1104x1408. Do not zoom, crop, enlarge, center or expand the garment. Keep all underlying anatomy and green background unchanged. Restore the existing outline to a clean uniform crisp dark ink edge with the same width as the body's line. Do not change the clothing design or colour."
+    },
+    {
+      "id": "pieces/figure_back/tabard",
+      "stage": "braid_trace",
+      "attempt": 5,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__tabard__braid_trace__05.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the isolated tabard overlay, the edit target. Image 2 is the EXACT bare character under this overlay on the SAME 944x1664 canvas, for hair occlusion registration ONLY. In image 1, remove cloth only where the dark brown braid in IMAGE 2 would cover it, making those pixels pure #00ff00. Trace the lower braid from image 2 precisely; do not invent a new braid or move it. The lower braid visible below the neckline is small and narrow, centered at x470; its final hair tip is at y588. There must be green for that real hair, with matching cloth immediately on each side and immediately below its tip. Do not alter the neckline, outer garment outline, folds, shadows or original cloth colour anywhere else. Keep the rest of image 1 exactly as it is. Output ONLY the isolated cloth, never include the hair, body or skin. No crop, recenter, zoom, new seams or text."
+    },
+    {
+      "id": "pieces/figure_back/shirt",
+      "stage": "braid_trace",
+      "attempt": 5,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__shirt__braid_trace__05.png",
+      "source_size": [
+        945,
+        1664
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the isolated shirt overlay, the edit target. Image 2 is the EXACT bare character under this overlay on the SAME 944x1664 canvas, for hair occlusion registration ONLY. In image 1, remove cloth only where the dark brown braid in IMAGE 2 would cover it, making those pixels pure #00ff00. Trace the lower braid from image 2 precisely; do not invent a new braid or move it. The lower braid visible below the neckline is small and narrow, centered at x470; its final hair tip is at y588. There must be green for that real hair, with matching cloth immediately on each side and immediately below its tip. Do not alter the neckline, outer garment outline, folds, shadows or original cloth colour anywhere else. Keep the rest of image 1 exactly as it is. Output ONLY the isolated cloth, never include the hair, body or skin. No crop, recenter, zoom, new seams or text."
+    },
+    {
+      "id": "pieces/torso/tabard",
+      "stage": "isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__torso__tabard__isolate__02.png",
+      "source_size": [
+        1111,
+        1415
+      ],
+      "prompt": "Use case: precise-object-edit. Input image 1 is the registered edit target. This is an edit of the attached picture. Keep only the tabard: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the tabard exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Preserve the FULL 1104x1408 canvas and every equipment pixel's position. Do not enlarge, shift, crop, recenter, repaint or change any equipment colour, outline, seam or fold.  No extra objects, text, frames, shadows or glowing pixels."
+    },
+    {
+      "id": "pieces/torso/shirt",
+      "stage": "isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__torso__shirt__isolate__02.png",
+      "source_size": [
+        1111,
+        1415
+      ],
+      "prompt": "Use case: precise-object-edit. Input image 1 is the registered edit target. This is an edit of the attached picture. Keep only the shirt: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the shirt exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Preserve the FULL 1104x1408 canvas and every equipment pixel's position. Do not enlarge, shift, crop, recenter, repaint or change any equipment colour, outline, seam or fold.  No extra objects, text, frames, shadows or glowing pixels."
+    },
+    {
+      "id": "pieces/torso/baldric",
+      "stage": "isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__torso__baldric__isolate__02.png",
+      "source_size": [
+        1111,
+        1416
+      ],
+      "prompt": "Use case: precise-object-edit. Input image 1 is the registered edit target. This is an edit of the attached picture. Keep only the baldric: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the baldric exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid. Preserve the FULL 1104x1408 canvas and every equipment pixel's position. Do not enlarge, shift, crop, recenter, repaint or change any equipment colour, outline, seam or fold.  No extra objects, text, frames, shadows or glowing pixels."
+    },
+    {
+      "id": "pieces/back/tabard",
+      "stage": "restore_paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__back__tabard__restore_paint__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the registered edit target already wearing this garment. Image 2 shows the permitted placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's back from behind, up close, in which he already wears the tabard, soft and blurred because it was scaled up: redraw the tabard crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a tabard: front and back panels joined at the shoulders, open at the sides, falling to mid-thigh). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 12 px), with thinner lines inside it, and its light comes from the top left. The cloth is madder red (#7a3b3b for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nKeep the entire 1088x1440 canvas and the same crop. Restore only the blurry garment's line and fill edges. Do not expand, recenter, stretch, shift, lengthen, change neckline, or redesign it. Keep the knight's visible bare body, braid and shorts exactly unchanged and in front of the garment. Trace the braid silhouette faithfully including its tail. Keep the current garment contour and seams where they are. Do not apply guide tint. No labels or marks."
+    },
+    {
+      "id": "pieces/back/shirt",
+      "stage": "restore_paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__back__shirt__restore_paint__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the registered edit target already wearing this garment. Image 2 shows the permitted placement guide only. Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's back from behind, up close, in which he already wears the shirt, soft and blurred because it was scaled up: redraw the shirt crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a plain sleeveless linen undershirt tucked into the braies). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 12 px), with thinner lines inside it, and its light comes from the top left. The cloth is undyed linen (#cfc5b4 for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nKeep the entire 1088x1440 canvas and the same crop. Restore only the blurry garment's line and fill edges. Do not expand, recenter, stretch, shift, lengthen, change neckline, or redesign it. Keep the knight's visible bare body, braid and shorts exactly unchanged and in front of the garment. Trace the braid silhouette faithfully including its tail. Keep the current garment contour and seams where they are. Do not apply guide tint. No labels or marks."
+    },
+    {
+      "id": "pieces/back/tabard",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__back__tabard__isolate__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the exact registered edit target. This is an edit of the attached picture. Keep only the tabard: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the tabard exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nRemove every hair and braid pixel, leaving a keyed notch following its exact current silhouette including the full tail. Do not redraw or fill what the braid hides. Keep the complete 1088x1440 canvas and every equipment coordinate fixed. No resizing, shifting, cropping, centering or changed colours. Crisp dark ink edges; no body remnants, text or added objects."
+    },
+    {
+      "id": "pieces/back/shirt",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__back__shirt__isolate__01.png",
+      "source_size": [
+        1089,
+        1444
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the exact registered edit target. This is an edit of the attached picture. Keep only the shirt: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the shirt exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nRemove every hair and braid pixel, leaving a keyed notch following its exact current silhouette including the full tail. Do not redraw or fill what the braid hides. Keep the complete 1088x1440 canvas and every equipment coordinate fixed. No resizing, shifting, cropping, centering or changed colours. Crisp dark ink edges; no body remnants, text or added objects."
     }
   ]
 }

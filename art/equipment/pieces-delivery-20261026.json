@@ -3,8 +3,8 @@
   "status": "partial_delivery",
   "based_on": "e0ede57368aa1bde6e94a6baf67898631053183c",
   "requested_files": 869,
-  "delivered_files": 124,
-  "remaining_files": 745,
+  "delivered_files": 150,
+  "remaining_files": 719,
   "assets": [
     {
       "id": "plates/neck",
@@ -2110,6 +2110,448 @@
       "original_size": [
         967,
         1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/tabard",
+      "file": "art/equipment/pieces/figure_front/tabard.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "830b87f9adb8c0b33e04fec88890fdf1d57fe87c8b1b205a4a8bd641772e2d6c",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/shirt",
+      "file": "art/equipment/pieces/figure_front/shirt.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "64667e71c9dc5871d93e164b995ff92d2fbdd8f11c0d0b20d3fe5934b80733cd",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "ink_fit",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/head_front/earring",
+      "file": "art/equipment/pieces/head_front/earring.png",
+      "batch": 1,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "4ecb23d969757b4bbc186c29ebbf7d6eadfa31e991ea8af144d308f32448fcb8",
+      "original_size": [
+        979,
+        1606
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/foot_R_top/toe_ring",
+      "file": "art/equipment/pieces/foot_R_top/toe_ring.png",
+      "batch": 1,
+      "size": [
+        816,
+        1904
+      ],
+      "format": "RGB",
+      "sha256": "e5892e208db1953d9c6632965599647b88df11e3ca79d7e5fa2057a65a11a83c",
+      "original_size": [
+        821,
+        1915
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/back/backplate",
+      "file": "art/equipment/pieces/back/backplate.png",
+      "batch": 1,
+      "size": [
+        1088,
+        1440
+      ],
+      "format": "RGB",
+      "sha256": "61f5c13c32d9dfd51b3ed5f15be7e3c9badbe245020a71d16c4754de0d4c54eb",
+      "original_size": [
+        1089,
+        1444
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/baldric",
+      "file": "art/equipment/pieces/figure_front/baldric.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "80ffbe5172e943b1d3074cae2cbbff67104ce0c5165080292f38abf8af124332",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/neck/gorget",
+      "file": "art/equipment/pieces/neck/gorget.png",
+      "batch": 1,
+      "size": [
+        1328,
+        1168
+      ],
+      "format": "RGB",
+      "sha256": "ae1a3ba54949cbd88201bbacab8200bb5faf27164139e578b656961dd82ce8b2",
+      "original_size": [
+        1337,
+        1176
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "sprites/off_hand",
+      "file": "art/equipment/sprites/off_hand.png",
+      "batch": 1,
+      "size": [
+        768,
+        2048
+      ],
+      "format": "RGB",
+      "sha256": "cad7b68d962a90b42464c5d9753e986d6df57e5e0506cba04c6271a2bb699beb",
+      "original_size": [
+        768,
+        2048
+      ],
+      "selected_stage": "canvas_fit",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/figure_back/tabard",
+      "file": "art/equipment/pieces/figure_back/tabard.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "fa94664b6e7ff90dd3cef9326cca45367e5e798bf604f3c8cf5538dff0730d6a",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "braid_trace",
+      "selected_attempt": 5
+    },
+    {
+      "id": "pieces/figure_back/shirt",
+      "file": "art/equipment/pieces/figure_back/shirt.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "cd8bb3bfbabe960888b997fe14fe5bb78661b09c992a2e15d637ac9ea8afb6f7",
+      "original_size": [
+        945,
+        1664
+      ],
+      "selected_stage": "braid_trace",
+      "selected_attempt": 5
+    },
+    {
+      "id": "pieces/head_right/earring",
+      "file": "art/equipment/pieces/head_right/earring.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "af267d3ba55c31a332722ae5716175462fbdc70e46a59a12546c785182ddbd5b",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/foot_R_sole/toe_ring",
+      "file": "art/equipment/pieces/foot_R_sole/toe_ring.png",
+      "batch": 1,
+      "size": [
+        816,
+        1920
+      ],
+      "format": "RGB",
+      "sha256": "13e7062a6a93cf491e7d3e7a76a9c0e523982be16646c9cea6cb40e72a4de181",
+      "original_size": [
+        817,
+        1923
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/baldric",
+      "file": "art/equipment/pieces/figure_back/baldric.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "ea1628bb8adb288cff37004022c09a97404c766e0d1044940932546a51af2833",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/gorget",
+      "file": "art/equipment/pieces/figure_back/gorget.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "38353519321ebcc36c4dbbe21162e815d513750c4f87483f92fb6459d3d3f4c4",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_right/gorget",
+      "file": "art/equipment/pieces/head_right/gorget.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "fa9d8f0e93af2e534185fb74f64350131bca9afead1571f136da39dd544d0839",
+      "original_size": [
+        1035,
+        1519
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_front/gorget",
+      "file": "art/equipment/pieces/head_front/gorget.png",
+      "batch": 1,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "f4726c3c97c415157c561e1d59017fd657e739296306e526e8f452f8edfc9fd0",
+      "original_size": [
+        979,
+        1606
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_left/gorget",
+      "file": "art/equipment/pieces/head_left/gorget.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "845b6dee526b1b73f8cccffbf5506b52aafa234da5802a6d525aae3ca070e81e",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/foot_L_top/toe_ring",
+      "file": "art/equipment/pieces/foot_L_top/toe_ring.png",
+      "batch": 1,
+      "size": [
+        816,
+        1904
+      ],
+      "format": "RGB",
+      "sha256": "e2bc4a8d68be9b4dbf2d4b5d9ac4283eff5a6285d8586fab43073dacfc749006",
+      "original_size": [
+        821,
+        1916
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/foot_L_sole/toe_ring",
+      "file": "art/equipment/pieces/foot_L_sole/toe_ring.png",
+      "batch": 1,
+      "size": [
+        800,
+        1920
+      ],
+      "format": "RGB",
+      "sha256": "fe3fc5475210c25a0507a9f7e1357597c91d67d2ca4a91a5dd9eaa6d830e4bd9",
+      "original_size": [
+        809,
+        1942
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_left/earring",
+      "file": "art/equipment/pieces/head_left/earring.png",
+      "batch": 1,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "e4027e67ba8095cbafa9ec41a8d79db8e2f4f6def38d9261fbb1419beb73abab",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/torso/tabard",
+      "file": "art/equipment/pieces/torso/tabard.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "73384c057403149f4cc1f1f422998e5f0aa876b4f1c00f5a3b2a39fee2f8e11e",
+      "original_size": [
+        1111,
+        1415
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/torso/shirt",
+      "file": "art/equipment/pieces/torso/shirt.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "c5d62e978b9cff9fd6b9719c22006c1556b0f76022d99303bcafccc6e84238d7",
+      "original_size": [
+        1111,
+        1415
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/torso/baldric",
+      "file": "art/equipment/pieces/torso/baldric.png",
+      "batch": 1,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "bcf2ece7c8813e0f0f916e839f525909bfdebe0cf7454fd27ef942810cdb151b",
+      "original_size": [
+        1111,
+        1416
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/back/baldric",
+      "file": "art/equipment/pieces/back/baldric.png",
+      "batch": 1,
+      "size": [
+        1088,
+        1440
+      ],
+      "format": "RGB",
+      "sha256": "e4d9f7f9d21e4ba2efd457487a981e755099372b6544f06a4da0aeb3a4e086ac",
+      "original_size": [
+        1090,
+        1443
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/back/tabard",
+      "file": "art/equipment/pieces/back/tabard.png",
+      "batch": 1,
+      "size": [
+        1088,
+        1440
+      ],
+      "format": "RGB",
+      "sha256": "307dc75e5e75d4a186e4e5294f343296785a5cc3695e0656009b5d8fd5070da2",
+      "original_size": [
+        1090,
+        1443
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/back/shirt",
+      "file": "art/equipment/pieces/back/shirt.png",
+      "batch": 1,
+      "size": [
+        1088,
+        1440
+      ],
+      "format": "RGB",
+      "sha256": "61e2e0417fe0adc88e9ccca8341f638a8560fa31c74236d9ec5023b529a2e46d",
+      "original_size": [
+        1089,
+        1444
       ],
       "selected_stage": "isolate",
       "selected_attempt": 1

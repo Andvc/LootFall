@@ -1,6 +1,6 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies 124 requested files: the 13 bare-region plates, all 13 starting-equipment views, and the equipment families listed below. The full 869-file phase-2 checklist is authorized for production and incremental upload in upstream order, with family masters produced before their dependent views. This remains a partial delivery based on commit `e0ede57368aa1bde6e94a6baf67898631053183c`.
+This checkpoint supplies 150 requested files: the 13 bare-region plates, all 13 starting-equipment views, and the equipment families listed below. The full 869-file phase-2 checklist is authorized for production and incremental upload in upstream order, with family masters produced before their dependent views. This remains a partial delivery based on commit `e0ede57368aa1bde6e94a6baf67898631053183c`.
 
 | Group | Files | Contents |
 |---|---:|---|
@@ -34,7 +34,15 @@ This checkpoint supplies 124 requested files: the 13 bare-region plates, all 13 
 | Couter | 4 | Both elbows from front and back |
 | Vambrace | 4 | Both forearms from front and back |
 | Amulet | 2 | Neck and torso views of the open steel pendant on a leather cord |
-| Total | 124 | One design per family, with no extra variants |
+| Tabard | 4 | Whole figure and torso/back close-ups |
+| Shirt | 4 | Whole figure and torso/back close-ups |
+| Earring | 3 | Head front, right and left |
+| Toe ring | 4 | Both feet from top and sole |
+| Backplate | 1 | Steel back plate |
+| Baldric | 4 | Whole figure and torso/back close-ups |
+| Gorget | 5 | Neck, figure back and three head views |
+| Off hand | 1 | Dagger sprite |
+| Total | 150 | One design per family, with no extra variants |
 
 ## Files and review
 
@@ -54,6 +62,8 @@ The latest families are [trousers](../art/equipment/review/pieces/trousers.png),
 
 ## Production and verification
 
+The latest review sheets are [tabards](../art/equipment/review/pieces/tabard.png), [shirts](../art/equipment/review/pieces/shirt.png), [earrings](../art/equipment/review/pieces/earring.png), [toe rings](../art/equipment/review/pieces/toe_ring.png), [backplate](../art/equipment/review/pieces/backplate.png), [baldrics](../art/equipment/review/pieces/baldric.png), [gorgets](../art/equipment/review/pieces/gorget.png), and the updated [held sprites](../art/equipment/review/pieces/sprites.png).
+
 The images were made with the built-in `image_gen` tool using the upstream seeds, bases, placement guides and family references. Its exact model identifier is not exposed; no separate API or CLI model was selected. Paint, isolation and correction stages are recorded in the prompt set. The top and sole boot views already contained only the finished boot, so a second removal edit was unnecessary. Some seeded region images already wear the delivered whole-figure piece; those were restored and isolated in one edit, recorded as `restore_isolate`.
 
 Each selected result was exported as an 8-bit RGB PNG with an sRGB profile. The small difference between generated and specified dimensions was normalized across the whole canvas, without cropping, recentering or moving individual parts. Pixels already classified as key green by the upstream importer were normalized to `#00ff00`. Foreground colours were not quantized or otherwise repainted by scripts. Generated shading has minor tonal variation and is not a strict three-colour indexed palette.
@@ -61,7 +71,7 @@ Each selected result was exported as an 8-bit RGB PNG with an sRGB profile. The 
 The phase-2 checker reports:
 
 ```text
-124 of 124 delivered files pass; 745 of 869 not delivered yet
+150 of 150 delivered files pass; 719 of 869 not delivered yet
 ```
 
 The unchanged phase-1 checker also reports `10 of 10 pass`. Review sheets were inspected over the registered bases. The front arm gauntlet cuffs were shortened to fit their permitted areas; finger placement and the intentional crop at the bottom edge were retained.
@@ -85,9 +95,11 @@ python3 tools/equipment_pieces.py sheet
 python3 -m unittest discover -s tools -p test_equipment_pieces.py
 ```
 
+Tabard, shirt and baldric close-ups retain the whole-figure placement. Their restoration and isolation were separated into two edits when a combined edit enlarged the garment. Rear cloth overlays include a keyed opening for the braid and its tail; minor variation remains along the fine hair edge. Toe rings are separate bands on all five toes of each foot. Gorgets preserve the visible beard and hair, and the backplate leaves the braid in front.
+
 ## Remaining work and integration
 
-Batch 1 has 153 files remaining; batches 2 and 3 have 299 and 293 respectively. The next requested files begin with tabards, shirts, earrings and toe rings, followed by the backplate, baldric, gorget and off-hand blade. Several matching bracelet, gauntlet, glove, bracer and pauldron views listed later in batch 1 were completed with their family dependencies. No undelivered file is represented as finished.
+Batch 1 has 127 files remaining; batches 2 and 3 have 299 and 293 respectively. The next requested files begin with spaulders, a shield, circlets, rerebraces, monocles, knuckle rings, eyepatches, tattoos and ear cuffs. Matching views listed later in batch 1 are completed with their family dependencies. No undelivered file is represented as finished.
 
 Keep the plate coordinates unchanged. Regenerate inputs after adding the plates and after delivering a whole-figure master used to seed region views:
 
