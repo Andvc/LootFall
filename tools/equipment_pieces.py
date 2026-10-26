@@ -1587,6 +1587,13 @@ def areas(a, full=True):
         picture, _ = base_picture(b)
         if a.get("seeded_from"):
             fig = BASES[a["seeded_from"]]
+            # A cropped base can lose the endpoints of a reach primitive (for
+            # example, a cloak's calves on an arm page). Project the figure's
+            # mask by the same transform as its artwork so the seeded drape
+            # remains paintable, even when those endpoints are off canvas.
+            figure_mask = np.zeros((*fig.size[::-1], 4), np.float32)
+            figure_mask[..., 3] = F.area(fig)[0] * 255.0
+            paint = paint | (to_base(figure_mask, fig, b)[..., 3] > 127)
             got = delivered(f"art/equipment/pieces/{fig.name}/{a['family']}.png", fig.size)
             if got is not None:
                 picture = over(picture, to_base(got, fig, b))

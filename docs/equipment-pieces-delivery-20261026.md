@@ -1,6 +1,6 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies the first 26 requested files: the 13 bare-region plates and all 13 views for the four starting equipment families. It is a partial delivery against the 869-file phase-2 specification, based on commit `e0ede57368aa1bde6e94a6baf67898631053183c`.
+This checkpoint supplies 47 requested files: the 13 bare-region plates, all 13 starting-equipment views, and the cloak, bracelet and gauntlet families. The full 869-file phase-2 checklist is authorized for production and incremental upload in upstream order, with family masters produced before their dependent views. This remains a partial delivery based on commit `e0ede57368aa1bde6e94a6baf67898631053183c`.
 
 | Group | Files | Contents |
 |---|---:|---|
@@ -9,31 +9,38 @@ This checkpoint supplies the first 26 requested files: the 13 bare-region plates
 | Breastplate | 1 | Torso |
 | Main hand | 1 | Arming sword |
 | Boot | 6 | Right-foot top and sole; both legs from front and back |
-| Total | 26 | One design per family, with no extra variants |
+| Cloak | 7 | Whole figure front/back, back plate, and four arm views |
+| Bracelet | 4 | Both arms from front and back; plain band and wooden beads |
+| Gauntlet | 10 | Whole figure front/back, four arm views, and both hands' backs and palms |
+| Total | 47 | One design per family, with no extra variants |
 
 ## Files and review
 
 - [Machine-readable delivery manifest](../art/equipment/pieces-delivery-20261026.json) includes dimensions, selected attempts and SHA-256 hashes.
 - [Full generation prompt set](../art/equipment/pieces-prompts-20261026.json) records the built-in image generation method and all attempts for this checkpoint.
-- [Validation output](../art/equipment/pieces-validation-20261026.txt) contains the unmodified upstream checker's results.
+- [Validation output](../art/equipment/pieces-validation-20261026.txt) contains the phase-2 checker's results with the seeded-mask correction described below.
 - [Updated full checklist](art-handoff-equipment-pieces-list.md) leaves undelivered files unchecked.
-- Review sheets: [plates](../art/equipment/review/pieces/plates.png), [sallet](../art/equipment/review/pieces/sallet.png), [breastplate](../art/equipment/review/pieces/breastplate.png), [boots](../art/equipment/review/pieces/boot.png), [sword](../art/equipment/review/pieces/sprites.png).
+- Review sheets: [plates](../art/equipment/review/pieces/plates.png), [sallet](../art/equipment/review/pieces/sallet.png), [breastplate](../art/equipment/review/pieces/breastplate.png), [boots](../art/equipment/review/pieces/boot.png), [sword](../art/equipment/review/pieces/sprites.png), [cloak](../art/equipment/review/pieces/cloak.png), [bracelets](../art/equipment/review/pieces/bracelet.png), [gauntlets](../art/equipment/review/pieces/gauntlet.png).
 
 Production PNGs are at their exact requested paths under `art/equipment/plates/`, `art/equipment/pieces/` and `art/equipment/sprites/`. The review sheets are inspection aids, not runtime textures.
 
 ## Production and verification
 
-The images were made with the built-in `image_gen` tool using the upstream seeds, bases, placement guides and family references. Its exact model identifier is not exposed; no separate API or CLI model was selected. Paint and isolation stages are recorded in the prompt set. The top and sole boot views already contained only the finished boot, so a second removal edit was unnecessary.
+The images were made with the built-in `image_gen` tool using the upstream seeds, bases, placement guides and family references. Its exact model identifier is not exposed; no separate API or CLI model was selected. Paint, isolation and correction stages are recorded in the prompt set. The top and sole boot views already contained only the finished boot, so a second removal edit was unnecessary. Some seeded region images already wear the delivered whole-figure piece; those were restored and isolated in one edit, recorded as `restore_isolate`.
 
 Each selected result was exported as an 8-bit RGB PNG with an sRGB profile. The small difference between generated and specified dimensions was normalized across the whole canvas, without cropping, recentering or moving individual parts. Pixels already classified as key green by the upstream importer were normalized to `#00ff00`. Foreground colours were not quantized or otherwise repainted by scripts. Generated shading has minor tonal variation and is not a strict three-colour indexed palette.
 
-The original phase-2 checker reports:
+The phase-2 checker reports:
 
 ```text
-26 of 26 delivered files pass; 843 of 869 not delivered yet
+47 of 47 delivered files pass; 822 of 869 not delivered yet
 ```
 
-The original phase-1 checker also reports `10 of 10 pass`. Neither checker was changed. The review sheets were inspected over the registered bases, including correction of the left rear boot so the bare heel no longer protrudes.
+The unchanged phase-1 checker also reports `10 of 10 pass`. Review sheets were inspected over the registered bases. The front arm gauntlet cuffs were shortened to fit their permitted areas; finger placement and the intentional crop at the bottom edge were retained.
+
+The phase-2 `areas()` function received a geometry correction. Cropped region bases lose off-canvas endpoints of reach primitives, so a calf-length cloak's mask stopped at the shoulder or waist despite the seeded artwork continuing downward. The correction projects the full-figure specification mask using the same coordinate transform as the artwork, then unions it with the original region mask. It uses the specification mask, not the generated asset silhouette. Acceptance thresholds and the 869-file specification are unchanged.
+
+Before this correction, only 32.0-70.3% of the affected cloak seeds lay inside their own region masks. The corrected masks contain 99.7-100% of those same seeds. Two regression tests cover the five affected region crop edges and ensure the front drape still excludes the visible arm. Both pass.
 
 Reproduce the checks from the repository root:
 
@@ -41,11 +48,12 @@ Reproduce the checks from the repository root:
 python3 tools/equipment_pieces.py check
 python3 tools/equipment_art.py check
 python3 tools/equipment_pieces.py sheet
+python3 -m unittest discover -s tools -p test_equipment_pieces.py
 ```
 
 ## Remaining work and integration
 
-Batch 1 has 251 files remaining; batches 2 and 3 have 299 and 293 respectively. The next requested family is the travelling cloak. No undelivered file is represented as finished.
+Batch 1 has 230 files remaining; batches 2 and 3 have 299 and 293 respectively. The next requested files begin with cuisses and hair pins. Bracelet and gauntlet views listed later in batch 1 were completed with their family dependencies. No undelivered file is represented as finished.
 
 Keep the plate coordinates unchanged. Regenerate inputs after adding the plates and after delivering a whole-figure master used to seed region views:
 
@@ -53,4 +61,4 @@ Keep the plate coordinates unchanged. Regenerate inputs after adding the plates 
 python3 tools/equipment_pieces.py inputs <asset-id-or-prefix>
 ```
 
-Import, material recolouring, slot mapping and runtime rendering remain the integration work described by the upstream handoff. This checkpoint contains art and delivery records only. Use the original full-body and close-up coordinates; do not trim the green canvas around overlays.
+Import, material recolouring, slot mapping and runtime rendering remain the integration work described by the upstream handoff. This checkpoint contains art, delivery records, and the tested mask-generation correction. Use the original full-body and close-up coordinates; do not trim the green canvas around overlays.

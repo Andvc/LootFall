@@ -3,8 +3,8 @@
   "status": "partial_delivery",
   "based_on": "e0ede57368aa1bde6e94a6baf67898631053183c",
   "requested_files": 869,
-  "delivered_files": 26,
-  "remaining_files": 843,
+  "delivered_files": 47,
+  "remaining_files": 822,
   "assets": [
     {
       "id": "plates/neck",
@@ -446,6 +446,363 @@
         1923
       ],
       "selected_stage": "paint",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/cloak",
+      "file": "art/equipment/pieces/figure_back/cloak.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "e98b1b6be349b34f4f90de7665411b23cb38904d7b380d724e62ccd219e0ce19",
+      "original_size": [
+        945,
+        1664
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/figure_front/cloak",
+      "file": "art/equipment/pieces/figure_front/cloak.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "9db3ab52e49137421a79033cf154beb91bad7ef9265dc0b4bfeab29a55ca6574",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/back/cloak",
+      "file": "art/equipment/pieces/back/cloak.png",
+      "batch": 1,
+      "size": [
+        1088,
+        1440
+      ],
+      "format": "RGB",
+      "sha256": "55a6ae588d1573b3923db52d6d69b093c2e8d7f9a8e903d138e2abe9172efa29",
+      "original_size": [
+        1090,
+        1443
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_back/cloak",
+      "file": "art/equipment/pieces/right_arm_back/cloak.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "b4f353e2687e6ad9b4924c4b29bf4831a3e65f2cbb765369a64e65a9f66bc1d6",
+      "original_size": [
+        966,
+        1628
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_front/cloak",
+      "file": "art/equipment/pieces/right_arm_front/cloak.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "fff02873875f57573d006ffaa0246c88ef85089547ffa40d673cd7272294f8bc",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "colour",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/left_arm_front/cloak",
+      "file": "art/equipment/pieces/left_arm_front/cloak.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "4a79d96e9db9ff7b373d0c7ff59d4e0f0b662fd8c6cdadbd5cfcbdad60c115ce",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_back/cloak",
+      "file": "art/equipment/pieces/left_arm_back/cloak.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "e783af9de4e09fe8f257790424e4b1e137c1bd6c268da4dd616b41b1829aecd8",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_front/bracelet",
+      "file": "art/equipment/pieces/right_arm_front/bracelet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "93c81ff76ca98ab37e6398d809015ba33c01f640d726dabc15657a7d0311683c",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_R_back/gauntlet",
+      "file": "art/equipment/pieces/hand_R_back/gauntlet.png",
+      "batch": 1,
+      "size": [
+        992,
+        1568
+      ],
+      "format": "RGB",
+      "sha256": "0586f681e3c9a19b9f2a356b71be8b3769a01b4f290da3f82780f3d866f22e0e",
+      "original_size": [
+        997,
+        1577
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_front/bracelet",
+      "file": "art/equipment/pieces/left_arm_front/bracelet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "d0f6d0b82cb7294f9ffc77b892f9d4187fee4487d12d1615f76c352596c8cb1b",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_back/bracelet",
+      "file": "art/equipment/pieces/left_arm_back/bracelet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "859445c631ecce8acf8332d456e8b62bd79374bdeedf3b3efa23dc735f05c12c",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_back/bracelet",
+      "file": "art/equipment/pieces/right_arm_back/bracelet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "25f5cff084250d7efede239fea05cbe6132b5f2a5076ed2908df450d2b912b9d",
+      "original_size": [
+        966,
+        1628
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_front/gauntlet",
+      "file": "art/equipment/pieces/figure_front/gauntlet.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "70eddc51c160eeaac000d57265325c95cd48823d3fa8c6c168d7a194613e7032",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/gauntlet",
+      "file": "art/equipment/pieces/figure_back/gauntlet.png",
+      "batch": 1,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "b7bcc8a3ecdfbd06eea510bc11f1cd1b012a68b5bbb914877cc328a6a5ea98c2",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_front/gauntlet",
+      "file": "art/equipment/pieces/right_arm_front/gauntlet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "60bc708601dfacaf239f0feaea156241372b95fbe7f45d61bade8f0540e44521",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/right_arm_back/gauntlet",
+      "file": "art/equipment/pieces/right_arm_back/gauntlet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "963e86aa9e9259b8be64107b0cddd717ff155c7e0b4433c924c83404db2d2114",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_front/gauntlet",
+      "file": "art/equipment/pieces/left_arm_front/gauntlet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "59d4c04f31e26eef80a51ad98826f9f481bb158f5ad535031d61a0a50cf7750c",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "align",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/left_arm_back/gauntlet",
+      "file": "art/equipment/pieces/left_arm_back/gauntlet.png",
+      "batch": 1,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "e8405a3a677a89c4605fc6ea95537b57f0c094f8ac5e8b54b8e626bc6b7b08bc",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_R_palm/gauntlet",
+      "file": "art/equipment/pieces/hand_R_palm/gauntlet.png",
+      "batch": 1,
+      "size": [
+        992,
+        1568
+      ],
+      "format": "RGB",
+      "sha256": "11e9eb7fce12eb3307c79089cd23ae3dfbda07c4fd3712163bad391d0ea58e41",
+      "original_size": [
+        997,
+        1577
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_back/gauntlet",
+      "file": "art/equipment/pieces/hand_L_back/gauntlet.png",
+      "batch": 1,
+      "size": [
+        1008,
+        1552
+      ],
+      "format": "RGB",
+      "sha256": "33fe3ddd44c82465c00d84adb53a5a771859a0f3fed4dd1d92d992134d4ba08c",
+      "original_size": [
+        1011,
+        1555
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_palm/gauntlet",
+      "file": "art/equipment/pieces/hand_L_palm/gauntlet.png",
+      "batch": 1,
+      "size": [
+        1008,
+        1536
+      ],
+      "format": "RGB",
+      "sha256": "31d0aed9a607da3bb231a2c2fc0c7671a5f48e93e37fc0f2e0c42163e5eb8a45",
+      "original_size": [
+        1016,
+        1548
+      ],
+      "selected_stage": "isolate",
       "selected_attempt": 1
     }
   ]

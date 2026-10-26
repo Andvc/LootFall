@@ -491,6 +491,498 @@
         1748
       ],
       "prompt": "Use case: precise-object-edit. Image 1 is the existing equipment OVERLAY to correct, on its full 896 x 1744 green canvas. Image 2 is the bare-body registration reference. Image 3 marks the allowed boot area. Return ONLY the corrected overlay on green, never any skin or body.\nThe current main boot is too short vertically at the bottom: when placed over image 2, the man's bare heel sticks out BELOW its sole. Correct that by extending the boot's brown heel and dark sole edge DOWN enough to completely hide the bare heel at the identical image coordinates. Its lowest sole edge must be at y=1695, leaving just 49 px of green below. Keep the top of the boot, horizontal position, orientation, panels, stitching and lighting unchanged. Cover the tiny opposite heel at the right edge similarly. Do not scale or recenter the canvas. No bare skin can remain or protrude when this overlay is placed on the reference. Output same tall canvas aspect; pure flat #00ff00 background."
+    },
+    {
+      "id": "pieces/figure_back/cloak",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__cloak__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a long travelling cloak of heavy wool over both shoulders, falling to his calves at the back, fastened at the base of his throat with a round brass clasp, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. The cloth is walnut brown (#6d4c3d for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the edit target, the registered bare knight base. Image 2 is ONLY the allowed-area guide: do not paint the guide's pink tint, white lines or rectangle. Output the entire same 944 x 1664 canvas. Keep exactly the existing body and camera coordinates. The wool cloak begins at the shoulders, drapes straight down and ends at mid calves around y=1420, staying inside the guide width. Plain walnut-brown cloth, a few broad angular folds, exactly three flat tones, smooth solid fills with NO mottling, hatching, fabric texture or gradients. No hood. Keep the hair braid in front of the cloak at its existing location and both lower arms, hands, lower calves and feet unchanged. The clasp is at his front so not visible from this rear view."
+    },
+    {
+      "id": "pieces/figure_back/cloak",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__cloak__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the cloak: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the cloak exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Keep the original FULL 944 x 1664 canvas, no crop, no resizing of the cloak, no recentering, no repositioning. Preserve all existing cloth fold boundaries and hem shape. Remove the man entirely, including braid, head, arms, hands, calves and feet. The braid-shaped hole where hair covered the cloak must become green. Keep only visible walnut-brown cloak pixels at their exact original coordinates. Replace every other pixel with perfectly flat #00ff00. Do not add cloth that was hidden behind hair or skin."
+    },
+    {
+      "id": "pieces/figure_back/cloak",
+      "stage": "isolate",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__cloak__isolate__02.png",
+      "source_size": [
+        945,
+        1664
+      ],
+      "prompt": "Use case: precise-object-edit. Input 1 is the cloak-only overlay to correct. Input 2 shows the original wearing reference, with his long braid covering the top middle of the cloak. Keep input 1's entire 944 x 1664 canvas, cloak silhouette, position, folds, colours and dark outline EXACTLY unchanged. Make ONE change: erase the narrow BRAID-SHAPED AREA of cloth that is covered by the braid in input 2, replacing that precise silhouette with flat #00ff00. It is a narrow vertical tapering irregular hole in the top centre of the cloak, starting around x=451,y=476 and ending at the braid tip around x=483,y=584. Follow the actual hair silhouette in input 2, not a rectangle. The game will draw this overlay over the bare man, so the green cutout is necessary for his existing braid to show through. Do not draw hair or skin. Do not move the cloak or fill in the required green cutout. The rest remains as input 1."
+    },
+    {
+      "id": "pieces/figure_front/cloak",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__cloak__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a long travelling cloak of heavy wool over both shoulders, falling to his calves at the back, fastened at the base of his throat with a round brass clasp, inside the masked area only, fitted to him exactly as he is drawn. Seen from the front it is mostly behind him: paint only the parts that show past his body and over his shoulders; his body stays in front of the rest. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. The cloth is walnut brown (#6d4c3d for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Input 1 is the exact edit target, input 2 the rear-view design reference, input 3 the placement guide ONLY. Keep input 1's FULL 944 x 1664 canvas, pose and all pixel coordinates. Match the plain unhooded cloak, heavy walnut-brown cloth and broad angular folds in input 2. Seen from the front, most cloak fabric is behind the body: just shoulder caps, a narrow collar and simple round brass throat clasp may cover skin. The chest, belly, arms below shoulders, hands, shorts, knees, calves, feet remain unchanged and occlude the drape. Cloth is visible only between/beside limbs behind the man, ending at mid calves. Do not copy guide tint or white lines. Do not widen or reposition the body. Exactly three solid muted walnut-brown tones, no texture noise or gradients."
+    },
+    {
+      "id": "pieces/figure_front/cloak",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__cloak__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the cloak: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the cloak exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the FULL original 944 x 1664 canvas. Do not crop or recenter. Erase ALL exposed skin, face, hair, beard, shorts and feet to pure #00ff00 at their exact original pixels. Keep only the visible cloak collar, shoulder caps, brass clasp and exposed drape beside/between the limbs. The whole man becomes a large GREEN NEGATIVE CUTOUT through the cloak; do NOT fill in any cloak hidden behind his chest, arms, shorts or legs. Keep every existing visible cloth contour at precisely the same coordinate and all folds unchanged. Only visible cloak and brass pixels remain, with flat #00ff00 everywhere else."
+    },
+    {
+      "id": "pieces/figure_back/cloak",
+      "stage": "isolate",
+      "attempt": 3,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__cloak__isolate__03.png",
+      "source_size": [
+        945,
+        1664
+      ],
+      "prompt": "Use case: precise-object-edit. Edit the attached 944 x 1664 cloak overlay. Keep its whole canvas, all cloth position, silhouette, folds and colour exactly unchanged. There is a narrow vertical green braid-shaped cutout in the top centre. This cutout extends too far down: its pointed tip currently reaches around y=610 but the underlying braid ends around y=584. Make that one cutout SHORTER by filling in just its bottom 26 pixels with the same brown cloth and fold pattern as immediately around it. The new cutout tip must end at y=584. Do not alter the upper portion of the cutout. Do not move or scale anything. No skin or hair, only the cloak and pure #00ff00 background. This corrects a small exposed skin sliver under the braid."
+    },
+    {
+      "id": "pieces/back/cloak",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__back__cloak__paint__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's back from behind, up close, in which he already wears the cloak, soft and blurred because it was scaled up: redraw the cloak crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a long travelling cloak of heavy wool over both shoulders, falling to his calves at the back, fastened at the base of his throat with a round brass clasp). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 12 px), with thinner lines inside it, and its light comes from the top left. The cloth is walnut brown (#6d4c3d for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the seeded edit target and exact coordinate reference; image 2 is ONLY the allowed-area guide, never copy its pink/white markings. Restore the existing cloak in image 1 crisply without redesigning it. Output exactly the same 1088 x 1440 canvas and crop. Keep every visible fabric contour, fold boundary, body/hair edge and clipped canvas edge at its current pixel position. The full cloak visible in the seed continues through the bottom of the crop. No new hem, no recentering, no camera change, no texture noise. Preserve the source cloth colour without making it redder or more saturated. Flat solid cel fills, ink #15101f. Do not add or move any body part."
+    },
+    {
+      "id": "pieces/right_arm_back/cloak",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_back__cloak__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from behind, up close, in which he already wears the cloak, soft and blurred because it was scaled up: redraw the cloak crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a long travelling cloak of heavy wool over both shoulders, falling to his calves at the back, fastened at the base of his throat with a round brass clasp). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. The cloth is walnut brown (#6d4c3d for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the seeded edit target and exact coordinate reference; image 2 is ONLY the allowed-area guide, never copy its pink/white markings. Restore the existing cloak in image 1 crisply without redesigning it. Output exactly the same 960 x 1616 canvas and crop. Keep every visible fabric contour, fold boundary, body/hair edge and clipped canvas edge at its current pixel position. The full cloak visible in the seed continues through the bottom of the crop. No new hem, no recentering, no camera change, no texture noise. Preserve the source cloth colour without making it redder or more saturated. Flat solid cel fills, ink #15101f. Do not add or move any body part."
+    },
+    {
+      "id": "pieces/back/cloak",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__back__cloak__isolate__01.png",
+      "source_size": [
+        1090,
+        1443
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the cloak: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the cloak exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Remove all skin, hair, braid, arms and any body completely to pure #00ff00. Keep precisely the existing visible walnut-brown cloak at its original pixels, on the full 1088 x 1440 canvas. The cloth runs out through the bottom canvas edge; never add a hem or recenter. In the back plate, both neck skin and the braid make a green cutout, with no skin or hair retained. Retain the existing source colour, fold positions and line weight. Do not shift saturation or hue. Only cloth and its original ink outline remain."
+    },
+    {
+      "id": "pieces/right_arm_back/cloak",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_back__cloak__isolate__01.png",
+      "source_size": [
+        966,
+        1628
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the cloak: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the cloak exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Remove all skin, hair, braid, arms and any body completely to pure #00ff00. Keep precisely the existing visible walnut-brown cloak at its original pixels, on the full 960 x 1616 canvas. The cloth runs out through the bottom canvas edge; never add a hem or recenter. In the back plate, both neck skin and the braid make a green cutout, with no skin or hair retained. Retain the existing source colour, fold positions and line weight. Do not shift saturation or hue. Only cloth and its original ink outline remain."
+    },
+    {
+      "id": "pieces/right_arm_front/cloak",
+      "stage": "restore_isolate",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_front__cloak__restore_isolate__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Use case: precise-object-edit. Make a clothing-only overlay for a 2D fantasy game's equipment UI. Input 1 is the fixed 960 x 1616 registration reference, showing a cropped adult male game character wearing a walnut-brown cloak. Input 2 is the placement guide only. Return ONLY the existing visible brown CLOAK fabric from input 1, restored crisply, on perfectly flat #00ff00. Remove the person entirely: NO skin, hair, torso, arms, hands or shorts in the output. Preserve the FULL canvas and exact positions. Keep the cloak's shoulder cap at upper right, the cropped collar reaching the right edge, and the long visible drape behind the arm reaching the bottom edge. These cloth parts must stay disconnected wherever the body originally occluded them. Match every visible fold and contour; clean dark #15101f outline and three muted flat brown tones. Do not recenter, enlarge, crop, add a hem or fill in cloth hidden by the reference body. No text, markings, glow or guide colours."
+    },
+    {
+      "id": "pieces/left_arm_front/cloak",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_front__cloak__restore_isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from the front, up close, in which he already wears the cloak, soft and blurred because it was scaled up: redraw the cloak crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a long travelling cloak of heavy wool over both shoulders, falling to his calves at the back, fastened at the base of his throat with a round brass clasp). Seen from the front it is mostly behind him: paint only the parts that show past his body and over his shoulders; his body stays in front of the rest. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. The cloth is walnut brown (#6d4c3d for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nOutput requirement for this seeded view: the seed already contains the fully designed cloak. Restore that existing fabric crisply and isolate it in this edit. Return ONLY its visible cloth pixels with every other area flat #00ff00, without any body, skin, hair, hands or shorts. Preserve the FULL 960 x 1616 canvas and every existing fabric edge and fold in its exact pixel position. The cloak continues through the bottom edge of the image, with no new hem. Keep all green holes where the body occluded the fabric. Match the seed's muted walnut-brown cloth, with no added saturation or colour shift; three flat solid tones, clean #15101f ink. Image 1 is the registered edit target; image 2 the placement guide only, never copy guide markings. No recentering, cropping, invented fabric or texture noise."
+    },
+    {
+      "id": "pieces/left_arm_back/cloak",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_back__cloak__restore_isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from behind, up close, in which he already wears the cloak, soft and blurred because it was scaled up: redraw the cloak crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a long travelling cloak of heavy wool over both shoulders, falling to his calves at the back, fastened at the base of his throat with a round brass clasp). Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. The cloth is walnut brown (#6d4c3d for the middle tone). Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nOutput requirement for this seeded view: the seed already contains the fully designed cloak. Restore that existing fabric crisply and isolate it in this edit. Return ONLY its visible cloth pixels with every other area flat #00ff00, without any body, skin, hair, hands or shorts. Preserve the FULL 960 x 1616 canvas and every existing fabric edge and fold in its exact pixel position. The cloak continues through the bottom edge of the image, with no new hem. Keep all green holes where the body occluded the fabric. Match the seed's muted walnut-brown cloth, with no added saturation or colour shift; three flat solid tones, clean #15101f ink. Image 1 is the registered edit target; image 2 the placement guide only, never copy guide markings. No recentering, cropping, invented fabric or texture noise."
+    },
+    {
+      "id": "pieces/right_arm_front/bracelet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_front__bracelet__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from the front, up close. Paint him wearing two bracelets on each wrist: a plain gold band near the hand and, just above it, a bracelet of small carved beads, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the registered adult male game-character arm, image 2 is only the wrist placement guide. Add exactly TWO separate bracelets around the right wrist at the pink marked area near the lower-left of this 960 x 1616 canvas. The lower one nearest the hand is a plain narrow gold band. Just above, nearer the elbow, is one strand of small round carved dark-brown wooden beads, each with a single shallow groove. Both wrap around the wrist in its diagonal perspective, and their back halves are hidden by the wrist. Leave a narrow skin gap between the bracelets. No sleeve, glove, bracer or extra jewelry. Preserve all body pixels outside this wrist site, exact crop and canvas. No text or symbols on the gold band. Flat muted material tones and thick #15101f outer ink; no glitter, gradients or texture."
+    },
+    {
+      "id": "pieces/right_arm_front/bracelet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_front__bracelet__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracelets: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracelets exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the FULL 960 x 1616 canvas and bracelet positions near the lower-left corner. Keep ONLY the narrow plain gold band and the separate row of small brown wooden beads just above it. All skin between, inside and around them, and all other person pixels, become perfectly flat #00ff00. Keep only the front visible portions of each bracelet, not full floating rings. Do not move, enlarge, recenter or crop these small components. Preserve all gold and bead contours, colour and dark ink exactly, with no skin-coloured halo."
+    },
+    {
+      "id": "pieces/hand_R_back/gauntlet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_R_back__gauntlet__paint__01.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the back of his right hand, fingers up, with the wrist and forearm. Paint him wearing a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist, inside the masked area only, fitted to him exactly as he is drawn. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the exact fixed right-hand base; image 2 is only the placement guide. A five-finger medieval gauntlet fitted over this exact spread hand: thumb extends to image left, index left of centre, middle tallest, ring and little fingers to the right. Closed articulated steel finger plates cover every fingertip; broad plain back-of-hand plate; small round knuckle plates; overlapping wrist lames and a short flared cuff ending near y=1295. Only a tiny amount of dark brown leather may show at flexible joints. Keep the same hand outline, finger lengths, spread, palm/wrist position and exact 992 x 1568 full canvas. Do not add a sixth finger, ornament or emblem. Preserve the bare forearm below the cuff. Use genuinely NEUTRAL steel greys #4a4a4f #8a8a90 #cfcfd4 and three hard flat cel shades, no blue tint, no gradient, no noise."
+    },
+    {
+      "id": "pieces/right_arm_front/cloak",
+      "stage": "colour",
+      "attempt": 3,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_front__cloak__colour__03.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Use case: precise-object-edit. Input 1 is a finished cloak overlay on a 960 x 1616 canvas. Input 2 is ONLY its colour reference, another view of the same cloak. Change ONLY the cloth colour in input 1: remove its excessive brick-red hue and match the muted WALNUT BROWN cloth tones of input 2 exactly. Do not copy input 2's layout or shapes. Preserve every foreground pixel's position, all edges, all folds, the entire canvas, and the #00ff00 background exactly as input 1. Keep dark #15101f ink. No skin, body, new parts or text. This is only a subtle colour match between two views of the same brown cloak."
+    },
+    {
+      "id": "pieces/left_arm_front/bracelet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_front__bracelet__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from the front, up close. Paint him wearing two bracelets on each wrist: a plain gold band near the hand and, just above it, a bracelet of small carved beads, inside the masked area only, fitted to him exactly as he is drawn. Only his left one is in this picture (on the viewer's right): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the exact body edit target, image 2 is the design reference ONLY, and image 3 is the placement guide only. Fit precisely the same TWO bracelets from image 2 onto the marked wrist in image 1: a narrow plain gold band closest to the hand, and a separate strand of small round grooved dark-brown wooden beads nearer the elbow, with a slim skin gap. Keep the wrist's existing diagonal perspective and hide the rear sides of the bracelets behind it. Do not transfer the reference's canvas position; use this view's marked wrist. Preserve the entire 960 x 1616 canvas and all anatomy, pose and crop. No extra jewelry, sleeves or markings. Keep gold #7a4f12 #c48a22 #f2c45a and brown wood, #15101f ink, top-left light."
+    },
+    {
+      "id": "pieces/left_arm_back/bracelet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_back__bracelet__paint__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from behind, up close. Paint him wearing two bracelets on each wrist: a plain gold band near the hand and, just above it, a bracelet of small carved beads, inside the masked area only, fitted to him exactly as he is drawn. Only his left one is in this picture (on the viewer's left): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the exact body edit target, image 2 is the design reference ONLY, and image 3 is the placement guide only. Fit precisely the same TWO bracelets from image 2 onto the marked wrist in image 1: a narrow plain gold band closest to the hand, and a separate strand of small round grooved dark-brown wooden beads nearer the elbow, with a slim skin gap. Keep the wrist's existing diagonal perspective and hide the rear sides of the bracelets behind it. Do not transfer the reference's canvas position; use this view's marked wrist. Preserve the entire 960 x 1616 canvas and all anatomy, pose and crop. No extra jewelry, sleeves or markings. Keep gold #7a4f12 #c48a22 #f2c45a and brown wood, #15101f ink, top-left light."
+    },
+    {
+      "id": "pieces/hand_R_back/gauntlet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_R_back__gauntlet__isolate__01.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Keep the entire original 992 x 1568 canvas. Remove ONLY the exposed skin of the forearm below the flared cuff, turning it into flat #00ff00. Keep the entire existing gauntlet, all five articulated steel fingers, leather joints and cuff at precisely their current coordinates. No cropping, no scaling, no recentering and no recolouring. Preserve all plate edges and dark outlines. Only steel and leather gauntlet remain, with green everywhere else."
+    },
+    {
+      "id": "pieces/right_arm_back/bracelet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_back__bracelet__paint__01.png",
+      "source_size": [
+        966,
+        1628
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from behind, up close. Paint him wearing two bracelets on each wrist: a plain gold band near the hand and, just above it, a bracelet of small carved beads, inside the masked area only, fitted to him exactly as he is drawn. Only his right one is in this picture (on the viewer's right): paint that one. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the exact body target, image 2 the established bracelet design, image 3 the wrist placement guide. Add the same TWO bracelets to the marked wrist at lower right: narrow plain gold band nearest the hand, and separate strand of small round grooved wooden beads toward the elbow, slim skin gap between them. Fit the existing wrist's angle and hide the bracelets' rear halves. Full original 960 x 1616 canvas and anatomy unchanged. Top-left light, thick dark ink, muted gold and wood tones. No sleeve, bracer, extra jewelry, guide markings or text."
+    },
+    {
+      "id": "pieces/left_arm_front/bracelet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_front__bracelet__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracelets: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracelets exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the complete 960 x 1616 canvas and exact bracelet locations. Keep only the narrow gold band and the separate small brown carved bead bracelet just above it. Replace every body pixel, including the skin between and behind the bracelets, with pure flat #00ff00. Keep only visible front-facing bracelet surfaces, never complete the parts hidden behind the wrist. No moving, scaling, recentering, cropping, or skin-coloured halos. Preserve the design, colour and ink unchanged."
+    },
+    {
+      "id": "pieces/left_arm_back/bracelet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_back__bracelet__isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracelets: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracelets exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the complete 960 x 1616 canvas and exact bracelet locations. Keep only the narrow gold band and the separate small brown carved bead bracelet just above it. Replace every body pixel, including the skin between and behind the bracelets, with pure flat #00ff00. Keep only visible front-facing bracelet surfaces, never complete the parts hidden behind the wrist. No moving, scaling, recentering, cropping, or skin-coloured halos. Preserve the design, colour and ink unchanged."
+    },
+    {
+      "id": "pieces/right_arm_back/bracelet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_back__bracelet__isolate__01.png",
+      "source_size": [
+        966,
+        1628
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the bracelets: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the bracelets exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the entire 960 x 1616 canvas. Keep only the gold band and the separate wooden bead bracelet at the exact existing lower-right wrist coordinates. Erase all body, skin between the bracelets, hands and shorts to perfectly flat #00ff00. Do not move, enlarge, recenter, crop, or complete the hidden backs of the bracelets. Match the original colour and ink exactly. No residual skin or shadow."
+    },
+    {
+      "id": "pieces/figure_front/gauntlet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_front__gauntlet__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from the front. Paint him wearing a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the whole-figure edit target, image 2 the gauntlet design reference, image 3 the hand placement guide only. Fit the same matching pair of five-finger gauntlets over BOTH existing hands, all ten fingers at exactly their current locations and pointing down as shown. The BACKS of both hands face the viewer: show plain broad steel hand plates, four small knuckle plates, articulated finger plates, wrist lames and flared cuffs like the master. Preserve the FULL 944 x 1664 canvas, all body proportions and pose, with no shift or rescaling. Hands stay spread open; no fists or weapons. Only the hands and short wrist cuffs change. No exposed skin on fingers, no extra limbs or fingers. Neutral grey steel, brown leather joints, simple flat cel tones, thick dark ink for legibility at the small size. No symbols, guide colours or ornaments."
+    },
+    {
+      "id": "pieces/figure_back/gauntlet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__figure_back__gauntlet__paint__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the whole knight seen from behind. Paint him wearing a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist, inside the masked area only, fitted to him exactly as he is drawn. Paint both, on his left and his right, as a matching pair. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 5 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the whole-figure edit target, image 2 the gauntlet design reference, image 3 the hand placement guide only. Fit the same matching pair of five-finger gauntlets over BOTH existing hands, all ten fingers at exactly their current locations and pointing down as shown. The PALMS face the viewer in this rear view of the man: show brown leather glove palms and leather finger undersides, with steel fingertip edges and the flared steel wrist cuffs of the master. Do not place a back-of-hand plate over a palm. Preserve the FULL 944 x 1664 canvas, all body proportions and pose, with no shift or rescaling. Hands stay spread open; no fists or weapons. Only the hands and short wrist cuffs change. No exposed skin on fingers, no extra limbs or fingers. Neutral grey steel, brown leather joints, simple flat cel tones, thick dark ink for legibility at the small size. No symbols, guide colours or ornaments."
+    },
+    {
+      "id": "pieces/figure_front/gauntlet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_front__gauntlet__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gauntlets: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlets exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the entire 944 x 1664 canvas, keeping both gloves at the exact original hand locations. Keep only the two steel-and-leather gauntlets with their fingers and cuffs. Remove every body pixel to perfectly flat pure #00ff00. No moving, scaling, recentering, cropping, rotating or rearranging. Preserve the precise silhouette, design, colours, dark ink and size of both gauntlets. Keep empty gaps between all fingers green. No skin halos and no added imagery."
+    },
+    {
+      "id": "pieces/figure_back/gauntlet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__figure_back__gauntlet__isolate__01.png",
+      "source_size": [
+        945,
+        1665
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gauntlets: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlets exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the entire 944 x 1664 canvas, keeping both gloves at the exact original hand locations. Keep only the two steel-and-leather gauntlets with their fingers and cuffs. Remove every body pixel to perfectly flat pure #00ff00. No moving, scaling, recentering, cropping, rotating or rearranging. Preserve the precise silhouette, design, colours, dark ink and size of both gauntlets. Keep empty gaps between all fingers green. No skin halos and no added imagery."
+    },
+    {
+      "id": "pieces/right_arm_front/gauntlet",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__right_arm_front__gauntlet__restore_isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from the front, up close, in which he already wears the gauntlet, soft and blurred because it was scaled up: redraw the gauntlet crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist). Only his right one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nThis is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. The supplied image is the already fitted, enlarged gauntlet on its arm. Perform one restoration-and-isolation edit: redraw ONLY that existing glove with crisp clean lines, at EXACTLY the existing coordinates and size, and replace the entire body/skin/shorts with flat pure #00ff00. Keep the original 960 x 1616 full canvas; the gauntlet intentionally extends through the BOTTOM edge, so do NOT shrink it, move it upward or complete missing fingertips. Preserve its existing steel/leather design, hand orientation and visible cropped silhouette. No complete human figure, no remaining skin, no added objects. Strong dark #15101f contour and three flat material tones."
+    },
+    {
+      "id": "pieces/right_arm_back/gauntlet",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_back__gauntlet__restore_isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from behind, up close, in which he already wears the gauntlet, soft and blurred because it was scaled up: redraw the gauntlet crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist). Only his right one is in this picture (on the viewer's right): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nThis is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. The supplied image is the already fitted, enlarged gauntlet on its arm. Perform one restoration-and-isolation edit: redraw ONLY that existing glove with crisp clean lines, at EXACTLY the existing coordinates and size, and replace the entire body/skin/shorts with flat pure #00ff00. Keep the original 960 x 1616 full canvas; the gauntlet intentionally extends through the BOTTOM edge, so do NOT shrink it, move it upward or complete missing fingertips. Preserve its existing steel/leather design, hand orientation and visible cropped silhouette. No complete human figure, no remaining skin, no added objects. Strong dark #15101f contour and three flat material tones."
+    },
+    {
+      "id": "pieces/left_arm_front/gauntlet",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_front__gauntlet__restore_isolate__01.png",
+      "source_size": [
+        966,
+        1628
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from the front, up close, in which he already wears the gauntlet, soft and blurred because it was scaled up: redraw the gauntlet crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist). Only his left one is in this picture (on the viewer's right): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nThis is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. The supplied image is the already fitted, enlarged gauntlet on its arm. Perform one restoration-and-isolation edit: redraw ONLY that existing glove with crisp clean lines, at EXACTLY the existing coordinates and size, and replace the entire body/skin/shorts with flat pure #00ff00. Keep the original 960 x 1616 full canvas; the gauntlet intentionally extends through the BOTTOM edge, so do NOT shrink it, move it upward or complete missing fingertips. Preserve its existing steel/leather design, hand orientation and visible cropped silhouette. No complete human figure, no remaining skin, no added objects. Strong dark #15101f contour and three flat material tones."
+    },
+    {
+      "id": "pieces/left_arm_back/gauntlet",
+      "stage": "restore_isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_back__gauntlet__restore_isolate__01.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from behind, up close, in which he already wears the gauntlet, soft and blurred because it was scaled up: redraw the gauntlet crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist). Only his left one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nThis is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. The supplied image is the already fitted, enlarged gauntlet on its arm. Perform one restoration-and-isolation edit: redraw ONLY that existing glove with crisp clean lines, at EXACTLY the existing coordinates and size, and replace the entire body/skin/shorts with flat pure #00ff00. Keep the original 960 x 1616 full canvas; the gauntlet intentionally extends through the BOTTOM edge, so do NOT shrink it, move it upward or complete missing fingertips. Preserve its existing steel/leather design, hand orientation and visible cropped silhouette. No complete human figure, no remaining skin, no added objects. Strong dark #15101f contour and three flat material tones."
+    },
+    {
+      "id": "pieces/hand_R_palm/gauntlet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_R_palm__gauntlet__paint__01.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the palm of his right hand, fingers up, with the wrist and forearm. Paint him wearing a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the fixed hand edit target; image 2 shows the gauntlet master design; image 3 is ONLY a placement guide, never include its pink/white overlay. Image 4 shows the existing matching palm design: brown leather palm with two padded oval pads and small knuckle-base pads, steel finger segments, flared steel wrist cuff. Render that PALM side here; do not place a back-of-hand plate over the palm. Preserve the complete 992 x 1568 canvas and all five finger positions, length and spread EXACTLY. Thumb stays on the right side. Only dress this single existing hand. Cover every fingertip; no exposed skin above the cuff. Cuff ends around the existing wrist, leaving the lower forearm unchanged. No extra fingers, jewelry, symbols or ornaments. Neutral grey steel, warm brown leather, three flat tones, heavy clean dark ink."
+    },
+    {
+      "id": "pieces/hand_L_back/gauntlet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_L_back__gauntlet__paint__01.png",
+      "source_size": [
+        1011,
+        1556
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the back of his left hand, fingers up, with the wrist and forearm. Paint him wearing a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the fixed hand edit target; image 2 shows the gauntlet master design; image 3 is ONLY a placement guide, never include its pink/white overlay. Match the master BACK of the hand: broad plain steel hand plate, four small round knuckle plates, articulated finger lames and flared steel wrist cuff. Preserve the complete 1008 x 1552 canvas and all five finger positions, length and spread EXACTLY. Thumb stays on the right side. Only dress this single existing hand. Cover every fingertip; no exposed skin above the cuff. Cuff ends around the existing wrist, leaving the lower forearm unchanged. No extra fingers, jewelry, symbols or ornaments. Neutral grey steel, warm brown leather, three flat tones, heavy clean dark ink."
+    },
+    {
+      "id": "pieces/hand_L_palm/gauntlet",
+      "stage": "paint",
+      "attempt": 1,
+      "selected_for_delivery": false,
+      "local_original": "pieces__hand_L_palm__gauntlet__paint__01.png",
+      "source_size": [
+        1016,
+        1548
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, a close-up of the palm of his left hand, fingers up, with the wrist and forearm. Paint him wearing a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist, inside the masked area only, fitted to him exactly as he is drawn. It is the same piece as in the second attached picture: match its shape, design, materials and colours exactly. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 7 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nUse case: precise-object-edit. Image 1 is the fixed hand edit target; image 2 shows the gauntlet master design; image 3 is ONLY a placement guide, never include its pink/white overlay. Image 4 shows the existing matching palm design: brown leather palm with two padded oval pads and small knuckle-base pads, steel finger segments, flared steel wrist cuff. Render that PALM side here; do not place a back-of-hand plate over the palm. Preserve the complete 1008 x 1536 canvas and all five finger positions, length and spread EXACTLY. Thumb stays on the left side. Only dress this single existing hand. Cover every fingertip; no exposed skin above the cuff. Cuff ends around the existing wrist, leaving the lower forearm unchanged. No extra fingers, jewelry, symbols or ornaments. Neutral grey steel, warm brown leather, three flat tones, heavy clean dark ink."
+    },
+    {
+      "id": "pieces/hand_R_palm/gauntlet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_R_palm__gauntlet__isolate__01.png",
+      "source_size": [
+        997,
+        1577
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the entire 992 x 1568 canvas and exact fitted glove coordinates. Remove ONLY the exposed lower forearm below the steel cuff to pure flat #00ff00. Keep all five fingers, leather, steel, silhouette, colour, lighting and ink EXACTLY unchanged. No repositioning, resizing, trimming, added fingers or remnants of skin. The complete empty canvas stays green."
+    },
+    {
+      "id": "pieces/hand_L_back/gauntlet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_L_back__gauntlet__isolate__01.png",
+      "source_size": [
+        1011,
+        1555
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the entire 1008 x 1552 canvas and exact fitted glove coordinates. Remove ONLY the exposed lower forearm below the steel cuff to pure flat #00ff00. Keep all five fingers, leather, steel, silhouette, colour, lighting and ink EXACTLY unchanged. No repositioning, resizing, trimming, added fingers or remnants of skin. The complete empty canvas stays green."
+    },
+    {
+      "id": "pieces/hand_L_palm/gauntlet",
+      "stage": "isolate",
+      "attempt": 1,
+      "selected_for_delivery": true,
+      "local_original": "pieces__hand_L_palm__gauntlet__isolate__01.png",
+      "source_size": [
+        1016,
+        1548
+      ],
+      "prompt": "This is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Preserve the entire 1008 x 1536 canvas and exact fitted glove coordinates. Remove ONLY the exposed lower forearm below the steel cuff to pure flat #00ff00. Keep all five fingers, leather, steel, silhouette, colour, lighting and ink EXACTLY unchanged. No repositioning, resizing, trimming, added fingers or remnants of skin. The complete empty canvas stays green."
+    },
+    {
+      "id": "pieces/right_arm_front/gauntlet",
+      "stage": "restore_isolate",
+      "attempt": 2,
+      "selected_for_delivery": true,
+      "local_original": "pieces__right_arm_front__gauntlet__restore_isolate__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's right arm from the front, up close, in which he already wears the gauntlet, soft and blurred because it was scaled up: redraw the gauntlet crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist). Only his right one is in this picture (on the viewer's left): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nThis is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Image 1 is the registered edit target; image 2 is the exact permitted placement guide. Restore and isolate the EXISTING cropped gauntlet only, leaving every other pixel pure #00ff00. Keep canvas 960 x 1616 and all finger/thumb/backplate pixels at their exact existing coordinates. The fingers continue OFF THE BOTTOM EDGE; never complete or recenter the glove. CRITICAL: the gauntlet must fit the outlined area in image 2. Make its flared wrist cuff shorter by removing the uppermost flare above y=1200; keep a compact two-lame steel cuff starting at approximately y=1200 and ending at the existing backplate. Do NOT move the hand plate or fingers upward, sideways or enlarge them. The upper 1190 rows are entirely green. Keep dark clean ink around the steel edge and flat neutral grey steel. No body, skin, pink, white guide line or annotations."
+    },
+    {
+      "id": "pieces/left_arm_front/gauntlet",
+      "stage": "restore_isolate",
+      "attempt": 2,
+      "selected_for_delivery": false,
+      "local_original": "pieces__left_arm_front__gauntlet__restore_isolate__02.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Inked cel illustration for a 2D fantasy game's equipment screen. One clean, uniform, dark outline (#15101f) around every shape, thinner inner lines in the same ink, flat colour fills with exactly three tone steps per material (shadow, mid, light), light from the top left at 45 degrees, no gradients, no texture noise, no cast shadows, no glow, no text, no watermark, no frame, no border. This is an edit of the attached picture, the knight's left arm from the front, up close, in which he already wears the gauntlet, soft and blurred because it was scaled up: redraw the gauntlet crisply at this size, with exactly the same shape, design and colours, in exactly the same place (a steel gauntlet on each hand: articulated plates over the back of the hand and down each finger, a flared cuff over the wrist). Only his left one is in this picture (on the viewer's right): paint that one. Keep everything else exactly as it is: his pose, body, face, hair, braies, the framing and the flat green background. Its outline is the same dark ink (#15101f) and the same weight as his (about 13 px), with thinner lines inside it, and its light comes from the top left. Materials, each in exactly three flat tones: steel and iron in neutral grey with no tint at all (shadow #4a4a4f, mid #8a8a90, light #cfcfd4; the game recolours plain metal for each era, so never tint, blue, gild or blacken it unless asked); leather in warm brown (#4a2f22, #7a5038, #a77552); gold and brass (#7a4f12, #c48a22, #f2c45a); wood (#4b3220, #7b5534, #a77a4e); bone, horn and ivory (#8f7f63, #c9b994, #ece2c8); gemstones as clear colourless crystal, white with pale grey facets (the game tints them); cloth in the dye named, muted, never bright. No colours of the rarity ladder (no bright green, blue, purple, orange, red, pink or cyan), no glow, no magic light, no sparkles, and nothing green at all: the background green is keyed out.\nThis is an edit of the attached picture. Keep only the gauntlet: replace everything else (his skin, hair, beard, braies and body, and anything else in the picture) with perfectly flat pure green #00ff00, edge to edge. Keep every pixel of the gauntlet exactly where and as it is, with its ink outline. Where his body is in front of it, leave green: don't draw what his body hid.\nUse case: precise-object-edit. Image 1 is the registered edit target; image 2 is the exact permitted placement guide. Restore and isolate the EXISTING cropped gauntlet only, leaving every other pixel pure #00ff00. Keep canvas 960 x 1616 and all finger/thumb/backplate pixels at their exact existing coordinates. The fingers continue OFF THE BOTTOM EDGE; never complete or recenter the glove. CRITICAL: the gauntlet must fit the outlined area in image 2. Make its flared wrist cuff shorter by removing the uppermost flare above y=1200; keep a compact two-lame steel cuff starting at approximately y=1200 and ending at the existing backplate. Do NOT move the hand plate or fingers upward, sideways or enlarge them. The upper 1190 rows are entirely green. Keep dark clean ink around the steel edge and flat neutral grey steel. No body, skin, pink, white guide line or annotations."
+    },
+    {
+      "id": "pieces/left_arm_front/gauntlet",
+      "stage": "align",
+      "attempt": 3,
+      "selected_for_delivery": true,
+      "local_original": "pieces__left_arm_front__gauntlet__align__03.png",
+      "source_size": [
+        967,
+        1627
+      ],
+      "prompt": "Use case: precise-object-edit. Edit this isolated steel gauntlet on green. Keep the ENTIRE 960 x 1616 canvas and every hand plate, thumb, finger, joint and cropped bottom pixel fixed exactly in place. Change ONLY the wrist cuff: remove the uppermost wide steel band completely, replacing its whole area with pure #00ff00. The remaining narrower lower steel band becomes the short cuff, with a clean dark top edge. Do not move or rescale any remaining part. All other pixels including the large green empty space stay exactly unchanged. No body, no skin, no text, no extra objects."
     }
   ]
 }
