@@ -821,7 +821,11 @@ FAMILIES = {
     "pectoral_plate": P("a round steel plate over each pectoral, strapped round the chest"),
     "placard": P("a placard: a narrow reinforcing steel plate down the breastbone, riveted"),
     "plackart": P("a plackart: a steel plate covering the stomach, its top edge rising to a point"),
-    "plexus_disc": P("a round steel disc over the solar plexus, on a strap round the chest"),
+    "plexus_disc": P("a round steel disc over the solar plexus, on a strap round the chest",
+                     # The occupied plexus slot covers the disc, but its named
+                     # fastening strap also runs across the lower chest.
+                     reach={"front": [("strap", "R.armpit", "plexus", 1.4),
+                                      ("strap", "plexus", "L.armpit", 1.4)]}),
     "plexus_gem": P("a gem in a small metal setting fixed over the solar plexus", cover="part"),
     "plexus_tattoo": P("a tattoo on the solar plexus: a rayed sun", ink=True),
     "rib_chain": P("a fine chain draped along the ribs on each side", cover="part"),

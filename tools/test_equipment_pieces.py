@@ -71,5 +71,30 @@ class GambesonShoulderMaskTests(unittest.TestCase):
                          [{k: a.get(k) for k in keys} for a in expected])
 
 
+class PlexusDiscStrapMaskTests(unittest.TestCase):
+    def test_disc_strap_connects_to_both_armpits(self):
+        garment = ep.family("plexus_disc")
+        for name in ("figure_front", "torso"):
+            base = ep.BASES[name]
+            paint = garment.area(base)[0]
+            centre = base.centre(["plexus"])
+            for side in ("L", "R"):
+                end = base.centre([side + ".armpit"])
+                with self.subTest(base=name, side=side):
+                    for amount in (0.15, 0.35, 0.65, 0.85):
+                        x, y = (round(centre[i] + amount * (end[i] - centre[i])) for i in (0, 1))
+                        self.assertTrue(paint[y, x], "the chest strap must connect the disc to the side")
+
+    def test_disc_strap_does_not_fill_chest_belly_or_upper_arms(self):
+        garment = ep.family("plexus_disc")
+        base = ep.BASES["torso"]
+        paint = garment.area(base)[0]
+        for site in ("L.pec", "R.pec", "navel", "L.upperarm", "R.upperarm"):
+            x, y = map(round, base.centre([site]))
+            with self.subTest(site=site):
+                self.assertFalse(paint[y, x])
+        self.assertFalse(paint[100, 100])
+
+
 if __name__ == "__main__":
     unittest.main()
