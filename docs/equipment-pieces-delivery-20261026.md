@@ -1,30 +1,30 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies **218 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 651 files remain undelivered.
+This checkpoint supplies **277 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 592 files remain undelivered.
 
 Delivery branch: `art/equipment-pieces-20261026`.
 
-Updated on 1 November 2026. The art branch is synchronized with upstream integration commit `a3c93600a19d1c4ee78126b7dcdd22ee08bd2c9e`; the 869-file specification and acceptance thresholds are unchanged. Upstream has already integrated the first 181 delivered files.
+Updated on 1 November 2026. The art branch is synchronized with upstream integration commit `a3c93600a19d1c4ee78126b7dcdd22ee08bd2c9e`. The requested 869-file list, order, prompts, dimensions and acceptance thresholds are unchanged. Geometry corrections are described below. Upstream has already integrated the first 181 delivered files.
 
 ## Delivered scope
 
 | Batch | Requested | Delivered | Remaining |
 |---|---:|---:|---:|
-| 1 | 277 | 218 | 59 |
+| 1 | 277 | 277 | 0 |
 | 2 | 299 | 0 | 299 |
 | 3 | 293 | 0 | 293 |
-| Total | 869 | 218 | 651 |
+| Total | 869 | 277 | 592 |
 
 | Asset type | Delivered files |
 |---|---:|
 | Bare region plates | 13 |
-| Worn equipment views | 198 |
-| Held pieces and companions | 4 |
+| Worn equipment views | 251 |
+| Held pieces and companions | 6 |
 | Pieces painted on hosts | 0 |
-| Separate attachments | 2 |
-| Sheets of small parts | 1 |
+| Separate attachments | 5 |
+| Sheets of small parts | 2 |
 
-Delivered families: amulet, anklet, armlet, backplate, baldric, bare plates, boot, bracelet, bracer, breastplate, bridge stud, brooch, circlet, cloak, collarbone stud, couter, cuisse, ear cuff, earring, eyebrow ring, eyepatch, foot chain, gauntlet, gem, glove, gorget, great helm, great weapon, greave, hair pin, heart tattoo, hip tattoo, hood, kidney dagger, knee pit tattoo, knuckle ring, lance rest, main hand, monocle, nasal helm, off hand, pauldron, pectoral plate, plackart, poleyn, rerebrace, ring, ring tattoo, sallet, sandal, shield, shirt, spaulder, spike, surcoat, tabard, tasset, thigh strap, thigh tattoo, toe ring, trousers, vambrace.
+Delivered families: amulet, ankle tattoo, anklet, arm harness, arming sleeve, armlet, backplate, baldric, bare plates, boot, bracelet, bracer, breastplate, bridge stud, brooch, buckle, calf tattoo, cheek guard, choker, circlet, cloak, collarbone stud, couter, cuisse, ear chain, ear cuff, earring, eyebrow ring, eyepatch, foot chain, gambeson, gauntlet, gem, glove, gorget, great helm, great weapon, greave, hair pin, heart tattoo, hip tattoo, hood, kidney dagger, knee pit tattoo, knee wrap, knuckle ring, kohl, lance rest, lip ring, loincloth, main hand, monocle, nape tattoo, nasal helm, nose stud, off hand, pauldron, pectoral plate, plackart, plume, poleyn, rerebrace, ring, ring tattoo, rune, sallet, sandal, shield, shirt, shoulder familiar, spaulder, spike, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, toe ring, trousers, vambrace.
 
 ## Files and review
 
@@ -45,7 +45,7 @@ Final exports are 8-bit RGB PNGs with an sRGB profile. Generated canvases were r
 The phase-2 checker reports:
 
 ```text
-218 of 218 delivered files pass; 651 of 869 not delivered yet
+277 of 277 delivered files pass; 592 of 869 not delivered yet
 ```
 
 The unchanged phase-1 assets pass their original checker: `10 of 10 pass`. Review sheets were also inspected; numeric checks do not replace visual review. Exported paths, text files and PNG metadata are checked for Chinese characters before each upload.
@@ -58,7 +58,7 @@ Keep the plate coordinates unchanged. Regenerate inputs after delivering a whole
 python3 tools/equipment_pieces.py inputs <asset-id-or-prefix>
 ```
 
-Occluded or off-canvas portions are intentionally absent. Cloth and back armor leave the braid in front; minor variation remains along its fine edge. Glove and armor cuffs stay inside their assigned regions. Rings, chains and open pendants have keyed openings so the base shows through. The great helm has six breathing holes on its right cheek only; close-up eye slits are keyed, while small whole-figure eye slits are dark. Left anklet links have a heavier outline than the right-side master.
+Occluded or off-canvas portions are intentionally absent. Paired items retain any visible fragment of the other limb at a cropped canvas edge. Cloth and back armor leave the braid in front; minor variation remains along its fine edge. Glove and armor cuffs stay inside their assigned regions. Rings, chains and open pendants have keyed openings so the base shows through. The great helm has six breathing holes on its right cheek only; close-up eye slits are keyed, while small whole-figure eye slits are dark. Left anklet links have a heavier outline than the right-side master.
 
 Eyepatches cover the selected eye fully, with short visible temple straps. Monocle centers are keyed so the original eye remains visible. Tattoo overlays contain only ink; preserve clothing and body occlusion when combining layers.
 
@@ -66,11 +66,13 @@ Foot-chain sole views contain only the visible back of the second-toe ring, as d
 
 The hip-crescent specification places both tattoos entirely beneath the base's shorts. As explicitly approved, the delivered layer keeps both complete tattoos in those requested positions. Apply underwear occlusion during integration; compositing this ink directly over opaque shorts would incorrectly display it on the fabric. The review sheet shows unoccluded registration for inspection.
 
-## Seeded-mask correction
+## Geometry corrections
 
 The phase-2 `areas()` function includes a geometry correction. Cropped region bases lose off-canvas endpoints of reach primitives, so the original calf-length cloak mask stopped at the shoulder or waist despite seeded artwork continuing downward. The correction projects the full-figure specification mask using the artwork's coordinate transform, then unions it with the original region mask. It uses the specification mask, not the asset silhouette. Acceptance thresholds and the 869-file specification are unchanged.
 
 Before correction, only 32.0-70.3% of the affected cloak seeds lay inside their region masks; corrected masks contain 99.7-100%. Two passing regression tests cover five affected crop edges and ensure the front drape still excludes the visible arm.
+
+The gambeson reach now includes both mapped shoulder sites with the normal 0.35-body-unit Under-layer allowance. Its requested short sleeves must connect to the torso across these shoulder caps, but the occupied slot list omitted the connecting surfaces. This created false failures on close-ups, even for the registered whole-figure design. The correction uses the anatomy map, not generated artwork. It does not extend coverage into forearms or background and does not relax any acceptance threshold. Three additional passing regression tests cover shoulder continuity, exclusion of forearms and background, and preservation of all 869 requested files, their order, prompts and dimensions.
 
 Reproduce validation from the repository root:
 

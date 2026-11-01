@@ -1,4 +1,4 @@
-"""Regression checks for off-canvas reach in seeded region views."""
+"""Regression checks for registered equipment geometry."""
 import json
 import unittest
 from unittest.mock import patch
@@ -35,6 +35,40 @@ class SeededCloakMaskTests(unittest.TestCase):
             area = ep.areas(self.assets["pieces/right_arm_front/cloak"], full=False)
         self.assertFalse(area["paint"][900, 400])
         self.assertFalse(area["paint"][100, 100])
+
+
+class GambesonShoulderMaskTests(unittest.TestCase):
+    def test_short_sleeves_cover_the_connecting_shoulders(self):
+        garment = ep.family("gambeson")
+        for name in ("figure_front", "figure_back", "torso", "back",
+                     "right_arm_front", "left_arm_front", "right_arm_back", "left_arm_back"):
+            base = ep.BASES[name]
+            shoulders = base.mask(["L.shoulder", "R.shoulder"])
+            with self.subTest(base=name):
+                self.assertTrue(shoulders.any())
+                paint = garment.area(base)[0]
+                self.assertTrue(paint[shoulders].all(), "short sleeves must join the torso over the shoulder")
+
+    def test_short_sleeves_do_not_extend_to_forearms_or_background(self):
+        garment = ep.family("gambeson")
+        for name, side in (("right_arm_front", "R"), ("left_arm_front", "L"),
+                           ("right_arm_back", "R"), ("left_arm_back", "L")):
+            base = ep.BASES[name]
+            paint = garment.area(base)[0]
+            with self.subTest(base=name):
+                for site in (side + ".forearm", side + ".wrist"):
+                    x, y = map(round, base.centre([site]))
+                    self.assertFalse(paint[y, x], site)
+                self.assertFalse(paint[100, 480])
+
+    def test_requested_files_order_and_prompts_are_preserved(self):
+        with open(ep.SPEC, encoding="utf-8") as stream:
+            expected = json.load(stream)["assets"]
+        actual = ep.build()
+        self.assertEqual(len(actual), 869)
+        keys = ("id", "n", "priority", "size", "prompt", "isolate")
+        self.assertEqual([{k: a.get(k) for k in keys} for a in actual],
+                         [{k: a.get(k) for k in keys} for a in expected])
 
 
 if __name__ == "__main__":

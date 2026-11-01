@@ -800,7 +800,10 @@ FAMILIES = {
                             reach={"*": [("sites", ["L.shoulder", "R.shoulder"], 1.1)]}),
     "gambeson": P("a thick quilted gambeson (a padded jacket) with short sleeves to above the elbows, covering the "
                   "torso down to the hips, quilted in vertical lines", dye="dun",
-                  reach={"front": [("below", ["waist"], 3.5, 0.6)], "back": [("below", ["waist"], 3.5, 0.6)]}),
+                  # Its short sleeves join the torso across the shoulder caps.
+                  # The occupied Under slots omit these connecting surfaces.
+                  reach={"*": [("sites", ["L.shoulder", "R.shoulder"], 0.35)],
+                         "front": [("below", ["waist"], 3.5, 0.6)], "back": [("below", ["waist"], 3.5, 0.6)]}),
     "gills": P("gills: three parallel slits with fleshy grey edges along each side of the ribs", cover="part"),
     "hauberk": P("a mail hauberk: a shirt of riveted mail with sleeves to above the elbows, reaching down to the knees, "
                  "split at the front and the back",
