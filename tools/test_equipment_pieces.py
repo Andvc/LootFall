@@ -154,5 +154,43 @@ class ThumbTattooMaskTests(unittest.TestCase):
                 self.assertFalse(area["allowed"][20, 20])
 
 
+class BackpackStrapMaskTests(unittest.TestCase):
+    def test_straps_run_from_shoulder_tops_to_armpits(self):
+        for name in ("figure_front", "torso"):
+            base = ep.BASES[name]
+            paint = ep.family("backpack").area(base)[0]
+            for side in ("L", "R"):
+                shoulder = base.centre([side + ".shoulder"])
+                clavicle = base.centre([side + ".clavicle"])
+                top = ((shoulder[0] + clavicle[0]) / 2,
+                       base.box([side + ".shoulder", side + ".clavicle"])[1])
+                end = base.centre([side + ".armpit"])
+                for fraction in (0, 0.25, 0.5, 0.75, 1):
+                    x, y = (round(top[i] + fraction * (end[i] - top[i])) for i in (0, 1))
+                    with self.subTest(base=name, side=side, fraction=fraction):
+                        self.assertTrue(paint[y, x])
+            for site in ("L.pec", "R.pec", "navel"):
+                x, y = map(round, base.centre([site]))
+                self.assertFalse(paint[y, x], "straps must leave the central chest and belly clear")
+
+
+class ChinTattooMaskTests(unittest.TestCase):
+    def test_short_dot_column_uses_the_area_below_the_lip(self):
+        with open(ep.SPEC, encoding="utf-8") as stream:
+            assets = [a for a in json.load(stream)["assets"]
+                      if a.get("family") == "chin_tattoo"]
+        self.assertTrue(assets)
+        for asset in assets:
+            base = ep.BASES[asset["base"]]
+            core = ep.areas(asset)["core"]
+            x0, y0, x1, y1 = base.box(["mouth"])
+            cx = round((x0 + x1) / 2)
+            with self.subTest(base=base.name):
+                self.assertTrue(core[round(y1 + 0.2 * base.U), cx])
+                self.assertFalse(core[round((y0 + y1) / 2), cx], "the lip is not tattooed")
+                self.assertLess(core.sum(), base.mask(["chin"]).sum() / 8)
+                self.assertFalse(core[20, 20])
+
+
 if __name__ == "__main__":
     unittest.main()

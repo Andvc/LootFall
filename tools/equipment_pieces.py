@@ -381,6 +381,17 @@ def extent(base, prim):
         _, a, b, w = prim
         ca, cb = base.centre([a] if isinstance(a, str) else a), base.centre([b] if isinstance(b, str) else b)
         return None if ca is None or cb is None else strap_mask(base.size, ca, cb, w * U)
+    if kind == "shoulder_strap":
+        # A backpack strap starts above the shoulder, beside the clavicle;
+        # the centre of the shoulder slot is halfway down the upper arm.
+        _, side, w = prim
+        shoulder, clavicle, armpit = (base.centre([side + "." + site])
+                                     for site in ("shoulder", "clavicle", "armpit"))
+        box = base.box([side + ".shoulder", side + ".clavicle"])
+        if shoulder is None or clavicle is None or armpit is None or box is None:
+            return None
+        top = ((shoulder[0] + clavicle[0]) / 2, box[1])
+        return strap_mask(base.size, top, armpit, w * U)
     if kind == "sites":
         _, sites, r = prim
         m = base.mask(sites)
@@ -461,7 +472,7 @@ FAMILIES = {
                   "on two shoulder straps that come over the tops of his shoulders and run down the front of his chest to "
                   "his armpits",
                   reach={"back": [("box", ["L.blade", "R.blade", "upspine", "midspine", "lumbar"], 0.5, 0.5, 0.5, 0)],
-                         "front": [("strap", "L.shoulder", "L.armpit", 1.4), ("strap", "R.shoulder", "R.armpit", 1.4)]},
+                         "front": [("shoulder_strap", "L", 1.4), ("shoulder_strap", "R", 1.4)]},
                   cover="part", behind=True),
     "backplate": P("a steel backplate shaped to his back, with a raised ridge down the spine, a rolled top edge below "
                    "the neck and leather straps with buckles at the sides"),
@@ -1157,7 +1168,7 @@ class Family:
             if m is not None:
                 # Straps and what lies on his sites are in front of him; the rest of a piece that hangs behind him
                 # shows only round his body.
-                (front if prim[0] in ("strap", "sites", "rim") else reach)[...] |= m
+                (front if prim[0] in ("strap", "shoulder_strap", "sites", "rim") else reach)[...] |= m
         if self.spec.get("behind") and base.group == "front":
             reach &= ~shrink_mask(base.body(), 0.3 * base.U)
         paint |= reach | front
@@ -1618,6 +1629,17 @@ def areas(a, full=True):
                            if p["name"] in a["pieces"]]
             leaf = b.mask(thumb_sites)
             paint = coarse(leaf, F.grow * b.U, grow)
+        if a["family"] == "chin_tattoo":
+            # The requested short line of dots is immediately below the lip.
+            # The shared chin slot includes the whole beard and lower cheeks;
+            # neither belongs in the minimum coverage denominator for this art.
+            mouth = b.box(["mouth"])
+            if mouth is not None:
+                x0, y0, x1, y1 = mouth
+                cx = (x0 + x1) / 2
+                leaf = rect_mask(b.size, cx - 0.5 * b.U, y1 - 0.3 * (y1 - y0),
+                                 cx + 0.5 * b.U, y1 + 0.75 * b.U) & b.body()
+                paint = coarse(leaf, F.grow * b.U, grow)
         picture, _ = base_picture(b)
         if a.get("seeded_from"):
             fig = BASES[a["seeded_from"]]

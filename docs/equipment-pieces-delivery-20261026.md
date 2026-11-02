@@ -1,6 +1,6 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies **473 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 396 files remain undelivered.
+This checkpoint supplies **516 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 353 files remain undelivered.
 
 Delivery branch: `art/equipment-pieces-20261026`.
 
@@ -11,20 +11,20 @@ Updated on 2 November 2026. The art branch is synchronized with upstream integra
 | Batch | Requested | Delivered | Remaining |
 |---|---:|---:|---:|
 | 1 | 277 | 277 | 0 |
-| 2 | 299 | 195 | 104 |
-| 3 | 293 | 1 | 292 |
-| Total | 869 | 473 | 396 |
+| 2 | 299 | 223 | 76 |
+| 3 | 293 | 16 | 277 |
+| Total | 869 | 516 | 353 |
 
 | Asset type | Delivered files |
 |---|---:|
 | Bare region plates | 13 |
-| Worn equipment views | 422 |
+| Worn equipment views | 462 |
 | Held pieces and companions | 7 |
-| Pieces painted on hosts | 13 |
+| Pieces painted on hosts | 16 |
 | Separate attachments | 13 |
 | Sheets of small parts | 5 |
 
-Delivered families: amulet, ankle guard, ankle tattoo, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, back tattoo, backpack, backplate, baldric, bare plates, bell, belly chain, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastbone tattoo, breastplate, breeches, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf band, calf guard, calf tattoo, charm, chausses, cheek fitting, cheek guard, chest harness, chest tattoo, choker, circlet, clasp, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, crossguard, cuisse, culet, diadem, ear chain, ear cuff, earring, elbow tattoo, eyebrow ring, eyepatch, face plate, falcon hood, fauld, fingerless glove, focus orb, foot chain, forearm sheath, forearm tattoo, forehead jewel, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hand chain, hand jewel, hand tattoo, heart tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, jesses, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, knuckleduster, kohl, laces, lance rest, lantern, lat guard, lat tattoo, leg harness, lip ring, loincloth, mail shirt, mail sleeve, main hand, mantle, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, necklace, nose guard, nose stud, off hand, outer thigh tattoo, pauldron, pectoral plate, plackart, plexus disc, plexus gem, plume, poleyn, pommel, potion, pouch, quiver, rerebrace, rib chain, ring, ring tattoo, rune, sallet, sandal, sash, scabbard, scale vest, scapula plate, scarf, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, side sheath, sock, spaulder, spectacles, spike, spine guard, spur, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, thumb tattoo, toe ring, toenail paint, torc, torc terminal, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wrist tattoo.
+Delivered families: amulet, ankle guard, ankle tattoo, ankle wrap, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, back tattoo, backpack, backplate, baldric, bare plates, beard rings, bell, belly chain, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastbone tattoo, breastplate, breeches, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf band, calf guard, calf tattoo, charm, chausses, cheek fitting, cheek guard, chest harness, chest tattoo, chin guard, chin tattoo, choker, circlet, clasp, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, crossguard, cuirass, cuisse, culet, diadem, ear chain, ear cuff, earring, elbow tattoo, eyebrow ring, eyepatch, face plate, falcon hood, fauld, faulds and tassets, fingerless glove, flank tattoo, focus orb, foot chain, foot tattoo, forearm sheath, forearm tattoo, forehead jewel, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hand chain, hand jewel, hand tattoo, heart tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, jesses, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, knuckleduster, kohl, laces, lance rest, lantern, lat guard, lat tattoo, leg harness, leg wraps, lip ring, loincloth, mail shirt, mail sleeve, main hand, mantle, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, necklace, nose guard, nose stud, off hand, outer thigh tattoo, palm sigil, pauldron, pectoral plate, plackart, plexus disc, plexus gem, plume, poleyn, pommel, potion, pouch, quiver, rerebrace, rib chain, rib guard, ring, ring tattoo, robe, rune, sallet, sandal, sash, scabbard, scale vest, scapula plate, scarf, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, side sheath, sock, spaulder, spectacles, spike, spine guard, spur, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, throat jewel, throat tattoo, thumb tattoo, toe ring, toenail paint, torc, torc terminal, triceps tattoo, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wizard hat, wrist tattoo.
 
 ## Files and review
 
@@ -45,7 +45,7 @@ Final exports are 8-bit RGB PNGs with an sRGB profile. Generated canvases were r
 The phase-2 checker reports:
 
 ```text
-473 of 473 delivered files pass; 396 of 869 not delivered yet
+516 of 516 delivered files pass; 353 of 869 not delivered yet
 ```
 
 The unchanged phase-1 assets pass their original checker: `10 of 10 pass`. Review sheets were also inspected; numeric checks do not replace visual review. Exported paths, text files and PNG metadata are checked for Chinese characters before each upload.
@@ -80,7 +80,13 @@ The plexus disc reach includes two narrow 1.4-body-unit straps from the central 
 
 The nose guard reach includes the mapped brow for its explicitly requested brow band. The coif reach includes the ear-slit edges, nape, a narrow rim around the mapped chin, and room immediately below the chin for the cord knot. The rim excludes the mouth and its surrounding margin, so the fastening mask does not cover the central face. These additions follow anatomical sites, not generated silhouettes. Four additional passing tests cover fastening placement and exclusion of eyes, central face, lower neck and background.
 
-The thumb tattoo uses the mapped thumb as its art region. Its gameplay slot reserves the shared fingers skin slot, but the requested design is three dots on the thumb only; the original checker incorrectly measured coverage against all five digits. A regression test verifies all four thumb views and excludes the other fingers, palm and background. All twelve geometry regression tests pass. The requested file count, order, prompts and dimensions remain unchanged, as do all acceptance thresholds.
+The thumb tattoo uses the mapped thumb as its art region. Its gameplay slot reserves the shared fingers skin slot, but the requested design is three dots on the thumb only; the original checker incorrectly measured coverage against all five digits. A regression test verifies all four thumb views and excludes the other fingers, palm and background.
+
+The chin tattoo uses a narrow anatomical region immediately below the lower lip, derived from the mouth bounds and body scale. The shared chin gameplay slot includes the entire beard and lower cheeks, which are not the requested short vertical column of dots. Its minimum ink coverage now measures that small region, including the lower-lip margin omitted by the chin slot. The visible dots are retained and the beard occludes the rest. A regression test checks placement below the lip and exclusion of the lip centre, broad beard area and background.
+
+Backpack front straps now start at the shoulder top between the shoulder and clavicle, and end at the mapped armpit. The old strap began at the shoulder site's centre, halfway down the upper arm, so it omitted the upper connection explicitly required by the description. The new narrow strap primitive derives its endpoints entirely from the anatomy map. A regression test checks the full connection on the figure and torso while excluding the central chest and belly.
+
+All fourteen geometry regression tests pass. The requested file count, order, prompts and dimensions remain unchanged, as do all acceptance thresholds.
 
 Reproduce validation from the repository root:
 
