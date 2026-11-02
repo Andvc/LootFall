@@ -385,6 +385,15 @@ def extent(base, prim):
         _, sites, r = prim
         m = base.mask(sites)
         return coarse(m, r * U, grow) if m.any() else None
+    if kind == "rim":
+        # A fastening may follow a mapped site's edge without filling its face.
+        _, sites, r, keep_clear = prim
+        m = base.mask(sites)
+        if not m.any():
+            return None
+        rim = coarse(m, r * U, grow) & ~shrink_mask(m, r * U)
+        # Internal openings (such as the mouth in the chin map) are not a jaw rim.
+        return rim & ~coarse(base.mask(keep_clear), r * U, grow)
     raise ValueError(kind)
 
 
@@ -543,7 +552,11 @@ FAMILIES = {
                      ink=True),
     "circlet": P("a thin plain metal circlet round his head across the brow, passing above the ears", cover="part"),
     "coif": P("a close-fitting padded linen coif covering the top and back of the head and the nape, tied under the "
-              "chin with a cord, the ears free through slits", dye="linen"),
+              "chin with a cord, the ears free through slits", dye="linen",
+              # The scalp slots omit the ear slits and the named chin fastening.
+              # Keep the cord at the jaw rim and its knot immediately below it.
+              reach={"*": [("sites", ["L.ear", "R.ear", "nape"], 0.35),
+                            ("rim", ["chin"], 0.7, ["mouth"]), ("below", ["chin"], 2.3, -2.3)]}),
     "crown": P("a gold crown on his head: a band set round the head above the brow with five tall points, each point "
                "ending in a small knob", tall=True, reach={"*": [("above", ["scalp"], 4, 0.4)]}, cover="part"),
     "diadem": P("a delicate gold diadem across the brow, rising to a peak in the middle", cover="part"),
@@ -594,7 +607,8 @@ FAMILIES = {
     "neck_cloth": P("a linen neck cloth hanging from under the hair over the back of the neck, against the sun",
                     dye="linen"),
     "nose_chain": P("a fine chain from a stud in the right nostril to a ring in the right ear", cover="part"),
-    "nose_guard": P("a narrow steel nose guard hanging from a band across the brow"),
+    "nose_guard": P("a narrow steel nose guard hanging from a band across the brow",
+                    reach={"*": [("sites", ["brow"], 0.1)]}),
     "nose_stud": P("a small stud in each nostril", cover="part"),
     "sallet": P("a sallet: a rounded steel helmet sweeping back into a long tail over the nape, open at the face (eyes, "
                 "nose and mouth free), its edge low over the cheeks",
@@ -1143,7 +1157,7 @@ class Family:
             if m is not None:
                 # Straps and what lies on his sites are in front of him; the rest of a piece that hangs behind him
                 # shows only round his body.
-                (front if prim[0] in ("strap", "sites") else reach)[...] |= m
+                (front if prim[0] in ("strap", "sites", "rim") else reach)[...] |= m
         if self.spec.get("behind") and base.group == "front":
             reach &= ~shrink_mask(base.body(), 0.3 * base.U)
         paint |= reach | front

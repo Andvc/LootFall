@@ -1,12 +1,12 @@
 {
   "date": "2026-10-26",
   "status": "partial_delivery",
-  "updated": "2026-11-01",
+  "updated": "2026-11-02",
   "upstream_sync": "a3c93600a19d1c4ee78126b7dcdd22ee08bd2c9e",
   "based_on": "e0ede57368aa1bde6e94a6baf67898631053183c",
   "requested_files": 869,
-  "delivered_files": 359,
-  "remaining_files": 510,
+  "delivered_files": 387,
+  "remaining_files": 482,
   "assets": [
     {
       "id": "plates/neck",
@@ -5874,6 +5874,23 @@
       "selected_attempt": 1
     },
     {
+      "id": "pieces/waist_front/scabbard",
+      "file": "art/equipment/pieces/waist_front/scabbard.png",
+      "batch": 2,
+      "size": [
+        1504,
+        1024
+      ],
+      "format": "RGB",
+      "sha256": "ab4244d9e43bd1fcd194a19e646daeaa46f61808b33346a96a35e7e21643d8ae",
+      "original_size": [
+        1519,
+        1036
+      ],
+      "selected_stage": "fit_isolate",
+      "selected_attempt": 3
+    },
+    {
       "id": "pieces/foot_R_sole/sock",
       "file": "art/equipment/pieces/foot_R_sole/sock.png",
       "batch": 2,
@@ -5942,6 +5959,40 @@
       "selected_attempt": 1
     },
     {
+      "id": "pieces/figure_front/brigandine",
+      "file": "art/equipment/pieces/figure_front/brigandine.png",
+      "batch": 2,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "8c74871fef0d805d556ce1472ab87ec132c7f87622183b23cd2f33fc56aefd3c",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "fit_isolate",
+      "selected_attempt": 3
+    },
+    {
+      "id": "pieces/head_front/nose_guard",
+      "file": "art/equipment/pieces/head_front/nose_guard.png",
+      "batch": 2,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "226bbf607c43b30b6955b7803bb77f98d6432b831c769bd52f3178279e90a399",
+      "original_size": [
+        980,
+        1605
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
       "id": "pieces/back/lat_guard",
       "file": "art/equipment/pieces/back/lat_guard.png",
       "batch": 2,
@@ -5954,6 +6005,23 @@
       "original_size": [
         1089,
         1444
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_front/coif",
+      "file": "art/equipment/pieces/head_front/coif.png",
+      "batch": 2,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "bfe15638bdb0d2e2ca2e6e57cc3f84f3dff5ff6591894e0f9fdfebdde6dc692e",
+      "original_size": [
+        980,
+        1605
       ],
       "selected_stage": "isolate",
       "selected_attempt": 1
@@ -5974,6 +6042,40 @@
       ],
       "selected_stage": "isolate",
       "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_right/neck_cloth",
+      "file": "art/equipment/pieces/head_right/neck_cloth.png",
+      "batch": 2,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "637c7cb581a013a5ce6fef92c42c46fc256d8b216988ada57cf33a5449e9f943",
+      "original_size": [
+        1035,
+        1519
+      ],
+      "selected_stage": "coverage_isolate",
+      "selected_attempt": 2
+    },
+    {
+      "id": "pieces/hand_R_back/hand_tattoo",
+      "file": "art/equipment/pieces/hand_R_back/hand_tattoo.png",
+      "batch": 2,
+      "size": [
+        992,
+        1568
+      ],
+      "format": "RGB",
+      "sha256": "e83b6d7542a4531d6cec26fa64b173b5b4ed5f8898150db2e33c04fbdbe0e506",
+      "original_size": [
+        997,
+        1577
+      ],
+      "selected_stage": "registration_isolate",
+      "selected_attempt": 2
     },
     {
       "id": "pieces/hand_R_back/fingerless_glove",
@@ -6109,6 +6211,380 @@
         1024
       ],
       "selected_stage": "generate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "sprites/shoulder_familiar_back/falcon_hood",
+      "file": "art/equipment/sprites/shoulder_familiar_back/falcon_hood.png",
+      "batch": 2,
+      "size": [
+        1024,
+        1536
+      ],
+      "format": "RGB",
+      "sha256": "f3d4056fc078634625a3937c2deb4cf000c02560585759a9200edddfb3f45b6e",
+      "original_size": [
+        1024,
+        1536
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/mantle",
+      "file": "art/equipment/pieces/figure_back/mantle.png",
+      "batch": 2,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "1a5c7cd3244fc7784fe2aedf89871756d18a03b4a3ad326444ee08141490a970",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_front/mantle",
+      "file": "art/equipment/pieces/right_arm_front/mantle.png",
+      "batch": 2,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "adf3510e2cb1087aea8592d3250ba206a529227d75a2b8c20d2b986eea92f779",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_front/mantle",
+      "file": "art/equipment/pieces/left_arm_front/mantle.png",
+      "batch": 2,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "b79459aab072418b96c5fbc4fc64f3937d74707fae360c7755cd68cc650c6402",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "restore_isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_right/gold_teeth",
+      "file": "art/equipment/pieces/head_right/gold_teeth.png",
+      "batch": 2,
+      "size": [
+        1024,
+        1504
+      ],
+      "format": "RGB",
+      "sha256": "99e724a065fc61ecf0ddc7c4911d5ca4164e378124842f73b69f703936e69711",
+      "original_size": [
+        1035,
+        1520
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_leg_front/garter",
+      "file": "art/equipment/pieces/left_leg_front/garter.png",
+      "batch": 2,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "44cb1560bf02a1a6c5986a5a4ce01a22370df486d2f4dd12773013763c77ce32",
+      "original_size": [
+        871,
+        1805
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_front/upper_arm_tattoo",
+      "file": "art/equipment/pieces/right_arm_front/upper_arm_tattoo.png",
+      "batch": 2,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "a95375b893be5528f1dbd4ae6b3c2ebbcd09fd8ba0f6811fefea0dd1e67af6f4",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/waist_front/fauld",
+      "file": "art/equipment/pieces/waist_front/fauld.png",
+      "batch": 2,
+      "size": [
+        1504,
+        1024
+      ],
+      "format": "RGB",
+      "sha256": "0f7160c1640a6dbfa9deba7efcd55acb1bc14be0aa29367024ac936619d8df28",
+      "original_size": [
+        1520,
+        1035
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/figure_back/backpack",
+      "file": "art/equipment/pieces/figure_back/backpack.png",
+      "batch": 2,
+      "size": [
+        944,
+        1664
+      ],
+      "format": "RGB",
+      "sha256": "b9ff022cc4e7d798740b726505d35d6d88956ba24865a173a789097ad933b6f1",
+      "original_size": [
+        945,
+        1665
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/torso/side_plate",
+      "file": "art/equipment/pieces/torso/side_plate.png",
+      "batch": 2,
+      "size": [
+        1104,
+        1408
+      ],
+      "format": "RGB",
+      "sha256": "ef93efb579d527d8981df0f221c26ae1da8e49bedfceb0cd42e3a428450d08cc",
+      "original_size": [
+        1111,
+        1415
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_front/brow_tattoo",
+      "file": "art/equipment/pieces/head_front/brow_tattoo.png",
+      "batch": 2,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "95851516ec9a250e36d060fdc5187f83e56413e9750826c7b74ad73365932336",
+      "original_size": [
+        980,
+        1605
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_front/helix_ring",
+      "file": "art/equipment/pieces/head_front/helix_ring.png",
+      "batch": 2,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "04ed4837b7e5e355c931daf45f91bead7e34edb6961937160b562659e045ec6a",
+      "original_size": [
+        980,
+        1604
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_front/forehead_jewel",
+      "file": "art/equipment/pieces/head_front/forehead_jewel.png",
+      "batch": 2,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "5b3668976884f2209fe1b4ea66585ad67bb545cc70f051e354be79a8c8e8d789",
+      "original_size": [
+        980,
+        1604
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_leg_front/outer_thigh_tattoo",
+      "file": "art/equipment/pieces/right_leg_front/outer_thigh_tattoo.png",
+      "batch": 2,
+      "size": [
+        864,
+        1792
+      ],
+      "format": "RGB",
+      "sha256": "3b222e87f17701f3b9de020e733f4602a999003ba238b48d7cae42ac22d7ceae",
+      "original_size": [
+        871,
+        1806
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_back/nail_lacquer",
+      "file": "art/equipment/pieces/hand_L_back/nail_lacquer.png",
+      "batch": 2,
+      "size": [
+        1008,
+        1552
+      ],
+      "format": "RGB",
+      "sha256": "5dc330c4f0bfa5555c0f82b3b9da1bf71c67b2b628ed152fb85e9841bee5124e",
+      "original_size": [
+        1011,
+        1556
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/waist_back/waist_tattoo",
+      "file": "art/equipment/pieces/waist_back/waist_tattoo.png",
+      "batch": 2,
+      "size": [
+        1488,
+        1040
+      ],
+      "format": "RGB",
+      "sha256": "ac9db40757f30891392272a05f029f1cc040d9338b413d0c07a6a989c9565776",
+      "original_size": [
+        1501,
+        1048
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_front/shoulder_tattoo",
+      "file": "art/equipment/pieces/left_arm_front/shoulder_tattoo.png",
+      "batch": 2,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "ffd50bf1f226300ee63b59b5ab6db02e7487f5016311650e083c4a92b4146934",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/left_arm_back/shoulder_tattoo",
+      "file": "art/equipment/pieces/left_arm_back/shoulder_tattoo.png",
+      "batch": 2,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "f99d211ddb566eb014cdf302232fca8b7b9bb55275f19fcd26146451e6e03c7d",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_back/fingerless_glove",
+      "file": "art/equipment/pieces/hand_L_back/fingerless_glove.png",
+      "batch": 2,
+      "size": [
+        1008,
+        1552
+      ],
+      "format": "RGB",
+      "sha256": "3b18314b82de78e80cef174b351553cac516fe67214c46bc5c9a411ab91be616",
+      "original_size": [
+        1011,
+        1555
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/hand_L_palm/fingerless_glove",
+      "file": "art/equipment/pieces/hand_L_palm/fingerless_glove.png",
+      "batch": 2,
+      "size": [
+        1008,
+        1536
+      ],
+      "format": "RGB",
+      "sha256": "52989f89da5830cdc1ac133c8cf2a23d8320ccc44f4dad74ec914681d39f68e0",
+      "original_size": [
+        1016,
+        1548
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/head_front/war_paint",
+      "file": "art/equipment/pieces/head_front/war_paint.png",
+      "batch": 2,
+      "size": [
+        976,
+        1600
+      ],
+      "format": "RGB",
+      "sha256": "7567786e53dac2a8cdf4d030f69bec77fa407052daeabf0a01cdf6f7a4dad345",
+      "original_size": [
+        980,
+        1605
+      ],
+      "selected_stage": "isolate",
+      "selected_attempt": 1
+    },
+    {
+      "id": "pieces/right_arm_front/shoulder_cape",
+      "file": "art/equipment/pieces/right_arm_front/shoulder_cape.png",
+      "batch": 2,
+      "size": [
+        960,
+        1616
+      ],
+      "format": "RGB",
+      "sha256": "f5c209df45f72a0e5934c944a75c1e94c8d03ec4d837411f405ef67a9c25e16e",
+      "original_size": [
+        967,
+        1627
+      ],
+      "selected_stage": "isolate",
       "selected_attempt": 1
     }
   ]

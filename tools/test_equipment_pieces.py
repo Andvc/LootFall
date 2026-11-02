@@ -96,5 +96,42 @@ class PlexusDiscStrapMaskTests(unittest.TestCase):
         self.assertFalse(paint[100, 100])
 
 
+
+class HeadFasteningMaskTests(unittest.TestCase):
+    def test_nose_guard_band_reaches_across_the_brow(self):
+        for name in ("head_front", "head_right", "head_left", "figure_front"):
+            base = ep.BASES[name]
+            brow = base.mask(["brow"])
+            paint = ep.family("nose_guard").area(base)[0]
+            with self.subTest(base=name):
+                self.assertTrue(brow.any())
+                self.assertTrue(paint[brow].all())
+
+    def test_nose_guard_band_keeps_cheeks_and_background_clear(self):
+        base = ep.BASES["head_front"]
+        paint = ep.family("nose_guard").area(base)[0]
+        for x, y in ((340, 680), (640, 680), (290, 820), (690, 820), (100, 100)):
+            with self.subTest(point=(x, y)):
+                self.assertFalse(paint[y, x])
+
+    def test_coif_allows_ear_slits_chin_cord_knot_and_nape(self):
+        paint = ep.family("coif").area(ep.BASES["head_front"])[0]
+        for x, y in ((160, 820), (820, 820), (250, 1000), (490, 1180), (490, 1290)):
+            with self.subTest(point=(x, y)):
+                self.assertTrue(paint[y, x], "the coif needs a fastening below the scalp")
+        for name in ("head_right", "head_left", "figure_back"):
+            base = ep.BASES[name]
+            nape = base.mask(["nape"])
+            with self.subTest(base=name):
+                self.assertTrue(nape.any())
+                self.assertTrue(ep.family("coif").area(base)[0][nape].all())
+
+    def test_coif_keeps_eyes_central_face_and_lower_neck_clear(self):
+        paint = ep.family("coif").area(ep.BASES["head_front"])[0]
+        for x, y in ((340, 680), (640, 680), (490, 850), (490, 980), (490, 1450), (40, 40)):
+            with self.subTest(point=(x, y)):
+                self.assertFalse(paint[y, x])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,30 +1,30 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies **359 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 510 files remain undelivered.
+This checkpoint supplies **387 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 482 files remain undelivered.
 
 Delivery branch: `art/equipment-pieces-20261026`.
 
-Updated on 1 November 2026. The art branch is synchronized with upstream integration commit `a3c93600a19d1c4ee78126b7dcdd22ee08bd2c9e`. The requested 869-file list, order, prompts, dimensions and acceptance thresholds are unchanged. Geometry corrections are described below. Upstream has already integrated the first 181 delivered files.
+Updated on 2 November 2026. The art branch is synchronized with upstream integration commit `a3c93600a19d1c4ee78126b7dcdd22ee08bd2c9e`. The requested 869-file list, order, prompts, dimensions and acceptance thresholds are unchanged. Geometry corrections are described below. Upstream has already integrated the first 181 delivered files.
 
 ## Delivered scope
 
 | Batch | Requested | Delivered | Remaining |
 |---|---:|---:|---:|
 | 1 | 277 | 277 | 0 |
-| 2 | 299 | 82 | 217 |
+| 2 | 299 | 110 | 189 |
 | 3 | 293 | 0 | 293 |
-| Total | 869 | 359 | 510 |
+| Total | 869 | 387 | 482 |
 
 | Asset type | Delivered files |
 |---|---:|
 | Bare region plates | 13 |
-| Worn equipment views | 323 |
+| Worn equipment views | 350 |
 | Held pieces and companions | 7 |
-| Pieces painted on hosts | 1 |
+| Pieces painted on hosts | 2 |
 | Separate attachments | 10 |
 | Sheets of small parts | 5 |
 
-Delivered families: amulet, ankle guard, ankle tattoo, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, backplate, baldric, bare plates, bell, belt, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastplate, bridge stud, brooch, buckle, calf guard, calf tattoo, charm, chausses, cheek guard, choker, circlet, cloak, collarbone stud, collarbone tattoo, couter, crest, cuisse, ear chain, ear cuff, earring, eyebrow ring, eyepatch, falcon hood, fingerless glove, focus orb, foot chain, forearm sheath, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, hair pin, heart tattoo, heraldry, hip chain, hip tattoo, hood, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, kohl, lance rest, lat guard, leg harness, lip ring, loincloth, main hand, mantle, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, necklace, nose stud, off hand, pauldron, pectoral plate, plackart, plexus disc, plexus gem, plume, poleyn, pouch, rerebrace, ring, ring tattoo, rune, sallet, sandal, scale vest, scapula plate, septum ring, shield, shin tattoo, shirt, shoulder familiar, shoulder lantern, shoulder tattoo, sock, spaulder, spike, spur, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, toe ring, torc, torc terminal, trousers, vambrace, waist tattoo.
+Delivered families: amulet, ankle guard, ankle tattoo, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, backpack, backplate, baldric, bare plates, bell, belt, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastplate, bridge stud, brigandine, brooch, brow tattoo, buckle, calf guard, calf tattoo, charm, chausses, cheek guard, choker, circlet, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, cuisse, ear chain, ear cuff, earring, eyebrow ring, eyepatch, falcon hood, fauld, fingerless glove, focus orb, foot chain, forearm sheath, forehead jewel, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, hair pin, hand tattoo, heart tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, kohl, lance rest, lat guard, leg harness, lip ring, loincloth, main hand, mantle, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, necklace, nose guard, nose stud, off hand, outer thigh tattoo, pauldron, pectoral plate, plackart, plexus disc, plexus gem, plume, poleyn, pouch, rerebrace, ring, ring tattoo, rune, sallet, sandal, scabbard, scale vest, scapula plate, septum ring, shield, shin tattoo, shirt, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, sock, spaulder, spike, spur, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, toe ring, torc, torc terminal, trousers, upper arm tattoo, vambrace, waist tattoo, war paint.
 
 ## Files and review
 
@@ -45,7 +45,7 @@ Final exports are 8-bit RGB PNGs with an sRGB profile. Generated canvases were r
 The phase-2 checker reports:
 
 ```text
-359 of 359 delivered files pass; 510 of 869 not delivered yet
+387 of 387 delivered files pass; 482 of 869 not delivered yet
 ```
 
 The unchanged phase-1 assets pass their original checker: `10 of 10 pass`. Review sheets were also inspected; numeric checks do not replace visual review. Exported paths, text files and PNG metadata are checked for Chinese characters before each upload.
@@ -66,6 +66,8 @@ Foot-chain sole views contain only the visible back of the second-toe ring, as d
 
 The hip-crescent specification places both tattoos entirely beneath the base's shorts. As explicitly approved, the delivered layer keeps both complete tattoos in those requested positions. Apply underwear occlusion during integration; compositing this ink directly over opaque shorts would incorrectly display it on the fabric. The review sheet shows unoccluded registration for inspection.
 
+The outer-thigh rune tattoo also extends beneath the base's shorts. Its full ink layer preserves the specified anatomical placement. Keep the original shorts above the tattoo during runtime compositing; no altered underwear is included in the delivery.
+
 ## Geometry corrections
 
 The phase-2 `areas()` function includes a geometry correction. Cropped region bases lose off-canvas endpoints of reach primitives, so the original calf-length cloak mask stopped at the shoulder or waist despite seeded artwork continuing downward. The correction projects the full-figure specification mask using the artwork's coordinate transform, then unions it with the original region mask. It uses the specification mask, not the asset silhouette. Acceptance thresholds and the 869-file specification are unchanged.
@@ -74,7 +76,9 @@ Before correction, only 32.0-70.3% of the affected cloak seeds lay inside their 
 
 The gambeson reach now includes both mapped shoulder sites with the normal 0.35-body-unit Under-layer allowance. Its requested short sleeves must connect to the torso across these shoulder caps, but the occupied slot list omitted the connecting surfaces. This created false failures on close-ups, even for the registered whole-figure design. The correction uses the anatomy map, not generated artwork. It does not extend coverage into forearms or background and does not relax any acceptance threshold. Three additional passing regression tests cover shoulder continuity, exclusion of forearms and background, and preservation of all 869 requested files, their order, prompts and dimensions.
 
-The plexus disc reach includes two narrow 1.4-body-unit straps from the central plexus to the mapped armpits. The description requires a strap around the chest, but the original slot-only mask allowed only the central disc. The correction uses anatomical endpoints and the existing strap primitive; it leaves the disc's required coverage and all acceptance thresholds unchanged. Two additional passing tests verify both chest connections and exclusion of the upper chest, belly, upper arms and background. All seven geometry regression tests pass.
+The plexus disc reach includes two narrow 1.4-body-unit straps from the central plexus to the mapped armpits. The description requires a strap around the chest, but the original slot-only mask allowed only the central disc. The correction uses anatomical endpoints and the existing strap primitive; it leaves the disc's required coverage and all acceptance thresholds unchanged. Two additional passing tests verify both chest connections and exclusion of the upper chest, belly, upper arms and background.
+
+The nose guard reach includes the mapped brow for its explicitly requested brow band. The coif reach includes the ear-slit edges, nape, a narrow rim around the mapped chin, and room immediately below the chin for the cord knot. The rim excludes the mouth and its surrounding margin, so the fastening mask does not cover the central face. These additions follow anatomical sites, not generated silhouettes. Four additional passing tests cover fastening placement and exclusion of eyes, central face, lower neck and background. All eleven geometry regression tests pass; file count, order, prompts, dimensions, core coverage and acceptance thresholds are unchanged.
 
 Reproduce validation from the repository root:
 
