@@ -1,6 +1,6 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies **516 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 353 files remain undelivered.
+This checkpoint supplies **572 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 297 files remain undelivered.
 
 Delivery branch: `art/equipment-pieces-20261026`.
 
@@ -11,20 +11,20 @@ Updated on 2 November 2026. The art branch is synchronized with upstream integra
 | Batch | Requested | Delivered | Remaining |
 |---|---:|---:|---:|
 | 1 | 277 | 277 | 0 |
-| 2 | 299 | 223 | 76 |
-| 3 | 293 | 16 | 277 |
-| Total | 869 | 516 | 353 |
+| 2 | 299 | 256 | 43 |
+| 3 | 293 | 39 | 254 |
+| Total | 869 | 572 | 297 |
 
 | Asset type | Delivered files |
 |---|---:|
 | Bare region plates | 13 |
-| Worn equipment views | 462 |
+| Worn equipment views | 512 |
 | Held pieces and companions | 7 |
-| Pieces painted on hosts | 16 |
-| Separate attachments | 13 |
+| Pieces painted on hosts | 18 |
+| Separate attachments | 17 |
 | Sheets of small parts | 5 |
 
-Delivered families: amulet, ankle guard, ankle tattoo, ankle wrap, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, back tattoo, backpack, backplate, baldric, bare plates, beard rings, bell, belly chain, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastbone tattoo, breastplate, breeches, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf band, calf guard, calf tattoo, charm, chausses, cheek fitting, cheek guard, chest harness, chest tattoo, chin guard, chin tattoo, choker, circlet, clasp, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, crossguard, cuirass, cuisse, culet, diadem, ear chain, ear cuff, earring, elbow tattoo, eyebrow ring, eyepatch, face plate, falcon hood, fauld, faulds and tassets, fingerless glove, flank tattoo, focus orb, foot chain, foot tattoo, forearm sheath, forearm tattoo, forehead jewel, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hand chain, hand jewel, hand tattoo, heart tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, jesses, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, knuckleduster, kohl, laces, lance rest, lantern, lat guard, lat tattoo, leg harness, leg wraps, lip ring, loincloth, mail shirt, mail sleeve, main hand, mantle, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, necklace, nose guard, nose stud, off hand, outer thigh tattoo, palm sigil, pauldron, pectoral plate, plackart, plexus disc, plexus gem, plume, poleyn, pommel, potion, pouch, quiver, rerebrace, rib chain, rib guard, ring, ring tattoo, robe, rune, sallet, sandal, sash, scabbard, scale vest, scapula plate, scarf, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, side sheath, sock, spaulder, spectacles, spike, spine guard, spur, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, throat jewel, throat tattoo, thumb tattoo, toe ring, toenail paint, torc, torc terminal, triceps tattoo, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wizard hat, wrist tattoo.
+Delivered families: amulet, ankle guard, ankle tattoo, ankle wrap, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, back scabbard, back tattoo, backpack, backplate, baldric, bandolier, bangle stack, bare plates, beard rings, bell, belly chain, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastbone tattoo, breastplate, breeches, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf band, calf guard, calf tattoo, charm, chausses, cheek fitting, cheek gem, cheek guard, cheek tattoo, chest harness, chest tattoo, chin guard, chin tattoo, choker, circlet, clasp, claw ring, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, crossguard, cuirass, cuisse, culet, diadem, ear chain, ear cuff, ear tip, earring, elbow tattoo, eyebrow ring, eyepatch, face plate, falcon hood, fang caps, fauld, faulds and tassets, fingerless glove, flank tattoo, focus orb, foot chain, foot charm, foot tattoo, forearm sheath, forearm tattoo, forehead jewel, full arm harness, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hair ribbon, hand chain, hand jewel, hand plate, hand tattoo, heart tattoo, heartstone, heel tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, jesses, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, knuckleduster, kohl, laces, lance rest, lantern, lat guard, lat tattoo, leg harness, leg wraps, lip ring, loincloth, mail shirt, mail sleeve, main hand, mantle, mask, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, neck tattoo, necklace, nose guard, nose stud, off hand, outer thigh tattoo, palm sigil, pauldron, pectoral plate, placard, plackart, plexus disc, plexus gem, plexus tattoo, plume, poleyn, pommel, potion, pouch, quiver, rerebrace, rib chain, rib guard, rib tattoo, ring, ring tattoo, robe, rune, sabaton, sallet, sandal, sash, scabbard, scale vest, scapula plate, scarf, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, side sheath, sock, spaulder, spectacles, spike, spine guard, spur, star charm, surcoat, tabard, tassel, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, third eye, throat jewel, throat tattoo, throwing knife, thumb tattoo, toe ring, toenail paint, torc, torc terminal, triceps tattoo, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wizard hat, wrist tattoo.
 
 ## Files and review
 
@@ -45,7 +45,7 @@ Final exports are 8-bit RGB PNGs with an sRGB profile. Generated canvases were r
 The phase-2 checker reports:
 
 ```text
-516 of 516 delivered files pass; 353 of 869 not delivered yet
+572 of 572 delivered files pass; 297 of 869 not delivered yet
 ```
 
 The unchanged phase-1 assets pass their original checker: `10 of 10 pass`. Review sheets were also inspected; numeric checks do not replace visual review. Exported paths, text files and PNG metadata are checked for Chinese characters before each upload.
@@ -86,7 +86,9 @@ The chin tattoo uses a narrow anatomical region immediately below the lower lip,
 
 Backpack front straps now start at the shoulder top between the shoulder and clavicle, and end at the mapped armpit. The old strap began at the shoulder site's centre, halfway down the upper arm, so it omitted the upper connection explicitly required by the description. The new narrow strap primitive derives its endpoints entirely from the anatomy map. A regression test checks the full connection on the figure and torso while excluding the central chest and belly.
 
-All fourteen geometry regression tests pass. The requested file count, order, prompts and dimensions remain unchanged, as do all acceptance thresholds.
+The front quiver strap now follows the written right-shoulder requirement. The original reach ran from the left shoulder to the right flank; it now connects the right shoulder top to the left flank. The shared shoulder-strap primitive accepts an optional anatomical destination, leaving backpack behavior unchanged. A regression test verifies the diagonal connection on the figure and torso and excludes the opposite shoulder and flank.
+
+All fifteen geometry regression tests pass. The requested file count, order, prompts and dimensions remain unchanged, as do all acceptance thresholds.
 
 Reproduce validation from the repository root:
 

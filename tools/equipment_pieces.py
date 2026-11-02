@@ -384,14 +384,15 @@ def extent(base, prim):
     if kind == "shoulder_strap":
         # A backpack strap starts above the shoulder, beside the clavicle;
         # the centre of the shoulder slot is halfway down the upper arm.
-        _, side, w = prim
+        _, side, w, *destination = prim
         shoulder, clavicle, armpit = (base.centre([side + "." + site])
                                      for site in ("shoulder", "clavicle", "armpit"))
         box = base.box([side + ".shoulder", side + ".clavicle"])
         if shoulder is None or clavicle is None or armpit is None or box is None:
             return None
         top = ((shoulder[0] + clavicle[0]) / 2, box[1])
-        return strap_mask(base.size, top, armpit, w * U)
+        end = base.centre([destination[0]]) if destination else armpit
+        return None if end is None else strap_mask(base.size, top, end, w * U)
     if kind == "sites":
         _, sites, r = prim
         m = base.mask(sites)
@@ -506,7 +507,8 @@ FAMILIES = {
     "quiver": P("a tall brown leather quiver full of arrows slung across his back, its mouth behind his right shoulder "
                 "with the grey-feathered fletchings rising above the shoulder, its strap crossing his chest",
                 reach={"back": [("strap", "R.blade", "L.kidney", 3.0), ("above", ["R.shoulder"], 6, 0.5)],
-                       "front": [("above", ["R.shoulder"], 6, 0.2), ("strap", "L.shoulder", "R.flank", 1.1)]},
+                       "front": [("above", ["R.shoulder"], 6, 0.2),
+                                 ("shoulder_strap", "R", 1.1, "L.flank")]},
                 cover="part", behind=True),
     "scapula_plate": P("a steel plate shaped over each shoulder blade, strapped under the arm"),
     "shoulder_blade_tattoo": P("a tattoo on each shoulder blade: a spread raven's wing drawn in knotwork", ink=True),

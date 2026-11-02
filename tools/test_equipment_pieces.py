@@ -174,6 +174,25 @@ class BackpackStrapMaskTests(unittest.TestCase):
                 self.assertFalse(paint[y, x], "straps must leave the central chest and belly clear")
 
 
+class QuiverStrapMaskTests(unittest.TestCase):
+    def test_strap_connects_the_right_shoulder_to_the_left_flank(self):
+        for name in ("figure_front", "torso"):
+            base = ep.BASES[name]
+            paint = ep.family("quiver").area(base)[0]
+            shoulder = base.centre(["R.shoulder"])
+            clavicle = base.centre(["R.clavicle"])
+            start = ((shoulder[0] + clavicle[0]) / 2,
+                     base.box(["R.shoulder", "R.clavicle"])[1])
+            end = base.centre(["L.flank"])
+            for amount in (0, 0.25, 0.5, 0.75, 1):
+                x, y = (round(start[i] + amount * (end[i] - start[i])) for i in (0, 1))
+                with self.subTest(base=name, amount=amount):
+                    self.assertTrue(paint[y, x])
+            for site in ("L.clavicle", "R.flank", "navel"):
+                x, y = map(round, base.centre([site]))
+                self.assertFalse(paint[y, x], "the strap must not cross on the opposite diagonal")
+
+
 class ChinTattooMaskTests(unittest.TestCase):
     def test_short_dot_column_uses_the_area_below_the_lip(self):
         with open(ep.SPEC, encoding="utf-8") as stream:
