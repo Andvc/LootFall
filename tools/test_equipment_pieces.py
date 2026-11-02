@@ -193,6 +193,52 @@ class QuiverStrapMaskTests(unittest.TestCase):
                 self.assertFalse(paint[y, x], "the strap must not cross on the opposite diagonal")
 
 
+class BackScabbardStrapMaskTests(unittest.TestCase):
+    def test_front_strap_runs_from_shoulder_top_to_opposite_hip(self):
+        base = ep.BASES["figure_front"]
+        paint = ep.family("back_scabbard").area(base)[0]
+        shoulder = base.centre(["R.shoulder"])
+        clavicle = base.centre(["R.clavicle"])
+        start = ((shoulder[0] + clavicle[0]) / 2,
+                 base.box(["R.shoulder", "R.clavicle"])[1])
+        end = base.centre(["L.hip"])
+        for amount in (0, 0.25, 0.5, 0.75, 1):
+            x, y = (round(start[i] + amount * (end[i] - start[i])) for i in (0, 1))
+            with self.subTest(amount=amount):
+                self.assertTrue(paint[y, x])
+        for site in ("L.clavicle", "R.flank", "navel"):
+            x, y = map(round, base.centre([site]))
+            self.assertFalse(paint[y, x], "the diagonal must leave unrelated sites clear")
+
+
+class HandPlateCoverageTests(unittest.TestCase):
+    def assets(self):
+        with open(ep.SPEC, encoding="utf-8") as stream:
+            return [a for a in json.load(stream)["assets"] if a.get("family") == "hand_plate"]
+
+    def test_palm_views_require_a_fastening_rather_than_full_steel_coverage(self):
+        assets = [a for a in self.assets() if a["base"] in
+                  ("figure_back", "hand_R_palm", "hand_L_palm")]
+        self.assertEqual(len(assets), 3)
+        for asset in assets:
+            with self.subTest(base=asset["base"]):
+                self.assertEqual(ep.areas(asset)["coverage"], "part")
+
+    def test_back_views_require_hand_coverage_and_leave_fingers_free(self):
+        for asset in self.assets():
+            base = ep.BASES[asset["base"]]
+            area = ep.areas(asset)
+            with self.subTest(base=base.name):
+                if base.name in ("figure_front", "hand_R_back", "hand_L_back"):
+                    self.assertEqual(area["coverage"], "full")
+                    self.assertTrue(area["core"].any())
+                for side in ("L", "R"):
+                    digits = base.mask([side + "." + name for name in
+                                        ("thumb", "index", "middle", "ring", "little")])
+                    self.assertFalse((area["core"] & digits).any())
+                self.assertFalse(area["core"][0, 0])
+
+
 class ChinTattooMaskTests(unittest.TestCase):
     def test_short_dot_column_uses_the_area_below_the_lip(self):
         with open(ep.SPEC, encoding="utf-8") as stream:

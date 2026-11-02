@@ -464,7 +464,7 @@ FAMILIES = {
                        "behind his right shoulder and the tip at his left hip, held by a leather strap that crosses his "
                        "chest from his right shoulder to his left hip",
                        reach={"back": [("strap", "R.blade", "L.kidney", 2.8), ("above", ["R.shoulder"], 5, 0.5)],
-                              "front": [("above", ["R.shoulder"], 5, 0.2), ("strap", "R.shoulder", "L.hip", 1.2)]},
+                              "front": [("above", ["R.shoulder"], 5, 0.2), ("shoulder_strap", "R", 1.2, "L.hip")]},
                        cover="part", behind=True),
     "back_tattoo": P("a large tattoo over the whole back, from the shoulder blades down to the small of the back: a "
                      "great tree of knotwork, its roots spreading over the small of the back and its branches over the "
@@ -1657,8 +1657,19 @@ def areas(a, full=True):
                 picture = over(picture, to_base(got, fig, b))
         if not full:
             return {"base": picture, "paint": paint, "unit": b.U}
-        core = coarse(leaf, 0.5 * b.U, shrink_mask) if F.cover == "full" else leaf
-        return {"base": picture, "paint": paint, "core": core, "allowed": coarse(paint, 1.2 * b.U, grow), "unit": b.U}
+        coverage = F.cover
+        if a["family"] == "hand_plate":
+            # The gameplay hand slot also reserves all fingers. The artwork is
+            # a plate on the hand back, with only its fastening on the palm.
+            # A palm strap must not be required to cover the entire hand.
+            sides = [p["side"][0] for p in F.pieces if p["name"] in a["pieces"]]
+            leaf = b.mask([side + ".hand" for side in sides])
+            if not leaf.any():
+                leaf = b.mask([side + ".palm" for side in sides])
+                coverage = "part"
+        core = coarse(leaf, 0.5 * b.U, shrink_mask) if coverage == "full" else leaf
+        return {"base": picture, "paint": paint, "core": core, "allowed": coarse(paint, 1.2 * b.U, grow),
+                "unit": b.U, "coverage": coverage}
     if cls == "host" and a["base"] in BASES:
         b = BASES[a["base"]]
         spec = BOARD_FAMILIES[a["family"]]
@@ -1861,7 +1872,7 @@ def check_one(a):
         inside = (mask & ar["allowed"]).sum() / total
         want = LIMITS["inside_behind"] if a.get("behind") else LIMITS["inside"]
         r.add("in its place", inside >= want, f"{inside:.0%} of it is where it's worn (at least {want:.0%})")
-        cover = a.get("cover", "part")
+        cover = ar.get("coverage", a.get("cover", "part"))
         core = ar["core"]
         if cover == "full" and core.any():
             share = (mask & core).sum() / core.sum()
@@ -1941,12 +1952,15 @@ def label(img, text, colour):
 
 
 def tile(a, result, size=360):
-    """A delivered file over what it's painted on, cropped to where it is."""
+    """A delivered file on its runtime base, cropped to where it is."""
     p = path(a["file"])
     got = load_rgba(p) if os.path.exists(p) else None
     ar = areas(a) if a["class"] in ("plate", "piece", "host") else None
     if ar is not None and got is not None and got.shape[:2] == ar["base"].shape[:2]:
-        pic = over(ar["base"], got) if a["class"] != "plate" else on_green(got)
+        # Seeded inputs already wear the whole-figure version of this item.
+        # Review the delivered replacement over bare anatomy, not a second copy.
+        review_base = base_picture(BASES[a["base"]])[0] if a["class"] == "piece" else ar["base"]
+        pic = over(review_base, got) if a["class"] != "plate" else on_green(got)
         m = (got[..., 3] > 127) | ar["paint"]
     elif got is not None:
         pic = on_green(got)
