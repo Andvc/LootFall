@@ -133,5 +133,26 @@ class HeadFasteningMaskTests(unittest.TestCase):
                 self.assertFalse(paint[y, x])
 
 
+class ThumbTattooMaskTests(unittest.TestCase):
+    def test_thumb_art_excludes_other_digits_and_palm(self):
+        with open(ep.SPEC, encoding="utf-8") as stream:
+            assets = [a for a in json.load(stream)["assets"]
+                      if a.get("family") == "thumb_tattoo"]
+        self.assertEqual(len(assets), 4)
+        for asset in assets:
+            base = ep.BASES[asset["base"]]
+            side = asset["pieces"][0].split()[0][0]
+            area = ep.areas(asset)
+            with self.subTest(base=base.name):
+                thumb = base.mask([side + ".thumb"])
+                self.assertTrue(thumb.any())
+                self.assertTrue((area["core"] == thumb).all())
+                for site in ("index", "middle", "ring", "little", "hand"):
+                    other = base.mask([side + "." + site])
+                    self.assertFalse((area["core"] & other).any())
+                self.assertTrue(area["paint"][thumb].all())
+                self.assertFalse(area["allowed"][20, 20])
+
+
 if __name__ == "__main__":
     unittest.main()

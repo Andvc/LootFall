@@ -1610,6 +1610,14 @@ def areas(a, full=True):
         b = BASES[a["base"]]
         F = family(a["family"])
         paint, leaf, _ = F.area(b)
+        if a["family"] == "thumb_tattoo":
+            # The game reserves the shared fingers skin slot, but this art is
+            # explicitly three dots on the thumb. Other digits must not count
+            # toward its drawing area or its minimum ink coverage.
+            thumb_sites = [p["side"][0] + ".thumb" for p in F.pieces
+                           if p["name"] in a["pieces"]]
+            leaf = b.mask(thumb_sites)
+            paint = coarse(leaf, F.grow * b.U, grow)
         picture, _ = base_picture(b)
         if a.get("seeded_from"):
             fig = BASES[a["seeded_from"]]

@@ -1,6 +1,6 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies **424 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 445 files remain undelivered.
+This checkpoint supplies **473 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 396 files remain undelivered.
 
 Delivery branch: `art/equipment-pieces-20261026`.
 
@@ -11,20 +11,20 @@ Updated on 2 November 2026. The art branch is synchronized with upstream integra
 | Batch | Requested | Delivered | Remaining |
 |---|---:|---:|---:|
 | 1 | 277 | 277 | 0 |
-| 2 | 299 | 147 | 152 |
-| 3 | 293 | 0 | 293 |
-| Total | 869 | 424 | 445 |
+| 2 | 299 | 195 | 104 |
+| 3 | 293 | 1 | 292 |
+| Total | 869 | 473 | 396 |
 
 | Asset type | Delivered files |
 |---|---:|
 | Bare region plates | 13 |
-| Worn equipment views | 379 |
+| Worn equipment views | 422 |
 | Held pieces and companions | 7 |
-| Pieces painted on hosts | 8 |
-| Separate attachments | 12 |
+| Pieces painted on hosts | 13 |
+| Separate attachments | 13 |
 | Sheets of small parts | 5 |
 
-Delivered families: amulet, ankle guard, ankle tattoo, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, backpack, backplate, baldric, bare plates, bell, belly chain, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastplate, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf guard, calf tattoo, charm, chausses, cheek fitting, cheek guard, chest harness, choker, circlet, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, crossguard, cuisse, culet, ear chain, ear cuff, earring, eyebrow ring, eyepatch, falcon hood, fauld, fingerless glove, focus orb, foot chain, forearm sheath, forehead jewel, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hand chain, hand tattoo, heart tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, kohl, lance rest, lantern, lat guard, lat tattoo, leg harness, lip ring, loincloth, mail shirt, main hand, mantle, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, necklace, nose guard, nose stud, off hand, outer thigh tattoo, pauldron, pectoral plate, plackart, plexus disc, plexus gem, plume, poleyn, potion, pouch, rerebrace, rib chain, ring, ring tattoo, rune, sallet, sandal, scabbard, scale vest, scapula plate, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, sock, spaulder, spectacles, spike, spur, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, toe ring, toenail paint, torc, torc terminal, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wrist tattoo.
+Delivered families: amulet, ankle guard, ankle tattoo, anklet, arm cuff, arm harness, arming cap, arming sleeve, armlet, back tattoo, backpack, backplate, baldric, bare plates, bell, belly chain, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastbone tattoo, breastplate, breeches, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf band, calf guard, calf tattoo, charm, chausses, cheek fitting, cheek guard, chest harness, chest tattoo, choker, circlet, clasp, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, crossguard, cuisse, culet, diadem, ear chain, ear cuff, earring, elbow tattoo, eyebrow ring, eyepatch, face plate, falcon hood, fauld, fingerless glove, focus orb, foot chain, forearm sheath, forearm tattoo, forehead jewel, gambeson, garter, gauntlet, gem, glove, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hand chain, hand jewel, hand tattoo, heart tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, jesses, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, knuckleduster, kohl, laces, lance rest, lantern, lat guard, lat tattoo, leg harness, lip ring, loincloth, mail shirt, mail sleeve, main hand, mantle, medal, monocle, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, necklace, nose guard, nose stud, off hand, outer thigh tattoo, pauldron, pectoral plate, plackart, plexus disc, plexus gem, plume, poleyn, pommel, potion, pouch, quiver, rerebrace, rib chain, ring, ring tattoo, rune, sallet, sandal, sash, scabbard, scale vest, scapula plate, scarf, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, side sheath, sock, spaulder, spectacles, spike, spine guard, spur, surcoat, tabard, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, thumb tattoo, toe ring, toenail paint, torc, torc terminal, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wrist tattoo.
 
 ## Files and review
 
@@ -45,7 +45,7 @@ Final exports are 8-bit RGB PNGs with an sRGB profile. Generated canvases were r
 The phase-2 checker reports:
 
 ```text
-424 of 424 delivered files pass; 445 of 869 not delivered yet
+473 of 473 delivered files pass; 396 of 869 not delivered yet
 ```
 
 The unchanged phase-1 assets pass their original checker: `10 of 10 pass`. Review sheets were also inspected; numeric checks do not replace visual review. Exported paths, text files and PNG metadata are checked for Chinese characters before each upload.
@@ -78,7 +78,9 @@ The gambeson reach now includes both mapped shoulder sites with the normal 0.35-
 
 The plexus disc reach includes two narrow 1.4-body-unit straps from the central plexus to the mapped armpits. The description requires a strap around the chest, but the original slot-only mask allowed only the central disc. The correction uses anatomical endpoints and the existing strap primitive; it leaves the disc's required coverage and all acceptance thresholds unchanged. Two additional passing tests verify both chest connections and exclusion of the upper chest, belly, upper arms and background.
 
-The nose guard reach includes the mapped brow for its explicitly requested brow band. The coif reach includes the ear-slit edges, nape, a narrow rim around the mapped chin, and room immediately below the chin for the cord knot. The rim excludes the mouth and its surrounding margin, so the fastening mask does not cover the central face. These additions follow anatomical sites, not generated silhouettes. Four additional passing tests cover fastening placement and exclusion of eyes, central face, lower neck and background. All eleven geometry regression tests pass; file count, order, prompts, dimensions, core coverage and acceptance thresholds are unchanged.
+The nose guard reach includes the mapped brow for its explicitly requested brow band. The coif reach includes the ear-slit edges, nape, a narrow rim around the mapped chin, and room immediately below the chin for the cord knot. The rim excludes the mouth and its surrounding margin, so the fastening mask does not cover the central face. These additions follow anatomical sites, not generated silhouettes. Four additional passing tests cover fastening placement and exclusion of eyes, central face, lower neck and background.
+
+The thumb tattoo uses the mapped thumb as its art region. Its gameplay slot reserves the shared fingers skin slot, but the requested design is three dots on the thumb only; the original checker incorrectly measured coverage against all five digits. A regression test verifies all four thumb views and excludes the other fingers, palm and background. All twelve geometry regression tests pass. The requested file count, order, prompts and dimensions remain unchanged, as do all acceptance thresholds.
 
 Reproduce validation from the repository root:
 
