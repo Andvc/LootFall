@@ -2676,6 +2676,14 @@ PASS  pieces/right_arm_front/mantle
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 100% of the sites it fills (at least 75%)
    ok  ink outline: 66% of its edge is dark ink
+PASS  pieces/right_arm_back/mantle
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 173832 pixels drawn (green key)
+   ok  in its place: 97% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 77% of its edge is dark ink
 PASS  pieces/left_arm_front/mantle
    ok  size: 960x1616 (want 960x1616)
    ok  format: PNG RGB
@@ -2684,6 +2692,14 @@ PASS  pieces/left_arm_front/mantle
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 100% of the sites it fills (at least 75%)
    ok  ink outline: 81% of its edge is dark ink
+PASS  pieces/left_arm_back/mantle
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 168309 pixels drawn (green key)
+   ok  in its place: 98% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 79% of its edge is dark ink
 PASS  pieces/hand_L_back/nail_lacquer
    ok  size: 1008x1552 (want 1008x1552)
    ok  format: PNG RGB
@@ -2722,6 +2738,14 @@ PASS  pieces/head_right/gold_teeth
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  big enough: fills 29.6% of its area
    ok  ink outline: 69% of its edge is dark ink
+PASS  pieces/head_left/gold_teeth
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 8688 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 28.5% of its area
+   ok  ink outline: 61% of its edge is dark ink
 PASS  pieces/right_leg_front/garter
    ok  size: 864x1792 (want 864x1792)
    ok  format: PNG RGB
@@ -2814,6 +2838,14 @@ PASS  pieces/waist_front/scabbard
    ok  in its place: 96% of it is where it's worn (at least 95%)
    ok  big enough: fills 24.1% of its area
    ok  ink outline: 83% of its edge is dark ink
+PASS  pieces/right_leg_front/scabbard
+   ok  size: 864x1792 (want 864x1792)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 65844 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 13.6% of its area
+   ok  ink outline: 83% of its edge is dark ink
 PASS  pieces/right_arm_back/arm_cuff
    ok  size: 960x1616 (want 960x1616)
    ok  format: PNG RGB
@@ -2830,6 +2862,14 @@ PASS  pieces/figure_front/brigandine
    ok  in its place: 95% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 100% of the sites it fills (at least 75%)
    ok  ink outline: 78% of its edge is dark ink
+PASS  pieces/torso/brigandine
+   ok  size: 1104x1408 (want 1104x1408)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 731004 pixels drawn (green key)
+   ok  in its place: 96% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 84% of its edge is dark ink
 PASS  pieces/head_front/nose_guard
    ok  size: 976x1600 (want 976x1600)
    ok  format: PNG RGB
@@ -2838,6 +2878,14 @@ PASS  pieces/head_front/nose_guard
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 79% of the sites it fills (at least 75%)
    ok  ink outline: 84% of its edge is dark ink
+PASS  pieces/head_right/nose_guard
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 50952 pixels drawn (green key)
+   ok  in its place: 99% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 96% of the sites it fills (at least 75%)
+   ok  ink outline: 85% of its edge is dark ink
 PASS  pieces/back/lat_guard
    ok  size: 1088x1440 (want 1088x1440)
    ok  format: PNG RGB
@@ -2870,6 +2918,22 @@ PASS  pieces/head_front/coif
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 100% of the sites it fills (at least 75%)
    ok  ink outline: 82% of its edge is dark ink
+PASS  pieces/head_right/coif
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 377370 pixels drawn (green key)
+   ok  in its place: 96% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 96% of the sites it fills (at least 75%)
+   ok  ink outline: 83% of its edge is dark ink
+PASS  pieces/head_left/coif
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 359959 pixels drawn (green key)
+   ok  in its place: 98% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 96% of the sites it fills (at least 75%)
+   ok  ink outline: 82% of its edge is dark ink
 PASS  attachments/pouch
    ok  size: 1024x1024 (want 1024x1024)
    ok  format: PNG RGB
@@ -2894,6 +2958,38 @@ PASS  pieces/head_right/neck_cloth
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 98% of the sites it fills (at least 75%)
    ok  ink outline: 81% of its edge is dark ink
+PASS  pieces/head_left/neck_cloth
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 43317 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 80% of its edge is dark ink
+PASS  sprites/shield/shield_boss
+   ok  size: 1024x1536 (want 1024x1536)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 104334 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 100.9% of its area
+   ok  ink outline: 86% of its edge is dark ink
+PASS  sprites/main_hand/grip_wrap
+   ok  size: 768x2048 (want 768x2048)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 16268 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 63.0% of its area
+   ok  ink outline: 84% of its edge is dark ink
+PASS  sprites/great_weapon/grip_wrap
+   ok  size: 768x2048 (want 768x2048)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 17099 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 54.7% of its area
+   ok  ink outline: 85% of its edge is dark ink
 PASS  pieces/right_arm_front/upper_arm_tattoo
    ok  size: 960x1616 (want 960x1616)
    ok  format: PNG RGB
@@ -2909,6 +3005,14 @@ PASS  pieces/waist_front/fauld
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 100% of the sites it fills (at least 75%)
    ok  ink outline: 84% of its edge is dark ink
+PASS  pieces/waist_back/fauld
+   ok  size: 1488x1040 (want 1488x1040)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 154036 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 84% of its edge is dark ink
 PASS  pieces/figure_back/backpack
    ok  size: 944x1664 (want 944x1664)
    ok  format: PNG RGB
@@ -2917,6 +3021,14 @@ PASS  pieces/figure_back/backpack
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  big enough: fills 61.1% of its area
    ok  ink outline: 71% of its edge is dark ink
+PASS  pieces/back/backpack
+   ok  size: 1088x1440 (want 1088x1440)
+   ok  format: PNG RGB
+   ok  no key green: 0.01% of it is key green
+   ok  drawn: 391911 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 60.8% of its area
+   ok  ink outline: 84% of its edge is dark ink
 PASS  pieces/torso/side_plate
    ok  size: 1104x1408 (want 1104x1408)
    ok  format: PNG RGB
@@ -2932,6 +3044,20 @@ PASS  pieces/head_front/brow_tattoo
    ok  drawn: 5406 pixels drawn (green key)
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  ink on its sites: ink over 6% of its sites
+PASS  pieces/head_right/brow_tattoo
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 2002 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  ink on its sites: ink over 4% of its sites
+PASS  pieces/head_left/brow_tattoo
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 1636 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  ink on its sites: ink over 4% of its sites
 PASS  attachments/spur
    ok  size: 1024x1024 (want 1024x1024)
    ok  format: PNG RGB
@@ -2955,6 +3081,14 @@ PASS  pieces/head_front/helix_ring
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  big enough: fills 2.4% of its area
    ok  ink outline: 76% of its edge is dark ink
+PASS  pieces/hand_R_back/hand_chain
+   ok  size: 992x1568 (want 992x1568)
+   ok  format: PNG RGB
+   ok  no key green: 0.20% of it is key green
+   ok  drawn: 43568 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 9.1% of its area
+   ok  ink outline: 80% of its edge is dark ink
 PASS  pieces/head_front/forehead_jewel
    ok  size: 976x1600 (want 976x1600)
    ok  format: PNG RGB
@@ -2963,6 +3097,22 @@ PASS  pieces/head_front/forehead_jewel
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  big enough: fills 7.3% of its area
    ok  ink outline: 67% of its edge is dark ink
+PASS  pieces/head_right/forehead_jewel
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.11% of it is key green
+   ok  drawn: 6498 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 8.5% of its area
+   ok  ink outline: 67% of its edge is dark ink
+PASS  pieces/head_left/forehead_jewel
+   ok  size: 1024x1504 (want 1024x1504)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 7162 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 9.5% of its area
+   ok  ink outline: 62% of its edge is dark ink
 PASS  sheets/charm
    ok  size: 1248x1248 (want 1248x1248)
    ok  format: PNG RGB
@@ -2995,6 +3145,14 @@ PASS  sheets/torc_terminal
    ok  background: 100.0% of the border is background (green key)
    ok  cell 1: fills 21% of its cell, clear of its edges
    ok  cell 2: fills 21% of its cell, clear of its edges
+PASS  sprites/main_hand/crossguard
+   ok  size: 768x2048 (want 768x2048)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 26106 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 57.3% of its area
+   ok  ink outline: 85% of its edge is dark ink
 PASS  pieces/head_front/war_paint
    ok  size: 976x1600 (want 976x1600)
    ok  format: PNG RGB
@@ -3002,6 +3160,100 @@ PASS  pieces/head_front/war_paint
    ok  drawn: 123595 pixels drawn (green key)
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  ink on its sites: ink over 42% of its sites
+PASS  pieces/head_front/sallet/cheek_fitting
+   ok  size: 976x1600 (want 976x1600)
+   ok  format: PNG RGB
+   ok  no key green: 0.02% of it is key green
+   ok  drawn: 77139 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 80.8% of its area
+   ok  ink outline: 82% of its edge is dark ink
+PASS  sprites/shield/shield_rim
+   ok  size: 1024x1536 (want 1024x1536)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 329825 pixels drawn (green key)
+   ok  in its place: 97% of it is where it's worn (at least 95%)
+   ok  big enough: fills 143.2% of its area
+   ok  ink outline: 86% of its edge is dark ink
+PASS  pieces/head_front/spectacles
+   ok  size: 976x1600 (want 976x1600)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 17306 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 5.7% of its area
+   ok  ink outline: 81% of its edge is dark ink
+PASS  pieces/torso/rib_chain
+   ok  size: 1104x1408 (want 1104x1408)
+   ok  format: PNG RGB
+   ok  no key green: 0.12% of it is key green
+   ok  drawn: 13879 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 11.4% of its area
+   ok  ink outline: 70% of its edge is dark ink
+PASS  pieces/back/shoulder_blade_tattoo
+   ok  size: 1088x1440 (want 1088x1440)
+   ok  format: PNG RGB
+   ok  no key green: 0.04% of it is key green
+   ok  drawn: 108212 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  ink on its sites: ink over 51% of its sites
+PASS  pieces/head_front/brow_guard
+   ok  size: 976x1600 (want 976x1600)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 87782 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 89% of the sites it fills (at least 75%)
+   ok  ink outline: 81% of its edge is dark ink
+PASS  attachments/lantern
+   ok  size: 1024x1024 (want 1024x1024)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  background: 100.0% of the border is background (green key)
+   ok  size on the canvas: its longer side is 95% of the canvas
+   ok  centred: its middle is at 50%, 49% of the canvas
+   ok  ink outline: 83% of its edge is dark ink
+PASS  pieces/waist_back/culet
+   ok  size: 1488x1040 (want 1488x1040)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 537096 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 93% of the sites it fills (at least 75%)
+   ok  ink outline: 84% of its edge is dark ink
+PASS  pieces/back/lat_tattoo
+   ok  size: 1088x1440 (want 1088x1440)
+   ok  format: PNG RGB
+   ok  no key green: 0.33% of it is key green
+   ok  drawn: 61212 pixels drawn (green key)
+   ok  in its place: 99% of it is where it's worn (at least 95%)
+   ok  ink on its sites: ink over 38% of its sites
+PASS  pieces/figure_front/chest_harness
+   ok  size: 944x1664 (want 944x1664)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 17818 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 19.5% of its area
+   ok  ink outline: 75% of its edge is dark ink
+PASS  pieces/figure_front/mail_shirt
+   ok  size: 944x1664 (want 944x1664)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 90085 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 66% of its edge is dark ink
+PASS  pieces/torso/belly_chain
+   ok  size: 1104x1408 (want 1104x1408)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 10209 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 11.3% of its area
+   ok  ink outline: 73% of its edge is dark ink
 PASS  pieces/right_arm_front/forearm_sheath
    ok  size: 960x1616 (want 960x1616)
    ok  format: PNG RGB
@@ -3018,6 +3270,22 @@ PASS  pieces/right_arm_back/forearm_sheath
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  big enough: fills 50.7% of its area
    ok  ink outline: 83% of its edge is dark ink
+PASS  attachments/potion
+   ok  size: 1024x1024 (want 1024x1024)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  background: 100.0% of the border is background (green key)
+   ok  size on the canvas: its longer side is 84% of the canvas
+   ok  centred: its middle is at 50%, 50% of the canvas
+   ok  ink outline: 83% of its edge is dark ink
+PASS  pieces/hand_R_back/thimble
+   ok  size: 992x1568 (want 992x1568)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 12863 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  big enough: fills 16.2% of its area
+   ok  ink outline: 84% of its edge is dark ink
 PASS  pieces/right_arm_front/shoulder_cape
    ok  size: 960x1616 (want 960x1616)
    ok  format: PNG RGB
@@ -3042,6 +3310,21 @@ PASS  pieces/foot_R_sole/sock
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  covers its sites: covers 100% of the sites it fills (at least 75%)
    ok  ink outline: 80% of its edge is dark ink
+PASS  pieces/right_arm_front/besagew
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 18599 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  covers its sites: covers 100% of the sites it fills (at least 75%)
+   ok  ink outline: 76% of its edge is dark ink
+PASS  pieces/right_arm_front/wrist_tattoo
+   ok  size: 960x1616 (want 960x1616)
+   ok  format: PNG RGB
+   ok  no key green: 0.05% of it is key green
+   ok  drawn: 5709 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  ink on its sites: ink over 33% of its sites
 PASS  pieces/hand_R_back/fingerless_glove
    ok  size: 992x1568 (want 992x1568)
    ok  format: PNG RGB
@@ -3050,6 +3333,13 @@ PASS  pieces/hand_R_back/fingerless_glove
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  big enough: fills 60.6% of its area
    ok  ink outline: 81% of its edge is dark ink
+PASS  pieces/foot_R_top/toenail_paint
+   ok  size: 816x1904 (want 816x1904)
+   ok  format: PNG RGB
+   ok  no key green: 0.00% of it is key green
+   ok  drawn: 28561 pixels drawn (green key)
+   ok  in its place: 100% of it is where it's worn (at least 95%)
+   ok  ink on its sites: ink over 18% of its sites
 PASS  pieces/right_arm_front/shoulder_tattoo
    ok  size: 960x1616 (want 960x1616)
    ok  format: PNG RGB
@@ -3065,4 +3355,4 @@ PASS  pieces/hand_R_back/nail_lacquer
    ok  in its place: 100% of it is where it's worn (at least 95%)
    ok  ink on its sites: ink over 12% of its sites
 
-387 of 387 delivered files pass; 482 of 869 not delivered yet
+424 of 424 delivered files pass; 445 of 869 not delivered yet
