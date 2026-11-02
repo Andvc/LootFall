@@ -239,6 +239,21 @@ class HandPlateCoverageTests(unittest.TestCase):
                 self.assertFalse(area["core"][0, 0])
 
 
+class CodpieceCoverageTests(unittest.TestCase):
+    def test_hidden_front_plate_does_not_require_solid_rear_coverage(self):
+        with open(ep.SPEC, encoding="utf-8") as stream:
+            assets = [a for a in json.load(stream)["assets"]
+                      if a.get("family") == "codpiece"]
+        self.assertEqual(len(assets), 2)
+        for asset in assets:
+            base = ep.BASES[asset["base"]]
+            area = ep.areas(asset)
+            with self.subTest(base=base.name):
+                self.assertEqual(area["coverage"], "part" if base.view == "back" else "full")
+                self.assertTrue((area["paint"] == ep.family("codpiece").area(base)[0]).all())
+                self.assertFalse(area["allowed"][0, 0])
+
+
 class ChinTattooMaskTests(unittest.TestCase):
     def test_short_dot_column_uses_the_area_below_the_lip(self):
         with open(ep.SPEC, encoding="utf-8") as stream:
@@ -255,6 +270,35 @@ class ChinTattooMaskTests(unittest.TestCase):
                 self.assertFalse(core[round((y0 + y1) / 2), cx], "the lip is not tattooed")
                 self.assertLess(core.sum(), base.mask(["chin"]).sum() / 8)
                 self.assertFalse(core[20, 20])
+
+
+class FacialAccessoryMaskTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with open(ep.SPEC, encoding="utf-8") as stream:
+            cls.assets = {a['id']: a for a in json.load(stream)['assets']}
+
+    def test_mouth_guard_strap_reaches_behind_both_profile_ears(self):
+        for name, point in [('head_right', (900, 740)), ('head_left', (120, 740))]:
+            area = ep.areas(self.assets[f'pieces/{name}/mouth_guard'])
+            with self.subTest(base=name):
+                self.assertTrue(area['paint'][point[1], point[0]])
+                self.assertFalse(area['allowed'][400, 500])
+                self.assertFalse(area['allowed'][1300, 500])
+
+    def test_nose_chain_allows_the_drape_between_right_nostril_and_ear(self):
+        area = ep.areas(self.assets['pieces/head_right/nose_chain'])
+        self.assertTrue(area['allowed'][850, 400])
+        self.assertFalse(area['allowed'][400, 400])
+        self.assertFalse(area['allowed'][1200, 400])
+
+    def test_hidden_chain_uses_only_the_visible_nostril_sliver(self):
+        area = ep.areas(self.assets['pieces/head_left/nose_chain'])
+        self.assertTrue(area['paint'][765, 942])
+        self.assertFalse(area['paint'][750, 600])
+        self.assertFalse(area['paint'][700, 380])
+        self.assertFalse(area['paint'][600, 880])
+        self.assertLess(area['paint'].sum(), 10000)
 
 
 if __name__ == "__main__":

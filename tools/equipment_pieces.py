@@ -1623,6 +1623,44 @@ def areas(a, full=True):
         b = BASES[a["base"]]
         F = family(a["family"])
         paint, leaf, _ = F.area(b)
+        if a["family"] == "mouth_guard":
+            # The mouth slot does not include the explicitly requested strap
+            # around the head. Anchor it to the mouth and ear, continuing to
+            # the rear head silhouette in a profile view.
+            mouth = b.centre(["mouth"])
+            for side in ("R", "L"):
+                ear = b.centre([side + ".ear"])
+                if mouth is None or ear is None:
+                    continue
+                end = (ear[0], ear[1] + 0.5 * b.U)
+                if b.view in ("head_right", "head_left"):
+                    head = b.box(["scalp", "nape"])
+                    if head is not None:
+                        end = (head[2] if ear[0] > mouth[0] else head[0], end[1])
+                paint = paint | strap_mask(b.size, mouth, end, 1.5 * b.U)
+        if a["family"] == "nose_chain":
+            # A fine chain sags between the lower nose and the right earlobe;
+            # the slot union alone misses the middle of that curve.
+            nose, ear = b.box(["nose"]), b.box(["R.ear"])
+            if nose is not None and ear is not None:
+                start = ((nose[0] + nose[2]) / 2, nose[1] + 0.8 * (nose[3] - nose[1]))
+                end = ((ear[0] + ear[2]) / 2, ear[1] + 0.8 * (ear[3] - ear[1]))
+                previous = start
+                for t in np.linspace(0, 1, 25)[1:]:
+                    point = (start[0] * (1-t) + end[0] * t,
+                             start[1] * (1-t) + end[1] * t + 4*t*(1-t)*b.U)
+                    paint = paint | strap_mask(b.size, previous, point, 0.5 * b.U)
+                    previous = point
+            elif nose is not None:
+                # From the left profile the right-hand chain is hidden. Only
+                # a sliver of its nostril stud can appear at the nose contour.
+                nose_mask = b.mask(["nose"])
+                ys, xs = np.where(nose_mask)
+                tip_x = int(xs.max())
+                tip_y = float(np.median(ys[xs >= tip_x - 2]))
+                leaf = ellipse_mask(b.size, [tip_x - 0.3*b.U, tip_y - 0.3*b.U,
+                                            tip_x + 0.2*b.U, tip_y + 0.3*b.U])
+                paint = coarse(leaf, F.grow * b.U, grow)
         if a["family"] == "thumb_tattoo":
             # The game reserves the shared fingers skin slot, but this art is
             # explicitly three dots on the thumb. Other digits must not count
@@ -1658,6 +1696,11 @@ def areas(a, full=True):
         if not full:
             return {"base": picture, "paint": paint, "unit": b.U}
         coverage = F.cover
+        if a["family"] == "codpiece" and b.view == "back":
+            # The front groin plate is hidden from behind. Only its waist
+            # fastening is visible, so the shared seat slot is not a solid
+            # armor surface in this view. Keep the placement masks unchanged.
+            coverage = "part"
         if a["family"] == "hand_plate":
             # The gameplay hand slot also reserves all fingers. The artwork is
             # a plate on the hand back, with only its fastening on the palm.

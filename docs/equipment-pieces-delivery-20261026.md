@@ -1,6 +1,6 @@
 # Equipment pieces delivery - 26 October 2026
 
-This checkpoint supplies **654 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 215 files remain undelivered.
+This checkpoint supplies **722 of 869 requested files**, based on source commit `e0ede57368aa1bde6e94a6baf67898631053183c`. The full checklist is authorized for incremental upload in upstream order. Family masters precede dependent views; whole-figure masters precede seeded region close-ups. No extra design variants are included. 147 files remain undelivered.
 
 Delivery branch: `art/equipment-pieces-20261026`.
 
@@ -11,20 +11,20 @@ Updated on 2 November 2026. The art branch is synchronized with upstream integra
 | Batch | Requested | Delivered | Remaining |
 |---|---:|---:|---:|
 | 1 | 277 | 277 | 0 |
-| 2 | 299 | 281 | 18 |
-| 3 | 293 | 96 | 197 |
-| Total | 869 | 654 | 215 |
+| 2 | 299 | 289 | 10 |
+| 3 | 293 | 156 | 137 |
+| Total | 869 | 722 | 147 |
 
 | Asset type | Delivered files |
 |---|---:|
 | Bare region plates | 13 |
-| Worn equipment views | 589 |
-| Held pieces and companions | 8 |
-| Pieces painted on hosts | 21 |
-| Separate attachments | 18 |
+| Worn equipment views | 635 |
+| Held pieces and companions | 12 |
+| Pieces painted on hosts | 31 |
+| Separate attachments | 26 |
 | Sheets of small parts | 5 |
 
-Delivered families: amulet, ankle guard, ankle tattoo, ankle wrap, anklet, arm cuff, arm harness, arm wraps, arming cap, arming sleeve, armlet, aventail, back scabbard, back tattoo, backpack, backplate, badge, baldric, bandolier, bangle stack, bare plates, beard rings, bedroll, bell, belly chain, belly tattoo, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastbone tattoo, breastplate, breeches, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf band, calf guard, calf tattoo, cape, chain of office, charm, chausses, cheek fitting, cheek gem, cheek guard, cheek tattoo, chest harness, chest tattoo, chin guard, chin tattoo, choker, circlet, clasp, claw gauntlet, claw ring, cloak, coif, collarbone stud, collarbone tattoo, couter, crest, crossguard, cuirass, cuisse, culet, diadem, ear chain, ear cuff, ear tip, earring, elbow tattoo, eyebrow ring, eyepatch, face plate, falcon hood, familiar, fang caps, fauld, faulds and tassets, fingerless glove, flank tattoo, focus orb, foot chain, foot charm, foot tattoo, forearm sheath, forearm tattoo, forehead jewel, full arm harness, gambeson, garter, gauntlet, gem, girdle, glove, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hair ribbon, hamstring tattoo, hand chain, hand jewel, hand plate, hand tattoo, hatband, heart tattoo, heartstone, heel tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, horns, jesses, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle ring, knuckleduster, kohl, laces, lance rest, lantern, lat guard, lat tattoo, leg harness, leg wraps, lip ring, loincloth, lower back tattoo, lower belly tattoo, lumbar plate, mail shirt, mail sleeve, main hand, mantle, mask, medal, monocle, mouth guard, nail lacquer, nape tattoo, nasal helm, navel tattoo, neck cloth, neck tattoo, necklace, nose chain, nose guard, nose stud, off hand, outer thigh tattoo, palm sigil, pauldron, pectoral plate, placard, plackart, plexus disc, plexus gem, plexus tattoo, plume, poleyn, pommel, potion, pouch, quiver, rerebrace, rib chain, rib guard, rib tattoo, ring, ring tattoo, robe, rune, sabaton, sallet, sandal, sash, scabbard, scale vest, scapula plate, scarf, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, side sheath, sock, spaulder, spectacles, spike, spine guard, spur, star charm, surcoat, tabard, tail, tassel, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, third eye, throat jewel, throat tattoo, throwing knife, thumb tattoo, toe ring, toenail paint, torc, torc terminal, triceps tattoo, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wizard hat, wrist tattoo.
+Delivered families: amulet, ankle guard, ankle tattoo, ankle wrap, anklet, arm cuff, arm harness, arm wraps, arming cap, arming sleeve, armlet, aventail, back scabbard, back tattoo, backpack, backplate, badge, baldric, bandolier, bangle stack, barding, bare plates, beard rings, bedroll, bell, belly chain, belly tattoo, belt, besagew, bevor, boot, bracelet, bracer, braid beads, breast tattoo, breastbone tattoo, breastplate, breeches, bridge stud, brigandine, brooch, brow guard, brow tattoo, buckle, calf band, calf guard, calf tattoo, cape, chain of office, charm, chausses, cheek fitting, cheek gem, cheek guard, cheek tattoo, chest harness, chest tattoo, chin guard, chin tattoo, choker, circlet, clasp, claw gauntlet, claw ring, cloak, codpiece, coif, collar, collarbone stud, collarbone tattoo, comet, couter, crest, crossguard, crown, cuirass, cuisse, culet, diadem, dorsal spines, dragon crest, ear chain, ear cuff, ear tip, earring, eclipse, elbow spike, elbow tattoo, eyebrow ring, eyepatch, face plate, falcon hood, familiar, fang caps, fauld, faulds and tassets, feather, fingerless glove, flank tattoo, fletching, focus orb, foot chain, foot charm, foot tattoo, forearm sheath, forearm tattoo, forehead jewel, full arm harness, gambeson, garter, gauntlet, gem, girdle, glove, goggles, gold teeth, gorget, great helm, great weapon, greave, grip wrap, hair pin, hair ribbon, hamstring tattoo, hand chain, hand jewel, hand plate, hand tattoo, hatband, heart tattoo, heartstone, heel spike, heel tattoo, helix ring, heraldry, hip chain, hip tattoo, hood, horn ring, horn tip, horns, ioun stone, jesses, kidney dagger, kidney guard, kidney tattoo, knee pit tattoo, knee wrap, knuckle letters, knuckle ring, knuckleduster, kohl, laces, lance rest, lantern, lat guard, lat tattoo, leg harness, leg wraps, lip ring, loincloth, lower back tattoo, lower belly tattoo, lumbar plate, mail shirt, mail sleeve, main hand, mantle, mask, medal, mid back tattoo, monocle, mouth guard, nail lacquer, nape guard, nape tattoo, nasal helm, navel ring, navel tattoo, neck cloth, neck tattoo, necklace, nose chain, nose guard, nose stud, off hand, outer thigh tattoo, palm crystal, palm sigil, pauldron, pectoral plate, placard, plackart, plexus disc, plexus gem, plexus tattoo, plume, poleyn, pommel, potion, pouch, quiver, reins, rerebrace, rib chain, rib guard, rib tattoo, ring, ring tattoo, robe, rune, sabaton, saddlebags, sallet, sandal, sash, scabbard, scale vest, scapula plate, scarf, septum ring, shield, shield boss, shield rim, shin tattoo, shirt, shoulder blade tattoo, shoulder cape, shoulder familiar, shoulder lantern, shoulder tattoo, side plate, side sheath, sock, spaulder, spectacles, spike, spine guard, spur, star charm, steed, surcoat, tabard, tail, tail ring, tail spike, talons, tassel, tasset, thigh sheath, thigh strap, thigh tattoo, thimble, third eye, throat jewel, throat tattoo, throwing knife, thumb tattoo, toe ring, toe talons, toenail paint, torc, torc terminal, triceps tattoo, trousers, upper arm tattoo, vambrace, waist tattoo, war paint, wizard hat, wrist tattoo.
 
 ## Files and review
 
@@ -46,7 +46,7 @@ Final exports are 8-bit RGB PNGs with an sRGB profile. Generated canvases were r
 The phase-2 checker reports:
 
 ```text
-654 of 654 delivered files pass; 215 of 869 not delivered yet
+722 of 722 delivered files pass; 147 of 869 not delivered yet
 ```
 
 The unchanged phase-1 assets pass their original checker: `10 of 10 pass`. Review sheets were also inspected; numeric checks do not replace visual review. Exported paths, text files and PNG metadata are checked for Chinese characters before each upload.
@@ -93,7 +93,11 @@ The front back-scabbard strap uses the same shoulder-top primitive, running from
 
 The hand plate reserves the shared hand-and-fingers gameplay slot, but its description requires a steel plate on the hand back with a strap across the palm. Art coverage now measures the mapped hand back, excluding the fingers. Palm views require the normal partial coverage for the visible strap, rather than full steel coverage over the palm and every finger. The paint and allowed masks are unchanged. Two regression tests verify these distinctions across all six hand-plate views.
 
-All eighteen geometry regression tests pass. The requested file count, order, prompts and dimensions remain unchanged, as do all acceptance thresholds.
+The mouth guard includes its required head strap between the mapped mouth, ear and rear head profile. The nose chain includes its fine sagging connection from nostril to earlobe on the visible side. On the opposite profile, where that earlobe is hidden, only the visible nostril-ring sliver is measured. Three regression tests verify these anatomical connections and exclude unrelated face and background regions.
+
+The rear codpiece view uses partial coverage because the front groin plate is hidden and only the rear fastening shows. Its original paint and allowed masks are unchanged, as is full coverage for the front view. One regression test checks the two views and preserves the placement masks exactly.
+
+All twenty-two geometry regression tests pass. The requested file count, order, prompts and dimensions remain unchanged, as do all acceptance thresholds.
 
 Reproduce validation from the repository root:
 
